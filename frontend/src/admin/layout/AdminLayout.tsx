@@ -15,6 +15,7 @@ import {
   LogOut,
   ChevronDown,
   FileText,
+  Palette,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -95,6 +96,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           title: "Marketplace Requests",
           icon: ShoppingBag,
           path: "/admin/marketplace",
+        },
+        {
+          title: "Landing Page Updates",
+          icon: Palette,
+          path: "/admin/content-update",
         },
         {
           title: "Content Management",

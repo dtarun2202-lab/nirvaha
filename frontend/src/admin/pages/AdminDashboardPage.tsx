@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -17,107 +17,120 @@ import { StatusBadge } from "@/admin/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
+type Companion = {
+  id: string;
+  name: string;
+  expertise: string;
+  rating: number;
+  status: string;
+  appliedDate: string;
+};
+
+type Booking = {
+  id: string;
+  userName: string;
+  companionName: string;
+  type: string;
+  platform: string;
+  date: string;
+  time: string;
+  status: string;
+};
+
 export function AdminDashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Mock data for previews
-  const recentCompanions = [
-    {
-      id: "1",
-      name: "Dr. Priya Sharma",
-      expertise: "Yoga & Meditation",
-      rating: 4.8,
-      status: "pending",
-      appliedDate: "2024-01-15",
-    },
-    {
-      id: "2",
-      name: "Rajesh Kumar",
-      expertise: "Sound Healing",
-      rating: 4.9,
-      status: "approved",
-      appliedDate: "2024-01-14",
-    },
-    {
-      id: "3",
-      name: "Anita Desai",
-      expertise: "Wellness Counseling",
-      rating: 4.7,
-      status: "pending",
-      appliedDate: "2024-01-13",
-    },
-  ];
+  // State for dynamic data
+  const [recentCompanions, setRecentCompanions] = useState<Companion[]>([]);
+  const [recentBookings, setRecentBookings] = useState<Booking[]>([]);
+  const [totalUsers, setTotalUsers] = useState("0");
+  const [totalBookings, setTotalBookings] = useState("0");
+  const [loading, setLoading] = useState(true);
 
-  const recentBookings = [
-    {
-      id: "BK-001",
-      userName: "Ravi Patel",
-      companionName: "Dr. Priya Sharma",
-      type: "Video",
-      platform: "Zoom",
-      date: "2024-01-20",
-      time: "10:00 AM",
-      status: "upcoming",
-    },
-    {
-      id: "BK-002",
-      userName: "Sneha Reddy",
-      companionName: "Rajesh Kumar",
-      type: "Chat",
-      platform: "WhatsApp",
-      date: "2024-01-19",
-      time: "2:00 PM",
-      status: "completed",
-    },
-    {
-      id: "BK-003",
-      userName: "Amit Kumar",
-      companionName: "Anita Desai",
-      type: "Video",
-      platform: "Google Meet",
-      date: "2024-01-18",
-      time: "4:00 PM",
-      status: "cancelled",
-    },
-  ];
+  // Fetch data from backend
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch companion applications from localStorage or backend
+        const companionJSON = localStorage.getItem("nirvaha_companion_applications");
+        const companions = companionJSON ? JSON.parse(companionJSON) : [];
+        const recent = companions.slice(0, 3);
+        setRecentCompanions(
+          recent.length > 0
+            ? recent
+            : []
+        );
+
+        // Fetch bookings from localStorage or backend
+        const bookingsJSON = localStorage.getItem("nirvaha_admin_bookings");
+        const bookings = bookingsJSON ? JSON.parse(bookingsJSON) : [];
+        const recentBooks = bookings.slice(0, 5);
+        setRecentBookings(recentBooks);
+
+        // Fetch or calculate stats
+        const usersJSON = localStorage.getItem("nirvaha_users");
+        const users = usersJSON ? JSON.parse(usersJSON) : [];
+        setTotalUsers(users.length.toString());
+        setTotalBookings(bookings.length.toString());
+      } catch (error) {
+        console.error("Failed to fetch admin dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const stats = [
     {
       title: "Total Users",
-      value: "2,543",
+      value: totalUsers,
       icon: Users,
       color: "from-emerald-500 to-teal-500",
-      change: "+12%",
+      change: "+0%",
       path: "/admin/users",
     },
     {
       title: "Active Sessions",
-      value: "483",
+      value: recentBookings.filter((b) => b.status === "upcoming").length.toString(),
       icon: Activity,
       color: "from-teal-500 to-cyan-500",
-      change: "+8%",
+      change: "+0%",
       path: "/admin/bookings",
     },
     {
       title: "Revenue",
-      value: "$45,231",
+      value: "$0",
       icon: TrendingUp,
       color: "from-cyan-500 to-blue-500",
-      change: "+23%",
+      change: "+0%",
       path: "/admin/analytics",
     },
     {
       title: "Bookings",
-      value: "1,247",
+      value: totalBookings,
       icon: BarChart3,
       color: "from-blue-500 to-indigo-500",
-      change: "+15%",
+      change: "+0%",
       path: "/admin/bookings",
     },
   ];
 
   const pendingApprovals = recentCompanions.filter((c) => c.status === "pending").length;
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="text-center py-12">
+          <p className="text-gray-600">Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -273,6 +286,27 @@ export function AdminDashboardPage() {
           </div>
         </Card>
       </div>
+
+      {/* Landing Page Updates Section */}
+      <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-300 shadow-md">
+        <div className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-black mb-2">Landing Page Updates</h2>
+              <p className="text-gray-700 text-sm">
+                Easily update images and information for "What is Nirvaha" and "Explore Our Learning" sections
+              </p>
+            </div>
+            <Button
+              onClick={() => navigate("/admin/content-update")}
+              className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white"
+            >
+              Manage Content
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }

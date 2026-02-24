@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import DecorativeShapes from './DecorativeShapes';
 
-const goals = [
+const defaultGoals = [
     {
         id: 1,
         title: "INNER PEACE",
@@ -44,8 +44,22 @@ const goals = [
 export function AncientWisdomSection() {
     const cardWidth = 340; // Slightly larger for better visuals
     const gap = 16; // Tighter gap for better visual flow
-    const [currentIndex, setCurrentIndex] = useState(goals.length); // Start in middle set
+    const [goals, setGoals] = useState(defaultGoals);
+    const [currentIndex, setCurrentIndex] = useState(defaultGoals.length); // Start in middle set
     const [isTransitioning, setIsTransitioning] = useState(false);
+
+    // Load goals from localStorage
+    useEffect(() => {
+        const savedGoals = localStorage.getItem("nirvaha_goals");
+        if (savedGoals) {
+            try {
+                setGoals(JSON.parse(savedGoals));
+                setCurrentIndex(JSON.parse(savedGoals).length);
+            } catch (e) {
+                console.error("Failed to load goals from localStorage", e);
+            }
+        }
+    }, []);
 
     // Create triple buffer for infinite loop illusion
     const extendedGoals = [...goals, ...goals, ...goals];

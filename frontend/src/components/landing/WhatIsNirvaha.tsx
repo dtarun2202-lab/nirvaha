@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 
-const pillars = [
+const defaultPillars = [
     {
         id: "01",
         title: "Systemic Diagnostics",
@@ -38,6 +38,20 @@ const pillars = [
 const WhatIsNirvaha: React.FC = () => {
     // Initialize as null so nothing is open by default
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
+    const [pillars, setPillars] = useState(defaultPillars);
+
+    // Load pillars from localStorage
+    useEffect(() => {
+        const savedPillars = localStorage.getItem("nirvaha_pillars");
+        if (savedPillars) {
+            try {
+                setPillars(JSON.parse(savedPillars));
+            } catch (e) {
+                console.error("Failed to load pillars from localStorage", e);
+                setPillars(defaultPillars);
+            }
+        }
+    }, []);
 
     return (
         <section className="relative w-full py-16 lg:py-24 bg-white overflow-hidden">

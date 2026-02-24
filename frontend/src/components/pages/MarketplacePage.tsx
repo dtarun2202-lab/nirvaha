@@ -15,8 +15,61 @@ import {
   CalendarRange,
   Plus,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import io from "socket.io-client";
 import AddItemModal from "../marketplace/AddItemModal";
+
+type MarketplaceItem = {
+  id: string;
+  requestId: string;
+  type: "session" | "retreat" | "product";
+  status: "active" | "completed";
+  data: any;
+};
+
+type SessionCard = {
+  id?: string;
+  approvedId?: string;
+  title: string;
+  host: string;
+  schedule: string;
+  duration: string;
+  attendees: string;
+  rating: number;
+  price: string;
+  image: string;
+  color: string;
+  topics: string[];
+};
+
+type RetreatCard = {
+  id?: string;
+  approvedId?: string;
+  title: string;
+  guide: string;
+  location: string;
+  dates: string;
+  capacity: string;
+  rating: number;
+  price: string;
+  image: string;
+  color: string;
+  highlights: string[];
+};
+
+type ProductCard = {
+  id?: string;
+  approvedId?: string;
+  name: string;
+  description: string;
+  price: string;
+  rating: number;
+  reviews: number;
+  image: string;
+  category: string;
+  color: string;
+  inStock: boolean;
+};
 
 export function MarketplacePage() {
   const [activeTab, setActiveTab] =
@@ -25,225 +78,134 @@ export function MarketplacePage() {
   const [selectedAddType, setSelectedAddType] = useState<
     "session" | "retreat" | "product"
   >("session");
+  const [approvedItems, setApprovedItems] = useState<MarketplaceItem[]>([]);
 
-  const sessions = [
-    {
-      title: "Live Breathwork Reset",
-      host: "Dr. Anjali Sharma",
-      schedule: "Tue · 7:00 PM GMT",
-      duration: "90 min live",
-      attendees: "520 joined",
-      rating: 4.9,
-      price: "$39",
-      image: "https://images.unsplash.com/photo-1676747484510-755c231ae83e?w=600",
-      color: "from-emerald-400 to-teal-500",
-      topics: ["Zoom", "Guided", "Recording included"],
-    },
-    {
-      title: "Chakra Alignment Studio",
-      host: "Master Li Wei",
-      schedule: "Thu · 5:30 PM PST",
-      duration: "75 min interactive",
-      attendees: "410 joined",
-      rating: 5.0,
-      price: "$49",
-      image: "https://images.unsplash.com/photo-1593811167562-9cef47bfc4d7?w=600",
-      color: "from-purple-400 to-indigo-500",
-      topics: ["Breakout rooms", "Energy scan", "Worksheets"],
-    },
-    {
-      title: "Sound Bath for Sleep",
-      host: "Elena Costa",
-      schedule: "Sat · 9:00 PM CET",
-      duration: "60 min stream",
-      attendees: "1,102 joined",
-      rating: 4.8,
-      price: "$29",
-      image: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=600",
-      color: "from-cyan-400 to-blue-500",
-      topics: ["Binaural", "Restorative", "Replay access"],
-    },
-    {
-      title: "Pranayama Pulse",
-      host: "Yogi Ravi Kumar",
-      schedule: "Daily · 6:30 AM IST",
-      duration: "30 min live",
-      attendees: "3,102 joined",
-      rating: 4.9,
-      price: "$19",
-      image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600",
-      color: "from-orange-400 to-red-500",
-      topics: ["Morning reset", "Live Q&A", "Recordings"],
-    },
-    {
-      title: "Mudra Micro-Practice Lab",
-      host: "Sarah Mitchell",
-      schedule: "Fri · 11:00 AM EST",
-      duration: "45 min live",
-      attendees: "2,567 joined",
-      rating: 4.7,
-      price: "$24",
-      image: "https://images.unsplash.com/photo-1545389336-cf090694435e?w=600",
-      color: "from-lime-400 to-emerald-500",
-      topics: ["Camera on", "Feedback", "PDF guide"],
-    },
-    {
-      title: "Soul Journey Circles",
-      host: "Alex Rivera",
-      schedule: "Sun · 4:00 PM GMT",
-      duration: "2 hr live",
-      attendees: "4,521 joined",
-      rating: 5.0,
-      price: "$59",
-      image: "https://images.unsplash.com/photo-1447452001602-7090c7ab2db3?w=600",
-      color: "from-pink-400 to-rose-500",
-      topics: ["Breakout sharing", "Guided journaling", "Replay"],
-    },
-  ];
+  const DEFAULT_SESSION_IMAGE =
+    "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=600";
+  const DEFAULT_RETREAT_IMAGE =
+    "https://images.unsplash.com/photo-1523419400524-33de15b45d5b?w=600";
+  const DEFAULT_PRODUCT_IMAGE =
+    "https://images.unsplash.com/photo-1663899940872-6dba376bbfdb?w=600";
 
-  const retreats = [
-    {
-      title: "Himalayan Silent Retreat",
-      guide: "Swami Ravi",
-      location: "Rishikesh, India",
-      dates: "Mar 12 - Mar 18, 2026",
-      capacity: "40 seats",
-      rating: 5.0,
-      price: "$1,299",
-      image: "https://images.unsplash.com/photo-1523419400524-33de15b45d5b?w=600",
-      color: "from-amber-400 to-orange-500",
-      highlights: ["Lodging", "Plant-based meals", "Ganga aarti"],
-    },
-    {
-      title: "Desert Breathwork Camp",
-      guide: "Nadia El Ameen",
-      location: "Sahara, Morocco",
-      dates: "Apr 4 - Apr 9, 2026",
-      capacity: "28 seats",
-      rating: 4.9,
-      price: "$1,599",
-      image: "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?w=600",
-      color: "from-orange-500 to-red-500",
-      highlights: ["Sunset circles", "Camel trek", "Star bathing"],
-    },
-    {
-      title: "Forest Detox & Yoga",
-      guide: "Elena Costa",
-      location: "Ubud, Bali",
-      dates: "May 16 - May 21, 2026",
-      capacity: "32 seats",
-      rating: 4.8,
-      price: "$1,899",
-      image: "https://images.unsplash.com/photo-1496318447583-f524534e9ce1?w=600",
-      color: "from-emerald-400 to-teal-500",
-      highlights: ["Eco villas", "Sound baths", "Waterfall hike"],
-    },
-    {
-      title: "Sacred Clay & Breath",
-      guide: "Diego Martínez",
-      location: "Oaxaca, Mexico",
-      dates: "Jun 6 - Jun 10, 2026",
-      capacity: "24 seats",
-      rating: 4.9,
-      price: "$1,249",
-      image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600",
-      color: "from-lime-400 to-green-500",
-      highlights: ["Ceramic lab", "Temazcal", "Farm-to-table"],
-    },
-    {
-      title: "Nordic Cold Plunge Reset",
-      guide: "Freya Lund",
-      location: "Lofoten, Norway",
-      dates: "Jul 2 - Jul 6, 2026",
-      capacity: "18 seats",
-      rating: 5.0,
-      price: "$2,099",
-      image: "https://images.unsplash.com/photo-1482192596544-9eb780fc7f66?w=600",
-      color: "from-cyan-400 to-blue-500",
-      highlights: ["Fjords", "Cold immersion", "Sauna rituals"],
-    },
-    {
-      title: "Mediterranean Mindful Sailing",
-      guide: "Sara Leone",
-      location: "Amalfi Coast, Italy",
-      dates: "Sep 9 - Sep 14, 2026",
-      capacity: "22 seats",
-      rating: 4.8,
-      price: "$2,499",
-      image: "https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=600",
-      color: "from-purple-400 to-rose-500",
-      highlights: ["Yacht stay", "Meditation decks", "Chef onboard"],
-    },
-  ];
+  const loadApprovedItems = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/marketplace/items?status=active",
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch marketplace items");
+      }
+      const data = await response.json();
+      setApprovedItems(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Failed to load marketplace items:", error);
+      setApprovedItems([]);
+    }
+  };
 
-  const products = [
-    {
-      name: "Crystal Healing Set",
-      description: "Premium collection of 7 chakra-aligned crystals",
-      price: "$89",
-      rating: 4.9,
-      reviews: 342,
-      image: "https://images.unsplash.com/photo-1663899940872-6dba376bbfdb?w=600",
-      category: "Crystals",
-      color: "from-purple-400 to-pink-500",
-      inStock: true,
-    },
-    {
-      name: "Tibetan Singing Bowl",
-      description: "Hand-crafted meditation bowl with mallet",
-      price: "$149",
+  const handleCompleteItem = async (itemId: string) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/marketplace/items/${itemId}/complete`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ completedBy: "admin" }),
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to complete item");
+      }
+      setApprovedItems((prev) => prev.filter((item) => item.id !== itemId));
+    } catch (error) {
+      console.error("Failed to complete marketplace item:", error);
+      alert("Failed to mark as completed. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    loadApprovedItems();
+
+    const socket = io("http://localhost:5000");
+    socket.on("marketplace-item-created", loadApprovedItems);
+    socket.on("marketplace-item-completed", loadApprovedItems);
+
+    const handleFocus = () => loadApprovedItems();
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("pageshow", handleFocus);
+
+    return () => {
+      socket.disconnect();
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("pageshow", handleFocus);
+    };
+  }, []);
+
+  const sessions: SessionCard[] = [];
+
+  const retreats: RetreatCard[] = [];
+
+  const products: ProductCard[] = [];
+
+  const approvedSessions: SessionCard[] = approvedItems
+    .filter((item) => item.type === "session")
+    .map((item) => ({
+      id: item.id,
+      approvedId: item.id,
+      title: item.data?.title || "Untitled Session",
+      host: item.data?.host || "Host",
+      schedule: `${item.data?.startDate || "TBD"} ${item.data?.startTime || ""} ${item.data?.timeZone || ""}`.trim(),
+      duration: item.data?.duration ? `${item.data.duration} min` : "TBD",
+      attendees: "New",
       rating: 5.0,
-      reviews: 218,
-      image: "https://images.unsplash.com/photo-1545389336-cf090694435e?w=600",
-      category: "Sound Healing",
-      color: "from-orange-400 to-red-500",
-      inStock: true,
-    },
-    {
-      name: "Meditation Cushion Set",
-      description: "Organic cotton zafu and zabuton combo",
-      price: "$79",
-      rating: 4.8,
-      reviews: 567,
-      image: "https://images.unsplash.com/photo-1545389336-cf090694435e?w=600",
-      category: "Meditation",
+      price: item.data?.isPaid ? `₹${item.data?.price || ""}` : "Free",
+      image: item.data?.image || DEFAULT_SESSION_IMAGE,
       color: "from-emerald-400 to-teal-500",
-      inStock: true,
-    },
-    {
-      name: "Sacred Incense Collection",
-      description: "Natural aromatic incense sticks - 12 varieties",
-      price: "$39",
-      rating: 4.7,
-      reviews: 891,
-      image: "https://images.unsplash.com/photo-1610294645949-149e5a5ff15d?w=600",
-      category: "Aromatherapy",
-      color: "from-cyan-400 to-blue-500",
-      inStock: true,
-    },
-    {
-      name: "Mala Bead Necklace",
-      description: "108 sandalwood beads for meditation practice",
-      price: "$59",
-      rating: 4.9,
-      reviews: 423,
-      image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600",
-      category: "Spiritual Tools",
-      color: "from-amber-400 to-orange-500",
-      inStock: true,
-    },
-    {
-      name: "Essential Oil Diffuser",
-      description: "Ultrasonic aromatherapy diffuser with LED",
-      price: "$69",
-      rating: 4.6,
-      reviews: 734,
-      image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600",
-      category: "Aromatherapy",
-      color: "from-lime-400 to-emerald-500",
-      inStock: true,
-    },
-  ];
+      topics: [item.data?.platform, item.data?.timeZone].filter(Boolean),
+    }));
+
+  const approvedRetreats: RetreatCard[] = approvedItems
+    .filter((item) => item.type === "retreat")
+    .map((item) => ({
+      id: item.id,
+      approvedId: item.id,
+      title: item.data?.title || "Untitled Retreat",
+      guide: item.data?.facilitator || "Facilitator",
+      location: item.data?.location || "Location TBD",
+      dates: `${item.data?.startDate || "TBD"} - ${item.data?.endDate || "TBD"}`,
+      capacity: item.data?.capacity || "Capacity TBD",
+      rating: 5.0,
+      price: item.data?.isPaid ? `₹${item.data?.price || ""}` : "Free",
+      image: DEFAULT_RETREAT_IMAGE,
+      color: "from-emerald-400 to-teal-500",
+      highlights: [item.data?.accommodation, item.data?.pricingTier].filter(Boolean),
+    }));
+
+  const approvedProducts: ProductCard[] = approvedItems
+    .filter((item) => item.type === "product")
+    .map((item) => {
+      const images = typeof item.data?.images === "string"
+        ? item.data.images.split(",").map((img: string) => img.trim())
+        : [];
+      const image = images[0] || DEFAULT_PRODUCT_IMAGE;
+      return {
+        id: item.id,
+        approvedId: item.id,
+        name: item.data?.name || "Untitled Product",
+        description: item.data?.description || "",
+        price: item.data?.price ? `₹${item.data?.price}` : "Free",
+        rating: 5.0,
+        reviews: 0,
+        image,
+        category: item.data?.category || "Other",
+        color: "from-emerald-400 to-teal-500",
+        inStock: item.data?.stockAvailability !== "Out of Stock",
+      };
+    });
+
+  const sessionCards = approvedSessions;
+  const retreatCards = approvedRetreats;
+  const productCards = approvedProducts;
 
   return (
     <div className="min-h-screen pt-24 pb-16 bg-gradient-to-br from-[#fdfcfb] via-[#f8f7f4] to-[#f5f4f1] text-slate-900">
@@ -354,7 +316,7 @@ export function MarketplacePage() {
         {/* Sessions Grid */}
         {activeTab === "sessions" && (
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {sessions.map((session, i) => (
+            {sessionCards.map((session, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 30 }}
@@ -437,13 +399,24 @@ export function MarketplacePage() {
                           {session.price}
                         </div>
                       </div>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-2xl shadow-lg"
-                      >
-                        Join Live
-                      </motion.button>
+                      {session.approvedId ? (
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleCompleteItem(session.approvedId || "")}
+                          className="px-6 py-3 bg-gradient-to-r from-rose-500 to-orange-500 text-white rounded-2xl shadow-lg"
+                        >
+                          Mark Completed
+                        </motion.button>
+                      ) : (
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-2xl shadow-lg"
+                        >
+                          Join Live
+                        </motion.button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -455,7 +428,7 @@ export function MarketplacePage() {
         {/* Retreats Grid */}
         {activeTab === "retreats" && (
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {retreats.map((retreat, i) => (
+            {retreatCards.map((retreat, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 30 }}
@@ -536,13 +509,24 @@ export function MarketplacePage() {
                       <div>
                         <div className="text-2xl text-teal-800">{retreat.price}</div>
                       </div>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-2xl shadow-lg"
-                      >
-                        Request Spot
-                      </motion.button>
+                      {retreat.approvedId ? (
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleCompleteItem(retreat.approvedId || "")}
+                          className="px-6 py-3 bg-gradient-to-r from-rose-500 to-orange-500 text-white rounded-2xl shadow-lg"
+                        >
+                          Mark Completed
+                        </motion.button>
+                      ) : (
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-2xl shadow-lg"
+                        >
+                          Request Spot
+                        </motion.button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -554,7 +538,7 @@ export function MarketplacePage() {
         {/* Products Grid */}
         {activeTab === "products" && (
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {products.map((product, i) => (
+            {productCards.map((product, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 30 }}
@@ -631,13 +615,24 @@ export function MarketplacePage() {
                           {product.price}
                         </div>
                       </div>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-2xl shadow-lg"
-                      >
-                        Book Now
-                      </motion.button>
+                      {product.approvedId ? (
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleCompleteItem(product.approvedId || "")}
+                          className="px-6 py-3 bg-gradient-to-r from-rose-500 to-orange-500 text-white rounded-2xl shadow-lg"
+                        >
+                          Mark Completed
+                        </motion.button>
+                      ) : (
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-2xl shadow-lg"
+                        >
+                          Book Now
+                        </motion.button>
+                      )}
                     </div>
                   </div>
                 </div>

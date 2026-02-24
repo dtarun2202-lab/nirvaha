@@ -71,20 +71,69 @@ const upload = multer({
   },
 });
 
-if (!MONGODB_URI) {
-  console.error("Missing MONGODB_URI in environment.");
-  process.exit(1);
+const USE_LOCAL_DB = process.env.USE_LOCAL_DB === "true" || !MONGODB_URI;
+let mongoConnected = false;
+
+// In-memory database for development (when MongoDB is unavailable)
+const localDB = {
+  users: [],
+  meditations: [],
+  sounds: [],
+  marketplaceRequests: [],
+  marketplaceItems: [],
+};
+
+// Initialize local admin user for development
+async function initLocalAdminUser() {
+  const adminEmail = "admin@nirvaha.com";
+  const adminExists = localDB.users.find((u) => u.email === adminEmail);
+
+  if (!adminExists) {
+    const adminPassword = "N1rv@h@Adm!n#2025@Secure";
+    const hashedPassword = await bcrypt.hash(adminPassword, 12);
+
+    localDB.users.push({
+      id: uuidv4(),
+      name: "Nirvaha Administrator",
+      email: adminEmail,
+      password: hashedPassword,
+      role: "admin",
+      profile: {
+        mobile: "+1-ADMIN-001",
+        age: "",
+        gender: "Not Specified",
+        address: "Nirvaha Headquarters",
+        education: "Administrator",
+        healthCondition: "Not Applicable",
+      },
+    });
+
+    console.log("✓ Local admin user initialized for development");
+  }
 }
 
 async function connectMongo() {
+  if (!MONGODB_URI) {
+    console.warn(
+      "⚠️  MONGODB_URI not set. Using local JSON database for development.",
+    );
+    console.warn(
+      "⚠️  To use MongoDB, add your IP (106.214.2.149) to MongoDB Atlas IP whitelist.",
+    );
+    mongoConnected = false;
+    return;
+  }
+
   try {
     await mongoose.connect(MONGODB_URI, {
       autoIndex: true,
     });
-    console.log("Connected to MongoDB Atlas");
+    console.log("✓ Connected to MongoDB Atlas");
+    mongoConnected = true;
   } catch (error) {
-    console.error("MongoDB connection error:", error);
-    process.exit(1);
+    console.error("MongoDB connection error:", error.message);
+    console.warn("⚠️  Falling back to local JSON database for development...");
+    mongoConnected = false;
   }
 }
 
@@ -197,6 +246,31 @@ const MarketplaceRequest = mongoose.model(
   marketplaceRequestSchema,
 );
 
+// Marketplace Item Schema (approved items shown in user marketplace)
+const marketplaceItemSchema = new mongoose.Schema(
+  {
+    id: { type: String, default: uuidv4, unique: true, index: true },
+    requestId: { type: String, required: true, index: true },
+    type: {
+      type: String,
+      enum: ["session", "retreat", "product"],
+      required: true,
+    },
+    status: { type: String, enum: ["active", "completed"], default: "active" },
+    data: { type: mongoose.Schema.Types.Mixed, required: true },
+    approvedAt: { type: Date, default: null },
+    approvedBy: { type: String, default: null },
+    completedAt: { type: Date, default: null },
+    completedBy: { type: String, default: null },
+  },
+  { timestamps: true },
+);
+
+const MarketplaceItem = mongoose.model(
+  "MarketplaceItem",
+  marketplaceItemSchema,
+);
+
 // User Schema for Authentication
 const userSchema = new mongoose.Schema(
   {
@@ -220,6 +294,12 @@ const userSchema = new mongoose.Schema(
 const User = mongoose.model("User", userSchema);
 
 async function seedMongo() {
+  // Skip seeding if MongoDB not connected
+  if (!mongoConnected) {
+    console.log("⏭️  Skipping MongoDB seed (using local database)");
+    return;
+  }
+
   // Seed default admin user
   const adminEmail = "admin@nirvaha.com";
   const adminExists = await User.findOne({ email: adminEmail });
@@ -258,70 +338,10 @@ async function seedMongo() {
   }
 
   const meditationCount = await Meditation.countDocuments();
-  if (meditationCount === 0) {
-    await Meditation.insertMany([
-      {
-        title: "Morning Mindfulness",
-        duration: 15,
-        level: "Beginner",
-        category: "Mindfulness",
-        description: "Start your day with clarity and peace.",
-        status: "Active",
-      },
-      {
-        title: "Deep Sleep Meditation",
-        duration: 30,
-        level: "Intermediate",
-        category: "Sleep",
-        description: "Relax and prepare for restful sleep.",
-        status: "Active",
-      },
-      {
-        title: "Stress Relief Session",
-        duration: 20,
-        level: "Beginner",
-        category: "Stress",
-        description: "Release tension and find inner calm.",
-        status: "Draft",
-      },
-    ]);
-  }
+  // Sample meditation data removed - admin panel starts empty
 
   const soundCount = await Sound.countDocuments();
-  if (soundCount === 0) {
-    await Sound.insertMany([
-      {
-        title: "Tibetan Singing Bowls",
-        artist: "Sacred Sounds Collective",
-        frequency: "432 Hz",
-        duration: 15,
-        category: "Bowl Therapy",
-        description: "Ancient healing vibrations from the Himalayas.",
-        status: "Active",
-        mood: ["Calm", "Healing", "Relaxation"],
-      },
-      {
-        title: "Ocean Waves & Rain",
-        artist: "Nature Symphony",
-        frequency: "528 Hz",
-        duration: 20,
-        category: "Nature Sounds",
-        description: "Soothing symphony of ocean waves and gentle rainfall.",
-        status: "Active",
-        mood: ["Peaceful", "Natural", "Meditative"],
-      },
-      {
-        title: "Theta Binaural Beats",
-        artist: "NeuroSound Lab",
-        frequency: "639 Hz",
-        duration: 30,
-        category: "Binaural",
-        description: "Frequencies for deep meditation and clarity.",
-        status: "Active",
-        mood: ["Focus", "Calm"],
-      },
-    ]);
-  }
+  // Sample sound data removed - admin panel starts empty
 }
 
 // Socket.IO connection handling
@@ -447,16 +467,32 @@ app.post("/api/auth/login", async (req, res) => {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
-    // Find user
-    const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
+    let user;
 
-    // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: "Invalid email or password" });
+    // Use local database if MongoDB not available
+    if (!mongoConnected) {
+      user = localDB.users.find((u) => u.email === email.toLowerCase());
+      if (!user) {
+        return res.status(401).json({ error: "Invalid email or password" });
+      }
+
+      // Verify password
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: "Invalid email or password" });
+      }
+    } else {
+      // Use MongoDB database
+      user = await User.findOne({ email: email.toLowerCase() });
+      if (!user) {
+        return res.status(401).json({ error: "Invalid email or password" });
+      }
+
+      // Verify password
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: "Invalid email or password" });
+      }
     }
 
     // Generate JWT token
@@ -793,23 +829,32 @@ app.get("/api/companions", async (req, res) => {
 });
 
 app.get("/api/meditations", async (req, res) => {
-  const meditations = await Meditation.find().sort({ createdAt: -1 }).lean();
-  res.json(
-    meditations.map((item) => ({
-      id: item.id,
-      title: item.title,
-      duration: item.duration,
-      level: item.level || "",
-      category: item.category || "",
-      description: item.description || "",
-      status: item.status || "Draft",
-      thumbnailUrl: item.thumbnailUrl || "",
-      bannerUrl: item.bannerUrl || "",
-      audioUrl: item.audioUrl || "",
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-    })),
-  );
+  try {
+    if (!mongoConnected) {
+      // Return local database meditations
+      return res.json(localDB.meditations || []);
+    }
+
+    const meditations = await Meditation.find().sort({ createdAt: -1 }).lean();
+    res.json(
+      meditations.map((item) => ({
+        id: item.id,
+        title: item.title,
+        duration: item.duration,
+        level: item.level || "",
+        category: item.category || "",
+        description: item.description || "",
+        status: item.status || "Draft",
+        thumbnailUrl: item.thumbnailUrl || "",
+        bannerUrl: item.bannerUrl || "",
+        audioUrl: item.audioUrl || "",
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+      })),
+    );
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.post("/api/meditations", async (req, res) => {
@@ -917,25 +962,34 @@ app.delete("/api/meditations/:id", async (req, res) => {
 });
 
 app.get("/api/sounds", async (req, res) => {
-  const sounds = await Sound.find().sort({ createdAt: -1 }).lean();
-  res.json(
-    sounds.map((item) => ({
-      id: item.id,
-      title: item.title,
-      artist: item.artist || "",
-      frequency: item.frequency || "",
-      duration: item.duration,
-      category: item.category || "",
-      description: item.description || "",
-      status: item.status || "Draft",
-      thumbnailUrl: item.thumbnailUrl || "",
-      bannerUrl: item.bannerUrl || "",
-      audioUrl: item.audioUrl || "",
-      mood: Array.isArray(item.mood) ? item.mood : [],
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-    })),
-  );
+  try {
+    if (!mongoConnected) {
+      // Return local database sounds
+      return res.json(localDB.sounds || []);
+    }
+
+    const sounds = await Sound.find().sort({ createdAt: -1 }).lean();
+    res.json(
+      sounds.map((item) => ({
+        id: item.id,
+        title: item.title,
+        artist: item.artist || "",
+        frequency: item.frequency || "",
+        duration: item.duration,
+        category: item.category || "",
+        description: item.description || "",
+        status: item.status || "Draft",
+        thumbnailUrl: item.thumbnailUrl || "",
+        bannerUrl: item.bannerUrl || "",
+        audioUrl: item.audioUrl || "",
+        mood: Array.isArray(item.mood) ? item.mood : [],
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+      })),
+    );
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.post("/api/sounds", async (req, res) => {
@@ -1052,6 +1106,31 @@ app.delete("/api/sounds/:id", async (req, res) => {
     return res.status(404).json({ error: "sound not found" });
   }
   res.json({ ok: true });
+});
+
+// Admin endpoint to clear all data (for development)
+app.post("/api/admin/clear-data", async (req, res) => {
+  try {
+    if (!mongoConnected) {
+      // Clear local database
+      localDB.meditations = [];
+      localDB.sounds = [];
+      console.log("✓ Local database cleared");
+      return res.json({
+        message: "All data cleared successfully",
+        dataCleared: true,
+      });
+    }
+
+    // Clear MongoDB collections
+    await Meditation.deleteMany({});
+    await Sound.deleteMany({});
+    console.log("✓ MongoDB collections cleared");
+
+    res.json({ message: "All data cleared successfully", dataCleared: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // ========== CONTENT MANAGEMENT API ==========
@@ -1195,8 +1274,15 @@ app.delete("/api/content/:key", async (req, res) => {
 // GET all marketplace requests (admin only)
 app.get("/api/marketplace/requests", async (req, res) => {
   try {
+    if (!mongoConnected) {
+      const sorted = [...localDB.marketplaceRequests].sort(
+        (a, b) => (b.createdAt || 0) - (a.createdAt || 0),
+      );
+      return res.json(sorted);
+    }
+
     const requests = await MarketplaceRequest.find().sort({ createdAt: -1 });
-    res.json(requests);
+    return res.json(requests);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -1205,11 +1291,21 @@ app.get("/api/marketplace/requests", async (req, res) => {
 // GET single marketplace request
 app.get("/api/marketplace/requests/:id", async (req, res) => {
   try {
+    if (!mongoConnected) {
+      const request = localDB.marketplaceRequests.find(
+        (item) => item.id === req.params.id,
+      );
+      if (!request) {
+        return res.status(404).json({ error: "Request not found" });
+      }
+      return res.json(request);
+    }
+
     const request = await MarketplaceRequest.findOne({ id: req.params.id });
     if (!request) {
       return res.status(404).json({ error: "Request not found" });
     }
-    res.json(request);
+    return res.json(request);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -1222,6 +1318,24 @@ app.post("/api/marketplace/requests", async (req, res) => {
 
     if (!type || !data) {
       return res.status(400).json({ error: "Type and data are required" });
+    }
+
+    if (!mongoConnected) {
+      const request = {
+        id: uuidv4(),
+        type,
+        data,
+        status: "pending",
+        userId: req.body.userId || "",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+      localDB.marketplaceRequests.unshift(request);
+
+      const io = req.app.get("io");
+      io.emit("marketplace-new-request", request);
+
+      return res.status(201).json(request);
     }
 
     const request = new MarketplaceRequest({
@@ -1237,7 +1351,7 @@ app.post("/api/marketplace/requests", async (req, res) => {
     const io = req.app.get("io");
     io.emit("marketplace-new-request", request);
 
-    res.status(201).json(request);
+    return res.status(201).json(request);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -1246,6 +1360,54 @@ app.post("/api/marketplace/requests", async (req, res) => {
 // PUT approve marketplace request (admin only)
 app.put("/api/marketplace/requests/:id/approve", async (req, res) => {
   try {
+    if (!mongoConnected) {
+      const requestIndex = localDB.marketplaceRequests.findIndex(
+        (item) => item.id === req.params.id,
+      );
+      if (requestIndex === -1) {
+        return res.status(404).json({ error: "Request not found" });
+      }
+
+      const approvedAt = new Date();
+      const approvedBy = req.body.approvedBy || "admin";
+
+      localDB.marketplaceRequests[requestIndex] = {
+        ...localDB.marketplaceRequests[requestIndex],
+        status: "approved",
+        approvedAt,
+        approvedBy,
+        updatedAt: Date.now(),
+      };
+
+      const existingItem = localDB.marketplaceItems.find(
+        (item) => item.requestId === req.params.id,
+      );
+
+      if (!existingItem) {
+        const item = {
+          id: uuidv4(),
+          requestId: req.params.id,
+          type: localDB.marketplaceRequests[requestIndex].type,
+          status: "active",
+          data: localDB.marketplaceRequests[requestIndex].data,
+          approvedAt,
+          approvedBy,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+        localDB.marketplaceItems.unshift(item);
+      }
+
+      const io = req.app.get("io");
+      io.emit(
+        "marketplace-request-approved",
+        localDB.marketplaceRequests[requestIndex],
+      );
+      io.emit("marketplace-item-created", { requestId: req.params.id });
+
+      return res.json(localDB.marketplaceRequests[requestIndex]);
+    }
+
     const request = await MarketplaceRequest.findOneAndUpdate(
       { id: req.params.id },
       {
@@ -1260,11 +1422,27 @@ app.put("/api/marketplace/requests/:id/approve", async (req, res) => {
       return res.status(404).json({ error: "Request not found" });
     }
 
+    const existingItem = await MarketplaceItem.findOne({
+      requestId: request.id,
+    });
+    if (!existingItem) {
+      const item = new MarketplaceItem({
+        requestId: request.id,
+        type: request.type,
+        status: "active",
+        data: request.data,
+        approvedAt: request.approvedAt || new Date(),
+        approvedBy: request.approvedBy || "admin",
+      });
+      await item.save();
+    }
+
     // Emit real-time update
     const io = req.app.get("io");
     io.emit("marketplace-request-approved", request);
+    io.emit("marketplace-item-created", { requestId: request.id });
 
-    res.json(request);
+    return res.json(request);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -1273,6 +1451,22 @@ app.put("/api/marketplace/requests/:id/approve", async (req, res) => {
 // DELETE marketplace request
 app.delete("/api/marketplace/requests/:id", async (req, res) => {
   try {
+    if (!mongoConnected) {
+      const requestIndex = localDB.marketplaceRequests.findIndex(
+        (item) => item.id === req.params.id,
+      );
+      if (requestIndex === -1) {
+        return res.status(404).json({ error: "Request not found" });
+      }
+
+      localDB.marketplaceRequests.splice(requestIndex, 1);
+
+      const io = req.app.get("io");
+      io.emit("marketplace-request-deleted", { id: req.params.id });
+
+      return res.json({ message: "Request deleted successfully" });
+    }
+
     const request = await MarketplaceRequest.findOneAndDelete({
       id: req.params.id,
     });
@@ -1285,7 +1479,76 @@ app.delete("/api/marketplace/requests/:id", async (req, res) => {
     const io = req.app.get("io");
     io.emit("marketplace-request-deleted", { id: req.params.id });
 
-    res.json({ message: "Request deleted successfully" });
+    return res.json({ message: "Request deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET approved marketplace items for user dashboard
+app.get("/api/marketplace/items", async (req, res) => {
+  try {
+    const status = req.query.status || "active";
+
+    if (!mongoConnected) {
+      const items = localDB.marketplaceItems.filter(
+        (item) => item.status === status,
+      );
+      return res.json(items);
+    }
+
+    const items = await MarketplaceItem.find({ status }).sort({
+      createdAt: -1,
+    });
+    return res.json(items);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PUT complete marketplace item (removes from user dashboard)
+app.put("/api/marketplace/items/:id/complete", async (req, res) => {
+  try {
+    if (!mongoConnected) {
+      const itemIndex = localDB.marketplaceItems.findIndex(
+        (item) => item.id === req.params.id,
+      );
+      if (itemIndex === -1) {
+        return res.status(404).json({ error: "Item not found" });
+      }
+
+      localDB.marketplaceItems[itemIndex] = {
+        ...localDB.marketplaceItems[itemIndex],
+        status: "completed",
+        completedAt: new Date(),
+        completedBy: req.body.completedBy || "admin",
+        updatedAt: Date.now(),
+      };
+
+      const io = req.app.get("io");
+      io.emit("marketplace-item-completed", { id: req.params.id });
+
+      return res.json(localDB.marketplaceItems[itemIndex]);
+    }
+
+    const item = await MarketplaceItem.findOneAndUpdate(
+      { id: req.params.id },
+      {
+        status: "completed",
+        completedAt: new Date(),
+        completedBy: req.body.completedBy || "admin",
+      },
+      { new: true },
+    );
+
+    if (!item) {
+      return res.status(404).json({ error: "Item not found" });
+    }
+
+    const io = req.app.get("io");
+    io.emit("marketplace-item-completed", { id: req.params.id });
+
+    return res.json(item);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -1293,11 +1556,17 @@ app.delete("/api/marketplace/requests/:id", async (req, res) => {
 
 async function startServer() {
   await connectMongo();
+  await initLocalAdminUser();
   await seedMongo();
 
   server.listen(PORT, () => {
     console.log(`Nirvaha backend running on port ${PORT}`);
     console.log(`Socket.IO enabled`);
+    if (!mongoConnected) {
+      console.log("\n⚠️  DEVELOPMENT MODE: Using local in-memory database");
+      console.log("📧 Admin Login: admin@nirvaha.com");
+      console.log("🔐 Password: N1rv@h@Adm!n#2025@Secure\n");
+    }
   });
 }
 

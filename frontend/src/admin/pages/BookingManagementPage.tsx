@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -49,106 +49,38 @@ interface Booking {
   createdAt: string;
 }
 
-const INITIAL_BOOKINGS: Booking[] = [
-    {
-      id: "BK-001",
-      userId: "U-001",
-      userName: "Ravi Patel",
-      userEmail: "ravi@example.com",
-      companionId: "C-001",
-      companionName: "Dr. Priya Sharma",
-      companionEmail: "priya@example.com",
-      type: "Video",
-      platform: "Zoom",
-      date: "2024-01-20",
-      time: "10:00 AM",
-      duration: 60,
-      status: "upcoming",
-      price: 1000,
-      createdAt: "2024-01-15",
-    },
-    {
-      id: "BK-002",
-      userId: "U-002",
-      userName: "Sneha Reddy",
-      userEmail: "sneha@example.com",
-      companionId: "C-002",
-      companionName: "Rajesh Kumar",
-      companionEmail: "rajesh@example.com",
-      type: "Chat",
-      platform: "WhatsApp",
-      date: "2024-01-19",
-      time: "2:00 PM",
-      duration: 30,
-      status: "completed",
-      price: 300,
-      createdAt: "2024-01-12",
-    },
-    {
-      id: "BK-003",
-      userId: "U-003",
-      userName: "Amit Kumar",
-      userEmail: "amit@example.com",
-      companionId: "C-003",
-      companionName: "Anita Desai",
-      companionEmail: "anita@example.com",
-      type: "Video",
-      platform: "Google Meet",
-      date: "2024-01-18",
-      time: "4:00 PM",
-      duration: 60,
-      status: "cancelled",
-      price: 1100,
-      createdAt: "2024-01-10",
-    },
-    {
-      id: "BK-004",
-      userId: "U-004",
-      userName: "Meera Shah",
-      userEmail: "meera@example.com",
-      companionId: "C-001",
-      companionName: "Dr. Priya Sharma",
-      companionEmail: "priya@example.com",
-      type: "Video",
-      platform: "Zoom",
-      date: "2024-01-21",
-      time: "11:00 AM",
-      duration: 60,
-      status: "upcoming",
-      price: 1000,
-      createdAt: "2024-01-16",
-    },
-    {
-      id: "BK-005",
-      userId: "U-005",
-      userName: "Karan Singh",
-      userEmail: "karan@example.com",
-      companionId: "C-004",
-      companionName: "Suresh Patel",
-      companionEmail: "suresh@example.com",
-      type: "Chat",
-      platform: "WhatsApp",
-      date: "2024-01-17",
-      time: "3:00 PM",
-      duration: 45,
-      status: "completed",
-      price: 450,
-      createdAt: "2024-01-08",
-    },
-  ];
+const STORAGE_KEY = "nirvaha_admin_bookings";
+const INITIAL_BOOKINGS: Booking[] = [];
+
+const loadBookings = (): Booking[] => {
+  if (typeof window === "undefined") return INITIAL_BOOKINGS;
+  const raw = window.localStorage.getItem(STORAGE_KEY);
+  if (!raw) return INITIAL_BOOKINGS;
+  try {
+    const parsed = JSON.parse(raw) as Booking[];
+    return Array.isArray(parsed) ? parsed : INITIAL_BOOKINGS;
+  } catch {
+    return INITIAL_BOOKINGS;
+  }
+};
 
 export function BookingManagementPage() {
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
-  const [bookings, setBookings] = useState<Booking[]>(INITIAL_BOOKINGS);
+  const [bookings, setBookings] = useState<Booking[]>(() => loadBookings());
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{
     type: "cancel" | "complete";
     booking: Booking;
   } | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(bookings));
+  }, [bookings]);
 
   const filteredBookings = useMemo(
     () =>

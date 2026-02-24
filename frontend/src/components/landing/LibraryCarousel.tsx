@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import DecorativeShapes from './DecorativeShapes';
 
-const libraryItems = [
+const defaultLibraryItems = [
     { title: "Meditation", category: "Mindfulness", image: "/services/meditation.png", duration: "10 min" },
     { title: "Sleep Stories", category: "Rest", image: "/services/sound_healing.png", duration: "25 min" },
     { title: "Ancient Wisdom", category: "Philosophy", image: "/Book.png", duration: "Series" },
@@ -13,6 +13,20 @@ const libraryItems = [
 
 
 const LibraryCarousel: React.FC = () => {
+    const [libraryItems, setLibraryItems] = useState(defaultLibraryItems);
+
+    // Load library items from localStorage
+    useEffect(() => {
+        const savedLibrary = localStorage.getItem("nirvaha_library");
+        if (savedLibrary) {
+            try {
+                setLibraryItems(JSON.parse(savedLibrary));
+            } catch (e) {
+                console.error("Failed to load library items from localStorage", e);
+                setLibraryItems(defaultLibraryItems);
+            }
+        }
+    }, []);
     return (
         <section className="w-full pt-4 pb-12 bg-white overflow-hidden relative">
             <DecorativeShapes variant={4} />
