@@ -18,7 +18,7 @@ const DynamicImage: React.FC<DynamicImageProps> = ({
   const imageSrc = getContent(contentKey, defaultSrc);
   
   const fullSrc = imageSrc.startsWith('/uploads') 
-    ? `http://localhost:5000${imageSrc}`
+    ? `http://localhost:5001${imageSrc}`
     : imageSrc;
   
   return <img src={fullSrc} alt={alt} className={className} />;

@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Cloud, Moon, Zap, Activity, Users, Flame, X, Play, Headphones, MessageCircle, Calendar, Check } from 'lucide-react';
 import { useState } from 'react';
 
@@ -72,7 +72,7 @@ export const CommonProblems = () => {
             hoverBg: "hover:bg-blue-50",
             activeBg: "bg-blue-100",
             gradientFrom: "from-blue-500",
-            gradientTo: "to-cyan-500",
+            gradientTo: "to-gray-500",
             description: "Anxiety can feel overwhelming, but you can find peace.",
             solutions: ["Guided anxiety relief", "Grounding techniques", "Crystal bowl therapy", "Community support"],
             recommendations: [
@@ -104,13 +104,13 @@ export const CommonProblems = () => {
         {
             title: "Feeling Isolated",
             icon: Users,
-            color: "text-teal-500",
-            bgColor: "bg-teal-50",
-            borderColor: "border-teal-200",
-            hoverBg: "hover:bg-teal-50",
-            activeBg: "bg-teal-100",
-            gradientFrom: "from-teal-500",
-            gradientTo: "to-emerald-500",
+            color: "text-gray-500",
+            bgColor: "bg-gray-50",
+            borderColor: "border-gray-200",
+            hoverBg: "hover:bg-gray-50",
+            activeBg: "bg-gray-100",
+            gradientFrom: "from-gray-500",
+            gradientTo: "to-gray-500",
             description: "Connection is a fundamental human need.",
             solutions: ["Join community groups", "Attend live sessions", "Connect with companions", "Group retreats"],
             recommendations: [
@@ -154,7 +154,7 @@ export const CommonProblems = () => {
                                     <div className={`w-12 h-12 rounded-xl ${p.bgColor} flex items-center justify-center transition-all group-hover:scale-110`}>
                                         <p.icon className={`w-6 h-6 ${p.color}`} />
                                     </div>
-                                    <span className="text-lg font-semibold text-gray-900 group-hover:text-[#1a5d47] transition-colors">
+                                    <span className="text-lg font-semibold text-gray-900 group-hover:text-[#333333] transition-colors">
                                         {p.title}
                                     </span>
                                 </div>

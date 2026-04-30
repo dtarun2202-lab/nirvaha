@@ -51,16 +51,16 @@ export const InspirationalQuotes = () => {
             <div className="max-w-[1440px] mx-auto px-6 md:px-8 mb-12 flex flex-col md:flex-row justify-between items-end gap-6">
                 <div className="text-left">
                     <div className="flex items-center gap-2 mb-3">
-                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1a5d47]/10 text-[#1a5d47]">
+                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#333333]/10 text-[#333333]">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" /></svg>
                         </span>
-                        <span className="text-[#1a5d47] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">Wisdom Daily</span>
+                        <span className="text-[#333333] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">Wisdom Daily</span>
                     </div>
                     <h2 className="text-3xl font-bold text-[#0F131A] tracking-tight mb-2" style={{ fontFamily: "'Cinzel', serif" }}>Daily Inspiration</h2>
                     <p className="text-gray-500 text-sm">Discover wisdom to guide your journey</p>
                 </div>
-                <button className="group flex items-center gap-2 text-[#1a5d47] font-semibold hover:text-[#113d2f] transition-colors duration-300 pb-1">
-                    <span className="border-b-2 border-transparent group-hover:border-[#1a5d47] transition-all duration-300">View More</span>
+                <button className="group flex items-center gap-2 text-[#333333] font-semibold hover:text-[#113d2f] transition-colors duration-300 pb-1">
+                    <span className="border-b-2 border-transparent group-hover:border-[#333333] transition-all duration-300">View More</span>
                     <svg
                         className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
                         fill="none"
@@ -89,7 +89,7 @@ export const InspirationalQuotes = () => {
                                 </div>
 
                                 {/* Back Side */}
-                                <div className="absolute inset-0 backface-hidden my-rotate-y-180 bg-[#1a5d47] rounded-3xl p-10 flex flex-col items-center justify-center text-center shadow-2xl overflow-hidden">
+                                <div className="absolute inset-0 backface-hidden my-rotate-y-180 bg-[#333333] rounded-3xl p-10 flex flex-col items-center justify-center text-center shadow-2xl overflow-hidden">
                                     {/* Decorative element */}
                                     <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
                                     <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
@@ -97,7 +97,7 @@ export const InspirationalQuotes = () => {
                                     <span className="text-7xl text-white/10 font-serif mb-2 leading-none">“</span>
                                     <p className="text-xl text-white font-medium leading-relaxed font-serif mb-8 italic">{q.quote}</p>
                                     <div className="w-16 h-[1px] bg-white/20 mb-6 font-light italic"></div>
-                                    <span className="text-[11px] text-emerald-200 uppercase tracking-[0.3em] font-bold">{q.author}</span>
+                                    <span className="text-[11px] text-gray-200 uppercase tracking-[0.3em] font-bold">{q.author}</span>
                                 </div>
                             </div>
                         </div>

@@ -1,11 +1,11 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 export function SpiritualOrb() {
   return (
     <div className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px] lg:w-[500px] lg:h-[500px]">
       {/* Outer Aura Rings */}
       <motion.div
-        className="absolute inset-0 rounded-full border-2 border-emerald-300/30"
+        className="absolute inset-0 rounded-full border-2 border-gray-300/30"
         animate={{
           scale: [1, 1.3, 1],
           opacity: [0.5, 0.2, 0.5],
@@ -18,7 +18,7 @@ export function SpiritualOrb() {
       />
       
       <motion.div
-        className="absolute inset-0 rounded-full border-2 border-teal-300/20"
+        className="absolute inset-0 rounded-full border-2 border-gray-300/20"
         animate={{
           scale: [1, 1.5, 1],
           opacity: [0.4, 0.1, 0.4],
@@ -59,7 +59,7 @@ export function SpiritualOrb() {
       >
         {/* Gradient Halo Background */}
         <motion.div
-          className="absolute w-full h-full rounded-full bg-gradient-to-br from-lime-300/30 via-emerald-300/20 to-teal-300/30 blur-3xl"
+          className="absolute w-full h-full rounded-full bg-gradient-to-br from-lime-300/30 via-gray-300/20 to-gray-300/30 blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.6, 0.8, 0.6],
@@ -124,7 +124,7 @@ export function SpiritualOrb() {
         return (
           <motion.div
             key={i}
-            className="absolute top-1/2 left-1/2 w-2 h-2 md:w-3 md:h-3 rounded-full bg-gradient-to-br from-lime-400 to-emerald-400 shadow-lg"
+            className="absolute top-1/2 left-1/2 w-2 h-2 md:w-3 md:h-3 rounded-full bg-gradient-to-br from-lime-400 to-gray-400 shadow-lg"
             style={{
               boxShadow: "0 0 10px rgba(163, 230, 53, 0.6)",
             }}
@@ -181,7 +181,7 @@ export function SpiritualOrb() {
           ease: "linear",
         }}
       >
-        <div className="w-[240px] h-[240px] md:w-[320px] md:h-[320px] lg:w-[400px] lg:h-[400px] rounded-full border border-emerald-400/20 border-dashed" />
+        <div className="w-[240px] h-[240px] md:w-[320px] md:h-[320px] lg:w-[400px] lg:h-[400px] rounded-full border border-gray-400/20 border-dashed" />
       </motion.div>
 
       {/* Counter-Rotating Sacred Ring */}
@@ -196,7 +196,7 @@ export function SpiritualOrb() {
           ease: "linear",
         }}
       >
-        <div className="w-[280px] h-[280px] md:w-[360px] md:h-[360px] lg:w-[450px] lg:h-[450px] rounded-full border border-teal-400/15 border-dotted" />
+        <div className="w-[280px] h-[280px] md:w-[360px] md:h-[360px] lg:w-[450px] lg:h-[450px] rounded-full border border-gray-400/15 border-dotted" />
       </motion.div>
     </div>
   );

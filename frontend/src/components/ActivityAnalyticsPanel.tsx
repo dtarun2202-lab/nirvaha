@@ -1,4 +1,4 @@
-// import { motion } from 'motion/react';
+// import { motion } from 'framer-motion';
 
 // export function ActivityAnalyticsPanel() {
 
@@ -61,7 +61,7 @@
 //               >
 //                 <span className="inline-block">Soul</span>{' '}
 //                 <motion.span 
-//                   className="inline-block bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent"
+//                   className="inline-block bg-gradient-to-r from-white via-gray-100 to-gray-200 bg-clip-text text-transparent"
 //                   animate={{ 
 //                     backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
 //                   }}
@@ -124,7 +124,7 @@
 //   );
 // }
 
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 export function ActivityAnalyticsPanel() {
 
@@ -135,7 +135,7 @@ export function ActivityAnalyticsPanel() {
         {Array.from({ length: 15 }).map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 rounded-full bg-teal-600/20"
+            className="absolute w-2 h-2 rounded-full bg-gray-600/20"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -182,7 +182,7 @@ export function ActivityAnalyticsPanel() {
               >
                 <span className="inline-block">Soul</span>{' '}
                 <motion.span
-                  className="inline-block bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-700 bg-clip-text text-transparent"
+                  className="inline-block bg-gradient-to-r from-gray-600 via-gray-500 to-gray-700 bg-clip-text text-transparent"
                   animate={{
                     backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
                   }}

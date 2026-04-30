@@ -48,17 +48,17 @@ export function ContentManagementPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="bg-white border-b border-emerald-200">
-          <TabsTrigger value="meditation" className="data-[state=active]:bg-emerald-50 text-black data-[state=active]:text-emerald-700">
+        <TabsList className="bg-white border-b border-gray-200">
+          <TabsTrigger value="meditation" className="data-[state=active]:bg-gray-50 text-black data-[state=active]:text-gray-700">
             Meditation
           </TabsTrigger>
-          <TabsTrigger value="sound" className="data-[state=active]:bg-emerald-50 text-black data-[state=active]:text-emerald-700">
+          <TabsTrigger value="sound" className="data-[state=active]:bg-gray-50 text-black data-[state=active]:text-gray-700">
             Sound Healing
           </TabsTrigger>
-          <TabsTrigger value="products" className="data-[state=active]:bg-emerald-50 text-black data-[state=active]:text-emerald-700">
+          <TabsTrigger value="products" className="data-[state=active]:bg-gray-50 text-black data-[state=active]:text-gray-700">
             Marketplace Products
           </TabsTrigger>
-          <TabsTrigger value="dynamic" className="data-[state=active]:bg-emerald-50 text-black data-[state=active]:text-emerald-700">
+          <TabsTrigger value="dynamic" className="data-[state=active]:bg-gray-50 text-black data-[state=active]:text-gray-700">
             Dynamic Content
           </TabsTrigger>
         </TabsList>

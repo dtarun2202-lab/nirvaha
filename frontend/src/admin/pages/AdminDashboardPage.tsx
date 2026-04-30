@@ -90,7 +90,7 @@ export function AdminDashboardPage() {
       title: "Total Users",
       value: totalUsers,
       icon: Users,
-      color: "from-emerald-500 to-teal-500",
+      color: "from-gray-500 to-gray-500",
       change: "+0%",
       path: "/admin/users",
     },
@@ -98,7 +98,7 @@ export function AdminDashboardPage() {
       title: "Active Sessions",
       value: recentBookings.filter((b) => b.status === "upcoming").length.toString(),
       icon: Activity,
-      color: "from-teal-500 to-cyan-500",
+      color: "from-gray-500 to-gray-500",
       change: "+0%",
       path: "/admin/bookings",
     },
@@ -106,7 +106,7 @@ export function AdminDashboardPage() {
       title: "Revenue",
       value: "$0",
       icon: TrendingUp,
-      color: "from-cyan-500 to-blue-500",
+      color: "from-gray-500 to-blue-500",
       change: "+0%",
       path: "/admin/analytics",
     },
@@ -148,7 +148,7 @@ export function AdminDashboardPage() {
             <Card
               key={index}
               onClick={() => navigate(stat.path)}
-              className="bg-white border-emerald-200 hover:border-emerald-400 hover:shadow-lg cursor-pointer transition-all group"
+              className="bg-white border-gray-200 hover:border-gray-400 hover:shadow-lg cursor-pointer transition-all group"
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -161,7 +161,7 @@ export function AdminDashboardPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-3xl font-bold text-black">{stat.value}</span>
-                  <span className="text-emerald-600 text-sm font-semibold">{stat.change}</span>
+                  <span className="text-gray-600 text-sm font-semibold">{stat.change}</span>
                 </div>
               </div>
             </Card>
@@ -185,7 +185,7 @@ export function AdminDashboardPage() {
               </div>
               <Button
                 onClick={() => navigate("/admin/companions?filter=pending")}
-                className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white"
+                className="bg-gradient-to-r from-gray-500 to-green-600 hover:from-gray-600 hover:to-green-700 text-white"
               >
                 Review Now
               </Button>
@@ -196,7 +196,7 @@ export function AdminDashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Companion Applications */}
-        <Card className="bg-white border-emerald-200 shadow-md">
+        <Card className="bg-white border-gray-200 shadow-md">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-black">Recent Companion Applications</h2>
@@ -204,7 +204,7 @@ export function AdminDashboardPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("/admin/companions")}
-                className="text-emerald-700 hover:text-black hover:bg-emerald-50"
+                className="text-gray-700 hover:text-black hover:bg-gray-50"
               >
                 View All
                 <ArrowRight className="ml-2 w-4 h-4" />
@@ -237,7 +237,7 @@ export function AdminDashboardPage() {
         </Card>
 
         {/* Recent Bookings */}
-        <Card className="bg-white border-emerald-200 shadow-md">
+        <Card className="bg-white border-gray-200 shadow-md">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-black">Recent Bookings</h2>
@@ -245,7 +245,7 @@ export function AdminDashboardPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("/admin/bookings")}
-                className="text-emerald-700 hover:text-black hover:bg-emerald-50"
+                className="text-gray-700 hover:text-black hover:bg-gray-50"
               >
                 View All
                 <ArrowRight className="ml-2 w-4 h-4" />

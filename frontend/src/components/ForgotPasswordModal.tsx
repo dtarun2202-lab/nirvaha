@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Mail, X, CheckCircle, AlertCircle, Sparkles } from "lucide-react";
 import { useState } from "react";
 
@@ -73,7 +73,7 @@ export function ForgotPasswordModal({
             >
               {/* Glowing Background */}
               <motion.div
-                className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-[32px] blur-2xl opacity-20"
+                className="absolute inset-0 bg-gradient-to-br from-gray-500 to-gray-500 rounded-[32px] blur-2xl opacity-20"
                 animate={{
                   scale: [1, 1.05, 1],
                   opacity: [0.2, 0.3, 0.2],
@@ -86,11 +86,11 @@ export function ForgotPasswordModal({
               />
 
               {/* Main Card */}
-              <div className="relative bg-white/95 backdrop-blur-xl rounded-[32px] p-8 shadow-2xl border border-emerald-200/30">
+              <div className="relative bg-white/95 backdrop-blur-xl rounded-[32px] p-8 shadow-2xl border border-gray-200/30">
                 {/* Close Button */}
                 <button
                   onClick={handleReset}
-                  className="absolute top-6 right-6 p-2 hover:bg-emerald-50 rounded-full transition-colors text-teal-600 hover:text-teal-800"
+                  className="absolute top-6 right-6 p-2 hover:bg-gray-50 rounded-full transition-colors text-gray-600 hover:text-gray-800"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -100,7 +100,7 @@ export function ForgotPasswordModal({
                     {/* Header */}
                     <div className="mb-8">
                       <motion.div
-                        className="w-14 h-14 mb-4 rounded-[20px] bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg mx-auto"
+                        className="w-14 h-14 mb-4 rounded-[20px] bg-gradient-to-br from-gray-500 to-gray-500 flex items-center justify-center shadow-lg mx-auto"
                         animate={{
                           boxShadow: [
                             "0 0 20px rgba(34, 197, 94, 0.3)",
@@ -113,10 +113,10 @@ export function ForgotPasswordModal({
                         <Mail className="w-7 h-7 text-white" />
                       </motion.div>
 
-                      <h2 className="text-center text-2xl font-bold text-emerald-800 mb-2">
+                      <h2 className="text-center text-2xl font-bold text-gray-800 mb-2">
                         Reset Your Password
                       </h2>
-                      <p className="text-center text-teal-600 text-sm">
+                      <p className="text-center text-gray-600 text-sm">
                         Enter your email address and we'll send you a link to reset your password
                       </p>
                     </div>
@@ -125,11 +125,11 @@ export function ForgotPasswordModal({
                     <form onSubmit={handleSubmit} className="space-y-6">
                       {/* Email Input */}
                       <div>
-                        <label className="block text-sm text-teal-800 mb-2">
+                        <label className="block text-sm text-gray-800 mb-2">
                           Email Address
                         </label>
                         <div className="relative">
-                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-teal-500" />
+                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                           <input
                             type="email"
                             placeholder="Enter your email"
@@ -138,7 +138,7 @@ export function ForgotPasswordModal({
                               setEmail(e.target.value);
                               setError("");
                             }}
-                            className="w-full pl-12 pr-4 py-4 bg-white border-2 border-emerald-200/50 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-teal-800 placeholder:text-teal-400 transition-all"
+                            className="w-full pl-12 pr-4 py-4 bg-white border-2 border-gray-200/50 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent text-gray-800 placeholder:text-gray-400 transition-all"
                           />
                         </div>
                       </div>
@@ -161,7 +161,7 @@ export function ForgotPasswordModal({
                         whileTap={{ scale: 0.98 }}
                         type="submit"
                         disabled={isLoading}
-                        className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-[20px] shadow-xl hover:shadow-2xl disabled:opacity-70 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 font-medium"
+                        className="w-full py-4 bg-gradient-to-r from-gray-500 to-gray-500 text-white rounded-[20px] shadow-xl hover:shadow-2xl disabled:opacity-70 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 font-medium"
                       >
                         {isLoading ? (
                           <>
@@ -188,16 +188,16 @@ export function ForgotPasswordModal({
                       <button
                         type="button"
                         onClick={handleReset}
-                        className="w-full py-3 text-teal-700 hover:text-teal-800 transition-colors font-medium"
+                        className="w-full py-3 text-gray-700 hover:text-gray-800 transition-colors font-medium"
                       >
                         Back to Login
                       </button>
                     </form>
 
                     {/* Footer Text */}
-                    <p className="text-xs text-center text-teal-500 mt-6">
+                    <p className="text-xs text-center text-gray-500 mt-6">
                       Need help?{" "}
-                      <button className="text-emerald-600 hover:text-emerald-700 underline">
+                      <button className="text-gray-600 hover:text-gray-700 underline">
                         Contact Support
                       </button>
                     </p>
@@ -216,19 +216,19 @@ export function ForgotPasswordModal({
                         }}
                         className="mb-6"
                       >
-                        <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto" />
+                        <CheckCircle className="w-16 h-16 text-gray-500 mx-auto" />
                       </motion.div>
 
-                      <h3 className="text-2xl font-bold text-emerald-800 mb-3">
+                      <h3 className="text-2xl font-bold text-gray-800 mb-3">
                         Check Your Email
                       </h3>
-                      <p className="text-teal-600 mb-6">
+                      <p className="text-gray-600 mb-6">
                         We've sent a password reset link to{" "}
-                        <span className="font-semibold text-teal-700">{email}</span>
+                        <span className="font-semibold text-gray-700">{email}</span>
                       </p>
 
-                      <div className="bg-emerald-50 border border-emerald-200/50 rounded-[20px] p-4 mb-6">
-                        <p className="text-sm text-emerald-700">
+                      <div className="bg-gray-50 border border-gray-200/50 rounded-[20px] p-4 mb-6">
+                        <p className="text-sm text-gray-700">
                           💡 The link will expire in 24 hours. If you don't see the email, check your spam folder.
                         </p>
                       </div>
@@ -237,7 +237,7 @@ export function ForgotPasswordModal({
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleReset}
-                        className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-[20px] shadow-xl hover:shadow-2xl transition-all font-medium"
+                        className="w-full py-4 bg-gradient-to-r from-gray-500 to-gray-500 text-white rounded-[20px] shadow-xl hover:shadow-2xl transition-all font-medium"
                       >
                         Done
                       </motion.button>

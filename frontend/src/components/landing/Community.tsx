@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Users, Calendar, MessageCircle, Globe } from 'lucide-react';
 
 // Animation Variants
@@ -27,7 +27,7 @@ const Community = () => {
       >
         {/* Header */}
         <motion.div variants={fadeUp}>
-          <h2 className="heading-secondary text-center mb-5" style={{ color: '#1a5d47', fontFamily: "'Cinzel', serif" }}>
+          <h2 className="heading-secondary text-center mb-5" style={{ color: '#333333', fontFamily: "'Cinzel', serif" }}>
             Join Our Healing Community
           </h2>
           <p className="subheading text-center max-w-3xl mx-auto" style={{ color: '#4a5f59', fontFamily: "'Poppins', sans-serif" }}>

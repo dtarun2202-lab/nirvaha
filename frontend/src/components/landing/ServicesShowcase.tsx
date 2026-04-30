@@ -66,10 +66,10 @@ const ServicesShowcase: React.FC = () => {
     <section className="services-showcase-bg relative w-full py-20 sm:py-24 lg:py-32" style={{ backgroundColor: '#ffffff' }}>
       <div className="max-w-7xl w-[95%] mx-auto px-4 sm:px-6 lg:px-8 fade-up">
         <div className="mb-12 text-center">
-          <h2 className="heading-secondary text-teal-800 text-center">
+          <h2 className="heading-secondary text-gray-800 text-center">
             Gentle Services for Your Inner Journey
           </h2>
-          <p className="subheading text-center text-teal-700 max-w-3xl mx-auto mt-3">
+          <p className="subheading text-center text-gray-700 max-w-3xl mx-auto mt-3">
             Explore meditations, sound healing, conversations, and guided practices designed to support your emotional wellness.
           </p>
         </div>
@@ -87,13 +87,36 @@ const ServicesShowcase: React.FC = () => {
               </div>
               {/* Content */}
               <div>
-                <h3 className="heading-tertiary text-teal-800 mb-5">
-                  {current.title}
-                </h3>
-                <p className="text-teal-700 text-lg sm:text-xl mb-4 leading-relaxed font-semibold">
+                {current.key === 'meditation' ? (
+                  <div
+                    className="animated-gradient-text with-border mb-5"
+                    style={{
+                      background: "linear-gradient(135deg, #a78bfa, #818cf8, #38bdf8)",
+                      margin: "0 0 1.25rem 0",
+                    }}
+                  >
+                    <div className="gradient-overlay" />
+                    <span
+                      className="text-content heading-tertiary"
+                      style={{
+                        backgroundImage: "linear-gradient(135deg, #a78bfa, #818cf8, #38bdf8)",
+                        fontSize: "inherit",
+                        fontFamily: "inherit",
+                        fontWeight: "inherit",
+                      }}
+                    >
+                      {current.title}
+                    </span>
+                  </div>
+                ) : (
+                  <h3 className="heading-tertiary text-gray-800 mb-5">
+                    {current.title}
+                  </h3>
+                )}
+                <p className="text-gray-700 text-lg sm:text-xl mb-4 leading-relaxed font-semibold">
                   {current.summary}
                 </p>
-                <p className="text-teal-600 text-base sm:text-lg mb-10 leading-relaxed">
+                <p className="text-gray-600 text-base sm:text-lg mb-10 leading-relaxed">
                   {current.description}
                 </p>
                 <div className="flex justify-end">

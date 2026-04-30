@@ -9,7 +9,7 @@ interface DecorativeShapesProps {
  * Subtle decorative background shapes placed at irregular positions
  * along edges and sweet spots. Use different variants for visual variety.
  */
-const DecorativeShapes: React.FC<DecorativeShapesProps> = ({ variant = 1, color = '#1a5d47' }) => {
+const DecorativeShapes: React.FC<DecorativeShapesProps> = ({ variant = 1, color = '#333333' }) => {
     const shapes: Record<number, React.ReactNode> = {
         1: (
             <>

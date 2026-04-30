@@ -15,9 +15,9 @@ export default function LeftSidebar({ active = "Recent", onSelect }: { active?: 
     <aside className="hidden lg:block w-48 sticky top-20 self-start">
       <div className="rounded-2xl p-2">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-black font-semibold">Feed</h4>
+          <h4 className="text-[#0f172a] font-semibold">Feed</h4>
           <button aria-label="Toggle sidebar" onClick={() => setCollapsed((s) => !s)} className="p-2 rounded hover:bg-black/5">
-            <Menu className="w-4 h-4 text-black/60" />
+            <Menu className="w-4 h-4 text-[#374151]" />
           </button>
         </div>
 
@@ -31,21 +31,18 @@ export default function LeftSidebar({ active = "Recent", onSelect }: { active?: 
                   key={s.key}
                   onClick={() => onSelect && onSelect(s.key)}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors focus:outline-none ${
-                    isActive ? "bg-emerald-50 text-emerald-700" : "text-black/80 hover:bg-black/5"
+                    isActive ? "bg-gray-100 text-[#0f172a] font-semibold" : "text-[#1e293b] hover:bg-black/5"
                   }`}
                   aria-current={isActive ? "true" : undefined}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? "text-emerald-600" : "text-black/40"}`} />
+                  <Icon className={`w-5 h-5 ${isActive ? "text-[#0f172a]" : "text-[#374151]"}`} />
                   <span className="truncate text-sm">{s.key}</span>
                 </button>
               );
             })}
           </nav>
 
-          <div className="mt-3 pt-3 text-sm text-black/50">
-            <div className="font-semibold mb-1">Games</div>
-            <div className="text-xs">(coming soon)</div>
-          </div>
+
         </div>
       </div>
     </aside>

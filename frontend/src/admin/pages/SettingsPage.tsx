@@ -23,14 +23,14 @@ export function SettingsPage() {
         <p className="text-gray-700">Configure platform preferences for admins and companions</p>
       </div>
 
-      <Card className="bg-white border-emerald-200 p-6 space-y-6">
+      <Card className="bg-white border-gray-200 p-6 space-y-6">
         <div className="space-y-2">
           <Label htmlFor="platformName" className="text-black">Platform Name</Label>
           <Input
             id="platformName"
             value={platformName}
             onChange={(e) => setPlatformName(e.target.value)}
-            className="bg-white border-emerald-200 text-black placeholder:text-gray-400"
+            className="bg-white border-gray-200 text-black placeholder:text-gray-400"
           />
         </div>
 
@@ -41,11 +41,11 @@ export function SettingsPage() {
             type="email"
             value={supportEmail}
             onChange={(e) => setSupportEmail(e.target.value)}
-            className="bg-white border-emerald-200 text-black placeholder:text-gray-400"
+            className="bg-white border-gray-200 text-black placeholder:text-gray-400"
           />
         </div>
 
-        <div className="flex items-center justify-between p-4 rounded-lg border border-emerald-200 bg-emerald-50">
+        <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 bg-gray-50">
           <div>
             <p className="text-black font-semibold">Enable Companion Onboarding</p>
             <p className="text-gray-700 text-sm">Allow new companions to submit applications</p>
@@ -59,7 +59,7 @@ export function SettingsPage() {
 
         <div className="flex items-center gap-3">
           <Button
-            className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+            className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white"
             onClick={handleSave}
           >
             Save Settings

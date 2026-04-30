@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { BookOpen, Clock, Users, Star, Play, Award, TrendingUp, ChevronRight } from "lucide-react";
 
 export function CoursesPage() {
@@ -13,7 +13,7 @@ export function CoursesPage() {
       lessons: 24,
       price: "$99",
       image: "https://images.unsplash.com/photo-1676747484510-755c231ae83e?w=600",
-      color: "from-emerald-400 to-teal-500",
+      color: "from-gray-400 to-gray-500",
       topics: ["Breath Work", "Body Scan", "Mindful Living"],
     },
     {
@@ -39,7 +39,7 @@ export function CoursesPage() {
       lessons: 48,
       price: "$299",
       image: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=600",
-      color: "from-cyan-400 to-blue-500",
+      color: "from-gray-300 to-blue-500",
       topics: ["Frequency Therapy", "Bowl Meditation", "Certification"],
     },
     {
@@ -65,7 +65,7 @@ export function CoursesPage() {
       lessons: 12,
       price: "$59",
       image: "https://images.unsplash.com/photo-1545389336-cf090694435e?w=600",
-      color: "from-lime-400 to-emerald-500",
+      color: "from-lime-400 to-gray-500",
       topics: ["Sacred Gestures", "Chakra Mudras", "Daily Practice"],
     },
     {
@@ -96,14 +96,14 @@ export function CoursesPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100/50 rounded-full border border-emerald-300/30 mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100/50 rounded-full border border-gray-300/30 mb-6"
           >
-            <BookOpen className="w-4 h-4 text-emerald-600" />
-            <span className="text-sm text-emerald-700">Expert-Led Programs</span>
+            <BookOpen className="w-4 h-4 text-gray-600" />
+            <span className="text-sm text-gray-700">Expert-Led Programs</span>
           </motion.div>
 
-          <h1 className="text-emerald-800 mb-4">Transform Your Practice</h1>
-          <p className="max-w-3xl mx-auto text-lg text-teal-700">
+          <h1 className="text-gray-800 mb-4">Transform Your Practice</h1>
+          <p className="max-w-3xl mx-auto text-lg text-gray-700">
             Learn from world-renowned spiritual teachers and deepen your meditation journey 
             with comprehensive, structured courses designed for all levels.
           </p>
@@ -116,7 +116,7 @@ export function CoursesPage() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="mb-16"
         >
-          <div className="relative bg-gradient-to-br from-emerald-600 to-teal-700 rounded-[48px] overflow-hidden shadow-2xl">
+          <div className="relative bg-gradient-to-br from-gray-600 to-gray-700 rounded-[48px] overflow-hidden shadow-2xl">
             <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent z-10" />
             
             <div className="grid lg:grid-cols-2 gap-8 relative z-20">
@@ -133,7 +133,7 @@ export function CoursesPage() {
                   </div>
 
                   <h2 className="text-white mb-4">Mindfulness Meditation Mastery</h2>
-                  <p className="text-emerald-100 text-lg mb-6 leading-relaxed">
+                  <p className="text-gray-100 text-lg mb-6 leading-relaxed">
                     Master the art of mindfulness with Dr. Anjali Sharma. Transform your life 
                     through ancient wisdom and modern neuroscience.
                   </p>
@@ -153,7 +153,7 @@ export function CoursesPage() {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.98 }}
-                      className="px-8 py-4 bg-white text-emerald-700 rounded-2xl shadow-xl hover:shadow-2xl transition-all flex items-center gap-2"
+                      className="px-8 py-4 bg-white text-gray-700 rounded-2xl shadow-xl hover:shadow-2xl transition-all flex items-center gap-2"
                     >
                       <Play className="w-5 h-5" />
                       Start Learning
@@ -175,7 +175,7 @@ export function CoursesPage() {
                   alt="Featured Course"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent" />
               </motion.div>
             </div>
           </div>
@@ -186,7 +186,7 @@ export function CoursesPage() {
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-teal-800 mb-8"
+          className="text-gray-800 mb-8"
         >
           All Courses
         </motion.h2>
@@ -207,7 +207,7 @@ export function CoursesPage() {
               />
 
               {/* Card */}
-              <div className="relative bg-white/90 backdrop-blur-xl rounded-[40px] overflow-hidden shadow-xl border border-emerald-200/30 h-full flex flex-col">
+              <div className="relative bg-white/90 backdrop-blur-xl rounded-[40px] overflow-hidden shadow-xl border border-gray-200/30 h-full flex flex-col">
                 {/* Image */}
                 <div className="relative h-48 overflow-hidden">
                   <img
@@ -218,12 +218,12 @@ export function CoursesPage() {
                   <div className={`absolute inset-0 bg-gradient-to-t ${course.color} opacity-60`} />
 
                   {/* Level Badge */}
-                  <div className="absolute top-4 left-4 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full text-xs text-teal-800">
+                  <div className="absolute top-4 left-4 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full text-xs text-gray-800">
                     {course.level}
                   </div>
 
                   {/* Price Badge */}
-                  <div className="absolute top-4 right-4 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-teal-800">
+                  <div className="absolute top-4 right-4 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-800">
                     {course.price}
                   </div>
 
@@ -235,22 +235,22 @@ export function CoursesPage() {
                       whileHover={{ scale: 1.1 }}
                       className="w-16 h-16 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-2xl"
                     >
-                      <Play className="w-7 h-7 text-emerald-600 ml-1" />
+                      <Play className="w-7 h-7 text-gray-600 ml-1" />
                     </motion.div>
                   </motion.div>
                 </div>
 
                 {/* Content */}
                 <div className="p-6 flex flex-col flex-1">
-                  <h3 className="text-teal-800 mb-2">{course.title}</h3>
-                  <p className="text-sm text-teal-600 mb-4">{course.instructor}</p>
+                  <h3 className="text-gray-800 mb-2">{course.title}</h3>
+                  <p className="text-sm text-gray-600 mb-4">{course.instructor}</p>
 
                   {/* Topics */}
                   <div className="flex flex-wrap gap-2 mb-4">
                     {course.topics.map((topic, i) => (
                       <span
                         key={i}
-                        className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs rounded-full"
+                        className="px-3 py-1 bg-gray-50 text-gray-700 text-xs rounded-full"
                       >
                         {topic}
                       </span>
@@ -258,20 +258,20 @@ export function CoursesPage() {
                   </div>
 
                   {/* Stats */}
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-emerald-200/30 mt-auto">
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200/30 mt-auto">
                     <div>
                       <div className="flex items-center gap-1 mb-1">
                         <Star className="w-4 h-4 fill-lime-400 text-lime-400" />
-                        <span className="text-sm text-teal-800">{course.rating}</span>
+                        <span className="text-sm text-gray-800">{course.rating}</span>
                       </div>
-                      <p className="text-xs text-teal-600">{course.students} students</p>
+                      <p className="text-xs text-gray-600">{course.students} students</p>
                     </div>
                     <div>
                       <div className="flex items-center gap-1 mb-1">
-                        <BookOpen className="w-4 h-4 text-teal-600" />
-                        <span className="text-sm text-teal-800">{course.lessons}</span>
+                        <BookOpen className="w-4 h-4 text-gray-600" />
+                        <span className="text-sm text-gray-800">{course.lessons}</span>
                       </div>
-                      <p className="text-xs text-teal-600">{course.duration}</p>
+                      <p className="text-xs text-gray-600">{course.duration}</p>
                     </div>
                   </div>
 
@@ -295,18 +295,18 @@ export function CoursesPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1 }}
-          className="mt-16 text-center bg-gradient-to-br from-emerald-50 to-teal-50 rounded-[40px] p-12 border border-emerald-200/30"
+          className="mt-16 text-center bg-gradient-to-br from-gray-50 to-gray-50 rounded-[40px] p-12 border border-gray-200/30"
         >
-          <Award className="w-16 h-16 mx-auto mb-6 text-emerald-600" />
-          <h3 className="text-teal-800 mb-4">Become a Certified Instructor</h3>
-          <p className="max-w-2xl mx-auto text-teal-700 mb-8">
+          <Award className="w-16 h-16 mx-auto mb-6 text-gray-600" />
+          <h3 className="text-gray-800 mb-4">Become a Certified Instructor</h3>
+          <p className="max-w-2xl mx-auto text-gray-700 mb-8">
             Share your wisdom with our global community. Join our instructor program 
             and inspire thousands on their spiritual journey.
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
-            className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl shadow-xl hover:shadow-2xl transition-all"
+            className="px-8 py-4 bg-gradient-to-r from-gray-500 to-gray-500 text-white rounded-2xl shadow-xl hover:shadow-2xl transition-all"
           >
             Learn More
           </motion.button>

@@ -155,7 +155,7 @@ export function BookingManagementPage() {
           className={`px-2 py-1 rounded text-xs font-medium ${
             item.type === "Video"
               ? "bg-blue-100 text-blue-800 border border-blue-300"
-              : "bg-teal-100 text-teal-800 border border-teal-300"
+              : "bg-gray-100 text-gray-800 border border-gray-300"
           }`}
         >
           {item.type}
@@ -215,14 +215,14 @@ export function BookingManagementPage() {
           <h1 className="text-3xl font-bold text-black mb-2">Booking Management</h1>
           <p className="text-gray-700">View and manage all platform bookings</p>
         </div>
-        <Button className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white">
+        <Button className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white">
           <Download className="mr-2 w-4 h-4" />
           Export CSV
         </Button>
       </div>
 
       {/* Filters */}
-      <Card className="bg-white border-emerald-200 p-6">
+      <Card className="bg-white border-gray-200 p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="relative md:col-span-2">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -230,11 +230,11 @@ export function BookingManagementPage() {
               placeholder="Search by ID, user, or companion..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white border-emerald-200 text-black placeholder:text-gray-400"
+              className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-400"
             />
           </div>
           <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-full bg-white border-emerald-200 text-black">
+            <SelectTrigger className="w-full bg-white border-gray-200 text-black">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-white">
@@ -250,7 +250,7 @@ export function BookingManagementPage() {
               <Button
                 variant="outline"
                 className={cn(
-                  "w-full justify-start text-left font-normal bg-white border-emerald-200 text-black hover:bg-emerald-50",
+                  "w-full justify-start text-left font-normal bg-white border-gray-200 text-black hover:bg-gray-50",
                   !dateFrom && "text-gray-400"
                 )}
               >
@@ -285,7 +285,7 @@ export function BookingManagementPage() {
       </Card>
 
       {/* Table */}
-      <Card className="bg-white border-emerald-200">
+      <Card className="bg-white border-gray-200">
         <AdminTable
           data={filteredBookings}
           columns={columns}
@@ -361,7 +361,7 @@ export function BookingManagementPage() {
                   Cancel Booking
                 </Button>
                 <Button
-                  className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+                  className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white"
                   onClick={() => {
                     setIsViewModalOpen(false);
                     handleAction("complete", selectedBooking);

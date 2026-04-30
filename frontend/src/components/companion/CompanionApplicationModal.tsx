@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 
 interface CompanionApplicationModalProps {
@@ -146,7 +146,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                     errors.fullName ? 'border-red-500' : ''
                   }`}
                   style={{
-                    borderColor: errors.fullName ? undefined : '#1a5d47',
+                    borderColor: errors.fullName ? undefined : '#333333',
                     color: '#0f131a',
                   }}
                 />
@@ -168,7 +168,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                     errors.email ? 'border-red-500' : ''
                   }`}
                   style={{
-                    borderColor: errors.email ? undefined : '#1a5d47',
+                    borderColor: errors.email ? undefined : '#333333',
                     color: '#0f131a',
                   }}
                 />
@@ -190,7 +190,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                     errors.phone ? 'border-red-500' : ''
                   }`}
                   style={{
-                    borderColor: errors.phone ? undefined : '#1a5d47',
+                    borderColor: errors.phone ? undefined : '#333333',
                     color: '#0f131a',
                   }}
                 />
@@ -212,7 +212,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                     errors.location ? 'border-red-500' : ''
                   }`}
                   style={{
-                    borderColor: errors.location ? undefined : '#1a5d47',
+                    borderColor: errors.location ? undefined : '#333333',
                     color: '#0f131a',
                   }}
                 />
@@ -242,7 +242,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                     errors.title ? 'border-red-500' : ''
                   }`}
                   style={{
-                    borderColor: errors.title ? undefined : '#1a5d47',
+                    borderColor: errors.title ? undefined : '#333333',
                     color: '#0f131a',
                   }}
                 />
@@ -264,7 +264,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                     errors.bio ? 'border-red-500' : ''
                   }`}
                   style={{
-                    borderColor: errors.bio ? undefined : '#1a5d47',
+                    borderColor: errors.bio ? undefined : '#333333',
                     color: '#0f131a',
                   }}
                 />
@@ -287,7 +287,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                       errors.experience ? 'border-red-500' : ''
                     }`}
                     style={{
-                      borderColor: errors.experience ? undefined : '#1a5d47',
+                      borderColor: errors.experience ? undefined : '#333333',
                       color: '#0f131a',
                     }}
                   />
@@ -309,7 +309,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                       errors.languages ? 'border-red-500' : ''
                     }`}
                     style={{
-                      borderColor: errors.languages ? undefined : '#1a5d47',
+                      borderColor: errors.languages ? undefined : '#333333',
                       color: '#0f131a',
                     }}
                   />
@@ -332,7 +332,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                     errors.specialties ? 'border-red-500' : ''
                   }`}
                   style={{
-                    borderColor: errors.specialties ? undefined : '#1a5d47',
+                    borderColor: errors.specialties ? undefined : '#333333',
                     color: '#0f131a',
                   }}
                 />
@@ -352,7 +352,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                   placeholder="List your relevant certifications..."
                   className="w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2"
                   style={{
-                    borderColor: '#1a5d47',
+                    borderColor: '#333333',
                     color: '#0f131a',
                   }}
                 />
@@ -381,7 +381,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                     errors.hourlyRate ? 'border-red-500' : ''
                   }`}
                   style={{
-                    borderColor: errors.hourlyRate ? undefined : '#1a5d47',
+                    borderColor: errors.hourlyRate ? undefined : '#333333',
                     color: '#0f131a',
                   }}
                 />
@@ -403,7 +403,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                     errors.callRate ? 'border-red-500' : ''
                   }`}
                   style={{
-                    borderColor: errors.callRate ? undefined : '#1a5d47',
+                    borderColor: errors.callRate ? undefined : '#333333',
                     color: '#0f131a',
                   }}
                 />
@@ -421,7 +421,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                   onChange={handleChange}
                   className="w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2"
                   style={{
-                    borderColor: '#1a5d47',
+                    borderColor: '#333333',
                     color: '#0f131a',
                   }}
                 >
@@ -453,7 +453,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                   placeholder="https://example.com/profile.jpg"
                   className="w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2"
                   style={{
-                    borderColor: '#1a5d47',
+                    borderColor: '#333333',
                     color: '#0f131a',
                   }}
                 />
@@ -472,7 +472,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                   placeholder="https://example.com/cover.jpg"
                   className="w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2"
                   style={{
-                    borderColor: '#1a5d47',
+                    borderColor: '#333333',
                     color: '#0f131a',
                   }}
                 />
@@ -491,7 +491,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                   placeholder="https://yourwebsite.com"
                   className="w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2"
                   style={{
-                    borderColor: '#1a5d47',
+                    borderColor: '#333333',
                     color: '#0f131a',
                   }}
                 />
@@ -510,7 +510,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                   placeholder="Instagram, LinkedIn, etc."
                   className="w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2"
                   style={{
-                    borderColor: '#1a5d47',
+                    borderColor: '#333333',
                     color: '#0f131a',
                   }}
                 />
@@ -538,7 +538,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
                   errors.whyJoin ? 'border-red-500' : ''
                 }`}
                 style={{
-                  borderColor: errors.whyJoin ? undefined : '#1a5d47',
+                  borderColor: errors.whyJoin ? undefined : '#333333',
                   color: '#0f131a',
                 }}
               />
@@ -554,7 +554,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
               whileTap={{ scale: 0.98 }}
               onClick={onClose}
               className="px-6 py-3 border-2 rounded-[16px] font-semibold transition-all"
-              style={{ color: '#0f131a', borderColor: '#1a5d47' }}
+              style={{ color: '#0f131a', borderColor: '#333333' }}
             >
               Cancel
             </motion.button>
@@ -563,7 +563,7 @@ const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="px-8 py-3 text-white rounded-[16px] font-semibold transition-all shadow-lg hover:shadow-xl"
-              style={{ backgroundColor: '#1a5d47' }}
+              style={{ backgroundColor: '#333333' }}
             >
               Submit Application
             </motion.button>

@@ -16,7 +16,7 @@ export const CaseStudies = () => {
                                     </div>
                                 ))}
                             </div>
-                            <span className="text-[#1a5d47] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">5000+ Lives Transformed</span>
+                            <span className="text-[#333333] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">5000+ Lives Transformed</span>
                         </div>
                         <h2 className="text-3xl font-bold text-[#0F131A] tracking-tight mb-2" style={{ fontFamily: "'Cinzel', serif" }}>
                             Success Stories
@@ -25,8 +25,8 @@ export const CaseStudies = () => {
                             Real people, real transformations. See how Nirvaha is changing lives through the power of ancient wisdom and modern science.
                         </p>
                     </div>
-                    <button className="group flex items-center gap-2 text-[#1a5d47] font-semibold hover:text-[#113d2f] transition-all duration-300 pb-1">
-                        <span className="border-b-2 border-transparent group-hover:border-[#1a5d47] transition-all duration-300">View More</span>
+                    <button className="group flex items-center gap-2 text-[#333333] font-semibold hover:text-[#113d2f] transition-all duration-300 pb-1">
+                        <span className="border-b-2 border-transparent group-hover:border-[#333333] transition-all duration-300">View More</span>
                         <svg
                             className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
                             fill="none"
@@ -82,29 +82,29 @@ export const CaseStudies = () => {
                     <div className="lg:col-span-5 flex flex-col gap-8">
                         <div className="flex-1 bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl hover:shadow-2xl transition-all duration-500 group relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-8 opacity-5">
-                                <Quote className="w-20 h-20 text-[#1a5d47]" />
+                                <Quote className="w-20 h-20 text-[#333333]" />
                             </div>
-                            <span className="text-[#1a5d47] font-bold text-xs tracking-widest uppercase mb-4 block">Personal Growth</span>
+                            <span className="text-[#333333] font-bold text-xs tracking-widest uppercase mb-4 block">Personal Growth</span>
                             <h3 className="text-2xl font-bold text-[#0F131A] mb-4">Overcoming Anxiety Through Sound</h3>
                             <p className="text-gray-600 mb-6 flex-grow italic">
                                 "The binaural beats and ancient chanting modules provided a sanctuary I didn't know I needed."
                             </p>
                             <div className="flex justify-between items-center pt-6 border-t border-gray-50 mt-auto">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-[#1a5d47] font-bold">M</div>
+                                    <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#333333] font-bold">M</div>
                                     <p className="text-[#0F131A] font-bold text-sm">Marcus J.</p>
                                 </div>
-                                <ArrowRight className="w-5 h-5 text-[#1a5d47] group-hover:translate-x-2 transition-transform" />
+                                <ArrowRight className="w-5 h-5 text-[#333333] group-hover:translate-x-2 transition-transform" />
                             </div>
                         </div>
 
-                        <div className="flex-1 bg-[#1a5d47] p-8 rounded-[2rem] shadow-xl hover:shadow-2xl transition-all duration-500 group relative">
+                        <div className="flex-1 bg-[#333333] p-8 rounded-[2rem] shadow-xl hover:shadow-2xl transition-all duration-500 group relative">
                             <div className="absolute bottom-0 right-0 p-8 opacity-10">
                                 <Star className="w-24 h-24 text-white" />
                             </div>
                             <span className="text-white/60 font-bold text-xs tracking-widest uppercase mb-4 block">Health Mastery</span>
                             <h3 className="text-2xl font-bold text-white mb-4 leading-tight">Chronic Pain Relief via Ayurvedic Wisdom</h3>
-                            <p className="text-emerald-50/80 mb-6 flex-grow">
+                            <p className="text-gray-50/80 mb-6 flex-grow">
                                 Reversing years of back pain through consistent yoga nidra and herbal guidance.
                             </p>
                             <div className="flex justify-between items-center pt-6 border-t border-white/10 mt-auto">

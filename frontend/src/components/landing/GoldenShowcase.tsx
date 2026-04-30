@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import DecorativeShapes from './DecorativeShapes';
 
@@ -41,7 +41,7 @@ const GoldenShowcase: React.FC = () => {
 
           <button
             onClick={() => navigate('/community')}
-            className="px-10 py-4 rounded-full bg-[#1a5d47] text-white font-semibold text-lg hover:bg-[#144937] transition-all duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1"
+            className="px-10 py-4 rounded-full bg-[#333333] text-white font-semibold text-lg hover:bg-[#144937] transition-all duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
             Read stories

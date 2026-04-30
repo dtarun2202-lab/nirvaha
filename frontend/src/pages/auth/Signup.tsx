@@ -1,7 +1,7 @@
 // Signup.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { User, Mail, Lock, Eye, EyeOff, Sparkles } from "lucide-react";
 import BACKEND_CONFIG from "../../config/backend";
 
@@ -166,10 +166,10 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen relative flex overflow-x-hidden bg-gradient-to-br from-white via-emerald-100 to-teal-200">
+    <div className="min-h-screen relative flex overflow-x-hidden bg-gradient-to-br from-white via-gray-100 to-gray-200">
       
       {/* Left Section - Wellness Quotes Carousel (50% width on desktop, hidden on mobile/tablet) */}
-      <div className="hidden lg:flex lg:w-[50%] relative overflow-hidden h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-white">
+      <div className="hidden lg:flex lg:w-[50%] relative overflow-hidden h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-white">
         {/* Quote Container */}
         <div className="relative z-10 flex flex-col items-center justify-center py-20 px-12 w-full">
           {/* Rotating Quote with Message Border */}
@@ -182,19 +182,19 @@ const Signup: React.FC = () => {
             className="relative max-w-lg w-full"
           >
             {/* Message Border Frame */}
-            <div className="relative bg-white rounded-3xl p-8 shadow-2xl border-4 border-emerald-300">
+            <div className="relative bg-white rounded-3xl p-8 shadow-2xl border-4 border-gray-300">
               {/* Decorative Quote Icon */}
-              <svg className="w-12 h-12 text-emerald-200 mb-4 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-12 h-12 text-gray-200 mb-4 mx-auto" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
               </svg>
 
               {/* Quote Text */}
-              <p className="text-xl md:text-2xl font-semibold text-teal-800 mb-4 leading-relaxed text-center">
+              <p className="text-xl md:text-2xl font-semibold text-gray-800 mb-4 leading-relaxed text-center">
                 "{wellnessQuotes[currentQuoteIndex].text}"
               </p>
 
               {/* Author */}
-              <p className="text-base text-teal-600 italic text-center mb-6">
+              <p className="text-base text-gray-600 italic text-center mb-6">
                 — {wellnessQuotes[currentQuoteIndex].author}
               </p>
 
@@ -210,7 +210,7 @@ const Signup: React.FC = () => {
                 <div className="relative">
                   {/* Glow Effect */}
                   <motion.div
-                    className="absolute inset-0 bg-emerald-300 rounded-full blur-xl"
+                    className="absolute inset-0 bg-gray-300 rounded-full blur-xl"
                     animate={{
                       scale: [1, 1.15, 1],
                       opacity: [0.3, 0.6, 0.3],
@@ -225,7 +225,7 @@ const Signup: React.FC = () => {
                   <img
                     src={wellnessQuotes[currentQuoteIndex].image}
                     alt={`${wellnessQuotes[currentQuoteIndex].author} quote`}
-                    className="relative w-32 h-32 rounded-full object-cover shadow-2xl border-4 border-emerald-400"
+                    className="relative w-32 h-32 rounded-full object-cover shadow-2xl border-4 border-gray-400"
                   />
                 </div>
               </motion.div>
@@ -237,8 +237,8 @@ const Signup: React.FC = () => {
                     key={i}
                     className={`h-2 rounded-full transition-all ${
                       i === currentQuoteIndex
-                        ? "bg-emerald-500 w-8"
-                        : "bg-emerald-200 w-2"
+                        ? "bg-gray-500 w-8"
+                        : "bg-gray-200 w-2"
                     }`}
                     animate={{
                       scale: i === currentQuoteIndex ? 1 : 0.8,
@@ -253,7 +253,7 @@ const Signup: React.FC = () => {
 
       {/* Right Section - Signup Form (65% width on desktop, 100% on mobile/tablet) */}
       <motion.div
-        className="w-full lg:w-[65%] flex items-center justify-center p-6 md:p-12 relative z-10 bg-gradient-to-br from-white/90 via-emerald-50/90 to-teal-50/90 backdrop-blur-sm"
+        className="w-full lg:w-[65%] flex items-center justify-center p-6 md:p-12 relative z-10 bg-gradient-to-br from-white/90 via-gray-50/90 to-gray-50/90 backdrop-blur-sm"
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
@@ -266,7 +266,7 @@ const Signup: React.FC = () => {
         >
           {/* Title */}
           <motion.div className="text-center mb-8" variants={itemVariants}>
-            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent">
               Create Account
             </h1>
             <p className="text-gray-300">
@@ -288,10 +288,10 @@ const Signup: React.FC = () => {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Enter your full name"
-                  className={`w-full pl-12 pr-4 py-3 rounded-lg border border-emerald-300/80 bg-white text-black placeholder:text-gray-600 transition-all duration-300 focus:outline-none focus:ring-2 ${
+                  className={`w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300/80 bg-white text-black placeholder:text-gray-600 transition-all duration-300 focus:outline-none focus:ring-2 ${
                     errors.name
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                      : "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/20"
+                      : "border-gray-300 focus:border-gray-500 focus:ring-gray-400/20"
                   }`}
                   required
                 />
@@ -314,10 +314,10 @@ const Signup: React.FC = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Enter your email"
-                  className={`w-full pl-12 pr-4 py-3 rounded-lg border border-emerald-300/80 bg-white text-black placeholder:text-gray-600 transition-all duration-300 focus:outline-none focus:ring-2 ${
+                  className={`w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300/80 bg-white text-black placeholder:text-gray-600 transition-all duration-300 focus:outline-none focus:ring-2 ${
                     errors.email
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                      : "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/20"
+                      : "border-gray-300 focus:border-gray-500 focus:ring-gray-400/20"
                   }`}
                   required
                 />
@@ -340,10 +340,10 @@ const Signup: React.FC = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter your password"
-                  className={`w-full pl-12 pr-12 py-3 rounded-lg border border-emerald-300/80 bg-white text-black placeholder:text-gray-600 transition-all duration-300 focus:outline-none focus:ring-2 ${
+                  className={`w-full pl-12 pr-12 py-3 rounded-lg border border-gray-300/80 bg-white text-black placeholder:text-gray-600 transition-all duration-300 focus:outline-none focus:ring-2 ${
                     errors.password
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                      : "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/20"
+                      : "border-gray-300 focus:border-gray-500 focus:ring-gray-400/20"
                   }`}
                   required
                 />
@@ -377,10 +377,10 @@ const Signup: React.FC = () => {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="Confirm your password"
-                  className={`w-full pl-12 pr-12 py-3 rounded-lg border border-emerald-300/80 bg-white text-black placeholder:text-gray-600 transition-all duration-300 focus:outline-none focus:ring-2 ${
+                  className={`w-full pl-12 pr-12 py-3 rounded-lg border border-gray-300/80 bg-white text-black placeholder:text-gray-600 transition-all duration-300 focus:outline-none focus:ring-2 ${
                     errors.confirmPassword
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                      : "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/20"
+                      : "border-gray-300 focus:border-gray-500 focus:ring-gray-400/20"
                   }`}
                   required
                 />
@@ -408,7 +408,7 @@ const Signup: React.FC = () => {
               <motion.button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 px-6 text-base font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 transition-all duration-300"
+                className="w-full py-3 px-6 text-base font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-gradient-to-r from-gray-500 to-gray-500 text-white shadow-lg shadow-gray-400/30 hover:shadow-xl hover:shadow-gray-400/40 transition-all duration-300"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -436,7 +436,7 @@ const Signup: React.FC = () => {
               Already have an account?{" "}
               <button
                 onClick={() => navigate("/login")}
-                className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors hover:underline"
+                className="text-gray-400 hover:text-gray-300 font-medium transition-colors hover:underline"
               >
                 Login here
               </button>

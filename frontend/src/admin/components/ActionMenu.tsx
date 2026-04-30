@@ -47,7 +47,7 @@ export function ActionMenu({
           </DropdownMenuItem>
         )}
         {onApprove && (
-          <DropdownMenuItem onClick={onApprove} className="cursor-pointer text-emerald-600">
+          <DropdownMenuItem onClick={onApprove} className="cursor-pointer text-gray-600">
             <Check className="mr-2 h-4 w-4" />
             Approve
           </DropdownMenuItem>
@@ -77,7 +77,7 @@ export function ActionMenu({
           </DropdownMenuItem>
         )}
         {onComplete && (
-          <DropdownMenuItem onClick={onComplete} className="cursor-pointer text-emerald-600">
+          <DropdownMenuItem onClick={onComplete} className="cursor-pointer text-gray-600">
             <Check className="mr-2 h-4 w-4" />
             Mark Completed
           </DropdownMenuItem>

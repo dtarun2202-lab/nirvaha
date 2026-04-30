@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import DecorativeShapes from './DecorativeShapes';
 
 const defaultLibraryItems = [
@@ -42,7 +42,7 @@ const LibraryCarousel: React.FC = () => {
                     </motion.h2>
                     <p className="text-lg sm:text-xl text-[#595e67] max-w-3xl leading-relaxed" style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 300 }}>
                         Dive into a curated collection of ancient wisdom and modern practices designed for your inner journey.
-                        <span className="font-medium text-[#1a5d47] ml-1">Discover your path inward.</span>
+                        <span className="font-medium text-[#333333] ml-1">Discover your path inward.</span>
                     </p>
                 </div>
             </div>

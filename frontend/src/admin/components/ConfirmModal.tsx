@@ -44,7 +44,7 @@ export function ConfirmModal({
             className={
               variant === "destructive"
                 ? "bg-red-600 hover:bg-red-700 text-white"
-                : "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+                : "bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white"
             }
           >
             {confirmText}

@@ -133,7 +133,7 @@ export function DifferentPathsSection() {
                                         {/* Learn More - Bottom area (Stays dark green) */}
                                         <div
                                             className="mt-auto flex items-center gap-2 font-semibold transition-colors duration-500 group-hover:text-[#0a3629]"
-                                            style={{ color: '#1a5d47' }}
+                                            style={{ color: '#333333' }}
                                         >
                                             <div className="flex items-center gap-2">
                                                 Learn more

@@ -206,8 +206,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           variant="ghost"
           onClick={handleDropdownClick}
           className={cn(
-            "flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 whitespace-nowrap",
-            (isOpen || isDropdownActive(item.children)) && "bg-emerald-50 text-emerald-700"
+            "flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-700 hover:bg-gray-50 whitespace-nowrap",
+            (isOpen || isDropdownActive(item.children)) && "bg-gray-50 text-gray-700"
           )}
         >
           {renderMenuItemContent(item)}
@@ -217,7 +217,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           // eslint-disable-next-line react/no-unknown-property
           <div 
             ref={dropdownRef}
-            className="fixed bg-white border border-emerald-200 rounded-3xl shadow-xl z-[9999] min-w-[240px] py-2"
+            className="fixed bg-white border border-gray-200 rounded-3xl shadow-xl z-[9999] min-w-[240px] py-2"
             style={{
               top: `${dropdownPos.top}px`,
               left: `${dropdownPos.left}px`,
@@ -239,8 +239,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                           setOpenDropdown(null);
                         }}
                         className={cn(
-                          "w-full flex items-center gap-3 px-6 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors text-left",
-                          isActive(grandchild.path) && "bg-emerald-50 text-emerald-700 font-medium"
+                          "w-full flex items-center gap-3 px-6 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-700 transition-colors text-left",
+                          isActive(grandchild.path) && "bg-gray-50 text-gray-700 font-medium"
                         )}
                       >
                         <grandchild.icon className="w-4 h-4 flex-shrink-0" />
@@ -256,8 +256,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                       setOpenDropdown(null);
                     }}
                     className={cn(
-                      "w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors text-left",
-                      isActive(child.path) && "bg-emerald-50 text-emerald-700 font-medium"
+                      "w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-700 transition-colors text-left",
+                      isActive(child.path) && "bg-gray-50 text-gray-700 font-medium"
                     )}
                   >
                     <child.icon className="w-4 h-4 flex-shrink-0" />
@@ -276,13 +276,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col w-full bg-gray-50">
       {/* Header with Navigation - Fixed at top */}
-      <header className="bg-white border-b border-emerald-200 shadow-sm fixed top-0 left-0 right-0 z-50">
+      <header className="bg-white border-b border-gray-200 shadow-sm fixed top-0 left-0 right-0 z-50">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             {/* Left: Logo and Title */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-500 to-green-600 flex items-center justify-center">
                   <Shield className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -305,8 +305,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   variant="ghost"
                   onClick={() => navigate(item.path!)}
                   className={cn(
-                    "flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 whitespace-nowrap",
-                    isActive(item.path, item.exact) && "bg-emerald-50 text-emerald-700"
+                    "flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-700 hover:bg-gray-50 whitespace-nowrap",
+                    isActive(item.path, item.exact) && "bg-gray-50 text-gray-700"
                   )}
                 >
                   {renderMenuItemContent(item)}
@@ -320,7 +320,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <div className="flex items-center gap-3">
                 <Avatar className="w-8 h-8">
                   <AvatarImage src={user?.avatar} />
-                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-green-600 text-white">
+                  <AvatarFallback className="bg-gradient-to-br from-gray-500 to-green-600 text-white">
                     {user?.name?.charAt(0) || "A"}
                   </AvatarFallback>
                 </Avatar>
@@ -337,7 +337,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 variant="ghost"
                 size="sm"
                 onClick={handleLogout}
-                className="text-emerald-700 hover:text-emerald-900 hover:bg-emerald-50"
+                className="text-gray-700 hover:text-gray-900 hover:bg-gray-50"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Logout</span>
@@ -349,7 +349,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Main Content */}
       <main className="flex-1 pt-16 overflow-y-auto">
-        <div className="min-h-full p-6 bg-gradient-to-br from-emerald-50 via-white to-green-50">
+        <div className="min-h-full p-6 bg-gradient-to-br from-gray-50 via-white to-green-50">
           <div className="max-w-7xl mx-auto">{children || <Outlet />}</div>
         </div>
       </main>

@@ -1,69 +1,130 @@
 import React from "react";
 import { TrendingUp, Award, Star, Plus } from "lucide-react";
 
-export default function RightSidebar({ trending = [], mentors = [], onFollow, onViewProfile, onCreate, onTrendClick }: { trending?: any[]; mentors?: any[]; onFollow?: (id: string) => void; onViewProfile?: (profile: any) => void; onCreate?: () => void; onTrendClick?: (tag: string) => void }) {
-  const trends = trending.length ? trending : [
-    { title: "#meditation", count: "12.3K" },
-    { title: "#soundhealing", count: "8.4K" },
-    { title: "#habits", count: "6.1K" },
-  ];
+interface Mentor {
+  id: string;
+  name: string;
+  specialty: string;
+  bio: string;
+  followers: number;
+  posts: number;
+  avatar?: string;
+  avatarUrl?: string;
+  avatarColor?: string;
+  followed: boolean;
+  starred: boolean;
+}
 
-  const certs = mentors.length ? mentors : [
-    { name: "Dr. Anjali Sharma", specialty: "Vedic Meditation", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150" },
-    { name: "Elena Costa", specialty: "Sound Therapy", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" },
-  ];
+interface TrendTag { title: string; count: string; }
 
+interface Props {
+  trending: TrendTag[];
+  mentors: Mentor[];
+  activeHashtag: string;
+  onCreate: () => void;
+  onTrendClick: (tag: string) => void;
+  onFollow: (id: string) => void;
+  onStar: (id: string) => void;
+  onViewProfile: (mentor: Mentor) => void;
+}
+
+export default function RightSidebar({
+  trending, mentors, activeHashtag,
+  onCreate, onTrendClick, onFollow, onStar, onViewProfile,
+}: Props) {
   return (
     <aside className="hidden lg:block w-72 sticky top-20 self-start">
       <div className="space-y-4">
+        {/* Trending header + Create */}
         <div className="flex items-center justify-between">
           <div className="text-sm font-semibold text-black flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-emerald-600" />
+            <TrendingUp className="w-4 h-4 text-gray-600" />
             Trending
           </div>
-          <button onClick={() => onCreate && onCreate()} className="flex items-center gap-2 text-sm text-white bg-emerald-500 hover:bg-emerald-600 px-3 py-1 rounded-full">
+          <button
+            onClick={onCreate}
+            className="flex items-center gap-1.5 text-sm text-white bg-[#16a34a] hover:bg-[#15803d] px-3 py-1 rounded-full transition-colors"
+          >
             <Plus className="w-4 h-4" /> Create
           </button>
         </div>
 
-        <div className="bg-white rounded-2xl p-2 shadow-sm border border-emerald-200">
+        {/* Trending tags */}
+        <div className="bg-white rounded-2xl p-2 shadow-sm border border-gray-200">
           <ol className="space-y-1">
-            {trends.map((t, i) => (
-              <li key={i} className="flex items-center justify-between text-xs py-1">
-                <div className="flex items-center gap-2">
-                  <span className="w-5 text-emerald-600 font-semibold">{i + 1}</span>
-                  <button onClick={() => onTrendClick && onTrendClick(t.title)} className="text-black truncate text-sm text-left hover:text-emerald-600">
-                    {t.title}
-                  </button>
-                </div>
-                <span className="text-black/60 text-xs">{t.count}</span>
-              </li>
-            ))}
+            {trending.map((t, i) => {
+              const isActive = activeHashtag === t.title;
+              return (
+                <li key={i} className="flex items-center justify-between text-xs py-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 text-gray-600 font-semibold">{i + 1}</span>
+                    <button
+                      onClick={() => onTrendClick(t.title)}
+                      className={`truncate text-sm text-left transition-colors ${
+                        isActive
+                          ? "text-[#16a34a] font-semibold"
+                          : "text-black hover:text-[#16a34a]"
+                      }`}
+                    >
+                      {t.title}
+                    </button>
+                  </div>
+                  <span className="text-[#6b7280] text-xs">{t.count}</span>
+                </li>
+              );
+            })}
           </ol>
         </div>
 
-        <div className="bg-white rounded-2xl p-3 shadow-sm border border-emerald-200">
+        {/* Certified Profiles */}
+        <div className="bg-white rounded-2xl p-3 shadow-sm border border-gray-200">
           <div className="flex items-center gap-2 mb-2">
-            <Award className="w-4 h-4 text-emerald-600" />
+            <Award className="w-4 h-4 text-gray-600" />
             <h4 className="text-black font-semibold">Certified Profiles</h4>
           </div>
 
           <div className="space-y-2">
-            {certs.map((m, i) => (
-              <div key={m.id || i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-black/5">
-                <div className="w-9 h-9 rounded-full overflow-hidden border border-emerald-200">
-                  <img src={m.avatar} alt={m.name} className="w-full h-full object-cover" />
+            {mentors.map((m) => (
+              <div key={m.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-black/5">
+                <div className="w-9 h-9 rounded-full overflow-hidden border border-gray-200 flex-shrink-0">
+                  {m.avatarUrl || m.avatar ? (
+                    <img src={m.avatarUrl || m.avatar} alt={m.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-white font-bold text-xs" style={{ background: m.avatarColor || "#2D6A4F" }}>
+                      {m.name?.[0] || "?"}
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <h5 className="text-sm text-black truncate">{m.name}</h5>
-                    <Star className="w-3 h-3 text-emerald-500" />
+                    <button onClick={() => onStar(m.id)} className="flex-shrink-0">
+                      <Star
+                        className={`w-3 h-3 transition-colors ${
+                          m.starred ? "fill-yellow-400 text-yellow-400" : "text-gray-400 hover:text-yellow-400"
+                        }`}
+                      />
+                    </button>
                   </div>
-                  <div className="text-xs text-black/60">{m.specialty}</div>
+                  <div className="text-xs text-[#6b7280]">{m.specialty}</div>
                 </div>
                 <div className="flex flex-col gap-1 items-end">
-                  <button onClick={() => onFollow && onFollow(m.id)} className="text-sm text-white px-3 py-1 rounded bg-emerald-500 hover:bg-emerald-600">{m.followed ? 'Following' : 'Follow'}</button>
-                  <button onClick={() => onViewProfile && onViewProfile(m)} className="text-xs text-black/60 underline">View</button>
+                  <button
+                    onClick={() => onFollow(m.id)}
+                    className={`text-xs px-3 py-1 rounded-full font-medium transition-colors ${
+                      m.followed
+                        ? "bg-[#dcfce7] text-[#16a34a] border border-[#16a34a] hover:bg-[#bbf7d0]"
+                        : "bg-[#16a34a] text-white hover:bg-[#15803d]"
+                    }`}
+                  >
+                    {m.followed ? "Following" : "Follow"}
+                  </button>
+                  <button
+                    onClick={() => onViewProfile(m)}
+                    className="text-xs text-[#6b7280] underline hover:text-[#2D6A4F]"
+                  >
+                    View
+                  </button>
                 </div>
               </div>
             ))}
@@ -73,5 +134,3 @@ export default function RightSidebar({ trending = [], mentors = [], onFollow, on
     </aside>
   );
 }
-
-// Comment: Replace static trending and mentors with API-driven props when backend is available.

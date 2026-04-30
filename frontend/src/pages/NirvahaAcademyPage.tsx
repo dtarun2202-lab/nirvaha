@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { DashboardFooter } from '../components/dashboard/DashboardFooter';
@@ -37,9 +37,9 @@ const programs = [
 ];
 
 const programCardStyles = [
-    'bg-gradient-to-br from-[#e0f7fa] to-[#fffde4]',
+    'bg-gradient-to-br from-[#f5f5f5] to-[#fffde4]',
     'bg-gradient-to-br from-[#fceabb] to-[#f8b500]/30',
-    'bg-gradient-to-br from-[#f8ffae] to-[#43cea2]/30',
+    'bg-gradient-to-br from-[#f8ffae] to-[#888888]/30',
     'bg-gradient-to-br from-[#e0c3fc] to-[#8ec5fc]/40',
 ];
 
@@ -47,7 +47,7 @@ const programCardStyles = [
 const impactSkills = [
     {
         icon: (
-            <svg viewBox="0 0 48 48" fill="none" className="w-12 h-12 text-[#1a5d47]">
+            <svg viewBox="0 0 48 48" fill="none" className="w-12 h-12 text-[#333333]">
                 <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="1.5" />
                 <path d="M24 14l4 6h-8l4-6z M18 26h12 M20 30h8 M24 34v-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 <circle cx="16" cy="18" r="2" stroke="currentColor" strokeWidth="1" />
@@ -61,7 +61,7 @@ const impactSkills = [
     },
     {
         icon: (
-            <svg viewBox="0 0 48 48" fill="none" className="w-12 h-12 text-[#1a5d47]">
+            <svg viewBox="0 0 48 48" fill="none" className="w-12 h-12 text-[#333333]">
                 <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="1.5" />
                 <rect x="18" y="14" width="3" height="20" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
                 <rect x="23" y="18" width="3" height="16" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
@@ -73,7 +73,7 @@ const impactSkills = [
     },
     {
         icon: (
-            <svg viewBox="0 0 48 48" fill="none" className="w-12 h-12 text-[#1a5d47]">
+            <svg viewBox="0 0 48 48" fill="none" className="w-12 h-12 text-[#333333]">
                 <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="1.5" />
                 <circle cx="24" cy="20" r="6" stroke="currentColor" strokeWidth="1.5" />
                 <path d="M18 34c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -85,7 +85,7 @@ const impactSkills = [
     },
     {
         icon: (
-            <svg viewBox="0 0 48 48" fill="none" className="w-12 h-12 text-[#1a5d47]">
+            <svg viewBox="0 0 48 48" fill="none" className="w-12 h-12 text-[#333333]">
                 <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="1.5" />
                 <path d="M14 28h6l2-4 4 8 4-12 3 8h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -145,13 +145,13 @@ const NirvahaAcademyPage: React.FC = () => {
                             >
                                 <a
                                     href="#programs"
-                                    className="px-7 py-3 rounded-lg bg-[#1a5d47] text-white font-semibold text-sm shadow hover:bg-[#174c39] transition-all"
+                                    className="px-7 py-3 rounded-lg bg-[#333333] text-white font-semibold text-sm shadow hover:bg-[#222222] transition-all"
                                 >
                                     Explore Programs
                                 </a>
                                 <a
                                     href="#impact"
-                                    className="px-7 py-3 rounded-lg bg-white text-[#0F131A] font-semibold text-sm border border-gray-300 hover:border-[#1a5d47] hover:text-[#1a5d47] transition-all"
+                                    className="px-7 py-3 rounded-lg bg-white text-[#0F131A] font-semibold text-sm border border-gray-300 hover:border-[#333333] hover:text-[#333333] transition-all"
                                 >
                                     View Certification Framework
                                 </a>
@@ -176,7 +176,7 @@ const NirvahaAcademyPage: React.FC = () => {
                                     }}
                                 />
                                 {/* Gradient overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#1a5d47]/30 to-transparent pointer-events-none" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#333333]/30 to-transparent pointer-events-none" />
                             </div>
                         </motion.div>
                     </div>
@@ -237,7 +237,7 @@ const NirvahaAcademyPage: React.FC = () => {
                                 {/* Content */}
                                 <div className="flex-1 p-5 flex flex-col justify-between">
                                     <div>
-                                        <h3 className="text-xl md:text-2xl font-semibold text-[#1a5d47] mb-2 drop-shadow-sm">
+                                        <h3 className="text-xl md:text-2xl font-semibold text-[#333333] mb-2 drop-shadow-sm">
                                             {program.title}
                                         </h3>
                                         <p className="text-gray-700 text-sm leading-relaxed mb-3">
@@ -245,8 +245,8 @@ const NirvahaAcademyPage: React.FC = () => {
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-[#e0f7fa] to-[#1a5d47]/20 text-[#1a5d47] border border-[#1a5d47]/30">
-                                            <svg className="w-4 h-4 mr-1 text-[#1a5d47]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l2 2" /></svg>
+                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-[#f5f5f5] to-[#333333]/20 text-[#333333] border border-[#333333]/30">
+                                            <svg className="w-4 h-4 mr-1 text-[#333333]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l2 2" /></svg>
                                             <span className="uppercase tracking-wide">Feel:</span>&nbsp;{program.feel}
                                         </span>
                                     </div>
@@ -255,7 +255,7 @@ const NirvahaAcademyPage: React.FC = () => {
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                     <div className="opacity-0 group-hover:opacity-100 pointer-events-auto flex items-center justify-center transition-all duration-300 w-full h-full">
                                         <div className="backdrop-blur-md bg-white/60 rounded-2xl flex items-center justify-center w-full h-full absolute z-0 transition-all duration-300" />
-                                        <button className="relative z-10 px-8 py-3 rounded-full bg-white/80 backdrop-blur-lg text-[#1a5d47] text-lg font-bold shadow-2xl border border-[#1a5d47]/10 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#1a5d47]/50 hover:bg-gradient-to-r hover:from-[#06beb6] hover:to-[#48b1f3] hover:text-white hover:border-transparent">
+                                        <button className="relative z-10 px-8 py-3 rounded-full bg-white/80 backdrop-blur-lg text-[#333333] text-lg font-bold shadow-2xl border border-[#333333]/10 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#333333]/50 hover:bg-gradient-to-r hover:from-[#555555] hover:to-[#777777] hover:text-white hover:border-transparent">
                                             {program.cta} <ArrowRight className="w-4 h-4 inline ml-1" />
                                         </button>
                                     </div>
@@ -283,7 +283,7 @@ const NirvahaAcademyPage: React.FC = () => {
                             transition={{ duration: 0.7 }}
                             className="flex-1 w-full"
                         >
-                            <div className="rounded-2xl overflow-hidden shadow-xl border border-[#e2e8f0] bg-gradient-to-br from-[#e0f7fa]/40 to-[#f8ffae]/30">
+                            <div className="rounded-2xl overflow-hidden shadow-xl border border-[#e2e8f0] bg-gradient-to-br from-[#f5f5f5]/40 to-[#f8ffae]/30">
                                 <motion.img
                                     src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=700&q=80"
                                     alt="Professional thinking and reasoning"
@@ -415,25 +415,25 @@ const NirvahaAcademyPage: React.FC = () => {
                             type="text"
                             name="name"
                             placeholder="Your name"
-                            className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#1a5d47]/30 outline-none"
+                            className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#333333]/30 outline-none"
                         />
                         <input
                             type="email"
                             name="email"
                             placeholder="Email address"
-                            className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#1a5d47]/30 outline-none"
+                            className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#333333]/30 outline-none"
                         />
                         <textarea
                             name="message"
                             placeholder="How can we help?"
                             rows={5}
-                            className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#1a5d47]/30 outline-none resize-none"
+                            className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#333333]/30 outline-none resize-none"
                         />
                         <div className="flex justify-center">
                             <button
                                 type="button"
                                 onClick={() => window.location.href = 'mailto:hello@nirvaha.org'}
-                                className="px-6 py-3 rounded-lg bg-[#1a5d47] text-white font-semibold shadow hover:bg-[#174c39] transition-all"
+                                className="px-6 py-3 rounded-lg bg-[#333333] text-white font-semibold shadow hover:bg-[#222222] transition-all"
                             >
                                 Contact Us
                             </button>

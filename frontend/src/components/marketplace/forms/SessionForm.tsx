@@ -79,7 +79,7 @@ const SessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
               errors.title ? 'border-red-500' : ''
             }`}
             style={{
-              borderColor: errors.title ? undefined : '#1a5d47',
+              borderColor: errors.title ? undefined : '#333333',
               color: '#0f131a',
             }}
           />
@@ -101,7 +101,7 @@ const SessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
               errors.host ? 'border-red-500' : ''
             }`}
             style={{
-              borderColor: errors.host ? undefined : '#1a5d47',
+              borderColor: errors.host ? undefined : '#333333',
               color: '#0f131a',
             }}
           />
@@ -124,7 +124,7 @@ const SessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
             errors.summary ? 'border-red-500' : ''
           }`}
           style={{
-            borderColor: errors.summary ? undefined : '#1a5d47',
+            borderColor: errors.summary ? undefined : '#333333',
             color: '#0f131a',
           }}
         />
@@ -146,7 +146,7 @@ const SessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
             errors.description ? 'border-red-500' : ''
           }`}
           style={{
-            borderColor: errors.description ? undefined : '#1a5d47',
+            borderColor: errors.description ? undefined : '#333333',
             color: '#0f131a',
           }}
         />
@@ -169,7 +169,7 @@ const SessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
               errors.platform ? 'border-red-500' : ''
             }`}
             style={{
-              borderColor: errors.platform ? undefined : '#1a5d47',
+              borderColor: errors.platform ? undefined : '#333333',
               color: '#0f131a',
             }}
           />
@@ -191,7 +191,7 @@ const SessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
               errors.link ? 'border-red-500' : ''
             }`}
             style={{
-              borderColor: errors.link ? undefined : '#1a5d47',
+              borderColor: errors.link ? undefined : '#333333',
               color: '#0f131a',
             }}
           />
@@ -213,7 +213,7 @@ const SessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
               errors.image ? 'border-red-500' : ''
             }`}
             style={{
-              borderColor: errors.image ? undefined : '#1a5d47',
+              borderColor: errors.image ? undefined : '#333333',
               color: '#0f131a',
             }}
           />
@@ -236,7 +236,7 @@ const SessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
               errors.startDate ? 'border-red-500' : ''
             }`}
             style={{
-              borderColor: errors.startDate ? undefined : '#1a5d47',
+              borderColor: errors.startDate ? undefined : '#333333',
               color: '#0f131a',
             }}
           />
@@ -257,7 +257,7 @@ const SessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
               errors.startTime ? 'border-red-500' : ''
             }`}
             style={{
-              borderColor: errors.startTime ? undefined : '#1a5d47',
+              borderColor: errors.startTime ? undefined : '#333333',
               color: '#0f131a',
             }}
           />
@@ -279,7 +279,7 @@ const SessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
               errors.timeZone ? 'border-red-500' : ''
             }`}
             style={{
-              borderColor: errors.timeZone ? undefined : '#1a5d47',
+              borderColor: errors.timeZone ? undefined : '#333333',
               color: '#0f131a',
             }}
           />
@@ -301,7 +301,7 @@ const SessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
               errors.duration ? 'border-red-500' : ''
             }`}
             style={{
-              borderColor: errors.duration ? undefined : '#1a5d47',
+              borderColor: errors.duration ? undefined : '#333333',
               color: '#0f131a',
             }}
           />
@@ -340,7 +340,7 @@ const SessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
               errors.price ? 'border-red-500' : ''
             }`}
             style={{
-              borderColor: errors.price ? undefined : '#1a5d47',
+              borderColor: errors.price ? undefined : '#333333',
               color: '#0f131a',
             }}
           />
@@ -352,7 +352,7 @@ const SessionForm: React.FC<SessionFormProps> = ({ onSubmit }) => {
         <button
           type="submit"
           className="mt-2 px-6 py-3 text-white font-semibold rounded-[20px] hover:shadow-xl transition-all text-lg"
-          style={{ backgroundColor: '#1a5d47' }}
+          style={{ backgroundColor: '#333333' }}
         >
           Publish Session
         </button>

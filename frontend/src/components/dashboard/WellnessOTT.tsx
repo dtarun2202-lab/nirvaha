@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Play } from 'lucide-react';
 
 const videos = [
@@ -42,10 +42,10 @@ export const WellnessOTT = () => {
                 <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                     <div>
                         <div className="flex items-center gap-2 mb-3">
-                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1a5d47]/10 text-[#1a5d47]">
+                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#333333]/10 text-[#333333]">
                                 <Play className="w-3.5 h-3.5" />
                             </span>
-                            <span className="text-[#1a5d47] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">Nirvaha Stream</span>
+                            <span className="text-[#333333] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">Nirvaha Stream</span>
                         </div>
                         <h2
                             className="text-3xl font-bold text-[#0F131A] tracking-tight mb-2"
@@ -58,12 +58,12 @@ export const WellnessOTT = () => {
                         </p>
                     </div>
                     <motion.button
-                        className="group flex items-center gap-2 text-[#1a5d47] font-semibold hover:text-[#113d2f] transition-all duration-300 pb-1"
+                        className="group flex items-center gap-2 text-[#333333] font-semibold hover:text-[#113d2f] transition-all duration-300 pb-1"
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
                     >
-                        <span className="border-b-2 border-transparent group-hover:border-[#1a5d47] transition-all duration-300">View More</span>
+                        <span className="border-b-2 border-transparent group-hover:border-[#333333] transition-all duration-300">View More</span>
                         <svg
                             className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
                             fill="none"
@@ -99,14 +99,14 @@ export const WellnessOTT = () => {
 
                                 {/* Play Button */}
                                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <div className="w-14 h-14 bg-[#1a5d47] rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                                    <div className="w-14 h-14 bg-[#333333] rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
                                         <Play className="w-6 h-6 text-white fill-white ml-1" />
                                     </div>
                                 </div>
 
                                 {/* Category Badge */}
                                 <div className="absolute top-3 left-3">
-                                    <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-[#1a5d47] text-xs font-semibold rounded-full">
+                                    <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-[#333333] text-xs font-semibold rounded-full">
                                         {vid.category}
                                     </span>
                                 </div>
@@ -115,7 +115,7 @@ export const WellnessOTT = () => {
                             {/* Content */}
                             <div className="p-4">
                                 <h3
-                                    className="font-bold text-[#0F131A] group-hover:text-[#1a5d47] transition-colors"
+                                    className="font-bold text-[#0F131A] group-hover:text-[#333333] transition-colors"
                                     style={{ fontFamily: "'Cinzel', serif" }}
                                 >
                                     {vid.title}

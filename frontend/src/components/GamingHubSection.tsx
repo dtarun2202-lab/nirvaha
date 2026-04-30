@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Gamepad2, ArrowRight, Play } from 'lucide-react';
 
 const features = [
@@ -19,7 +19,7 @@ const features = [
         description: 'Sync your breathing and movement in this biofeedback-integrated rhythm game.',
         benefits: ['Lowers cortisol', 'Heart-rate sync'],
         image: '/gaming/zen-flow.png',
-        color: 'bg-emerald-500'
+        color: 'bg-gray-500'
     },
     {
         id: 'soul-quest',
@@ -74,10 +74,10 @@ export const GamingHubSection = () => {
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
                     <div className="max-w-xl">
                         <div className="flex items-center gap-2 mb-3">
-                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1a5d47]/10 text-[#1a5d47]">
+                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#333333]/10 text-[#333333]">
                                 <Gamepad2 className="w-3.5 h-3.5" />
                             </span>
-                            <span className="text-[#1a5d47] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">Nirvaha Arcade</span>
+                            <span className="text-[#333333] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">Nirvaha Arcade</span>
                         </div>
                         <h2
                             className="text-3xl font-bold text-[#0F131A] tracking-tight mb-2"
@@ -89,8 +89,8 @@ export const GamingHubSection = () => {
                             Experience premium interactive sessions designed to engage your mind and restore your spirit.
                         </p>
                     </div>
-                    <button className="group flex items-center gap-2 text-[#1a5d47] font-semibold hover:text-[#113d2f] transition-all duration-300 pb-1">
-                        <span className="border-b-2 border-transparent group-hover:border-[#1a5d47] transition-all duration-300">View More</span>
+                    <button className="group flex items-center gap-2 text-[#333333] font-semibold hover:text-[#113d2f] transition-all duration-300 pb-1">
+                        <span className="border-b-2 border-transparent group-hover:border-[#333333] transition-all duration-300">View More</span>
                         <svg
                             className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
                             fill="none"
@@ -204,7 +204,7 @@ export const GamingHubSection = () => {
                                                             transition={{ delay: 0.1 + (i * 0.05) }}
                                                             className="flex items-center gap-2"
                                                         >
-                                                            <div className="w-4 h-4 rounded-full bg-[#1a5d47]/10 flex items-center justify-center text-[#1a5d47]">
+                                                            <div className="w-4 h-4 rounded-full bg-[#333333]/10 flex items-center justify-center text-[#333333]">
                                                                 <Check className="w-2.5 h-2.5" />
                                                             </div>
                                                             <span className="text-slate-700 text-xs font-medium">{benefit}</span>

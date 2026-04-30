@@ -1,30 +1,65 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { Mail, Lock, User, Eye, EyeOff, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { ForgotPasswordModal } from "./ForgotPasswordModal";
+import { useAuth } from "../contexts/AuthContext";
+import BACKEND_CONFIG from "../config/backend";
 
 export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }) {
+  const { login } = useAuth();
   const [isSignup, setIsSignup] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate login/signup
-    onNavigate("home");
+    setLoading(true);
+
+    try {
+      const endpoint = isSignup ? "/api/auth/register" : "/api/login";
+      const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(isSignup ? {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: "user"
+        } : {
+          email: formData.email,
+          password: formData.password
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Auth failed");
+
+      if (isSignup) {
+        alert("Account created! Please sign in.");
+        setIsSignup(false);
+      } else {
+        login(data.user, data.token);
+        window.location.href = "/dashboard/overview";
+      }
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-white flex items-center justify-center p-6">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-50 via-gray-50 to-white flex items-center justify-center p-6">
       {/* Ambient Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl"
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-gray-400/10 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -36,7 +71,7 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
           }}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-400/10 rounded-full blur-3xl"
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gray-400/10 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.3, 1],
             opacity: [0.2, 0.4, 0.2],
@@ -55,7 +90,7 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
         {Array.from({ length: 20 }).map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 bg-emerald-400/20 rounded-full"
+            className="absolute w-1 h-1 bg-gray-400/20 rounded-full"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -92,7 +127,7 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
         >
           <div className="relative">
             <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-[40px] blur-2xl opacity-20"
+              className="absolute inset-0 bg-gradient-to-br from-gray-500 to-gray-500 rounded-[40px] blur-2xl opacity-20"
               animate={{
                 scale: [1, 1.05, 1],
                 opacity: [0.2, 0.3, 0.2],
@@ -103,9 +138,9 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
                 ease: "easeInOut",
               }}
             />
-            <div className="relative bg-white/80 backdrop-blur-xl rounded-[40px] p-12 shadow-2xl border border-emerald-200/30">
+            <div className="relative bg-white/80 backdrop-blur-xl rounded-[40px] p-12 shadow-2xl border border-gray-200/30">
               <motion.div
-                className="w-20 h-20 mb-8 rounded-[28px] bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-xl"
+                className="w-20 h-20 mb-8 rounded-[28px] bg-gradient-to-br from-gray-500 to-gray-500 flex items-center justify-center shadow-xl"
                 animate={{
                   boxShadow: [
                     "0 0 20px rgba(34, 197, 94, 0.3)",
@@ -118,10 +153,10 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
                 <Sparkles className="w-8 h-8 text-white" />
               </motion.div>
 
-              <h1 className="text-emerald-800 mb-4">
+              <h1 className="text-gray-800 mb-4">
                 Welcome to NIRVAHA
               </h1>
-              <p className="text-xl text-teal-700 mb-8">
+              <p className="text-xl text-gray-700 mb-8">
                 Your journey to inner peace and spiritual wellness begins here
               </p>
 
@@ -139,7 +174,7 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
                     transition={{ duration: 0.6, delay: 0.4 + i * 0.1 }}
                     className="flex items-center gap-3"
                   >
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 flex items-center justify-center flex-shrink-0">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gray-400 to-gray-400 flex items-center justify-center flex-shrink-0">
                       <svg
                         className="w-4 h-4 text-white"
                         fill="none"
@@ -154,26 +189,26 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
                         />
                       </svg>
                     </div>
-                    <span className="text-teal-700">{feature}</span>
+                    <span className="text-gray-700">{feature}</span>
                   </motion.div>
                 ))}
               </div>
 
-              <div className="mt-12 pt-8 border-t border-emerald-200/30">
+              <div className="mt-12 pt-8 border-t border-gray-200/30">
                 <div className="flex items-center gap-6">
                   <div className="text-center">
-                    <div className="text-3xl text-teal-800 mb-1">50K+</div>
-                    <div className="text-sm text-teal-600">Active Users</div>
+                    <div className="text-3xl text-gray-800 mb-1">50K+</div>
+                    <div className="text-sm text-gray-600">Active Users</div>
                   </div>
-                  <div className="w-px h-12 bg-emerald-200/30" />
+                  <div className="w-px h-12 bg-gray-200/30" />
                   <div className="text-center">
-                    <div className="text-3xl text-teal-800 mb-1">1M+</div>
-                    <div className="text-sm text-teal-600">Meditations</div>
+                    <div className="text-3xl text-gray-800 mb-1">1M+</div>
+                    <div className="text-sm text-gray-600">Meditations</div>
                   </div>
-                  <div className="w-px h-12 bg-emerald-200/30" />
+                  <div className="w-px h-12 bg-gray-200/30" />
                   <div className="text-center">
-                    <div className="text-3xl text-teal-800 mb-1">4.9★</div>
-                    <div className="text-sm text-teal-600">Rating</div>
+                    <div className="text-3xl text-gray-800 mb-1">4.9★</div>
+                    <div className="text-sm text-gray-600">Rating</div>
                   </div>
                 </div>
               </div>
@@ -188,11 +223,11 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
           transition={{ duration: 0.8, delay: 0.3 }}
           className="relative"
         >
-          <div className="bg-white/90 backdrop-blur-xl rounded-[40px] p-8 md:p-12 shadow-2xl border border-emerald-200/30">
+          <div className="bg-white/90 backdrop-blur-xl rounded-[40px] p-8 md:p-12 shadow-2xl border border-gray-200/30">
             {/* Mobile Logo */}
             <div className="lg:hidden mb-8">
               <motion.div
-                className="w-16 h-16 mx-auto mb-4 rounded-[24px] bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-xl"
+                className="w-16 h-16 mx-auto mb-4 rounded-[24px] bg-gradient-to-br from-gray-500 to-gray-500 flex items-center justify-center shadow-xl"
                 animate={{
                   boxShadow: [
                     "0 0 20px rgba(34, 197, 94, 0.3)",
@@ -204,19 +239,19 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
               >
                 <Sparkles className="w-7 h-7 text-white" />
               </motion.div>
-              <h2 className="text-center text-emerald-800 mb-2">NIRVAHA</h2>
-              <p className="text-center text-teal-600">Harmony of Mind</p>
+              <h2 className="text-center text-gray-800 mb-2">NIRVAHA</h2>
+              <p className="text-center text-gray-600">Harmony of Mind</p>
             </div>
 
             {/* Tab Switcher */}
-            <div className="flex gap-2 mb-8 p-2 bg-emerald-50 rounded-[24px]">
+            <div className="flex gap-2 mb-8 p-2 bg-gray-50 rounded-[24px]">
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsSignup(false)}
                 className={`flex-1 py-3 rounded-[20px] transition-all ${
                   !isSignup
-                    ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg"
-                    : "text-teal-700"
+                    ? "bg-gradient-to-r from-gray-500 to-gray-500 text-white shadow-lg"
+                    : "text-gray-700"
                 }`}
               >
                 Login
@@ -226,8 +261,8 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
                 onClick={() => setIsSignup(true)}
                 className={`flex-1 py-3 rounded-[20px] transition-all ${
                   isSignup
-                    ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg"
-                    : "text-teal-700"
+                    ? "bg-gradient-to-r from-gray-500 to-gray-500 text-white shadow-lg"
+                    : "text-gray-700"
                 }`}
               >
                 Sign Up
@@ -242,11 +277,11 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                 >
-                  <label className="block text-sm text-teal-800 mb-2">
+                  <label className="block text-sm text-gray-800 mb-2">
                     Full Name
                   </label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-teal-500" />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                     <input
                       type="text"
                       placeholder="Enter your full name"
@@ -254,7 +289,7 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
                       }
-                      className="w-full pl-12 pr-4 py-4 bg-white border-2 border-emerald-200/50 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-teal-800 placeholder:text-teal-400 transition-all"
+                      className="w-full pl-12 pr-4 py-4 bg-white border-2 border-gray-200/50 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent text-gray-800 placeholder:text-gray-400 transition-all"
                     />
                   </div>
                 </motion.div>
@@ -262,11 +297,11 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
 
               {/* Email Field */}
               <div>
-                <label className="block text-sm text-teal-800 mb-2">
+                <label className="block text-sm text-gray-800 mb-2">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-teal-500" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                   <input
                     type="email"
                     placeholder="Enter your email"
@@ -274,18 +309,18 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
-                    className="w-full pl-12 pr-4 py-4 bg-white border-2 border-emerald-200/50 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-teal-800 placeholder:text-teal-400 transition-all"
+                    className="w-full pl-12 pr-4 py-4 bg-white border-2 border-gray-200/50 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent text-gray-800 placeholder:text-gray-400 transition-all"
                   />
                 </div>
               </div>
 
               {/* Password Field */}
               <div>
-                <label className="block text-sm text-teal-800 mb-2">
+                <label className="block text-sm text-gray-800 mb-2">
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-teal-500" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
@@ -293,12 +328,12 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
-                    className="w-full pl-12 pr-12 py-4 bg-white border-2 border-emerald-200/50 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-teal-800 placeholder:text-teal-400 transition-all"
+                    className="w-full pl-12 pr-12 py-4 bg-white border-2 border-gray-200/50 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent text-gray-800 placeholder:text-gray-400 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-teal-500 hover:text-teal-700 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" />
@@ -315,7 +350,7 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
                   <button
                     type="button"
                     onClick={() => setIsForgotPasswordOpen(true)}
-                    className="text-sm text-emerald-600 hover:text-emerald-700 transition-colors font-medium hover:underline"
+                    className="text-sm text-gray-600 hover:text-gray-700 transition-colors font-medium hover:underline"
                   >
                     Forgot password?
                   </button>
@@ -327,9 +362,9 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    className="w-5 h-5 rounded-lg border-2 border-emerald-300 text-emerald-600 focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                    className="w-5 h-5 rounded-lg border-2 border-gray-300 text-gray-600 focus:ring-2 focus:ring-gray-400 cursor-pointer"
                   />
-                  <span className="text-sm text-teal-700">Remember me</span>
+                  <span className="text-sm text-gray-700">Remember me</span>
                 </label>
               )}
 
@@ -338,19 +373,29 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-[20px] shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-2"
+                disabled={loading}
+                className="w-full py-4 bg-gradient-to-r from-gray-500 to-gray-500 text-white rounded-[20px] shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                <Sparkles className="w-5 h-5" />
-                {isSignup ? "Create Account" : "Sign In"}
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    {isSignup ? "Creating Account..." : "Signing In..."}
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5" />
+                    {isSignup ? "Create Account" : "Sign In"}
+                  </>
+                )}
               </motion.button>
 
               {/* Divider */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-emerald-200/30" />
+                  <div className="w-full border-t border-gray-200/30" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white/90 text-teal-600">
+                  <span className="px-4 bg-white/90 text-gray-600">
                     Or continue with
                   </span>
                 </div>
@@ -362,7 +407,7 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="button"
-                  className="py-3 px-4 bg-white border-2 border-emerald-200/50 rounded-[20px] hover:bg-emerald-50 transition-all flex items-center justify-center gap-2"
+                  className="py-3 px-4 bg-white border-2 border-gray-200/50 rounded-[20px] hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path
@@ -382,32 +427,32 @@ export function LoginPage({ onNavigate }: { onNavigate: (page: string) => void }
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  <span className="text-teal-800">Google</span>
+                  <span className="text-gray-800">Google</span>
                 </motion.button>
 
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="button"
-                  className="py-3 px-4 bg-white border-2 border-emerald-200/50 rounded-[20px] hover:bg-emerald-50 transition-all flex items-center justify-center gap-2"
+                  className="py-3 px-4 bg-white border-2 border-gray-200/50 rounded-[20px] hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24">
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
-                  <span className="text-teal-800">Facebook</span>
+                  <span className="text-gray-800">Facebook</span>
                 </motion.button>
               </div>
             </form>
 
             {/* Terms */}
             {isSignup && (
-              <p className="text-xs text-center text-teal-600 mt-6">
+              <p className="text-xs text-center text-gray-600 mt-6">
                 By signing up, you agree to our{" "}
-                <button className="text-emerald-600 hover:text-emerald-700 underline">
+                <button className="text-gray-600 hover:text-gray-700 underline">
                   Terms of Service
                 </button>{" "}
                 and{" "}
-                <button className="text-emerald-600 hover:text-emerald-700 underline">
+                <button className="text-gray-600 hover:text-gray-700 underline">
                   Privacy Policy
                 </button>
               </p>

@@ -13,15 +13,15 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
-        // Emerald Sanctuary theme tokens
+        // White theme tokens
         sanctuary: {
-          DEFAULT: '#072f2f',
-          900: '#051f20',
-          800: '#0f3d3e'
+          DEFAULT: '#1a1a1a',
+          900: '#0a0a0a',
+          800: '#222222'
         },
         "luminous-mint": {
-          DEFAULT: '#00d2a0',
-          500: '#00b894'
+          DEFAULT: '#555555',
+          500: '#333333'
         },
         // Ancient Spiritual Wellness Palette
         saffron: {
@@ -45,15 +45,15 @@ export default {
           dark: '#1A110C',
         },
         tealGlow: {
-          DEFAULT: '#00C9B1',
-          light: '#33D9C5',
-          dark: '#00A08C',
+          DEFAULT: '#555555',
+          light: '#777777',
+          dark: '#333333',
         },
         mint: {
-          500: '#8FF0D2',
+          500: '#cccccc',
         },
         deepTeal: {
-          900: '#003f3f',
+          900: '#111111',
         },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -150,10 +150,10 @@ export default {
         "lotus-float": "lotus-float 4s ease-in-out infinite",
       },
       backgroundImage: {
-        'sanctuary': 'linear-gradient(135deg, #0f3d3e 0%, #051f20 100%)',
+        'sanctuary': 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)',
       },
       boxShadow: {
-        'mint-glow': '0 10px 30px rgba(0,210,160,0.1)',
+        'mint-glow': '0 10px 30px rgba(0,0,0,0.08)',
       },
     },
   },

@@ -34,7 +34,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [content, setContent] = useState<Record<string, any>>({});
 
   useEffect(() => {
-    const newSocket = io('http://localhost:5000', {
+    const newSocket = io('http://localhost:5001', {
       transports: ['websocket'],
       reconnection: true,
       reconnectionAttempts: 5,
@@ -113,7 +113,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const fetchContent = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/content');
+      const response = await fetch('http://localhost:5001/api/content');
       const data = await response.json();
       setContent(data);
     } catch (error) {

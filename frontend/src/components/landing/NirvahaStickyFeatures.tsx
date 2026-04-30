@@ -44,8 +44,8 @@ export function NirvahaStickyFeatures() {
                     <div className="lg:w-1/4">
                         <div className={`lg:sticky lg:top-24 transition-all duration-1000 ease-out ${inView ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="h-[1.5px] w-10 bg-[#1a5d47]" />
-                                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: '0.75rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#1a5d47', fontWeight: 600 }}>The Inner Path</span>
+                                <div className="h-[1.5px] w-10 bg-[#333333]" />
+                                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: '0.75rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#333333', fontWeight: 600 }}>The Inner Path</span>
                             </div>
 
                             <h2
@@ -53,7 +53,7 @@ export function NirvahaStickyFeatures() {
                                 style={{ fontFamily: "'Cinzel', serif" }}
                             >
                                 Gentle Services for Your <br className="hidden lg:block" />
-                                <span className="text-[#1a5d47]">Inner Journey</span>
+                                <span className="text-[#333333]">Inner Journey</span>
                             </h2>
 
                             <p
@@ -64,14 +64,14 @@ export function NirvahaStickyFeatures() {
                             </p>
 
                             <button
-                                className="group flex items-center gap-3 text-[#1a5d47] font-semibold text-sm transition-all duration-300"
+                                className="group flex items-center gap-3 text-[#333333] font-semibold text-sm transition-all duration-300"
                                 style={{ fontFamily: "'Poppins', sans-serif" }}
                             >
                                 <span className="relative">
                                     Start Your Journey
-                                    <div className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-[#1a5d47] transition-all duration-300 group-hover:w-full" />
+                                    <div className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-[#333333] transition-all duration-300 group-hover:w-full" />
                                 </span>
-                                <div className="w-7 h-7 rounded-full border border-[#1a5d47]/20 flex items-center justify-center group-hover:bg-[#1a5d47] group-hover:text-white transition-all duration-300">
+                                <div className="w-7 h-7 rounded-full border border-[#333333]/20 flex items-center justify-center group-hover:bg-[#333333] group-hover:text-white transition-all duration-300">
                                     <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                     </svg>

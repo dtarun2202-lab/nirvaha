@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import DecorativeShapes from './DecorativeShapes';
 
@@ -28,7 +28,7 @@ const ClosingSection: React.FC = () => {
 
             {/* Ambient Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] opacity-20 pointer-events-none"
-                style={{ background: 'radial-gradient(circle at center, #1a5d47 0%, transparent 70%)', filter: 'blur(100px)' }} />
+                style={{ background: 'radial-gradient(circle at center, #333333 0%, transparent 70%)', filter: 'blur(100px)' }} />
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 {/* Main content */}
@@ -78,7 +78,7 @@ const ClosingSection: React.FC = () => {
                             whileInView={{ opacity: 1 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8, delay: 0.3 }}
-                            className="text-2xl md:text-3xl lg:text-4xl font-light text-emerald-100/60" style={{ fontFamily: "'Poppins', sans-serif" }}
+                            className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-100/60" style={{ fontFamily: "'Poppins', sans-serif" }}
                         >
                             Begin your journey inward.
                         </motion.h3>
@@ -92,7 +92,7 @@ const ClosingSection: React.FC = () => {
                             whileHover={{ scale: 1.03, boxShadow: "0 20px 40px rgba(0,0,0,0.2)" }}
                             whileTap={{ scale: 0.98 }}
                             onClick={handleStartJourney}
-                            className="px-12 py-5 bg-white text-[#0c3328] font-bold text-lg rounded-full shadow-2xl transition-all duration-300 inline-block hover:bg-emerald-50"
+                            className="px-12 py-5 bg-white text-[#0c3328] font-bold text-lg rounded-full shadow-2xl transition-all duration-300 inline-block hover:bg-gray-50"
                             style={{ fontFamily: "'Poppins', sans-serif" }}
                         >
                             Start Your Journey

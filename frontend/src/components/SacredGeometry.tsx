@@ -1,11 +1,11 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 export function SacredGeometry() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
       {/* Flower of Life Pattern */}
       <motion.svg
-        className="absolute top-20 right-20 w-64 h-64 text-emerald-400"
+        className="absolute top-20 right-20 w-64 h-64 text-gray-400"
         viewBox="0 0 200 200"
         animate={{
           rotate: 360,
@@ -27,7 +27,7 @@ export function SacredGeometry() {
 
       {/* Metatron's Cube */}
       <motion.svg
-        className="absolute bottom-32 left-20 w-72 h-72 text-teal-400"
+        className="absolute bottom-32 left-20 w-72 h-72 text-gray-400"
         viewBox="0 0 200 200"
         animate={{
           rotate: -360,
@@ -75,7 +75,7 @@ export function SacredGeometry() {
 
       {/* Hexagonal Grid */}
       <motion.svg
-        className="absolute bottom-20 right-40 w-80 h-80 text-emerald-300"
+        className="absolute bottom-20 right-40 w-80 h-80 text-gray-300"
         viewBox="0 0 200 200"
         animate={{
           opacity: [0.1, 0.25, 0.1],
@@ -111,7 +111,7 @@ export function SacredGeometry() {
         {[0, 1, 2, 3, 4].map((i) => (
           <motion.div
             key={i}
-            className="absolute top-1/2 left-1/2 rounded-full border border-teal-400"
+            className="absolute top-1/2 left-1/2 rounded-full border border-gray-400"
             style={{
               width: `${60 + i * 30}px`,
               height: `${60 + i * 30}px`,
@@ -159,7 +159,7 @@ export function SacredGeometry() {
             delay: i * 0.5,
           }}
         >
-          <svg width="40" height="40" viewBox="0 0 40 40" className="text-emerald-400">
+          <svg width="40" height="40" viewBox="0 0 40 40" className="text-gray-400">
             <polygon
               points="20,5 35,35 5,35"
               fill="none"
@@ -203,7 +203,7 @@ export function SacredGeometry() {
 
       {/* Wireframe Cube */}
       <motion.svg
-        className="absolute bottom-1/4 left-1/2 w-32 h-32 text-teal-300"
+        className="absolute bottom-1/4 left-1/2 w-32 h-32 text-gray-300"
         viewBox="0 0 100 100"
         animate={{
           rotateX: [0, 360],

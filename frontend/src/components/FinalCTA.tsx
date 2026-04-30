@@ -1,9 +1,9 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, Gift, Crown } from "lucide-react";
 
 export function FinalCTA() {
   return (
-    <section className="relative py-32 px-6 overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700">
+    <section className="relative py-32 px-6 overflow-hidden bg-gradient-to-br from-gray-600 via-gray-600 to-gray-700">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Flowing Waves */}
@@ -80,7 +80,7 @@ export function FinalCTA() {
           <h2 className="text-white mb-6">
             Begin Your Journey to
             <motion.span
-              className="block bg-gradient-to-r from-lime-300 via-emerald-200 to-teal-300 bg-clip-text text-transparent"
+              className="block bg-gradient-to-r from-lime-300 via-gray-200 to-gray-300 bg-clip-text text-transparent"
               animate={{
                 backgroundPosition: ["0%", "100%", "0%"],
               }}
@@ -100,7 +100,7 @@ export function FinalCTA() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-xl text-emerald-50 mb-12 max-w-3xl mx-auto leading-relaxed"
+          className="text-xl text-gray-50 mb-12 max-w-3xl mx-auto leading-relaxed"
         >
           Join thousands who have transformed their lives through NIRVAHA's 
           revolutionary approach to spiritual wellness. Your path to inner peace 
@@ -119,10 +119,10 @@ export function FinalCTA() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
-            className="group relative px-10 py-5 bg-white text-emerald-700 rounded-full shadow-2xl overflow-hidden"
+            className="group relative px-10 py-5 bg-white text-gray-700 rounded-full shadow-2xl overflow-hidden"
           >
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-lime-100 to-emerald-100 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute inset-0 bg-gradient-to-r from-lime-100 to-gray-100 opacity-0 group-hover:opacity-100 transition-opacity"
             />
             <span className="relative z-10 flex items-center gap-3 text-lg">
               <Crown className="w-6 h-6" />
@@ -174,7 +174,7 @@ export function FinalCTA() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.9 + index * 0.1 }}
               whileHover={{ y: -5 }}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-emerald-50"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-gray-50"
             >
               <item.icon className="w-4 h-4 text-lime-300" />
               <span className="text-sm">{item.text}</span>
@@ -190,7 +190,7 @@ export function FinalCTA() {
           transition={{ duration: 1, delay: 1 }}
           className="mt-16 pt-12 border-t border-white/10"
         >
-          <p className="text-sm text-emerald-100 mb-6">Trusted by leading wellness organizations</p>
+          <p className="text-sm text-gray-100 mb-6">Trusted by leading wellness organizations</p>
           <div className="flex flex-wrap items-center justify-center gap-12 opacity-60">
             {["Wellness+", "MindCare", "Zen Institute", "SoulPath"].map((brand, index) => (
               <motion.div
@@ -206,7 +206,7 @@ export function FinalCTA() {
       </div>
 
       {/* Radial Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-lime-400/20 via-emerald-400/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-lime-400/20 via-gray-400/10 to-transparent rounded-full blur-3xl pointer-events-none" />
     </section>
   );
 }

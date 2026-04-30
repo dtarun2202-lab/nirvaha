@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import {
   Users,
   Star,
@@ -150,10 +150,10 @@ export function CompanionPage() {
   );
 
   const companionPalette = [
-    "from-emerald-400 to-teal-400",
-    "from-lime-400 to-emerald-400",
-    "from-cyan-400 to-emerald-500",
-    "from-teal-500 to-emerald-600",
+    "from-gray-400 to-gray-400",
+    "from-lime-400 to-gray-400",
+    "from-gray-300 to-gray-500",
+    "from-gray-500 to-gray-600",
   ];
 
   // Booking helpers
@@ -246,7 +246,7 @@ export function CompanionPage() {
                 whileTap={{ scale: 0.95 }}
                 onClick={handleCancelApplication}
                 className="px-6 py-4 bg-white border-2 rounded-full shadow-xl hover:shadow-2xl transition-all flex items-center gap-2"
-                style={{ color: '#0f131a', borderColor: '#1a5d47' }}
+                style={{ color: '#0f131a', borderColor: '#333333' }}
               >
                 Cancel Request
               </motion.button>
@@ -257,7 +257,7 @@ export function CompanionPage() {
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsApplicationOpen(true)}
               className="px-8 py-4 text-white rounded-full shadow-xl hover:shadow-2xl transition-all flex items-center gap-2 mx-auto"
-              style={{ backgroundColor: '#1a5d47' }}
+              style={{ backgroundColor: '#333333' }}
             >
               <Users className="w-5 h-5" />
               Become a Companion
@@ -277,7 +277,7 @@ export function CompanionPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className="px-8 py-4 bg-white/80 backdrop-blur-xl rounded-2xl border-2 shadow-lg hover:shadow-xl transition-all flex items-center gap-2 font-semibold"
-            style={{ color: '#0f131a', borderColor: '#1a5d47' }}
+            style={{ color: '#0f131a', borderColor: '#333333' }}
           >
             Filter
           </motion.button>
@@ -286,7 +286,7 @@ export function CompanionPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="px-8 py-4 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 font-semibold"
-              style={{ backgroundColor: '#1a5d47' }}
+              style={{ backgroundColor: '#333333' }}
             >
               <Clock className="w-5 h-5" />
               24/7 Connect
@@ -298,9 +298,9 @@ export function CompanionPage() {
                 onClick={() => setCompanionMode(!companionMode)}
                 className="px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 font-semibold border-2"
                 style={{
-                  backgroundColor: companionMode ? '#1a5d47' : 'white',
+                  backgroundColor: companionMode ? '#333333' : 'white',
                   color: companionMode ? 'white' : '#0f131a',
-                  borderColor: '#1a5d47'
+                  borderColor: '#333333'
                 }}
               >
                 <Award className="w-5 h-5" />
@@ -340,7 +340,7 @@ export function CompanionPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.6, delay: idx * 0.1 }}
                       className="bg-white rounded-[32px] p-6 border-2 shadow-lg"
-                      style={{ borderColor: '#1a5d47' }}
+                      style={{ borderColor: '#333333' }}
                     >
                       <div className="flex items-start justify-between mb-4">
                         <div>
@@ -353,7 +353,7 @@ export function CompanionPage() {
                         </div>
                         <div
                           className="px-3 py-1 rounded-full text-xs text-white font-semibold"
-                          style={{ backgroundColor: '#1a5d47' }}
+                          style={{ backgroundColor: '#333333' }}
                         >
                           {booking.status || 'Confirmed'}
                         </div>
@@ -376,7 +376,7 @@ export function CompanionPage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         className="w-full mt-6 py-3 rounded-full text-white font-semibold transition-all"
-                        style={{ backgroundColor: '#1a5d47' }}
+                        style={{ backgroundColor: '#333333' }}
                       >
                         Join Session
                       </motion.button>
@@ -398,15 +398,15 @@ export function CompanionPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {loading ? (
               <div className="col-span-full text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-                <p className="text-lg text-emerald-600">Loading companions...</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-500 mx-auto mb-4"></div>
+                <p className="text-lg text-gray-600">Loading companions...</p>
               </div>
             ) : error ? (
               <div className="col-span-full text-center py-12">
                 <p className="text-lg text-red-500">{error}</p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="mt-4 px-6 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600"
+                  className="mt-4 px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
                 >
                   Retry
                 </button>
@@ -433,7 +433,7 @@ export function CompanionPage() {
                 <motion.div
                   className={`absolute inset-0 bg-gradient-to-br ${color} rounded-[40px] blur-xl opacity-0 group-hover:opacity-30 transition-opacity`}
                 />
-                <div className="relative bg-white/90 backdrop-blur-xl rounded-[40px] overflow-hidden shadow-xl border border-emerald-200/30 h-[500px] flex flex-col">
+                <div className="relative bg-white/90 backdrop-blur-xl rounded-[40px] overflow-hidden shadow-xl border border-gray-200/30 h-[500px] flex flex-col">
                   {/* Cover Image */}
                   <div className="relative h-[17.5%] min-h-[88px] overflow-hidden">
                     <img
@@ -447,7 +447,7 @@ export function CompanionPage() {
                     <div className="absolute top-4 right-4">
                       <div
                         className={`px-3 py-1 rounded-full text-xs backdrop-blur-xl shadow-lg flex items-center gap-2 ${availabilityLabel === "Available"
-                          ? "bg-emerald-500/90 text-white"
+                          ? "bg-gray-500/90 text-white"
                           : "bg-orange-500/90 text-white"
                           }`}
                       >
@@ -478,8 +478,8 @@ export function CompanionPage() {
 
                   {/* Profile Info */}
                   <div className="px-6 pb-4 flex-1 flex flex-col overflow-hidden">
-                    <h3 className="text-teal-800 mb-1 truncate">{companion.name}</h3>
-                    <p className="text-sm text-teal-600 mb-3 truncate">
+                    <h3 className="text-gray-800 mb-1 truncate">{companion.name}</h3>
+                    <p className="text-sm text-gray-600 mb-3 truncate">
                       {companion.title || companion.expertise}
                     </p>
 
@@ -487,25 +487,25 @@ export function CompanionPage() {
                     <div className="flex items-center gap-4 mb-3 text-sm">
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 fill-lime-400 text-lime-400" />
-                        <span className="text-teal-800">{companion.rating ?? 4.8}</span>
-                        <span className="text-teal-600">
+                        <span className="text-gray-800">{companion.rating ?? 4.8}</span>
+                        <span className="text-gray-600">
                           ({companion.reviews ?? 0})
                         </span>
                       </div>
-                      <div className="flex items-center gap-1 text-teal-600">
+                      <div className="flex items-center gap-1 text-gray-600">
                         <Video className="w-4 h-4" />
                         {companion.sessions ?? 0} sessions
                       </div>
                     </div>
 
                     {/* Location */}
-                    <div className="flex items-center gap-2 text-sm text-teal-600 mb-2 truncate">
+                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-2 truncate">
                       <MapPin className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">{companion.location}</span>
                     </div>
 
                     {/* Bio */}
-                    <p className="text-sm text-teal-700 mb-3 line-clamp-2 overflow-hidden">
+                    <p className="text-sm text-gray-700 mb-3 line-clamp-2 overflow-hidden">
                       {companion.bio}
                     </p>
 
@@ -514,30 +514,30 @@ export function CompanionPage() {
                       {(companion.specialties || []).slice(0, 2).map((specialty: string, j: number) => (
                         <span
                           key={j}
-                          className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full"
+                          className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
                         >
                           {specialty}
                         </span>
                       ))}
                       {(companion.specialties || []).length > 2 && (
-                        <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full">
+                        <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
                           +{(companion.specialties || []).length - 2}
                         </span>
                       )}
                     </div>
 
                     {/* Pricing */}
-                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-3 mb-3">
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-50 rounded-2xl p-3 mb-3">
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <p className="text-xs text-teal-600 mb-1">Per Hour</p>
-                          <p className="text-lg text-teal-800">
+                          <p className="text-xs text-gray-600 mb-1">Per Hour</p>
+                          <p className="text-lg text-gray-800">
                             {companion.hourlyRate ?? 0}
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-teal-600 mb-1">Per Call</p>
-                          <p className="text-lg text-teal-800">
+                          <p className="text-xs text-gray-600 mb-1">Per Call</p>
+                          <p className="text-lg text-gray-800">
                             {companion.callRate ?? 0}
                           </p>
                         </div>
@@ -551,7 +551,7 @@ export function CompanionPage() {
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setSelectedCompanion(companion)}
                         className="flex-1 py-3 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all"
-                        style={{ backgroundColor: '#1a5d47' }}
+                        style={{ backgroundColor: '#333333' }}
                       >
                         Book Session
                       </motion.button>
@@ -560,14 +560,14 @@ export function CompanionPage() {
                         whileTap={{ scale: 0.9 }}
                         onClick={() => toggleLike(companion.id)}
                         aria-pressed={likedIds.includes(companion.id)}
-                        className={`w-12 h-12 bg-white border-2 rounded-2xl flex items-center justify-center transition-colors ${likedIds.includes(companion.id) ? 'border-rose-200 bg-rose-50' : 'border-emerald-200 hover:bg-emerald-50'}`}
+                        className={`w-12 h-12 bg-white border-2 rounded-2xl flex items-center justify-center transition-colors ${likedIds.includes(companion.id) ? 'border-rose-200 bg-rose-50' : 'border-gray-200 hover:bg-gray-50'}`}
                       >
                         <Heart className={`w-5 h-5 ${likedIds.includes(companion.id) ? 'fill-rose-500 text-rose-500' : 'text-rose-500'}`} />
                       </motion.button>
                     </div>
 
                     {/* Response Time - Compact */}
-                    <div className="flex items-center justify-center gap-2 text-xs text-teal-600">
+                    <div className="flex items-center justify-center gap-2 text-xs text-gray-600">
                       <Clock className="w-3 h-3" />
                       {companion.responseTime || "Typically replies in 24h"}
                     </div>
@@ -610,7 +610,7 @@ export function CompanionPage() {
                   className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-xl rounded-full flex items-center justify-center shadow-lg"
                 >
                   <svg
-                    className="w-5 h-5 text-teal-800"
+                    className="w-5 h-5 text-gray-800"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -639,24 +639,24 @@ export function CompanionPage() {
                 <div className="px-8 pb-8 max-h-[60vh] overflow-y-auto pr-3 scrollbar-thin scrollbar-thumb-emerald-300 scrollbar-track-emerald-50">
                   {/* Profile Info */}
                   <div className="mt-8 mb-6">
-                    <h2 className="text-teal-800 mb-1">
+                    <h2 className="text-gray-800 mb-1">
                       {selectedCompanion.name}
                     </h2>
-                    <p className="text-teal-600 mb-3">
+                    <p className="text-gray-600 mb-3">
                       {selectedCompanion.title}
                     </p>
                     <div className="flex items-center gap-4 text-sm mb-3">
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 fill-lime-400 text-lime-400" />
-                        <span className="text-teal-800">
+                        <span className="text-gray-800">
                           {selectedCompanion.rating ?? 4.8}
                         </span>
-                        <span className="text-teal-600">
+                        <span className="text-gray-600">
                           ({selectedCompanion.reviews ?? 0} reviews)
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-teal-600 mb-4">
+                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
                       <MapPin className="w-4 h-4" />
                       {selectedCompanion.location}
                     </div>
@@ -664,18 +664,18 @@ export function CompanionPage() {
 
                   <div className="space-y-4">
                     <div>
-                      <h4 className="text-sm font-semibold text-teal-800 mb-2">About</h4>
-                      <p className="text-sm text-teal-700">{selectedCompanion.bio}</p>
+                      <h4 className="text-sm font-semibold text-gray-800 mb-2">About</h4>
+                      <p className="text-sm text-gray-700">{selectedCompanion.bio}</p>
                     </div>
 
                     <div>
-                      <h4 className="text-sm font-semibold text-teal-800 mb-2">Specialties</h4>
+                      <h4 className="text-sm font-semibold text-gray-800 mb-2">Specialties</h4>
                       <div className="flex flex-wrap gap-2">
                         {(selectedCompanion.specialties || []).map(
                           (specialty: string, j: number) => (
                             <span
                               key={j}
-                              className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full"
+                              className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
                             >
                               {specialty}
                             </span>
@@ -685,13 +685,13 @@ export function CompanionPage() {
                     </div>
 
                     <div>
-                      <h4 className="text-sm font-semibold text-teal-800 mb-2">Languages</h4>
+                      <h4 className="text-sm font-semibold text-gray-800 mb-2">Languages</h4>
                       <div className="flex flex-wrap gap-2">
                         {(selectedCompanion.languages || []).map(
                           (language: string, j: number) => (
                             <span
                               key={j}
-                              className="px-3 py-1 bg-teal-100 text-teal-700 text-xs rounded-full"
+                              className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
                             >
                               {language}
                             </span>
@@ -701,17 +701,17 @@ export function CompanionPage() {
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-4 mt-6 mb-6">
-                    <h4 className="text-sm font-semibold text-teal-800 mb-3">Booking Options</h4>
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-50 rounded-2xl p-4 mt-6 mb-6">
+                    <h4 className="text-sm font-semibold text-gray-800 mb-3">Booking Options</h4>
                     <div className="grid md:grid-cols-2 gap-3">
                       <div className="bg-white rounded-xl p-3">
                         <div className="flex items-center gap-2 mb-2">
-                          <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+                          <div className="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-500 rounded-lg flex items-center justify-center">
                             <Clock className="w-4 h-4 text-white" />
                           </div>
                           <div>
-                            <p className="text-xs text-teal-600">Hourly Rate</p>
-                            <p className="text-lg font-bold text-teal-800">
+                            <p className="text-xs text-gray-600">Hourly Rate</p>
+                            <p className="text-lg font-bold text-gray-800">
                               {selectedCompanion.hourlyRate}
                             </p>
                           </div>
@@ -728,12 +728,12 @@ export function CompanionPage() {
 
                       <div className="bg-white rounded-xl p-3">
                         <div className="flex items-center gap-2 mb-2">
-                          <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+                          <div className="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-500 rounded-lg flex items-center justify-center">
                             <Phone className="w-4 h-4 text-white" />
                           </div>
                           <div>
-                            <p className="text-xs text-teal-600">Per Call</p>
-                            <p className="text-lg font-bold text-teal-800">
+                            <p className="text-xs text-gray-600">Per Call</p>
+                            <p className="text-lg font-bold text-gray-800">
                               {selectedCompanion.callRate}
                             </p>
                           </div>
@@ -754,11 +754,11 @@ export function CompanionPage() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => copyProfileLink(selectedCompanion.id)}
-                    className="w-full py-3 bg-white border-2 border-emerald-200 rounded-2xl text-teal-800 hover:bg-emerald-50 transition-all flex items-center justify-center gap-2 text-sm"
+                    className="w-full py-3 bg-white border-2 border-gray-200 rounded-2xl text-gray-800 hover:bg-gray-50 transition-all flex items-center justify-center gap-2 text-sm"
                   >
                     {copiedId === selectedCompanion.id ? (
                       <>
-                        <Check className="w-4 h-4 text-emerald-600" />
+                        <Check className="w-4 h-4 text-gray-600" />
                         Profile Link Copied!
                       </>
                     ) : (
@@ -793,14 +793,14 @@ export function CompanionPage() {
               <div className="flex items-center gap-3 mb-4">
                 <img src={booking.companion.avatar} alt={booking.companion.name} className="w-12 h-12 rounded-xl object-cover" />
                 <div>
-                  <h4 className="text-teal-800">Book {booking.companion.name}</h4>
-                  <p className="text-sm text-teal-600">{booking.type === 'chat' ? 'Chat Session' : 'Video Call'}</p>
+                  <h4 className="text-gray-800">Book {booking.companion.name}</h4>
+                  <p className="text-sm text-gray-600">{booking.type === 'chat' ? 'Chat Session' : 'Video Call'}</p>
                 </div>
               </div>
 
               {/* Platform selection */}
               <div className="mb-4">
-                <p className="text-sm text-teal-700 mb-2">Choose Platform</p>
+                <p className="text-sm text-gray-700 mb-2">Choose Platform</p>
                 <div className="grid grid-cols-2 gap-2">
                   {(booking.type === 'chat'
                     ? ['In-App Chat', 'WhatsApp', 'Telegram', 'Signal']
@@ -809,7 +809,7 @@ export function CompanionPage() {
                       <button
                         key={p}
                         onClick={() => setBooking({ ...booking, platform: p })}
-                        className={`px-3 py-2 rounded-xl border text-sm ${booking.platform === p ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent' : 'bg-white border-emerald-200 text-teal-800 hover:bg-emerald-50'}`}
+                        className={`px-3 py-2 rounded-xl border text-sm ${booking.platform === p ? 'bg-gradient-to-r from-gray-500 to-gray-500 text-white border-transparent' : 'bg-white border-gray-200 text-gray-800 hover:bg-gray-50'}`}
                       >
                         {p}
                       </button>
@@ -820,21 +820,21 @@ export function CompanionPage() {
               {/* Date & Time */}
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div>
-                  <p className="text-sm text-teal-700 mb-1">Date</p>
+                  <p className="text-sm text-gray-700 mb-1">Date</p>
                   <input
                     type="date"
                     value={booking.date}
                     onChange={(e) => setBooking({ ...booking, date: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-emerald-200 text-teal-800 bg-white"
+                    className="w-full px-3 py-2 rounded-xl border border-gray-200 text-gray-800 bg-white"
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-teal-700 mb-1">Time</p>
+                  <p className="text-sm text-gray-700 mb-1">Time</p>
                   <input
                     type="time"
                     value={booking.time}
                     onChange={(e) => setBooking({ ...booking, time: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-emerald-200 text-teal-800 bg-white"
+                    className="w-full px-3 py-2 rounded-xl border border-gray-200 text-gray-800 bg-white"
                   />
                 </div>
               </div>
@@ -842,14 +842,14 @@ export function CompanionPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setBooking({ open: false, companion: null, type: null, platform: '', date: '', time: '' })}
-                  className="flex-1 px-4 py-3 rounded-xl border border-emerald-200 text-teal-800 hover:bg-emerald-50"
+                  className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-gray-800 hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={submitBooking}
                   disabled={!booking.platform || !booking.date || !booking.time}
-                  className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-gray-500 to-gray-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Book Now
                 </button>

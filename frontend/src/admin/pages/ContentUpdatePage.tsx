@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Save } from "lucide-react";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 type Pillar = {
   id: string;
@@ -280,7 +280,7 @@ export function ContentUpdatePage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <Card className="bg-white border-emerald-200 p-6 space-y-4">
+                <Card className="bg-white border-gray-200 p-6 space-y-4">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-black">Pillar {pillar.id}</h3>
                     <Button
@@ -310,7 +310,7 @@ export function ContentUpdatePage() {
                         type="text"
                         value={pillar.image}
                         onChange={(e) => updatePillar(pillar.id, "image", e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 text-sm"
                         placeholder="Image URL"
                       />
                     </div>
@@ -323,7 +323,7 @@ export function ContentUpdatePage() {
                           type="text"
                           value={pillar.title}
                           onChange={(e) => updatePillar(pillar.id, "title", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
                           placeholder="Pillar title"
                         />
                       </div>
@@ -334,7 +334,7 @@ export function ContentUpdatePage() {
                           value={pillar.desc}
                           onChange={(e) => updatePillar(pillar.id, "desc", e.target.value)}
                           rows={4}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 resize-none"
                           placeholder="Pillar description"
                         />
                       </div>
@@ -348,14 +348,14 @@ export function ContentUpdatePage() {
           <div className="flex gap-3">
             <Button
               onClick={addPillar}
-              className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white"
+              className="bg-gradient-to-r from-gray-500 to-green-600 hover:from-gray-600 hover:to-green-700 text-white"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add New Pillar
             </Button>
             <Button
               onClick={savePillars}
-              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white"
+              className="bg-gradient-to-r from-blue-500 to-gray-500 hover:from-blue-600 hover:to-gray-700 text-white"
             >
               <Save className="w-4 h-4 mr-2" />
               Save All Changes
@@ -372,7 +372,7 @@ export function ContentUpdatePage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <Card className="bg-white border-emerald-200 p-4 space-y-4 relative">
+                <Card className="bg-white border-gray-200 p-4 space-y-4 relative">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -397,7 +397,7 @@ export function ContentUpdatePage() {
                       type="text"
                       value={item.image}
                       onChange={(e) => updateLibraryItem(index, "image", e.target.value)}
-                      className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-gray-400"
                       placeholder="Image URL"
                     />
                   </div>
@@ -410,7 +410,7 @@ export function ContentUpdatePage() {
                         type="text"
                         value={item.title}
                         onChange={(e) => updateLibraryItem(index, "title", e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
                         placeholder="Item title"
                       />
                     </div>
@@ -421,7 +421,7 @@ export function ContentUpdatePage() {
                         type="text"
                         value={item.category}
                         onChange={(e) => updateLibraryItem(index, "category", e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
                         placeholder="Category"
                       />
                     </div>
@@ -432,7 +432,7 @@ export function ContentUpdatePage() {
                         type="text"
                         value={item.duration}
                         onChange={(e) => updateLibraryItem(index, "duration", e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
                         placeholder="Duration"
                       />
                     </div>
@@ -445,14 +445,14 @@ export function ContentUpdatePage() {
           <div className="flex gap-3">
             <Button
               onClick={addLibraryItem}
-              className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white"
+              className="bg-gradient-to-r from-gray-500 to-green-600 hover:from-gray-600 hover:to-green-700 text-white"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add New Item
             </Button>
             <Button
               onClick={saveLibraryItems}
-              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white"
+              className="bg-gradient-to-r from-blue-500 to-gray-500 hover:from-blue-600 hover:to-gray-700 text-white"
             >
               <Save className="w-4 h-4 mr-2" />
               Save All Changes
@@ -469,7 +469,7 @@ export function ContentUpdatePage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <Card className="bg-white border-emerald-200 p-6 space-y-4">
+                <Card className="bg-white border-gray-200 p-6 space-y-4">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-black">Goal {goal.id}</h3>
                     <Button
@@ -499,7 +499,7 @@ export function ContentUpdatePage() {
                         type="text"
                         value={goal.image}
                         onChange={(e) => updateGoal(goal.id, "image", e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 text-sm"
                         placeholder="Image URL"
                       />
                     </div>
@@ -512,7 +512,7 @@ export function ContentUpdatePage() {
                           type="text"
                           value={goal.title}
                           onChange={(e) => updateGoal(goal.id, "title", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
                           placeholder="Goal title"
                         />
                       </div>
@@ -523,7 +523,7 @@ export function ContentUpdatePage() {
                           type="text"
                           value={goal.subtitle}
                           onChange={(e) => updateGoal(goal.id, "subtitle", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
                           placeholder="Goal subtitle"
                         />
                       </div>
@@ -534,7 +534,7 @@ export function ContentUpdatePage() {
                           value={goal.desc}
                           onChange={(e) => updateGoal(goal.id, "desc", e.target.value)}
                           rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 resize-none"
                           placeholder="Goal description"
                         />
                       </div>
@@ -548,14 +548,14 @@ export function ContentUpdatePage() {
           <div className="flex gap-3">
             <Button
               onClick={addGoal}
-              className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white"
+              className="bg-gradient-to-r from-gray-500 to-green-600 hover:from-gray-600 hover:to-green-700 text-white"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add New Goal
             </Button>
             <Button
               onClick={saveGoals}
-              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white"
+              className="bg-gradient-to-r from-blue-500 to-gray-500 hover:from-blue-600 hover:to-gray-700 text-white"
             >
               <Save className="w-4 h-4 mr-2" />
               Save All Changes

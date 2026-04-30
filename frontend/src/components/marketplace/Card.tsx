@@ -22,13 +22,13 @@ const Card: React.FC<ServiceCard> = ({ title, summary, description, link, image 
           className="w-full h-full object-cover"
         />
       </div>
-      <h3 className="heading-tertiary text-teal-800 mb-3">
+      <h3 className="heading-tertiary text-gray-800 mb-3">
         {title}
       </h3>
-      <p className="text-teal-700 text-lg sm:text-xl mb-3 leading-relaxed font-semibold flex-grow">
+      <p className="text-gray-700 text-lg sm:text-xl mb-3 leading-relaxed font-semibold flex-grow">
         {summary}
       </p>
-      <p className="text-teal-600 text-base sm:text-lg mb-6 leading-relaxed">
+      <p className="text-gray-600 text-base sm:text-lg mb-6 leading-relaxed">
         {description}
       </p>
       <div className="flex justify-end mt-auto">

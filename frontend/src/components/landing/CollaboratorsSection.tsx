@@ -28,7 +28,7 @@ const CollaboratorsSection: React.FC = () => {
             className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0F131A] tracking-tight"
             style={{ fontFamily: "'Cinzel', serif" }}
           >
-            Collaborators & <span className="text-[#1a5d47]">Partners</span>
+            Collaborators & <span className="text-[#333333]">Partners</span>
           </h2>
         </div>
 
@@ -36,7 +36,7 @@ const CollaboratorsSection: React.FC = () => {
           {partners.map((partner, index) => (
             <div
               key={index}
-              className="bg-white border border-[#edf2f7] rounded-md aspect-[1.8/1] flex items-center justify-center p-2 group transition-all duration-300 hover:border-t-2 hover:border-t-[#1a5d47] hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] relative overflow-hidden"
+              className="bg-white border border-[#edf2f7] rounded-md aspect-[1.8/1] flex items-center justify-center p-2 group transition-all duration-300 hover:border-t-2 hover:border-t-[#333333] hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] relative overflow-hidden"
             >
               <img
                 src={partner.image}

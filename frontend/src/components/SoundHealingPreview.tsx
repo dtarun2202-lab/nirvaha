@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { Volume2, Waves, Music, Radio } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -15,30 +15,30 @@ export function SoundHealingPreview() {
       title: "Nature Sounds",
       frequency: "528 Hz",
       icon: Waves,
-      color: "from-emerald-400 to-teal-400",
+      color: "from-gray-400 to-gray-400",
     },
     {
       title: "Binaural Beats",
       frequency: "639 Hz",
       icon: Volume2,
-      color: "from-blue-400 to-cyan-400",
+      color: "from-blue-400 to-gray-300",
     },
     {
       title: "Crystal Therapy",
       frequency: "741 Hz",
       icon: Music,
-      color: "from-lime-400 to-emerald-400",
+      color: "from-lime-400 to-gray-400",
     },
   ];
 
   return (
-    <section className="relative py-24 px-6 overflow-hidden bg-gradient-to-br from-teal-900 via-emerald-900 to-teal-800 text-white">
+    <section className="relative py-24 px-6 overflow-hidden bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 text-white">
       {/* Animated Background Waves */}
       <div className="absolute inset-0 overflow-hidden opacity-20">
         {[...Array(5)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-full h-32 bg-gradient-to-r from-transparent via-teal-400 to-transparent"
+            className="absolute w-full h-32 bg-gradient-to-r from-transparent via-gray-400 to-transparent"
             style={{
               bottom: `${i * 20}%`,
             }}
@@ -57,7 +57,7 @@ export function SoundHealingPreview() {
       </div>
 
       {/* Radial Gradient Background */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-emerald-500/20 to-transparent rounded-full blur-3xl" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-gray-500/20 to-transparent rounded-full blur-3xl" />
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Section Header */}
@@ -69,7 +69,7 @@ export function SoundHealingPreview() {
           className="text-center mb-16"
         >
           <h2 className="text-white text-5xl md:text-6xl font-extrabold mb-6">Sound Healing Frequencies</h2>
-          <p className="max-w-2xl mx-auto text-lg text-emerald-100">
+          <p className="max-w-2xl mx-auto text-lg text-gray-100">
             Immerse yourself in sacred frequencies that restore harmony to body, 
             mind, and spirit. Experience the transformative power of sound therapy.
           </p>
@@ -91,7 +91,7 @@ export function SoundHealingPreview() {
                 return (
                   <motion.div
                     key={i}
-                    className="flex-1 bg-gradient-to-t from-lime-400 via-emerald-400 to-teal-400 rounded-full"
+                    className="flex-1 bg-gradient-to-t from-lime-400 via-gray-400 to-gray-400 rounded-full"
                     style={{
                       minWidth: "4px",
                     }}
@@ -144,14 +144,14 @@ export function SoundHealingPreview() {
                 delay: 1,
               }}
             >
-              <div className="w-32 h-32 rounded-full border-2 border-emerald-400" />
+              <div className="w-32 h-32 rounded-full border-2 border-gray-400" />
             </motion.div>
 
             {/* Center Play Button */}
             <motion.div
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-gradient-to-br from-lime-400 to-emerald-400 flex items-center justify-center cursor-pointer shadow-2xl z-10"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-gradient-to-br from-lime-400 to-gray-400 flex items-center justify-center cursor-pointer shadow-2xl z-10"
               style={{
                 boxShadow: "0 0 40px rgba(163, 230, 53, 0.6)",
               }}
@@ -200,7 +200,7 @@ export function SoundHealingPreview() {
                     transition={{ duration: 2, repeat: Infinity }}
                     className={`w-2 h-2 rounded-full bg-gradient-to-r ${category.color}`}
                   />
-                  <span className="text-sm text-emerald-200">{category.frequency}</span>
+                  <span className="text-sm text-gray-200">{category.frequency}</span>
                 </div>
 
                 {/* Play Button */}
@@ -244,7 +244,7 @@ export function SoundHealingPreview() {
             onClick={() => navigate('/dashboard/sound')}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
-            className="px-8 py-4 bg-gradient-to-r from-lime-400 to-emerald-400 text-teal-900 rounded-full shadow-2xl hover:shadow-emerald-400/50 transition-all"
+            className="px-8 py-4 bg-gradient-to-r from-lime-400 to-gray-400 text-gray-900 rounded-full shadow-2xl hover:shadow-gray-400/50 transition-all"
           >
             Explore Full Sound Library
           </motion.button>

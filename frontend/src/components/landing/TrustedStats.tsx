@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import DecorativeShapes from './DecorativeShapes';
 
 const TrustedStats: React.FC = () => {
@@ -17,7 +17,7 @@ const TrustedStats: React.FC = () => {
 
                 {/* Section Header */}
                 <div className="text-center mb-12">
-                    <span className="text-xs font-bold tracking-[0.2em] text-[#595e67] uppercase font-sans border-b border-[#1a5d47]/20 pb-2">
+                    <span className="text-xs font-bold tracking-[0.2em] text-[#595e67] uppercase font-sans border-b border-[#333333]/20 pb-2">
                         Trusted by professionals at
                     </span>
                 </div>
@@ -43,7 +43,7 @@ const TrustedStats: React.FC = () => {
                             </div>
 
                             {/* Subtle Fill Hover Effect */}
-                            <div className="absolute inset-x-0 bottom-0 h-0 bg-[#1a5d47]/[0.02] transition-all duration-500 group-hover:h-full" />
+                            <div className="absolute inset-x-0 bottom-0 h-0 bg-[#333333]/[0.02] transition-all duration-500 group-hover:h-full" />
                         </motion.div>
                     ))}
                 </div>

@@ -1,15 +1,15 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { Activity, Calendar, TrendingUp, Award, Clock, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export function DashboardPreview() {
   const navigate = useNavigate();
   return (
-    <section className="relative py-24 px-6 overflow-hidden bg-gradient-to-br from-white via-teal-50/20 to-emerald-50/20">
+    <section className="relative py-24 px-6 overflow-hidden bg-gradient-to-br from-white via-gray-50/20 to-gray-50/20">
       {/* Ambient Background */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute -top-48 -right-48 w-96 h-96 bg-teal-400/10 rounded-full blur-3xl"
+          className="absolute -top-48 -right-48 w-96 h-96 bg-gray-400/10 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.3, 1],
             opacity: [0.2, 0.4, 0.2],
@@ -31,8 +31,8 @@ export function DashboardPreview() {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-emerald-800 mb-4">Your Wellness Dashboard</h2>
-          <p className="max-w-2xl mx-auto text-lg text-teal-700">
+          <h2 className="text-gray-800 mb-4">Your Wellness Dashboard</h2>
+          <p className="max-w-2xl mx-auto text-lg text-gray-700">
             Visualize your spiritual journey with beautiful analytics, personalized insights, 
             and progress tracking that celebrates every step of your growth.
           </p>
@@ -47,14 +47,14 @@ export function DashboardPreview() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
             whileHover={{ y: -8 }}
-            className="lg:col-span-2 bg-white/80 backdrop-blur-xl rounded-[32px] p-8 shadow-xl border border-emerald-200/30"
+            className="lg:col-span-2 bg-white/80 backdrop-blur-xl rounded-[32px] p-8 shadow-xl border border-gray-200/30"
           >
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h4 className="text-teal-800 mb-1">Your Emotional State</h4>
-                <p className="text-sm text-teal-600">Last 7 days</p>
+                <h4 className="text-gray-800 mb-1">Your Emotional State</h4>
+                <p className="text-sm text-gray-600">Last 7 days</p>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-400 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-400 to-gray-400 flex items-center justify-center">
                 <Heart className="w-6 h-6 text-white" />
               </div>
             </div>
@@ -65,7 +65,7 @@ export function DashboardPreview() {
               {[0, 1, 2].map((i) => (
                 <motion.div
                   key={i}
-                  className="absolute rounded-full border-2 border-emerald-300/30"
+                  className="absolute rounded-full border-2 border-gray-300/30"
                   style={{
                     width: `${160 + i * 40}px`,
                     height: `${160 + i * 40}px`,
@@ -99,7 +99,7 @@ export function DashboardPreview() {
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
-                className="relative w-40 h-40 rounded-full bg-gradient-to-br from-lime-400 via-emerald-400 to-teal-400 flex items-center justify-center shadow-2xl"
+                className="relative w-40 h-40 rounded-full bg-gradient-to-br from-lime-400 via-gray-400 to-gray-400 flex items-center justify-center shadow-2xl"
                 style={{
                   boxShadow: "0 20px 60px rgba(34, 197, 94, 0.4)",
                 }}
@@ -115,8 +115,8 @@ export function DashboardPreview() {
 
               {/* Emotion Points */}
               {[
-                { emoji: "😌", label: "Calm", angle: 0, color: "from-teal-400 to-cyan-400" },
-                { emoji: "😄", label: "Joy", angle: 90, color: "from-lime-400 to-emerald-400" },
+                { emoji: "😌", label: "Calm", angle: 0, color: "from-gray-400 to-gray-300" },
+                { emoji: "😄", label: "Joy", angle: 90, color: "from-lime-400 to-gray-400" },
                 { emoji: "😔", label: "Low", angle: 180, color: "from-blue-400 to-indigo-400" },
                 { emoji: "😮", label: "Alert", angle: 270, color: "from-orange-400 to-red-400" },
               ].map((emotion, i) => {
@@ -165,7 +165,7 @@ export function DashboardPreview() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
               whileHover={{ y: -8 }}
-              className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-6 shadow-xl text-white"
+              className="bg-gradient-to-br from-gray-500 to-gray-600 rounded-3xl p-6 shadow-xl text-white"
             >
               <div className="flex items-center justify-between mb-4">
                 <Award className="w-8 h-8" />
@@ -178,7 +178,7 @@ export function DashboardPreview() {
               <h4 className="text-white mb-1">Streak</h4>
               <div className="flex items-baseline gap-2">
                 <span className="text-4xl">14</span>
-                <span className="text-lg text-emerald-100">days</span>
+                <span className="text-lg text-gray-100">days</span>
               </div>
               <div className="mt-4 h-2 bg-white/20 rounded-full overflow-hidden">
                 <motion.div
@@ -198,18 +198,18 @@ export function DashboardPreview() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
               whileHover={{ y: -8 }}
-              className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-emerald-200/30"
+              className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-gray-200/30"
             >
               <div className="flex items-center justify-between mb-4">
-                <Clock className="w-8 h-8 text-teal-600" />
-                <TrendingUp className="w-6 h-6 text-emerald-500" />
+                <Clock className="w-8 h-8 text-gray-600" />
+                <TrendingUp className="w-6 h-6 text-gray-500" />
               </div>
-              <h5 className="text-teal-800 mb-1">This Week</h5>
+              <h5 className="text-gray-800 mb-1">This Week</h5>
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl text-teal-800">5.2</span>
-                <span className="text-lg text-teal-600">hours</span>
+                <span className="text-4xl text-gray-800">5.2</span>
+                <span className="text-lg text-gray-600">hours</span>
               </div>
-              <p className="text-xs text-emerald-600 mt-2">+23% from last week</p>
+              <p className="text-xs text-gray-600 mt-2">+23% from last week</p>
             </motion.div>
           </div>
         </div>
@@ -221,11 +221,11 @@ export function DashboardPreview() {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.3 }}
           whileHover={{ y: -8 }}
-          className="bg-white/80 backdrop-blur-xl rounded-[32px] p-8 shadow-xl border border-emerald-200/30"
+          className="bg-white/80 backdrop-blur-xl rounded-[32px] p-8 shadow-xl border border-gray-200/30"
         >
           <div className="flex items-center justify-between mb-6">
-            <h4 className="text-teal-800">Weekly Activity</h4>
-            <Calendar className="w-6 h-6 text-emerald-500" />
+            <h4 className="text-gray-800">Weekly Activity</h4>
+            <Calendar className="w-6 h-6 text-gray-500" />
           </div>
 
           {/* Activity Bar Chart */}
@@ -233,13 +233,13 @@ export function DashboardPreview() {
             {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, i) => {
               const height = [60, 80, 45, 90, 70, 85, 95][i];
               const colors = [
-                "from-emerald-400 to-teal-400",
-                "from-teal-400 to-cyan-400",
-                "from-cyan-400 to-blue-400",
-                "from-lime-400 to-emerald-400",
-                "from-emerald-400 to-green-400",
-                "from-teal-400 to-emerald-400",
-                "from-lime-400 to-teal-400",
+                "from-gray-400 to-gray-400",
+                "from-gray-400 to-gray-300",
+                "from-gray-300 to-blue-400",
+                "from-lime-400 to-gray-400",
+                "from-gray-400 to-green-400",
+                "from-gray-400 to-gray-400",
+                "from-lime-400 to-gray-400",
               ];
 
               return (
@@ -267,11 +267,11 @@ export function DashboardPreview() {
                     }}
                   >
                     {/* Tooltip */}
-                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-teal-800 text-white text-xs px-3 py-1 rounded-lg whitespace-nowrap">
+                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 text-white text-xs px-3 py-1 rounded-lg whitespace-nowrap">
                       {[45, 60, 30, 75, 50, 68, 82][i]} min
                     </div>
                   </motion.div>
-                  <span className="text-xs text-teal-600">{day}</span>
+                  <span className="text-xs text-gray-600">{day}</span>
                 </motion.div>
               );
             })}

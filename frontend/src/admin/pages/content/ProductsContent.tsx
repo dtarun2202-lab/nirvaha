@@ -210,7 +210,7 @@ export function ProductsContent() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white border-emerald-200 p-6">
+      <Card className="bg-white border-gray-200 p-6">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex-1 relative w-full">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -218,12 +218,12 @@ export function ProductsContent() {
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white border-emerald-200 text-black placeholder:text-gray-400"
+              className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-400"
             />
           </div>
           <Button
             onClick={handleAdd}
-            className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+            className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white"
           >
             <Plus className="mr-2 w-4 h-4" />
             Add Product
@@ -231,7 +231,7 @@ export function ProductsContent() {
         </div>
       </Card>
 
-      <Card className="bg-white border-emerald-200">
+      <Card className="bg-white border-gray-200">
         <AdminTable
           data={filteredProducts}
           columns={columns}
@@ -366,7 +366,7 @@ export function ProductsContent() {
               Cancel
             </Button>
             <Button
-              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+              className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white"
               onClick={handleSave}
             >
               {selectedProduct ? "Update" : "Create"}

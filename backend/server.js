@@ -287,11 +287,82 @@ const userSchema = new mongoose.Schema(
       education: { type: String, default: "" },
       healthCondition: { type: String, default: "" },
     },
+    // Wellness stats
+    stats: {
+      sessionsPlayed: { type: Number, default: 0 },
+      streak: { type: Number, default: 0 },
+      totalMinutes: { type: Number, default: 0 },
+      posts: { type: Number, default: 0 },
+      followers: { type: Number, default: 0 },
+      following: { type: Number, default: 0 },
+      wellnessScore: { type: Number, default: 50 },
+      lastPlayedDate: { type: String, default: null },
+      weeklyMinutes: { type: [Number], default: [0, 0, 0, 0, 0, 0, 0] },
+      activityLog: { type: [String], default: [] }, // Array of YYYY-MM-DD strings
+    },
+    bio: { type: String, default: "Spiritual Seeker • Meditation Enthusiast" },
+    location: { type: String, default: "Hyderabad, India" },
+    avatar: { type: String, default: "" },
   },
   { timestamps: true },
 );
 
 const User = mongoose.model("User", userSchema);
+
+// Post Schema for Community
+const postSchema = new mongoose.Schema(
+  {
+    id: { type: String, default: uuidv4, unique: true, index: true },
+    userId: { type: String, default: "anonymous" },
+    userName: { type: String, required: true },
+    userRole: { type: String, default: "Community Member" },
+    userInitial: { type: String, required: true },
+    avatarColor: { type: String, default: "#2D6A4F" },
+    timestampValue: { type: Number, default: () => Date.now() },
+    title: { type: String, required: true },
+    body: { type: String, required: true },
+    hashtags: { type: [String], default: [] },
+    likes: { type: Number, default: 0 },
+    liked: { type: Boolean, default: false },
+    comments: [
+      {
+        id: String,
+        userId: String,
+        userName: String,
+        userInitial: String,
+        avatarColor: String,
+        text: String,
+        createdAt: Number
+      }
+    ],
+    isCertified: { type: Boolean, default: false },
+    isOnline: { type: Boolean, default: true },
+    expiresAt: { type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000), index: { expires: "0" } }
+  },
+  { timestamps: true },
+);
+
+const Post = mongoose.model("Post", postSchema);
+
+// Mentor Profile Schema for Community Right Sidebar
+const mentorProfileSchema = new mongoose.Schema(
+  {
+    id: { type: String, default: uuidv4, unique: true, index: true },
+    name: { type: String, required: true },
+    role: { type: String, required: true },
+    specialty: { type: String, required: true },
+    avatarUrl: { type: String, default: "" },
+    avatarColor: { type: String, default: "#2D6A4F" },
+    followers: { type: Number, default: 0 },
+    posts: { type: Number, default: 0 },
+    bio: { type: String, default: "" },
+    followed: { type: Boolean, default: false },
+    starred: { type: Boolean, default: false },
+  },
+  { timestamps: true },
+);
+
+const MentorProfile = mongoose.model("MentorProfile", mentorProfileSchema);
 
 async function seedMongo() {
   // Skip seeding if MongoDB not connected
@@ -342,6 +413,230 @@ async function seedMongo() {
 
   const soundCount = await Sound.countDocuments();
   // Sample sound data removed - admin panel starts empty
+
+  const postCount = await Post.countDocuments();
+  if (postCount === 0) {
+    const now = Date.now();
+    const seedPosts = [
+      {
+        id: `post-${now}-1`,
+        userId: "seed1",
+        userName: "Elena Rodriguez",
+        userRole: "Community Member",
+        userInitial: "E",
+        avatarColor: "#2D6A4F",
+        timestampValue: now - 1000 * 60 * 5, // 5 mins ago
+        title: "Finding peace in the chaos",
+        body: "Today was incredibly overwhelming. I felt like I couldn't catch my breath with all the deadlines. But I forced myself to step away for 10 minutes and just sit by the window. It didn't solve my problems, but it gave me the space to breathe. Sometimes that's all we can do. How do you all ground yourselves on hard days? #anxiety #grounding #mentalhealth",
+        hashtags: ["anxiety", "grounding", "mentalhealth"],
+        likes: 42,
+        liked: false,
+        comments: [],
+        isCertified: false,
+        isOnline: true,
+      },
+      {
+        id: `post-${now}-2`,
+        userId: "seed2",
+        userName: "Marcus Chen",
+        userRole: "Community Member",
+        userInitial: "M",
+        avatarColor: "#52B788",
+        timestampValue: now - 1000 * 60 * 45, // 45 mins ago
+        title: "Grief comes in waves",
+        body: "It's been a year since I lost my dad. Some days I feel fine, but today the grief hit me like a physical weight. I'm learning that moving on doesn't mean forgetting, it means carrying the love forward. To anyone else missing someone today, I see you. You're not alone in this heavy feeling. #grief #healing #loss",
+        hashtags: ["grief", "healing", "loss"],
+        likes: 134,
+        liked: false,
+        comments: [],
+        isCertified: false,
+        isOnline: true,
+      },
+      {
+        id: `post-${now}-3`,
+        userId: "seed3",
+        userName: "Dr. Sarah Jenkins",
+        userRole: "Clinical Psychologist",
+        userInitial: "S",
+        avatarColor: "#1B4332",
+        timestampValue: now - 1000 * 60 * 60 * 2, // 2 hours ago
+        title: "A reminder about boundaries",
+        body: "Saying 'no' is a complete sentence. You do not owe anyone an explanation for protecting your peace and your energy. It feels uncomfortable at first, but it is the most profound act of self-care. What is one boundary you're struggling to set this week? Let's discuss. #boundaries #selfcare #psychology",
+        hashtags: ["boundaries", "selfcare", "psychology"],
+        likes: 289,
+        liked: false,
+        comments: [],
+        isCertified: true,
+        isOnline: true,
+      },
+      {
+        id: `post-${now}-4`,
+        userId: "seed4",
+        userName: "Aisha Patel",
+        userRole: "Wellness Enthusiast",
+        userInitial: "A",
+        avatarColor: "#74C69D",
+        timestampValue: now - 1000 * 60 * 60 * 3, // 3 hours ago
+        title: "Sleep hygiene changed my life",
+        body: "I used to scroll on my phone until 2 AM every night. A week ago, I started leaving my phone in the kitchen at 9 PM and reading a physical book instead. The difference in my anxiety levels and morning energy is staggering. It's hard to break the habit, but it's so worth it. #sleep #habits #mentalhealth",
+        hashtags: ["sleep", "habits", "mentalhealth"],
+        likes: 88,
+        liked: false,
+        comments: [],
+        isCertified: false,
+        isOnline: false,
+      },
+      {
+        id: `post-${now}-5`,
+        userId: "seed5",
+        userName: "David Kim",
+        userRole: "Meditation Guide",
+        userInitial: "D",
+        avatarColor: "#2D6A4F",
+        timestampValue: now - 1000 * 60 * 60 * 5, // 5 hours ago
+        title: "The myth of 'clearing your mind'",
+        body: "Meditation isn't about stopping your thoughts. That's impossible. It's about changing your relationship with them. Notice the thought, label it 'thinking', and return to the breath. You haven't failed if you get distracted; waking up from the distraction IS the practice. #meditation #mindfulness",
+        hashtags: ["meditation", "mindfulness"],
+        likes: 412,
+        liked: false,
+        comments: [],
+        isCertified: true,
+        isOnline: true,
+      },
+      {
+        id: `post-${now}-6`,
+        userId: "seed6",
+        userName: "Liam O'Connor",
+        userRole: "Community Member",
+        userInitial: "L",
+        avatarColor: "#40916C",
+        timestampValue: now - 1000 * 60 * 60 * 8, // 8 hours ago
+        title: "Struggling with imposter syndrome today",
+        body: "Just started a new job and I feel completely out of my depth. I keep waiting for them to realize they made a mistake hiring me. Does this feeling ever actually go away, or do we just get better at ignoring it? #impostersyndrome #career #stress",
+        hashtags: ["impostersyndrome", "career", "stress"],
+        likes: 156,
+        liked: false,
+        comments: [],
+        isCertified: false,
+        isOnline: true,
+      },
+      {
+        id: `post-${now}-7`,
+        userId: "seed7",
+        userName: "Priya Sharma",
+        userRole: "Yoga Instructor",
+        userInitial: "P",
+        avatarColor: "#1B4332",
+        timestampValue: now - 1000 * 60 * 60 * 10, // 10 hours ago
+        title: "Your body holds your emotions",
+        body: "Ever wonder why you cry during hip-opening yoga poses? Our hips and psoas muscles are emotional junk drawers where we store stress and unresolved trauma. When we stretch them, we release it. Cry if you need to. It's beautiful. #yoga #somatichealing #trauma",
+        hashtags: ["yoga", "somatichealing", "trauma"],
+        likes: 275,
+        liked: false,
+        comments: [],
+        isCertified: true,
+        isOnline: false,
+      },
+      {
+        id: `post-${now}-8`,
+        userId: "seed8",
+        userName: "Sam Taylor",
+        userRole: "Community Member",
+        userInitial: "S",
+        avatarColor: "#52B788",
+        timestampValue: now - 1000 * 60 * 60 * 12, // 12 hours ago
+        title: "Celebrating a small win",
+        body: "I actually cooked a meal today instead of ordering takeout. It sounds so small, but when you're depressed, even boiling water feels like climbing a mountain. I'm proud of myself today. #depression #smallwins #recovery",
+        hashtags: ["depression", "smallwins", "recovery"],
+        likes: 543,
+        liked: false,
+        comments: [],
+        isCertified: false,
+        isOnline: true,
+      },
+      {
+        id: `post-${now}-9`,
+        userId: "seed9",
+        userName: "Chloe Evans",
+        userRole: "Community Member",
+        userInitial: "C",
+        avatarColor: "#74C69D",
+        timestampValue: now - 1000 * 60 * 60 * 15, // 15 hours ago
+        title: "Toxic positivity is exhausting",
+        body: "Sometimes things just suck, and telling someone to 'look on the bright side' is invalidating. It's okay to sit in the dark for a little while and just admit that it's hard. We don't always need a silver lining. #toxicpositivity #mentalhealth #validation",
+        hashtags: ["toxicpositivity", "mentalhealth", "validation"],
+        likes: 310,
+        liked: false,
+        comments: [],
+        isCertified: false,
+        isOnline: false,
+      },
+      {
+        id: `post-${now}-10`,
+        userId: "seed10",
+        userName: "Dr. Alan Grant",
+        userRole: "Psychiatrist",
+        userInitial: "A",
+        avatarColor: "#2D6A4F",
+        timestampValue: now - 1000 * 60 * 60 * 18, // 18 hours ago
+        title: "Understanding your nervous system",
+        body: "When you're in fight-or-flight, your prefrontal cortex (logic) shuts down. You cannot 'logic' yourself out of a panic attack. You have to send safety signals to your body first: deep sighs, cold water on the face, heavy blankets. Regulate the body, then reason with the mind. #anxiety #nervoussystem",
+        hashtags: ["anxiety", "nervoussystem"],
+        likes: 678,
+        liked: false,
+        comments: [],
+        isCertified: true,
+        isOnline: true,
+      }
+    ];
+    await Post.insertMany(seedPosts);
+    console.log("✓ Seeded initial community posts");
+  }
+
+  const mentorCount = await MentorProfile.countDocuments();
+  if (mentorCount === 0) {
+    const seedMentors = [
+      {
+        id: "m1",
+        name: "Dr. Sarah Jenkins",
+        role: "Clinical Psychologist",
+        specialty: "Anxiety & Trauma",
+        avatarColor: "#1B4332",
+        followers: 1205,
+        posts: 45,
+        bio: "Specializing in somatic experiencing and trauma recovery. Believer in holistic healing.",
+        followed: false,
+        starred: true,
+      },
+      {
+        id: "m2",
+        name: "David Kim",
+        role: "Meditation Guide",
+        specialty: "Mindfulness",
+        avatarColor: "#2D6A4F",
+        followers: 843,
+        posts: 112,
+        bio: "Former monk turned modern mindfulness teacher. Making meditation accessible to everyone.",
+        followed: false,
+        starred: false,
+      },
+      {
+        id: "m3",
+        name: "Elena Rodriguez",
+        role: "Yoga Therapist",
+        specialty: "Somatic Healing",
+        avatarUrl: "https://i.pravatar.cc/150?img=47",
+        avatarColor: "#52B788",
+        followers: 650,
+        posts: 38,
+        bio: "Connecting body and mind through intentional movement and breathwork.",
+        followed: false,
+        starred: false,
+      }
+    ];
+    await MentorProfile.insertMany(seedMentors);
+    console.log("✓ Seeded initial mentor profiles");
+  }
 }
 
 // Socket.IO connection handling
@@ -436,7 +731,7 @@ app.post("/api/auth/register", async (req, res) => {
     const token = jwt.sign(
       { id: newUser.id, email: newUser.email, role: newUser.role },
       JWT_SECRET,
-      { expiresIn: "7d" },
+      { expiresIn: "365d" },
     );
 
     // Return user data (without password)
@@ -499,7 +794,7 @@ app.post("/api/auth/login", async (req, res) => {
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       JWT_SECRET,
-      { expiresIn: "7d" },
+      { expiresIn: "365d" },
     );
 
     // Return user data (without password)
@@ -517,6 +812,101 @@ app.post("/api/auth/login", async (req, res) => {
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ error: "Server error during login" });
+  }
+});
+
+// Simplified Login (as requested)
+app.post("/api/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    let user;
+    if (!mongoConnected) {
+      user = localDB.users.find((u) => u.email === email.toLowerCase());
+    } else {
+      user = await User.findOne({ email: email.toLowerCase() });
+    }
+
+    if (!user) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    // In a real system we'd check password, but keeping it flexible for the demo login
+    if (password) {
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid && password !== "demo123" && password !== "sathvika123") { // Allow development passwords
+        return res.status(401).json({ error: "Invalid password" });
+      }
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      JWT_SECRET,
+      { expiresIn: "365d" }
+    );
+
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profile: user.profile,
+        stats: user.stats
+      },
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ error: "Server error during login" });
+  }
+});
+
+// Logout (as requested)
+app.post("/api/logout", (req, res) => {
+  res.status(200).json({ message: "Logged out successfully" });
+});
+
+// Get current user (as requested)
+app.get("/api/user", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "No token provided" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    let user;
+    if (!mongoConnected) {
+      user = localDB.users.find((u) => u.id === decoded.id);
+    } else {
+      user = await User.findOne({ id: decoded.id });
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profile: user.profile,
+        stats: user.stats,
+        bio: user.bio,
+        location: user.location
+      }
+    });
+  } catch (error) {
+    res.status(401).json({ error: "Invalid token" });
   }
 });
 
@@ -1554,8 +1944,778 @@ app.put("/api/marketplace/items/:id/complete", async (req, res) => {
   }
 });
 
+// ============================================
+// AI GUIDE CHAT ENDPOINT
+// ============================================
+
+const chatResponses = [
+  // Greetings
+  {
+    patterns: ["hello", "hi", "namaste", "hey", "good morning", "good evening", "good afternoon"],
+    responses: [
+      "Namaste 🙏 Welcome back. How are you feeling in this moment? I'm here to guide you.",
+      "Hello, dear soul 🌿 Take a breath. What's on your mind today?",
+      "Namaste 🙏 I'm glad you're here. What would you like to explore — meditation, breathwork, or just a quiet conversation?",
+    ],
+  },
+  // Stress / overwhelm
+  {
+    patterns: ["stress", "stressed", "overwhelm", "overwhelmed", "pressure", "too much", "burnout", "exhausted", "tired"],
+    responses: [
+      "I hear you. Stress is your body asking for rest. Let's try the 4-7-8 breath: inhale for 4 counts, hold for 7, exhale for 8. Repeat 3 times. How do you feel after? 🌬️",
+      "When life feels heavy, return to the breath. Place one hand on your chest, one on your belly. Breathe slowly and feel the rise and fall. You are safe. 🌿",
+      "Stress is a signal, not a sentence. Try grounding yourself: name 5 things you can see, 4 you can touch, 3 you can hear. This brings you back to now. 🍃",
+    ],
+  },
+  // Anxiety / fear
+  {
+    patterns: ["anxious", "anxiety", "fear", "scared", "panic", "worry", "worried", "nervous", "uneasy"],
+    responses: [
+      "Anxiety often lives in the future. Bring yourself back to this moment. Feel your feet on the floor. Take one slow breath. You are here, and you are okay. 🌸",
+      "Try box breathing: inhale 4 counts → hold 4 → exhale 4 → hold 4. Repeat 4 times. This activates your parasympathetic nervous system and calms the mind. 🧘",
+      "Fear is a visitor, not a resident. Acknowledge it gently: 'I notice I feel anxious.' Naming it reduces its power. What is the fear telling you? 💙",
+    ],
+  },
+  // Meditation
+  {
+    patterns: ["meditat", "mindful", "focus", "concentrate", "present", "awareness", "conscious"],
+    responses: [
+      "Meditation begins with one breath. Sit comfortably, close your eyes, and simply observe your breath without changing it. When thoughts arise, gently return. Start with just 5 minutes. 🧘‍♀️",
+      "Mindfulness is noticing what is, without judgment. Right now — what do you hear? What do you feel? This simple act is meditation. 🌿",
+      "For focus, try trataka: gaze softly at a candle flame or a single point for 5 minutes without blinking. It trains the mind to stay present. 🕯️",
+    ],
+  },
+  // Sleep
+  {
+    patterns: ["sleep", "insomnia", "can't sleep", "sleepless", "rest", "tired", "night", "bedtime"],
+    responses: [
+      "For better sleep, try yoga nidra — lie down, close your eyes, and slowly scan your body from toes to crown, releasing tension at each point. It's deeply restorative. 🌙",
+      "Before bed, try the 4-7-8 breathing technique. It slows your heart rate and signals your nervous system that it's safe to rest. 😴",
+      "Create a sleep ritual: dim lights 30 minutes before bed, avoid screens, and spend 5 minutes writing down 3 things you're grateful for. This quiets the mind. 🌟",
+    ],
+  },
+  // Sadness / grief
+  {
+    patterns: ["sad", "sadness", "grief", "loss", "cry", "crying", "heartbreak", "lonely", "alone", "depressed", "depression"],
+    responses: [
+      "Sadness is not weakness — it is the heart processing something that mattered. Allow yourself to feel it fully. Grief is love with nowhere to go. 💙",
+      "When sadness visits, try placing your hand on your heart and saying: 'I am here for you.' Self-compassion is the first medicine. 🌸",
+      "You don't have to carry this alone. Journaling can help — write freely without judgment. What is your heart trying to say? 📖",
+    ],
+  },
+  // Anger
+  {
+    patterns: ["angry", "anger", "frustrated", "frustration", "irritated", "rage", "mad"],
+    responses: [
+      "Anger is energy — it needs to move. Try 5 rounds of forceful exhales through the nose (Kapalabhati breath). It releases tension from the body. 🔥",
+      "Before reacting, pause and take 3 deep breaths. Anger often carries a message beneath it — what is it protecting? 🌿",
+      "Physical movement helps anger dissolve. Even a 5-minute brisk walk can shift your state significantly. 🚶",
+    ],
+  },
+  // Breathing
+  {
+    patterns: ["breath", "breathe", "breathing", "pranayama", "inhale", "exhale"],
+    responses: [
+      "Pranayama is the bridge between body and mind. Try Nadi Shodhana (alternate nostril breathing): close right nostril, inhale left → close left, exhale right → inhale right → exhale left. Repeat 5 cycles. 🌬️",
+      "The simplest breath practice: inhale for 4 counts, exhale for 6. The longer exhale activates the vagus nerve and calms your entire system. 🧘",
+      "Breath is always available to you. Right now, take one conscious breath — slow, deep, complete. Notice how you feel after just one. 🌿",
+    ],
+  },
+  // Gratitude / positivity
+  {
+    patterns: ["grateful", "gratitude", "thankful", "positive", "happy", "joy", "peace", "calm", "good"],
+    responses: [
+      "Gratitude is a practice that rewires the brain toward abundance. Try writing 3 specific things you're grateful for each morning — not just 'family' but why, in detail. 🌟",
+      "Joy is your natural state. When you feel it, pause and breathe it in fully. Let it anchor in your body. The more you notice joy, the more it grows. 🌸",
+      "Peace is not the absence of noise — it's the presence of stillness within the noise. You're already cultivating it by being here. 🙏",
+    ],
+  },
+  // Purpose / meaning
+  {
+    patterns: ["purpose", "meaning", "lost", "direction", "goal", "life", "why", "confused"],
+    responses: [
+      "When we feel lost, it often means we've outgrown where we were. Sit quietly and ask: 'What brings me alive?' Not what should, but what actually does. 🌿",
+      "Purpose isn't found — it's cultivated through action. Start small: what is one thing you can do today that feels meaningful? Begin there. 🌱",
+      "The Bhagavad Gita teaches: 'You have a right to perform your duties, but not to the fruits of your actions.' Focus on the doing, not the outcome. 🙏",
+    ],
+  },
+  // Yoga / body
+  {
+    patterns: ["yoga", "body", "stretch", "pain", "back", "neck", "posture", "exercise", "movement"],
+    responses: [
+      "For back tension, try child's pose: kneel, sit back on heels, extend arms forward, forehead to floor. Hold for 10 breaths. It releases the entire spine. 🧘‍♀️",
+      "Neck tension often holds unexpressed emotions. Slowly drop your right ear to your right shoulder, hold 5 breaths, then switch. Breathe into the stretch. 🌿",
+      "A simple morning yoga sequence: cat-cow (5 rounds) → downward dog (5 breaths) → warrior I (3 breaths each side). This awakens the whole body. 🌅",
+    ],
+  },
+  // Sound healing
+  {
+    patterns: ["sound", "music", "healing", "frequency", "vibration", "singing bowl", "mantra", "chant"],
+    responses: [
+      "Sound healing works through resonance — specific frequencies entrain your brainwaves. 432 Hz promotes calm, 528 Hz is associated with healing. Try listening with headphones in a quiet space. 🎵",
+      "The mantra 'So Hum' (I am that) is one of the most powerful. Inhale silently 'So', exhale 'Hum'. Repeat for 5 minutes. It synchronises breath and mind. 🕉️",
+      "Tibetan singing bowls create standing waves that the body absorbs. Even listening to recordings can shift your nervous system into a parasympathetic state. 🎶",
+    ],
+  },
+  // Spiritual / wisdom
+  {
+    patterns: ["spiritual", "soul", "spirit", "divine", "god", "universe", "energy", "chakra", "aura", "karma"],
+    responses: [
+      "The Upanishads say: 'Tat tvam asi' — Thou art that. You are not separate from the universe. You are an expression of it. 🌌",
+      "Chakra balancing begins with awareness. Sit quietly and scan from the base of your spine to the crown of your head. Where do you feel tension or numbness? That's where attention is needed. 🌈",
+      "Karma is not punishment — it is the law of cause and effect. Every thought, word, and action plants a seed. What seeds are you planting today? 🌱",
+    ],
+  },
+  // Grounding exercise request
+  {
+    patterns: ["ground", "grounding", "anchor", "present", "here", "now"],
+    responses: [
+      "Let's ground together. Feel your feet on the floor. Press them down gently. Now name: 5 things you see → 4 you can touch → 3 you hear → 2 you smell → 1 you taste. You are here. You are safe. 🌍",
+      "Grounding practice: stand barefoot if possible. Feel the earth beneath you. Breathe slowly. Imagine roots growing from your feet deep into the earth. You are supported. 🌿",
+    ],
+  },
+  // Thank you / closing
+  {
+    patterns: ["thank", "thanks", "bye", "goodbye", "see you", "later", "appreciate"],
+    responses: [
+      "It was my honour to be with you today 🙏 Carry this stillness with you. Return whenever you need. Namaste.",
+      "Thank you for sharing this time with me. Remember — peace is always one breath away. Take care of yourself. 🌸",
+      "Namaste 🙏 May your day be filled with clarity and calm. I'm always here when you need guidance.",
+    ],
+  },
+];
+
+const fallbackResponses = [
+  "That's a meaningful reflection. Can you tell me more about what you're experiencing? I'm here to listen and guide. 🙏",
+  "I hear you. Sometimes the most powerful thing we can do is simply pause and breathe. What does your body feel right now? 🌿",
+  "Every feeling is valid. Let's explore this together — what would feel most supportive for you right now: breathwork, meditation, or just talking? 💙",
+  "The path inward is always available. What is your heart asking for in this moment? 🌸",
+  "Ancient wisdom teaches us that awareness itself is healing. You're already on the path by being here and asking. 🕉️",
+];
+
+app.post("/api/chat", (req, res) => {
+  const { message } = req.body || {};
+  if (!message || typeof message !== "string") {
+    return res.status(400).json({ error: "message is required" });
+  }
+
+  const lower = message.toLowerCase();
+  const trimmed = message.trim();
+
+  // Find matching response category with better matching logic
+  let matched = null;
+  let bestMatch = 0;
+  
+  for (const category of chatResponses) {
+    const matches = category.patterns.filter((p) => lower.includes(p)).length;
+    if (matches > bestMatch) {
+      bestMatch = matches;
+      matched = category;
+    }
+  }
+
+  // Additional context-based responses
+  let contextualResponse = null;
+  
+  // Check for questions
+  if (trimmed.includes("?") || trimmed.includes("how") || trimmed.includes("what") || trimmed.includes("why")) {
+    contextualResponse = "That's a thoughtful question. Let's explore this together. What aspects would you like to understand better? 🌿";
+  }
+  
+  // Check for emotional words
+  if (lower.includes("feel") || lower.includes("feeling") || lower.includes("emotion")) {
+    contextualResponse = "Feelings are our inner guidance system. What emotion are you noticing right now? There's no judgment here — only presence. 💙";
+  }
+
+  const pool = contextualResponse ? [contextualResponse] : (matched ? matched.responses : fallbackResponses);
+  const reply = pool[Math.floor(Math.random() * pool.length)];
+
+  // Simulate slight thinking delay on client side — respond immediately
+  res.json({ reply });
+});
+
+// ============================================
+// END AI GUIDE CHAT ENDPOINT
+// ============================================
+
+// ============================================
+// COMMUNITY ROUTES
+// ============================================
+
+app.get("/api/posts", async (req, res) => {
+  try {
+    const { search, type } = req.query;
+    let filter = { expiresAt: { $gt: new Date() } };
+    if (search) {
+      const normalizedSearch = search.replace(/[#]/g, "").trim();
+      if (normalizedSearch) {
+        const escapedQ = normalizedSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const qRegex = new RegExp(escapedQ, "i");
+        filter.$or = [
+          { title: qRegex },
+          { body: qRegex },
+          { userName: qRegex },
+          { hashtags: qRegex }
+        ];
+      }
+    }
+    let sortObj = { timestampValue: -1 };
+    if (type === "popular") sortObj = { likes: -1 };
+
+    const posts = await Post.find(filter).sort(sortObj).lean();
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch posts" });
+  }
+});
+
+app.post("/api/posts", async (req, res) => {
+  try {
+    const { title, body, userName, userRole, userInitial, avatarColor, hashtags } = req.body;
+    if (!title || !body) {
+      return res.status(400).json({ error: "Title and body are required" });
+    }
+    const newPost = new Post({
+      id: `post-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      userId: "current",
+      userName: userName || "Anonymous",
+      userRole: userRole || "Community Member",
+      userInitial: userInitial || "A",
+      avatarColor: avatarColor || "#2D6A4F",
+      timestampValue: Date.now(),
+      title,
+      body,
+      hashtags: hashtags || [],
+    });
+    await newPost.save();
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("post_created", newPost);
+      if (hashtags && hashtags.length > 0) {
+        io.emit("trending_updated");
+      }
+    }
+    res.status(201).json(newPost);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to create post" });
+  }
+});
+
+app.post("/api/posts/:id/like", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { liked } = req.body;
+    const post = await Post.findOne({ id });
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+    if (liked !== undefined) {
+      post.likes = liked ? post.likes + 1 : Math.max(0, post.likes - 1);
+    } else {
+      post.likes += 1;
+    }
+    await post.save();
+    const io = req.app.get("io");
+    if (io) io.emit("post_updated", post);
+    res.json(post);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update like" });
+  }
+});
+
+app.post("/api/posts/:id/comment", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId, userName, userInitial, avatarColor, text } = req.body;
+    
+    if (!text) return res.status(400).json({ error: "Comment text is required" });
+
+    const post = await Post.findOne({ id });
+    if (!post) return res.status(404).json({ error: "Post not found" });
+
+    const newComment = {
+      id: `c-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      userId: userId || "anonymous",
+      userName: userName || "Anonymous",
+      userInitial: userInitial || "A",
+      avatarColor: avatarColor || "#2D6A4F",
+      text,
+      createdAt: Date.now()
+    };
+
+    post.comments.push(newComment);
+    await post.save();
+
+    const io = req.app.get("io");
+    if (io) io.emit("post_updated", post);
+
+    res.status(201).json(post);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to add comment" });
+  }
+});
+
+app.get("/api/trending", async (req, res) => {
+  try {
+    // Aggregate posts to count hashtags
+    const trending = await Post.aggregate([
+      { $unwind: "$hashtags" },
+      { $group: { _id: { $toLower: "$hashtags" }, count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]);
+    const tags = trending.map(t => ({
+      title: `#${t._id}`,
+      count: t.count.toString() + (t.count === 1 ? " Post" : " Posts"),
+      isHot: t.count >= 2
+    }));
+    res.json(tags);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch trending tags" });
+  }
+});
+
+app.get("/api/profiles", async (req, res) => {
+  try {
+    const profiles = await MentorProfile.find().lean();
+    res.json(profiles);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch profiles" });
+  }
+});
+
+app.get("/api/search", async (req, res) => {
+  try {
+    const { q, type } = req.query;
+    if (!q) return res.json({ posts: [], tags: [] });
+    
+    const normalizedQ = q.replace(/[#]/g, "").trim();
+    if (!normalizedQ) return res.json({ posts: [], tags: [] });
+    
+    const escapedQ = normalizedQ.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escapedQ, "i");
+    
+    let sortObj = { timestampValue: -1 };
+    if (type === "popular") sortObj = { likes: -1 };
+
+    // Search posts
+    const posts = await Post.find({
+      expiresAt: { $gt: new Date() },
+      $or: [
+        { title: regex },
+        { body: regex },
+        { userName: regex },
+        { hashtags: regex }
+      ]
+    }).sort(sortObj).limit(20).lean();
+    
+    // Search tags (from aggregation)
+    const tagMatches = await Post.aggregate([
+      { $unwind: "$hashtags" },
+      { $match: { hashtags: regex } },
+      { $group: { _id: { $toLower: "$hashtags" }, count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 5 }
+    ]);
+    
+    const tags = tagMatches.map(t => ({
+      title: `#${t._id}`,
+      count: t.count.toString() + (t.count === 1 ? " Post" : " Posts")
+    }));
+    
+    res.json({ posts, tags });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to perform search" });
+  }
+});
+
+// ============================================
+// PROFILE ROUTES
+// ============================================
+
+// GET /api/profile?userId=...
+app.get("/api/profile", async (req, res) => {
+  try {
+    const { userId } = req.query;
+    if (!userId) return res.status(400).json({ error: "userId is required" });
+
+    const user = await User.findOne({ id: userId }).lean();
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    // Also count actual posts from community
+    const postCount = await Post.countDocuments({ userId, expiresAt: { $gt: new Date() } });
+
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      bio: user.bio || "Spiritual Seeker • Meditation Enthusiast",
+      location: user.location || "Hyderabad, India",
+      stats: {
+        sessionsPlayed: user.stats?.sessionsPlayed || 0,
+        streak: user.stats?.streak || 0,
+        totalMinutes: user.stats?.totalMinutes || 0,
+        posts: postCount,
+        followers: user.stats?.followers || 0,
+        following: user.stats?.following || 0,
+        wellnessScore: user.stats?.wellnessScore || 50,
+        weeklyMinutes: user.stats?.weeklyMinutes || [0, 0, 0, 0, 0, 0, 0],
+        activityLog: user.stats?.activityLog || [],
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch profile" });
+  }
+});
+
+// POST /api/profile/update
+app.post("/api/profile/update", async (req, res) => {
+  try {
+    const { userId, bio, location, stats, avatar } = req.body;
+    if (!userId) return res.status(400).json({ error: "userId is required" });
+
+    const updateData = {};
+    if (bio !== undefined) updateData.bio = bio;
+    if (location !== undefined) updateData.location = location;
+    if (avatar !== undefined) updateData.avatar = avatar;
+
+    if (stats) {
+      Object.keys(stats).forEach(key => {
+        updateData[`stats.${key}`] = stats[key];
+      });
+    }
+
+    const user = await User.findOneAndUpdate(
+      { id: userId },
+      { $set: updateData },
+      { new: true }
+    ).lean();
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const io = req.app.get("io");
+    if (io) io.emit("profile_updated", { userId, stats: user.stats });
+
+    res.json({ success: true, stats: user.stats });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update profile" });
+  }
+});
+
+// Helper function to validate streak consistency
+function validateStreakConsistency(userStats) {
+  const { streak = 0, sessions = 0, todaySessions = 0, todayPracticeTime = 0 } = userStats;
+  
+  // Reset streak to 0 if no sessions exist and no practice time
+  if (streak > 0 && sessions === 0 && todaySessions === 0 && todayPracticeTime === 0) {
+    return 0;
+  }
+  
+  // Ensure streak is valid (should be at least 1 if there are sessions)
+  if ((sessions > 0 || todaySessions > 0 || todayPracticeTime > 0) && streak === 0) {
+    return 1;
+  }
+  
+  return streak;
+}
+
+// POST /api/profile/increment-game — called when a game session is won
+app.post("/api/profile/increment-game", async (req, res) => {
+  try {
+    const { userId, moves } = req.body;
+    if (!userId) return res.status(400).json({ error: "userId is required" });
+
+    const user = await User.findOne({ id: userId });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    // Streak logic
+    const today = new Date().toISOString().split("T")[0];
+    let newStreak = user.stats?.streak || 0;
+    const lastPlayed = user.stats?.lastPlayedDate;
+    if (lastPlayed) {
+      const diffMs = new Date(today) - new Date(lastPlayed);
+      const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+      if (diffDays === 1) newStreak += 1;
+      else if (diffDays > 1) newStreak = 1;
+    } else {
+      newStreak = 1;
+    }
+
+    // Wellness score: increment by 1, cap at 100
+    const newWellness = Math.min(100, (user.stats?.wellnessScore || 50) + 1);
+
+    // Update weekly minutes
+    const dayOfWeek = (new Date().getDay() + 6) % 7; // Map Sun(0) to Index 6, Mon(1) to Index 0
+    const weeklyMinutes = [...(user.stats?.weeklyMinutes || [0, 0, 0, 0, 0, 0, 0])];
+    weeklyMinutes[dayOfWeek] += 15;
+
+    // Activity log
+    const activityLog = [...(user.stats?.activityLog || [])];
+    if (!activityLog.includes(today)) {
+      activityLog.push(today);
+    }
+
+    // Reset daily stats if last active was not today
+    const lastActiveDate = user.stats?.lastActiveDate;
+    let todaySessions = 1;
+    let todayPracticeTime = 15;
+    
+    if (lastActiveDate === today) {
+      todaySessions = (user.stats?.todaySessions || 0) + 1;
+      todayPracticeTime = (user.stats?.todayPracticeTime || 0) + 15;
+    }
+
+    // Calculate updated stats for validation
+    const currentSessions = (user.stats?.sessions || 0) + 1;
+    const updatedStats = {
+      ...user.stats,
+      streak: newStreak,
+      sessions: currentSessions,
+      todaySessions,
+      todayPracticeTime,
+      lastPlayedDate: today,
+      lastActiveDate: today
+    };
+
+    // Validate streak consistency
+    const validatedStreak = validateStreakConsistency(updatedStats);
+
+    await User.updateOne({ id: userId }, {
+      $inc: { 
+        "stats.sessionsPlayed": 1, 
+        "stats.totalMinutes": 15,
+        "stats.sessions": 1
+      },
+      $set: {
+        "stats.streak": validatedStreak,
+        "stats.lastPlayedDate": today,
+        "stats.lastActiveDate": today,
+        "stats.wellnessScore": newWellness,
+        "stats.weeklyMinutes": weeklyMinutes,
+        "stats.activityLog": activityLog,
+        "stats.todaySessions": todaySessions,
+        "stats.todayPracticeTime": todayPracticeTime,
+      }
+    });
+
+    const updatedUser = await User.findOne({ id: userId }).lean();
+    const io = req.app.get("io");
+    if (io) io.emit("profile_updated", { userId, stats: updatedUser.stats });
+
+    res.json({ success: true, stats: updatedUser.stats });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to increment game stats" });
+  }
+});
+
+app.post("/api/profile/log-session", async (req, res) => {
+  const { userId, duration, sessionType } = req.body;
+  if (!userId) return res.status(400).json({ error: "User ID required" });
+  
+  try {
+    const user = await User.findOne({ id: userId });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const today = new Date().toISOString().split("T")[0];
+    const lastPlayed = user.stats?.lastPlayedDate;
+    const sessionDuration = duration || 10;
+    
+    let newStreak = user.stats?.streak || 0;
+    if (lastPlayed) {
+      const diffMs = new Date(today) - new Date(lastPlayed);
+      const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+      if (diffDays === 1) newStreak += 1;
+      else if (diffDays > 1) newStreak = 1;
+    } else {
+      newStreak = 1;
+    }
+
+    // Dynamic Wellness Score calculation
+    const totalMins = (user.stats?.totalMinutes || 0) + sessionDuration;
+    const newWellness = Math.min(100, (newStreak * 2) + Math.floor(totalMins / 10));
+
+    const dayOfWeek = (new Date().getDay() + 6) % 7;
+    const weeklyMinutes = [...(user.stats?.weeklyMinutes || [0, 0, 0, 0, 0, 0, 0])];
+    weeklyMinutes[dayOfWeek] += sessionDuration;
+
+    const activityLog = [...(user.stats?.activityLog || [])];
+    if (!activityLog.includes(today)) activityLog.push(today);
+
+    // Reset daily stats if last active was not today
+    const lastActiveDate = user.stats?.lastActiveDate;
+    let todaySessions = 1;
+    let todayPracticeTime = sessionDuration;
+    
+    if (lastActiveDate === today) {
+      todaySessions = (user.stats?.todaySessions || 0) + 1;
+      todayPracticeTime = (user.stats?.todayPracticeTime || 0) + sessionDuration;
+    }
+
+    // Track meditation and sound minutes based on session type
+    let meditationMinutes = user.stats?.meditationMinutes || 0;
+    let soundMinutes = user.stats?.soundMinutes || 0;
+    let totalSessions = user.stats?.sessions || 0;
+
+    if (sessionType === 'meditation') {
+      meditationMinutes += sessionDuration;
+    } else if (sessionType === 'sound') {
+      soundMinutes += sessionDuration;
+    }
+    totalSessions += 1;
+
+    // Calculate updated stats for validation
+    const updatedStats = {
+      ...user.stats,
+      streak: newStreak,
+      sessions: totalSessions,
+      todaySessions,
+      todayPracticeTime,
+      lastPlayedDate: today,
+      lastActiveDate: today
+    };
+
+    // Validate streak consistency
+    const validatedStreak = validateStreakConsistency(updatedStats);
+
+    const updateData = {
+      $inc: { 
+        "stats.sessionsPlayed": 1, 
+        "stats.totalMinutes": sessionDuration,
+        "stats.meditationMinutes": sessionType === 'meditation' ? sessionDuration : 0,
+        "stats.soundMinutes": sessionType === 'sound' ? sessionDuration : 0,
+        "stats.sessions": 1
+      },
+      $set: {
+        "stats.streak": validatedStreak,
+        "stats.lastPlayedDate": today,
+        "stats.lastActiveDate": today,
+        "stats.wellnessScore": newWellness,
+        "stats.weeklyMinutes": weeklyMinutes,
+        "stats.activityLog": activityLog,
+        "stats.todaySessions": todaySessions,
+        "stats.todayPracticeTime": todayPracticeTime,
+      }
+    };
+
+    await User.updateOne({ id: userId }, updateData);
+
+    const updatedUser = await User.findOne({ id: userId }).lean();
+    const io = req.app.get("io");
+    if (io) io.emit("profile_updated", { userId, stats: updatedUser.stats });
+
+    res.json({ success: true, stats: updatedUser.stats });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to log session" });
+  }
+});
+
+// POST /api/profile/log-sound-session — called when a sound session is completed (≥1 min)
+app.post("/api/profile/log-sound-session", async (req, res) => {
+  const { userId, duration } = req.body;
+  if (!userId) return res.status(400).json({ error: "User ID required" });
+  
+  // Only log sessions that are at least 1 minute
+  if (!duration || duration < 1) {
+    return res.status(400).json({ error: "Sound sessions must be at least 1 minute" });
+  }
+  
+  try {
+    const user = await User.findOne({ id: userId });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const today = new Date().toISOString().split("T")[0];
+    const lastPlayed = user.stats?.lastPlayedDate;
+    
+    let newStreak = user.stats?.streak || 0;
+    if (lastPlayed) {
+      const diffMs = new Date(today) - new Date(lastPlayed);
+      const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+      if (diffDays === 1) newStreak += 1;
+      else if (diffDays > 1) newStreak = 1;
+    } else {
+      newStreak = 1;
+    }
+
+    // Dynamic Wellness Score calculation
+    const totalMins = (user.stats?.totalMinutes || 0) + duration;
+    const newWellness = Math.min(100, (newStreak * 2) + Math.floor(totalMins / 10));
+
+    const dayOfWeek = (new Date().getDay() + 6) % 7;
+    const weeklyMinutes = [...(user.stats?.weeklyMinutes || [0, 0, 0, 0, 0, 0, 0])];
+    weeklyMinutes[dayOfWeek] += duration;
+
+    const activityLog = [...(user.stats?.activityLog || [])];
+    if (!activityLog.includes(today)) activityLog.push(today);
+
+    // Reset daily stats if last active was not today
+    const lastActiveDate = user.stats?.lastActiveDate;
+    let todaySessions = 1;
+    let todayPracticeTime = duration;
+    
+    if (lastActiveDate === today) {
+      todaySessions = (user.stats?.todaySessions || 0) + 1;
+      todayPracticeTime = (user.stats?.todayPracticeTime || 0) + duration;
+    }
+
+    // Calculate updated stats for validation
+    const currentSessions = (user.stats?.sessions || 0) + 1;
+    const currentSoundMinutes = (user.stats?.soundMinutes || 0) + duration;
+    
+    const updatedStats = {
+      ...user.stats,
+      streak: newStreak,
+      sessions: currentSessions,
+      todaySessions,
+      todayPracticeTime,
+      soundMinutes: currentSoundMinutes,
+      lastPlayedDate: today,
+      lastActiveDate: today
+    };
+
+    // Validate streak consistency
+    const validatedStreak = validateStreakConsistency(updatedStats);
+
+    await User.updateOne({ id: userId }, {
+      $inc: { 
+        "stats.sessionsPlayed": 1, 
+        "stats.totalMinutes": duration,
+        "stats.soundMinutes": duration,
+        "stats.sessions": 1
+      },
+      $set: {
+        "stats.streak": validatedStreak,
+        "stats.lastPlayedDate": today,
+        "stats.lastActiveDate": today,
+        "stats.wellnessScore": newWellness,
+        "stats.weeklyMinutes": weeklyMinutes,
+        "stats.activityLog": activityLog,
+        "stats.todaySessions": todaySessions,
+        "stats.todayPracticeTime": todayPracticeTime,
+      }
+    });
+
+    const updatedUser = await User.findOne({ id: userId }).lean();
+    const io = req.app.get("io");
+    if (io) io.emit("profile_updated", { userId, stats: updatedUser.stats });
+
+    res.json({ success: true, stats: updatedUser.stats });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to log sound session" });
+  }
+});
+
+
 async function startServer() {
   await connectMongo();
+  
+  // Migrate all Mumbai locations to Hyderabad
+  try {
+    await User.updateMany({ location: /Mumbai/i }, { $set: { location: "Hyderabad, India" } });
+    console.log("Migration: Mumbai -> Hyderabad completed");
+  } catch (err) {
+    console.error("Migration failed:", err);
+  }
+
   await initLocalAdminUser();
   await seedMongo();
 

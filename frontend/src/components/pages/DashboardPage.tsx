@@ -10,7 +10,7 @@ export function DashboardPage() {
           backgroundRepeat: 'no-repeat'
         }}
       />
-      <div className="absolute inset-0 bg-teal-900/40 z-0" />
+      <div className="absolute inset-0 bg-gray-900/40 z-0" />
       
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="mb-12">
@@ -27,13 +27,13 @@ export function DashboardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[60vh]">
           <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-2xl">
-            <h2 className="text-4xl lg:text-5xl font-bold text-teal-800 mb-6">
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-800 mb-6">
               Welcome back to Nirvaha
             </h2>
-            <p className="text-xl text-teal-700 leading-relaxed mb-4">
+            <p className="text-xl text-gray-700 leading-relaxed mb-4">
               Your space for calm, clarity, and conscious living.
             </p>
-            <p className="text-base text-teal-600">
+            <p className="text-base text-gray-600">
               Continue your journey towards mindfulness and inner peace.
             </p>
           </div>

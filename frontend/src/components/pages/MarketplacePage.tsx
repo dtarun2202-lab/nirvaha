@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import {
   ShoppingBag,
   BookOpen,
@@ -90,7 +90,7 @@ export function MarketplacePage() {
   const loadApprovedItems = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/marketplace/items?status=active",
+        "http://localhost:5001/api/marketplace/items?status=active",
       );
       if (!response.ok) {
         throw new Error("Failed to fetch marketplace items");
@@ -106,7 +106,7 @@ export function MarketplacePage() {
   const handleCompleteItem = async (itemId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/marketplace/items/${itemId}/complete`,
+        `http://localhost:5001/api/marketplace/items/${itemId}/complete`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -126,7 +126,7 @@ export function MarketplacePage() {
   useEffect(() => {
     loadApprovedItems();
 
-    const socket = io("http://localhost:5000");
+    const socket = io("http://localhost:5001");
     socket.on("marketplace-item-created", loadApprovedItems);
     socket.on("marketplace-item-completed", loadApprovedItems);
 
@@ -160,7 +160,7 @@ export function MarketplacePage() {
       rating: 5.0,
       price: item.data?.isPaid ? `₹${item.data?.price || ""}` : "Free",
       image: item.data?.image || DEFAULT_SESSION_IMAGE,
-      color: "from-emerald-400 to-teal-500",
+      color: "from-gray-400 to-gray-500",
       topics: [item.data?.platform, item.data?.timeZone].filter(Boolean),
     }));
 
@@ -177,7 +177,7 @@ export function MarketplacePage() {
       rating: 5.0,
       price: item.data?.isPaid ? `₹${item.data?.price || ""}` : "Free",
       image: DEFAULT_RETREAT_IMAGE,
-      color: "from-emerald-400 to-teal-500",
+      color: "from-gray-400 to-gray-500",
       highlights: [item.data?.accommodation, item.data?.pricingTier].filter(Boolean),
     }));
 
@@ -198,7 +198,7 @@ export function MarketplacePage() {
         reviews: 0,
         image,
         category: item.data?.category || "Other",
-        color: "from-emerald-400 to-teal-500",
+        color: "from-gray-400 to-gray-500",
         inStock: item.data?.stockAvailability !== "Out of Stock",
       };
     });
@@ -237,13 +237,13 @@ export function MarketplacePage() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="flex justify-center mb-12"
         >
-          <div className="bg-white/80 backdrop-blur-xl rounded-[32px] p-2 shadow-xl border border-emerald-200/30 inline-flex gap-2">
+          <div className="bg-white/80 backdrop-blur-xl rounded-[32px] p-2 shadow-xl border border-gray-200/30 inline-flex gap-2">
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setActiveTab("sessions")}
               className={`px-8 py-4 rounded-[24px] transition-all flex items-center gap-2 ${activeTab === "sessions"
-                  ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg"
-                  : "text-teal-700 hover:bg-emerald-50"
+                  ? "bg-gradient-to-r from-gray-500 to-gray-500 text-white shadow-lg"
+                  : "text-gray-700 hover:bg-gray-50"
                 }`}
             >
               <BookOpen className="w-5 h-5" />
@@ -253,8 +253,8 @@ export function MarketplacePage() {
               whileTap={{ scale: 0.95 }}
               onClick={() => setActiveTab("retreats")}
               className={`px-8 py-4 rounded-[24px] transition-all flex items-center gap-2 ${activeTab === "retreats"
-                  ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg"
-                  : "text-teal-700 hover:bg-emerald-50"
+                  ? "bg-gradient-to-r from-gray-500 to-gray-500 text-white shadow-lg"
+                  : "text-gray-700 hover:bg-gray-50"
                 }`}
             >
               <MapPin className="w-5 h-5" />
@@ -264,8 +264,8 @@ export function MarketplacePage() {
               whileTap={{ scale: 0.95 }}
               onClick={() => setActiveTab("products")}
               className={`px-8 py-4 rounded-[24px] transition-all flex items-center gap-2 ${activeTab === "products"
-                  ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg"
-                  : "text-teal-700 hover:bg-emerald-50"
+                  ? "bg-gradient-to-r from-gray-500 to-gray-500 text-white shadow-lg"
+                  : "text-gray-700 hover:bg-gray-50"
                 }`}
             >
               <ShoppingBag className="w-5 h-5" />
@@ -282,11 +282,11 @@ export function MarketplacePage() {
           className="flex flex-col md:flex-row gap-4 mb-12 md:items-center"
         >
           <div className="flex-1 relative">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-teal-500" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
             <input
               type="text"
               placeholder={`Search ${activeTab}...`}
-              className="w-full pl-14 pr-6 py-4 bg-white/80 backdrop-blur-xl rounded-[24px] border border-emerald-200/30 shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-teal-800 placeholder:text-teal-400"
+              className="w-full pl-14 pr-6 py-4 bg-white/80 backdrop-blur-xl rounded-[24px] border border-gray-200/30 shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400 text-gray-800 placeholder:text-gray-400"
             />
           </div>
           <div className="flex gap-3">
@@ -297,7 +297,7 @@ export function MarketplacePage() {
                 setSelectedAddType(activeTab === "products" ? "product" : activeTab === "retreats" ? "retreat" : "session");
                 setIsAddOpen(true);
               }}
-              className="px-6 py-4 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-[24px] shadow-lg flex items-center gap-2 hover:from-teal-600 hover:to-emerald-600 transition-colors"
+              className="px-6 py-4 bg-gradient-to-r from-gray-500 to-gray-500 text-white rounded-[24px] shadow-lg flex items-center gap-2 hover:from-gray-600 hover:to-gray-600 transition-colors"
             >
               <Plus className="w-5 h-5" />
               Add
@@ -305,7 +305,7 @@ export function MarketplacePage() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="px-6 py-4 bg-white/80 backdrop-blur-xl rounded-[24px] border border-emerald-200/30 shadow-lg text-teal-800 flex items-center gap-2 hover:bg-emerald-50 transition-colors"
+              className="px-6 py-4 bg-white/80 backdrop-blur-xl rounded-[24px] border border-gray-200/30 shadow-lg text-gray-800 flex items-center gap-2 hover:bg-gray-50 transition-colors"
             >
               <Filter className="w-5 h-5" />
               Filters
@@ -328,7 +328,7 @@ export function MarketplacePage() {
                 <motion.div
                   className={`absolute inset-0 bg-gradient-to-br ${session.color} rounded-[40px] blur-xl opacity-0 group-hover:opacity-30 transition-opacity`}
                 />
-                <div className="relative bg-white/90 backdrop-blur-xl rounded-[40px] overflow-hidden shadow-xl border border-emerald-200/30 h-[500px] flex flex-col">
+                <div className="relative bg-white/90 backdrop-blur-xl rounded-[40px] overflow-hidden shadow-xl border border-gray-200/30 h-[500px] flex flex-col">
                   {/* Course Image */}
                   <div className="relative h-[35%] min-h-[170px] overflow-hidden">
                     <img
@@ -357,13 +357,13 @@ export function MarketplacePage() {
 
                   {/* Course Info */}
                   <div className="p-6 flex-1 flex flex-col overflow-hidden">
-                    <h3 className="text-teal-800 mb-2 truncate">{session.title}</h3>
+                    <h3 className="text-gray-800 mb-2 truncate">{session.title}</h3>
 
-                    <p className="text-sm text-teal-600 mb-3 truncate">
+                    <p className="text-sm text-gray-600 mb-3 truncate">
                       Host: {session.host}
                     </p>
 
-                    <div className="flex items-center gap-4 mb-3 text-sm text-teal-600">
+                    <div className="flex items-center gap-4 mb-3 text-sm text-gray-600">
                       <div className="flex items-center gap-1">
                         <Clock className="w-4 h-4" />
                         {session.duration}
@@ -377,25 +377,25 @@ export function MarketplacePage() {
                     <div className="flex items-center gap-2 mb-3">
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 fill-lime-400 text-lime-400" />
-                        <span className="text-teal-800">{session.rating}</span>
+                        <span className="text-gray-800">{session.rating}</span>
                       </div>
-                      <span className="text-sm text-teal-600">{session.attendees}</span>
+                      <span className="text-sm text-gray-600">{session.attendees}</span>
                     </div>
 
                     <div className="flex flex-wrap gap-2 mb-4 overflow-hidden">
                       {session.topics.map((topic, j) => (
                         <span
                           key={j}
-                          className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full"
+                          className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
                         >
                           {topic}
                         </span>
                       ))}
                     </div>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-emerald-200/30 mt-auto min-h-[75px]">
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-200/30 mt-auto min-h-[75px]">
                       <div>
-                        <div className="text-2xl text-teal-800">
+                        <div className="text-2xl text-gray-800">
                           {session.price}
                         </div>
                       </div>
@@ -412,7 +412,7 @@ export function MarketplacePage() {
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          className="px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-2xl shadow-lg"
+                          className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-500 text-white rounded-2xl shadow-lg"
                         >
                           Join Live
                         </motion.button>
@@ -440,7 +440,7 @@ export function MarketplacePage() {
                 <motion.div
                   className={`absolute inset-0 bg-gradient-to-br ${retreat.color} rounded-[40px] blur-xl opacity-0 group-hover:opacity-30 transition-opacity`}
                 />
-                <div className="relative bg-white/90 backdrop-blur-xl rounded-[40px] overflow-hidden shadow-xl border border-emerald-200/30 h-[500px] flex flex-col">
+                <div className="relative bg-white/90 backdrop-blur-xl rounded-[40px] overflow-hidden shadow-xl border border-gray-200/30 h-[500px] flex flex-col">
                   <div className="relative h-[35%] min-h-[170px] overflow-hidden">
                     <img
                       src={retreat.image}
@@ -468,11 +468,11 @@ export function MarketplacePage() {
 
                   <div className="p-6 space-y-3 flex-1 flex flex-col overflow-hidden">
                     <div>
-                      <h3 className="text-teal-800 mb-1 truncate">{retreat.title}</h3>
-                      <p className="text-sm text-teal-600 truncate">Led by {retreat.guide}</p>
+                      <h3 className="text-gray-800 mb-1 truncate">{retreat.title}</h3>
+                      <p className="text-sm text-gray-600 truncate">Led by {retreat.guide}</p>
                     </div>
 
-                    <div className="flex items-center gap-4 text-sm text-teal-600">
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
                       <div className="flex items-center gap-1">
                         <MapPin className="w-4 h-4" />
                         {retreat.location}
@@ -483,7 +483,7 @@ export function MarketplacePage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 text-sm text-teal-600">
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
                       <div className="flex items-center gap-1">
                         <Users className="w-4 h-4" />
                         {retreat.capacity}
@@ -498,16 +498,16 @@ export function MarketplacePage() {
                       {retreat.highlights.map((item, j) => (
                         <span
                           key={j}
-                          className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full"
+                          className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
                         >
                           {item}
                         </span>
                       ))}
                     </div>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-emerald-200/30 mt-auto min-h-[75px]">
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-200/30 mt-auto min-h-[75px]">
                       <div>
-                        <div className="text-2xl text-teal-800">{retreat.price}</div>
+                        <div className="text-2xl text-gray-800">{retreat.price}</div>
                       </div>
                       {retreat.approvedId ? (
                         <motion.button
@@ -522,7 +522,7 @@ export function MarketplacePage() {
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          className="px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-2xl shadow-lg"
+                          className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-500 text-white rounded-2xl shadow-lg"
                         >
                           Request Spot
                         </motion.button>
@@ -550,7 +550,7 @@ export function MarketplacePage() {
                 <motion.div
                   className={`absolute inset-0 bg-gradient-to-br ${product.color} rounded-[40px] blur-xl opacity-0 group-hover:opacity-30 transition-opacity`}
                 />
-                <div className="relative bg-white/90 backdrop-blur-xl rounded-[40px] overflow-hidden shadow-xl border border-emerald-200/30 h-[500px] flex flex-col">
+                <div className="relative bg-white/90 backdrop-blur-xl rounded-[40px] overflow-hidden shadow-xl border border-gray-200/30 h-[500px] flex flex-col">
                   {/* Product Image */}
                   <div className="relative h-[35%] min-h-[170px] overflow-hidden">
                     <img
@@ -569,7 +569,7 @@ export function MarketplacePage() {
                       </motion.button>
                     </div>
                     <div className="absolute bottom-4 left-4">
-                      <span className="px-4 py-2 bg-white/90 backdrop-blur-xl text-teal-800 rounded-full text-sm shadow-lg">
+                      <span className="px-4 py-2 bg-white/90 backdrop-blur-xl text-gray-800 rounded-full text-sm shadow-lg">
                         {product.category}
                       </span>
                     </div>
@@ -577,9 +577,9 @@ export function MarketplacePage() {
 
                   {/* Product Info */}
                   <div className="p-6 flex-1 flex flex-col overflow-hidden">
-                    <h4 className="text-teal-800 mb-2 truncate">{product.name}</h4>
+                    <h4 className="text-gray-800 mb-2 truncate">{product.name}</h4>
 
-                    <p className="text-sm text-teal-600 mb-3 overflow-hidden">
+                    <p className="text-sm text-gray-600 mb-3 overflow-hidden">
                       {product.description.length > 120
                         ? `${product.description.slice(0, 120)}...`
                         : product.description}
@@ -588,17 +588,17 @@ export function MarketplacePage() {
                     <div className="flex items-center gap-2 mb-4">
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 fill-lime-400 text-lime-400" />
-                        <span className="text-teal-800">{product.rating}</span>
+                        <span className="text-gray-800">{product.rating}</span>
                       </div>
-                      <span className="text-sm text-teal-600">
+                      <span className="text-sm text-gray-600">
                         ({product.reviews} reviews)
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2 mb-3">
                       {product.inStock ? (
-                        <div className="flex items-center gap-2 text-sm text-emerald-600">
-                          <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <div className="w-2 h-2 rounded-full bg-gray-500" />
                           In Stock
                         </div>
                       ) : (
@@ -609,9 +609,9 @@ export function MarketplacePage() {
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-emerald-200/30 mt-auto min-h-[75px]">
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-200/30 mt-auto min-h-[75px]">
                       <div>
-                        <div className="text-2xl text-teal-800">
+                        <div className="text-2xl text-gray-800">
                           {product.price}
                         </div>
                       </div>
@@ -628,7 +628,7 @@ export function MarketplacePage() {
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          className="px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-2xl shadow-lg"
+                          className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-500 text-white rounded-2xl shadow-lg"
                         >
                           Book Now
                         </motion.button>
@@ -648,33 +648,33 @@ export function MarketplacePage() {
           transition={{ duration: 0.6, delay: 0.8 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16"
         >
-          <div className="flex items-center gap-4 p-6 bg-white/80 backdrop-blur-xl rounded-[32px] shadow-lg border border-emerald-200/30">
-            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center flex-shrink-0">
+          <div className="flex items-center gap-4 p-6 bg-white/80 backdrop-blur-xl rounded-[32px] shadow-lg border border-gray-200/30">
+            <div className="w-14 h-14 bg-gradient-to-br from-gray-500 to-gray-500 rounded-2xl flex items-center justify-center flex-shrink-0">
               <Shield className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h5 className="text-teal-800 mb-1">Secure Payment</h5>
-              <p className="text-sm text-teal-600">100% protected transactions</p>
+              <h5 className="text-gray-800 mb-1">Secure Payment</h5>
+              <p className="text-sm text-gray-600">100% protected transactions</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 p-6 bg-white/80 backdrop-blur-xl rounded-[32px] shadow-lg border border-emerald-200/30">
-            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center flex-shrink-0">
+          <div className="flex items-center gap-4 p-6 bg-white/80 backdrop-blur-xl rounded-[32px] shadow-lg border border-gray-200/30">
+            <div className="w-14 h-14 bg-gradient-to-br from-gray-500 to-gray-500 rounded-2xl flex items-center justify-center flex-shrink-0">
               <Award className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h5 className="text-teal-800 mb-1">Quality Guaranteed</h5>
-              <p className="text-sm text-teal-600">Curated by experts</p>
+              <h5 className="text-gray-800 mb-1">Quality Guaranteed</h5>
+              <p className="text-sm text-gray-600">Curated by experts</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 p-6 bg-white/80 backdrop-blur-xl rounded-[32px] shadow-lg border border-emerald-200/30">
-            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center flex-shrink-0">
+          <div className="flex items-center gap-4 p-6 bg-white/80 backdrop-blur-xl rounded-[32px] shadow-lg border border-gray-200/30">
+            <div className="w-14 h-14 bg-gradient-to-br from-gray-500 to-gray-500 rounded-2xl flex items-center justify-center flex-shrink-0">
               <Truck className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h5 className="text-teal-800 mb-1">Fast Delivery</h5>
-              <p className="text-sm text-teal-600">Free shipping over $50</p>
+              <h5 className="text-gray-800 mb-1">Fast Delivery</h5>
+              <p className="text-sm text-gray-600">Free shipping over $50</p>
             </div>
           </div>
         </motion.div>

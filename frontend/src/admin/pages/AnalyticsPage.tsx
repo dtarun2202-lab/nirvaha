@@ -68,7 +68,7 @@ export function AnalyticsPage() {
         </div>
         <div className="flex items-center gap-3">
           <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-[180px] bg-white border-emerald-200 text-black">
+            <SelectTrigger className="w-[180px] bg-white border-gray-200 text-black">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-white">
@@ -80,14 +80,14 @@ export function AnalyticsPage() {
           </Select>
           <Button
             variant="outline"
-            className="bg-white border-emerald-200 text-black hover:bg-emerald-50"
+            className="bg-white border-gray-200 text-black hover:bg-gray-50"
           >
             <Download className="mr-2 w-4 h-4" />
             Export CSV
           </Button>
           <Button
             variant="outline"
-            className="bg-white border-emerald-200 text-black hover:bg-emerald-50"
+            className="bg-white border-gray-200 text-black hover:bg-gray-50"
           >
             <FileText className="mr-2 w-4 h-4" />
             Export PDF
@@ -98,7 +98,7 @@ export function AnalyticsPage() {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* User Growth Line Chart */}
-        <Card className="bg-white border-emerald-200 p-6">
+        <Card className="bg-white border-gray-200 p-6">
           <h2 className="text-xl font-bold text-black mb-4">User Growth</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={userGrowthData}>
@@ -129,7 +129,7 @@ export function AnalyticsPage() {
         </Card>
 
         {/* Bookings Per Day Bar Chart */}
-        <Card className="bg-white border-emerald-200 p-6">
+        <Card className="bg-white border-gray-200 p-6">
           <h2 className="text-xl font-bold text-black mb-4">Bookings Per Day</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={bookingsData}>
@@ -154,7 +154,7 @@ export function AnalyticsPage() {
         </Card>
 
         {/* Revenue Breakdown Pie Chart */}
-        <Card className="bg-white border-emerald-200 p-6 lg:col-span-2">
+        <Card className="bg-white border-gray-200 p-6 lg:col-span-2">
           <h2 className="text-xl font-bold text-black mb-4">Revenue Breakdown</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ResponsiveContainer width="100%" height={300}>
@@ -200,10 +200,10 @@ export function AnalyticsPage() {
                   </span>
                 </div>
               ))}
-              <div className="pt-4 border-t border-emerald-200">
+              <div className="pt-4 border-t border-gray-200">
                 <div className="flex items-center justify-between">
                   <span className="text-black font-bold text-lg">Total Revenue</span>
-                  <span className="text-emerald-600 font-bold text-xl">
+                  <span className="text-gray-600 font-bold text-xl">
                     ₹{revenueData.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
                   </span>
                 </div>
@@ -223,11 +223,11 @@ export function AnalyticsPage() {
         ].map((metric, index) => (
           <Card
             key={index}
-            className="bg-white border-emerald-200 p-6"
+            className="bg-white border-gray-200 p-6"
           >
             <p className="text-gray-700 text-sm mb-2">{metric.label}</p>
             <p className="text-black text-2xl font-bold mb-1">{metric.value}</p>
-            <p className="text-emerald-600 text-sm font-semibold">{metric.change}</p>
+            <p className="text-gray-600 text-sm font-semibold">{metric.change}</p>
           </Card>
         ))}
       </div>

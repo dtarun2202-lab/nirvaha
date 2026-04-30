@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, CheckCircle } from "lucide-react";
 
 interface Question {
@@ -95,30 +95,30 @@ const Contact = () => {
       {/* Decorative shapes — left & right sides only */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         {/* Left side shapes */}
-        <svg className="absolute top-8 -left-6 w-32 h-32 opacity-[0.04]" viewBox="0 0 100 100" fill="#1a5d47">
+        <svg className="absolute top-8 -left-6 w-32 h-32 opacity-[0.04]" viewBox="0 0 100 100" fill="#333333">
           <circle cx="50" cy="50" r="42" />
         </svg>
-        <svg className="absolute top-[30%] -left-4 w-24 h-24 opacity-[0.05] rotate-[15deg]" viewBox="0 0 100 100" fill="#1a5d47">
+        <svg className="absolute top-[30%] -left-4 w-24 h-24 opacity-[0.05] rotate-[15deg]" viewBox="0 0 100 100" fill="#333333">
           <polygon points="50,3 93,25 93,75 50,97 7,75 7,25" />
         </svg>
-        <svg className="absolute top-[55%] -left-3 w-20 h-20 opacity-[0.06] rotate-45" viewBox="0 0 100 100" fill="#1a5d47">
+        <svg className="absolute top-[55%] -left-3 w-20 h-20 opacity-[0.06] rotate-45" viewBox="0 0 100 100" fill="#333333">
           <rect x="15" y="15" width="70" height="70" rx="8" />
         </svg>
-        <svg className="absolute top-[75%] left-2 w-14 h-14 opacity-[0.04]" viewBox="0 0 100 100" fill="#1a5d47">
+        <svg className="absolute top-[75%] left-2 w-14 h-14 opacity-[0.04]" viewBox="0 0 100 100" fill="#333333">
           <polygon points="50,10 90,85 10,85" />
         </svg>
 
         {/* Right side shapes */}
-        <svg className="absolute top-6 -right-5 w-28 h-28 opacity-[0.04] rotate-[10deg]" viewBox="0 0 100 100" fill="#1a5d47">
+        <svg className="absolute top-6 -right-5 w-28 h-28 opacity-[0.04] rotate-[10deg]" viewBox="0 0 100 100" fill="#333333">
           <polygon points="50,3 93,25 93,75 50,97 7,75 7,25" />
         </svg>
-        <svg className="absolute top-[35%] -right-4 w-20 h-20 opacity-[0.05]" viewBox="0 0 100 100" fill="#1a5d47">
+        <svg className="absolute top-[35%] -right-4 w-20 h-20 opacity-[0.05]" viewBox="0 0 100 100" fill="#333333">
           <circle cx="50" cy="50" r="36" />
         </svg>
-        <svg className="absolute top-[58%] right-3 w-16 h-16 opacity-[0.06] rotate-[60deg]" viewBox="0 0 100 100" fill="#1a5d47">
+        <svg className="absolute top-[58%] right-3 w-16 h-16 opacity-[0.06] rotate-[60deg]" viewBox="0 0 100 100" fill="#333333">
           <ellipse cx="50" cy="50" rx="18" ry="40" />
         </svg>
-        <svg className="absolute top-[78%] -right-6 w-26 h-26 opacity-[0.03]" viewBox="0 0 100 100" fill="none" stroke="#1a5d47" strokeWidth={3}>
+        <svg className="absolute top-[78%] -right-6 w-26 h-26 opacity-[0.03]" viewBox="0 0 100 100" fill="none" stroke="#333333" strokeWidth={3}>
           <circle cx="50" cy="50" r="40" />
           <circle cx="50" cy="50" r="24" />
         </svg>
@@ -152,7 +152,7 @@ const Contact = () => {
           <div className="flex-1 w-full lg:w-1/2">
             <div className="mb-8 text-left space-y-2">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0F131A] tracking-tight" style={{ fontFamily: "'Cinzel', serif" }}>
-                Connect with <span className="text-[#1a5d47]">Us</span>
+                Connect with <span className="text-[#333333]">Us</span>
               </h2>
               <p className="text-lg text-[#595e67] font-light max-w-lg leading-relaxed" style={{ fontFamily: "'Poppins', sans-serif" }}>
                 Reach out to begin your transformation.
@@ -169,7 +169,7 @@ const Contact = () => {
                   className="py-10"
                 >
                   <div className="flex flex-col items-start space-y-4">
-                    <div className="w-16 h-16 rounded-full bg-[#1a5d47] flex items-center justify-center shadow-lg">
+                    <div className="w-16 h-16 rounded-full bg-[#333333] flex items-center justify-center shadow-lg">
                       <CheckCircle className="w-8 h-8 text-white" />
                     </div>
                     <div>
@@ -200,8 +200,8 @@ const Contact = () => {
                           onChange={(e) => handleChange(e.target.value)}
                           onKeyDown={handleKeyPress}
                           placeholder={currentQuestion.placeholder}
-                          className="w-full px-0 py-2 focus:outline-none transition-all duration-300 text-xl lg:text-2xl font-semibold border-b-2 border-dotted border-[#1a5d47] focus:border-solid bg-transparent text-left placeholder:opacity-30"
-                          style={{ color: '#1a5d47', fontFamily: "'Poppins', sans-serif" }}
+                          className="w-full px-0 py-2 focus:outline-none transition-all duration-300 text-xl lg:text-2xl font-semibold border-b-2 border-dotted border-[#333333] focus:border-solid bg-transparent text-left placeholder:opacity-30"
+                          style={{ color: '#333333', fontFamily: "'Poppins', sans-serif" }}
                           rows={1}
                           autoFocus
                         />
@@ -212,8 +212,8 @@ const Contact = () => {
                           onChange={(e) => handleChange(e.target.value)}
                           onKeyDown={handleKeyPress}
                           placeholder={currentQuestion.placeholder}
-                          className="w-full px-0 py-2 focus:outline-none transition-all duration-300 text-xl lg:text-2xl font-semibold border-b-2 border-dotted border-[#1a5d47] focus:border-solid bg-transparent text-left placeholder:opacity-30"
-                          style={{ color: '#1a5d47', fontFamily: "'Poppins', sans-serif" }}
+                          className="w-full px-0 py-2 focus:outline-none transition-all duration-300 text-xl lg:text-2xl font-semibold border-b-2 border-dotted border-[#333333] focus:border-solid bg-transparent text-left placeholder:opacity-30"
+                          style={{ color: '#333333', fontFamily: "'Poppins', sans-serif" }}
                           autoFocus
                         />
                       )}
@@ -230,7 +230,7 @@ const Contact = () => {
                       <button
                         type="button"
                         onClick={() => setCurrentStep(prev => prev - 1)}
-                        className="px-6 py-2.5 rounded-full font-semibold text-[#595e67] border-2 border-gray-100 hover:border-[#1a5d47]/20 transition-all duration-300"
+                        className="px-6 py-2.5 rounded-full font-semibold text-[#595e67] border-2 border-gray-100 hover:border-[#333333]/20 transition-all duration-300"
                         style={{ fontFamily: "'Poppins', sans-serif" }}
                       >
                         Back
@@ -240,7 +240,7 @@ const Contact = () => {
                       type="button"
                       onClick={handleNext}
                       disabled={!formData[currentQuestion.id as keyof typeof formData].trim() || isSubmitting}
-                      className="px-10 py-4 bg-[#1a5d47] text-white font-semibold text-lg rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed"
+                      className="px-10 py-4 bg-[#333333] text-white font-semibold text-lg rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed"
                       style={{ fontFamily: "'Poppins', sans-serif" }}
                     >
                       <span>{isLastStep ? (isSubmitting ? 'Sending...' : 'Connect Now') : 'Next Step'}</span>

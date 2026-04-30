@@ -28,10 +28,10 @@ export function AdminTable<T extends Record<string, any>>({
   emptyMessage = "No data available",
 }: AdminTableProps<T>) {
   return (
-    <div className="rounded-lg border border-emerald-200 bg-white overflow-hidden">
+    <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="hover:bg-gray-50 border-emerald-200">
+          <TableRow className="hover:bg-gray-50 border-gray-200">
             {columns.map((column) => (
               <TableHead
                 key={column.key}
@@ -57,7 +57,7 @@ export function AdminTable<T extends Record<string, any>>({
               <TableRow
                 key={index}
                 onClick={() => onRowClick?.(item)}
-                className={`hover:bg-emerald-50 border-emerald-200 transition-colors ${
+                className={`hover:bg-gray-50 border-gray-200 transition-colors ${
                   onRowClick ? "cursor-pointer" : ""
                 }`}
               >

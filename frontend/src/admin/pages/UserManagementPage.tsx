@@ -148,7 +148,7 @@ export function UserManagementPage() {
   const getRoleBadge = (role: string) => {
     const configs = {
       admin: { label: "Admin", className: "bg-purple-100 text-purple-800 border-purple-300" },
-      companion: { label: "Companion", className: "bg-teal-100 text-teal-800 border-teal-300" },
+      companion: { label: "Companion", className: "bg-gray-100 text-gray-800 border-gray-300" },
       user: { label: "User", className: "bg-blue-100 text-blue-800 border-blue-300" },
     };
     const config = configs[role as keyof typeof configs] || configs.user;
@@ -215,7 +215,7 @@ export function UserManagementPage() {
       </div>
 
       {/* Filters */}
-      <Card className="bg-white border-emerald-200 p-6">
+      <Card className="bg-white border-gray-200 p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="relative md:col-span-2">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -223,11 +223,11 @@ export function UserManagementPage() {
               placeholder="Search by name or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white border-emerald-200 text-black placeholder:text-gray-400"
+              className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-400"
             />
           </div>
           <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-full bg-white border-emerald-200 text-black">
+            <SelectTrigger className="w-full bg-white border-gray-200 text-black">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-white">
@@ -238,7 +238,7 @@ export function UserManagementPage() {
             </SelectContent>
           </Select>
           <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-full bg-white border-emerald-200 text-black">
+            <SelectTrigger className="w-full bg-white border-gray-200 text-black">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-white">
@@ -253,7 +253,7 @@ export function UserManagementPage() {
       </Card>
 
       {/* Table */}
-      <Card className="bg-white border-emerald-200">
+      <Card className="bg-white border-gray-200">
         <AdminTable
           data={filteredUsers}
           columns={columns}
@@ -308,7 +308,7 @@ export function UserManagementPage() {
             )}
             {selectedUser?.role !== "admin" && (
               <Button
-                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+                className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white"
                 onClick={() => {
                   setIsViewModalOpen(false);
                   handleAction("change-role", selectedUser);
@@ -366,7 +366,7 @@ export function UserManagementPage() {
               Cancel
             </Button>
             <Button
-              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+              className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white"
               onClick={handleRoleSave}
             >
               Save Role

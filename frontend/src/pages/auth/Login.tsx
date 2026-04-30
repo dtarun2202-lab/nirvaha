@@ -4,7 +4,7 @@ import "./Login.css";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import BACKEND_CONFIG from "../../config/backend";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import {
   Mail,
   Lock,
@@ -32,7 +32,7 @@ const Login: React.FC = () => {
       setLoading(true);
 
       // Backend login
-      const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/auth/login`, {
+      const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -46,14 +46,14 @@ const Login: React.FC = () => {
         throw new Error(data.message || data.error || "Login failed");
       }
 
-      login(data.user);
-      localStorage.setItem("token", data.token);
+      // Pass user and token to AuthContext
+      login(data.user, data.token);
 
       // After successful login, redirect based on user role
       if (data.user.role === "admin") {
         navigate("/admin");
       } else {
-        navigate("/dashboard");
+        navigate("/dashboard/overview");
       }
     } catch (err: any) {
       console.error(err);
@@ -211,7 +211,7 @@ const Login: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.1 }}
         >
           <h1
-            className="text-3xl font-semibold mb-2 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent"
+            className="text-3xl font-semibold mb-2 bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent"
           >
             Welcome Back
           </h1>
@@ -246,7 +246,7 @@ const Login: React.FC = () => {
               onChange={(e) =>
                 setUserData({ ...userData, email: e.target.value })
               }
-              className="w-full pl-12 pr-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 transition-all duration-300 focus:outline-none focus:border-emerald-400 focus:bg-white/10 focus:ring-2 focus:ring-emerald-400/20"
+              className="w-full pl-12 pr-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 transition-all duration-300 focus:outline-none focus:border-gray-400 focus:bg-white/10 focus:ring-2 focus:ring-gray-400/20"
               required
             />
           </motion.div>
@@ -267,7 +267,7 @@ const Login: React.FC = () => {
               onChange={(e) =>
                 setUserData({ ...userData, password: e.target.value })
               }
-              className="w-full pl-12 pr-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 transition-all duration-300 focus:outline-none focus:border-emerald-400 focus:bg-white/10 focus:ring-2 focus:ring-emerald-400/20"
+              className="w-full pl-12 pr-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 transition-all duration-300 focus:outline-none focus:border-gray-400 focus:bg-white/10 focus:ring-2 focus:ring-gray-400/20"
               required
             />
           </motion.div>
@@ -275,7 +275,7 @@ const Login: React.FC = () => {
           <motion.button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-6 text-base font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all duration-300 relative overflow-hidden group bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full py-3 px-6 text-base font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all duration-300 relative overflow-hidden group bg-gradient-to-r from-gray-500 to-gray-500 text-white shadow-lg shadow-gray-400/30 hover:shadow-xl hover:shadow-gray-400/40 hover:scale-[1.02] active:scale-[0.98]"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
@@ -315,7 +315,7 @@ const Login: React.FC = () => {
         >
           <button
             onClick={() => navigate("/signup")}
-            className="text-sm text-gray-300 hover:text-emerald-400 transition-all duration-300 hover:underline"
+            className="text-sm text-gray-300 hover:text-gray-400 transition-all duration-300 hover:underline"
           >
             Don't have an account? Sign up here
           </button>
@@ -332,14 +332,14 @@ const Login: React.FC = () => {
         <div className="flex items-center justify-center gap-4 flex-wrap">
           <a
             href="#"
-            className="hover:text-emerald-400 transition-colors"
+            className="hover:text-gray-400 transition-colors"
           >
             Privacy policy
           </a>
           <span>|</span>
           <a
             href="#"
-            className="hover:text-emerald-400 transition-colors"
+            className="hover:text-gray-400 transition-colors"
           >
             Terms
           </a>

@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 const CommunityHero = () => {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ const CommunityHero = () => {
           repeatType: "reverse",
           ease: "linear"
         }}
-        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none brightness-150"
         autoPlay
         loop
         muted
@@ -91,7 +91,7 @@ const CommunityHero = () => {
                   transition: { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
                 }
               }}
-              className="text-xl md:text-2xl text-emerald-50 max-w-2xl mx-auto leading-relaxed"
+              className="text-xl md:text-2xl text-gray-50 max-w-2xl mx-auto leading-relaxed"
             >
               Experience the convergence of ancient wisdom and modern technology for your complete holistic healing journey.
             </motion.p>
@@ -109,7 +109,7 @@ const CommunityHero = () => {
             >
               <button
                 onClick={() => navigate('/signup')}
-                className="px-10 py-4 rounded-full bg-[#1a5d47] text-white font-semibold text-lg hover:bg-[#144937] transition-all duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1"
+                className="px-10 py-4 rounded-full bg-[#333333] text-white font-semibold text-lg hover:bg-[#144937] transition-all duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
                 Start Your Journey

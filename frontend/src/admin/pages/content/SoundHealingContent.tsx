@@ -130,7 +130,7 @@ export function SoundHealingContent() {
     formData.append("file", file);
     
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || BACKEND_CONFIG.API_BASE_URL || "http://localhost:5000";
+      import.meta.env.VITE_API_BASE_URL || BACKEND_CONFIG.API_BASE_URL || "http://localhost:5001";
     const response = await fetch(`${apiBaseUrl}/api/upload`, {
       method: "POST",
       body: formData,
@@ -252,7 +252,7 @@ export function SoundHealingContent() {
       render: (item: SoundItem) => (
         <div className="flex flex-wrap gap-1">
           {(item.mood || []).map((m, idx) => (
-            <Badge key={idx} variant="outline" className="text-xs bg-teal-100 text-teal-800 border-teal-300">
+            <Badge key={idx} variant="outline" className="text-xs bg-gray-100 text-gray-800 border-gray-300">
               {m}
             </Badge>
           ))}
@@ -272,7 +272,7 @@ export function SoundHealingContent() {
             size="sm"
             variant="outline"
             onClick={() => handleEdit(item)}
-            className="border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+            className="border-gray-300 text-gray-700 hover:bg-gray-50"
           >
             Edit
           </Button>
@@ -296,7 +296,7 @@ export function SoundHealingContent() {
       key: "status",
       header: "Status",
       render: (item: SoundItem) => (
-        <span className="px-2 py-1 rounded text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/50">
+        <span className="px-2 py-1 rounded text-xs font-medium bg-gray-500/20 text-gray-300 border border-gray-500/50">
           {item.status}
         </span>
       ),
@@ -305,7 +305,7 @@ export function SoundHealingContent() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white border-emerald-200 p-6">
+      <Card className="bg-white border-gray-200 p-6">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex-1 relative w-full">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -313,12 +313,12 @@ export function SoundHealingContent() {
               placeholder="Search sound healing sessions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white border-emerald-200 text-gray-900 placeholder:text-gray-400"
+              className="pl-10 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400"
             />
           </div>
           <Button
             onClick={handleAdd}
-            className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+            className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white"
           >
             <Plus className="mr-2 w-4 h-4" />
             Add Sound Healing
@@ -327,7 +327,7 @@ export function SoundHealingContent() {
         {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
       </Card>
 
-      <Card className="bg-white border-emerald-200">
+      <Card className="bg-white border-gray-200">
         <AdminTable
           data={filteredSounds}
           columns={columns}
@@ -416,7 +416,7 @@ export function SoundHealingContent() {
               {(formData.mood || []).length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {(formData.mood || []).map((mood, idx) => (
-                    <Badge key={idx} variant="outline" className="bg-teal-100 text-teal-800">
+                    <Badge key={idx} variant="outline" className="bg-gray-100 text-gray-800">
                       {mood}
                       <X
                         className="ml-1 w-3 h-3 cursor-pointer"
@@ -471,7 +471,7 @@ export function SoundHealingContent() {
                   <p className="text-xs text-gray-500 mt-1">Current: {formData.thumbnailUrl.split('/').pop()}</p>
                 )}
                 {thumbnailFile && (
-                  <p className="text-xs text-emerald-600 mt-1">New file: {thumbnailFile.name}</p>
+                  <p className="text-xs text-gray-600 mt-1">New file: {thumbnailFile.name}</p>
                 )}
               </div>
               <div>
@@ -488,7 +488,7 @@ export function SoundHealingContent() {
                   <p className="text-xs text-gray-500 mt-1">Current: {formData.bannerUrl.split('/').pop()}</p>
                 )}
                 {bannerFile && (
-                  <p className="text-xs text-emerald-600 mt-1">New file: {bannerFile.name}</p>
+                  <p className="text-xs text-gray-600 mt-1">New file: {bannerFile.name}</p>
                 )}
               </div>
             </div>
@@ -505,7 +505,7 @@ export function SoundHealingContent() {
                 <p className="text-xs text-gray-500 mt-1">Current: {formData.audioUrl.split('/').pop()}</p>
               )}
               {audioFile && (
-                <p className="text-xs text-emerald-600 mt-1">New file: {audioFile.name}</p>
+                <p className="text-xs text-gray-600 mt-1">New file: {audioFile.name}</p>
               )}
             </div>
           </div>
@@ -514,7 +514,7 @@ export function SoundHealingContent() {
               Cancel
             </Button>
             <Button
-              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+              className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white"
               onClick={handleSave}
               disabled={isUploading}
             >

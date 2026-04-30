@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { ShoppingBag, Star, Heart, Share2, Package, Truck, Shield, QrCode } from "lucide-react";
 
 export function ProductsPage() {
@@ -33,7 +33,7 @@ export function ProductsPage() {
       reviews: 567,
       image: "https://images.unsplash.com/photo-1545389336-cf090694435e?w=600",
       category: "Meditation",
-      color: "from-emerald-400 to-teal-500",
+      color: "from-gray-400 to-gray-500",
       inStock: true,
     },
     {
@@ -44,7 +44,7 @@ export function ProductsPage() {
       reviews: 891,
       image: "https://images.unsplash.com/photo-1610294645949-149e5a5ff15d?w=600",
       category: "Aromatherapy",
-      color: "from-cyan-400 to-blue-500",
+      color: "from-gray-300 to-blue-500",
       inStock: true,
     },
     {
@@ -66,7 +66,7 @@ export function ProductsPage() {
       reviews: 734,
       image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600",
       category: "Aromatherapy",
-      color: "from-lime-400 to-emerald-500",
+      color: "from-lime-400 to-gray-500",
       inStock: true,
     },
   ];
@@ -84,14 +84,14 @@ export function ProductsPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100/50 rounded-full border border-emerald-300/30 mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100/50 rounded-full border border-gray-300/30 mb-6"
           >
-            <ShoppingBag className="w-4 h-4 text-emerald-600" />
-            <span className="text-sm text-emerald-700">Curated Spiritual Tools</span>
+            <ShoppingBag className="w-4 h-4 text-gray-600" />
+            <span className="text-sm text-gray-700">Curated Spiritual Tools</span>
           </motion.div>
 
-          <h1 className="text-emerald-800 mb-4">Sacred Wellness Products</h1>
-          <p className="max-w-3xl mx-auto text-lg text-teal-700">
+          <h1 className="text-gray-800 mb-4">Sacred Wellness Products</h1>
+          <p className="max-w-3xl mx-auto text-lg text-gray-700">
             Enhance your spiritual practice with our carefully curated collection of 
             high-quality meditation tools, crystals, and wellness essentials.
           </p>
@@ -115,12 +115,12 @@ export function ProductsPage() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.3 + i * 0.1 }}
-              className="flex items-center gap-3 p-4 bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-emerald-200/30"
+              className="flex items-center gap-3 p-4 bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/30"
             >
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                <badge.icon className="w-5 h-5 text-emerald-600" />
+              <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <badge.icon className="w-5 h-5 text-gray-600" />
               </div>
-              <span className="text-sm text-teal-700">{badge.text}</span>
+              <span className="text-sm text-gray-700">{badge.text}</span>
             </motion.div>
           ))}
         </motion.div>
@@ -142,9 +142,9 @@ export function ProductsPage() {
               />
 
               {/* Card */}
-              <div className="relative bg-white/90 backdrop-blur-xl rounded-[40px] overflow-hidden shadow-xl border border-emerald-200/30 h-full flex flex-col">
+              <div className="relative bg-white/90 backdrop-blur-xl rounded-[40px] overflow-hidden shadow-xl border border-gray-200/30 h-full flex flex-col">
                 {/* Image Container */}
-                <div className="relative h-72 overflow-hidden bg-gradient-to-br from-emerald-50 to-teal-50">
+                <div className="relative h-72 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-50">
                   <img
                     src={product.image}
                     alt={product.name}
@@ -155,7 +155,7 @@ export function ProductsPage() {
                   <div className={`absolute inset-0 bg-gradient-to-t ${product.color} opacity-20 group-hover:opacity-30 transition-opacity`} />
 
                   {/* Category Badge */}
-                  <div className="absolute top-4 left-4 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-xs text-teal-800">
+                  <div className="absolute top-4 left-4 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-xs text-gray-800">
                     {product.category}
                   </div>
 
@@ -173,13 +173,13 @@ export function ProductsPage() {
                       whileTap={{ scale: 0.95 }}
                       className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white transition-all"
                     >
-                      <Share2 className="w-5 h-5 text-teal-600" />
+                      <Share2 className="w-5 h-5 text-gray-600" />
                     </motion.button>
                   </div>
 
                   {/* Stock Badge */}
                   {product.inStock && (
-                    <div className="absolute bottom-4 left-4 px-3 py-1.5 bg-emerald-500 text-white text-xs rounded-full">
+                    <div className="absolute bottom-4 left-4 px-3 py-1.5 bg-gray-500 text-white text-xs rounded-full">
                       In Stock
                     </div>
                   )}
@@ -187,8 +187,8 @@ export function ProductsPage() {
 
                 {/* Content */}
                 <div className="p-6 flex flex-col flex-1">
-                  <h3 className="text-teal-800 mb-2">{product.name}</h3>
-                  <p className="text-sm text-teal-600 mb-4 leading-relaxed">
+                  <h3 className="text-gray-800 mb-2">{product.name}</h3>
+                  <p className="text-sm text-gray-600 mb-4 leading-relaxed">
                     {product.description}
                   </p>
 
@@ -206,15 +206,15 @@ export function ProductsPage() {
                         />
                       ))}
                     </div>
-                    <span className="text-sm text-teal-800">{product.rating}</span>
-                    <span className="text-xs text-teal-600">({product.reviews} reviews)</span>
+                    <span className="text-sm text-gray-800">{product.rating}</span>
+                    <span className="text-xs text-gray-600">({product.reviews} reviews)</span>
                   </div>
 
                   {/* Price & CTA */}
-                  <div className="mt-auto pt-4 border-t border-emerald-200/30">
+                  <div className="mt-auto pt-4 border-t border-gray-200/30">
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-3xl text-teal-800">{product.price}</span>
-                      <span className="text-sm text-teal-600">Free Shipping</span>
+                      <span className="text-3xl text-gray-800">{product.price}</span>
+                      <span className="text-sm text-gray-600">Free Shipping</span>
                     </div>
 
                     <motion.button
@@ -238,7 +238,7 @@ export function ProductsPage() {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="absolute -top-3 -right-3 w-16 h-16 bg-gradient-to-br from-lime-400 to-emerald-400 rounded-2xl shadow-xl flex items-center justify-center rotate-12 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute -top-3 -right-3 w-16 h-16 bg-gradient-to-br from-lime-400 to-gray-400 rounded-2xl shadow-xl flex items-center justify-center rotate-12 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <span className="text-xs text-white text-center leading-tight">
                     Best
@@ -256,7 +256,7 @@ export function ProductsPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1 }}
-          className="mt-16 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-[48px] p-12 shadow-2xl text-white overflow-hidden relative"
+          className="mt-16 bg-gradient-to-br from-gray-600 to-gray-700 rounded-[48px] p-12 shadow-2xl text-white overflow-hidden relative"
         >
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-10">
@@ -278,18 +278,18 @@ export function ProductsPage() {
           <div className="relative z-10 grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-white mb-4">Shop with Our Mobile App</h2>
-              <p className="text-emerald-100 text-lg mb-8">
+              <p className="text-gray-100 text-lg mb-8">
                 Scan the QR code to download NIRVAHA app and get exclusive mobile-only deals, 
                 faster checkout, and personalized product recommendations.
               </p>
 
               <div className="flex flex-wrap items-center gap-4">
                 <div className="px-6 py-3 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
-                  <p className="text-xs text-emerald-200 mb-1">First Order</p>
+                  <p className="text-xs text-gray-200 mb-1">First Order</p>
                   <p className="text-white">20% OFF</p>
                 </div>
                 <div className="px-6 py-3 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
-                  <p className="text-xs text-emerald-200 mb-1">Members</p>
+                  <p className="text-xs text-gray-200 mb-1">Members</p>
                   <p className="text-white">Free Shipping</p>
                 </div>
               </div>
@@ -308,8 +308,8 @@ export function ProductsPage() {
               className="flex justify-center"
             >
               <div className="w-64 h-64 bg-white rounded-3xl p-6 shadow-2xl">
-                <div className="w-full h-full bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center">
-                  <QrCode className="w-32 h-32 text-emerald-600" />
+                <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-100 rounded-2xl flex items-center justify-center">
+                  <QrCode className="w-32 h-32 text-gray-600" />
                 </div>
               </div>
             </motion.div>

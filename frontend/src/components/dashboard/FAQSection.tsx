@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus, HelpCircle } from 'lucide-react';
 
 export const FAQSection = () => {
@@ -50,10 +50,10 @@ export const FAQSection = () => {
                 <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                     <div className="max-w-xl">
                         <div className="flex items-center gap-2 mb-3">
-                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1a5d47]/10 text-[#1a5d47]">
+                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#333333]/10 text-[#333333]">
                                 <HelpCircle className="w-3.5 h-3.5" />
                             </span>
-                            <span className="text-[#1a5d47] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">Support Center</span>
+                            <span className="text-[#333333] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">Support Center</span>
                         </div>
                         <h2 className="text-3xl font-bold text-[#0F131A] tracking-tight mb-2" style={{ fontFamily: "'Cinzel', serif" }}>
                             Clarity in Every Breath
@@ -62,8 +62,8 @@ export const FAQSection = () => {
                             Everything you need to know about starting your journey.
                         </p>
                     </div>
-                    <button className="group flex items-center gap-2 text-[#1a5d47] font-semibold hover:text-[#113d2f] transition-all duration-300 pb-1">
-                        <span className="border-b-2 border-transparent group-hover:border-[#1a5d47] transition-all duration-300">View More</span>
+                    <button className="group flex items-center gap-2 text-[#333333] font-semibold hover:text-[#113d2f] transition-all duration-300 pb-1">
+                        <span className="border-b-2 border-transparent group-hover:border-[#333333] transition-all duration-300">View More</span>
                         <svg
                             className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
                             fill="none"
@@ -104,12 +104,12 @@ export const FAQSection = () => {
                                     onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
                                     className="w-full flex items-center justify-between py-6 text-left focus:outline-none"
                                 >
-                                    <span className={`font-semibold text-base md:text-lg tracking-tight transition-all duration-300 ${openIndex === idx ? 'text-[#1a5d47] pl-1' : 'text-[#0F131A] group-hover:text-[#1a5d47]/80'
+                                    <span className={`font-semibold text-base md:text-lg tracking-tight transition-all duration-300 ${openIndex === idx ? 'text-[#333333] pl-1' : 'text-[#0F131A] group-hover:text-[#333333]/80'
                                         }`}>
                                         {faq.q}
                                     </span>
                                     <div className={`p-1.5 rounded-full transition-all duration-300 ${openIndex === idx
-                                        ? 'bg-[#1a5d47]/10 text-[#1a5d47] rotate-0'
+                                        ? 'bg-[#333333]/10 text-[#333333] rotate-0'
                                         : 'bg-transparent text-gray-300 group-hover:text-gray-500'
                                         }`}>
                                         {openIndex === idx ? <Minus className="w-5 h-5" /> : <Plus className="w-4 h-4" />}

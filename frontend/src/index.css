@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cinzel+Decorative:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cinzel+Decorative:wght@400;700&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fondamento:ital@0;1&display=swap');
 
 @tailwind base;
@@ -91,7 +91,7 @@
 
 /* Dashboard Styles */
 .input-field {
-  @apply px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all;
+  @apply px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400 outline-none transition-all;
 }
 
 @keyframes fadeInUp {
@@ -119,227 +119,186 @@
   }
 
   :root {
-    /* Sacred Color Palette */
-    --background: 210 40% 99%;
-    /* Pure spiritual white (#FCFDFE) */
-    --foreground: 210 25% 12%;
-    /* Deep wisdom text (#1A2429) */
+    /* White Theme */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
 
     --card: 0 0% 100%;
-    /* Sacred white cards */
-    --card-foreground: 210 25% 12%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 25% 12%;
+    --popover-foreground: 0 0% 10%;
 
-    /* Primary Sacred Colors */
-    --primary: 165 100% 45%;
-    /* Sacred emerald (#00D4AA) */
+    /* Primary Colors - White Theme */
+    --primary: 0 0% 15%;
+    /* Near black for primary actions */
     --primary-foreground: 0 0% 100%;
     /* Pure white */
 
-    --secondary: 180 100% 50%;
-    /* Spiritual cyan (#00E5E5) */
-    --secondary-foreground: 210 25% 12%;
+    --secondary: 0 0% 96%;
+    /* Light gray */
+    --secondary-foreground: 0 0% 15%;
 
-    --muted: 200 15% 65%;
-    /* Gentle gray (#8BA3B0) */
-    --muted-foreground: 200 10% 40%;
+    --muted: 0 0% 60%;
+    /* Medium gray */
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 165 100% 95%;
-    /* Sacred aqua light (#E6FFFA) */
-    --accent-foreground: 165 100% 25%;
+    --accent: 0 0% 95%;
+    /* Very light gray */
+    --accent-foreground: 0 0% 15%;
 
     --destructive: 0 75% 55%;
-    /* Soft red (#E55A5A) */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 200 20% 85%;
-    --input: 200 20% 92%;
-    --ring: 165 100% 45%;
+    --border: 0 0% 88%;
+    --input: 0 0% 93%;
+    --ring: 0 0% 20%;
 
-    /* Sacred Chart Colors */
-    --chart-1: 165 100% 45%;
-    /* Emerald */
-    --chart-2: 180 100% 50%;
-    /* Cyan */
-    --chart-3: 150 100% 55%;
-    /* Teal */
-    --chart-4: 120 100% 60%;
-    /* Green */
-    --chart-5: 210 100% 70%;
-    /* Blue */
+    /* Chart Colors - neutral grays */
+    --chart-1: 0 0% 20%;
+    --chart-2: 0 0% 40%;
+    --chart-3: 0 0% 55%;
+    --chart-4: 0 0% 70%;
+    --chart-5: 0 0% 85%;
 
-    /* Sacred Sidebar */
-    --sidebar-background: 210 25% 8%;
-    /* Deep spiritual navy (#0A1218) */
+    /* Sidebar */
+    --sidebar-background: 0 0% 10%;
     --sidebar-foreground: 0 0% 100%;
-    /* Pure white */
-    --sidebar-primary: 165 100% 45%;
-    /* Sacred emerald */
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 180 100% 50%;
-    /* Spiritual cyan */
-    --sidebar-accent-foreground: 210 25% 8%;
-    --sidebar-border: 200 15% 25%;
-    --sidebar-ring: 165 100% 45%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 0 0% 10%;
+    --sidebar-accent: 0 0% 20%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 0 0% 60%;
   }
 
   .dark {
-    --background: 210 25% 10%;
-    /* Dark navy (#0C1C24) */
-    --foreground: 0 0% 100%;
-    /* White */
+    --background: 0 0% 8%;
+    --foreground: 0 0% 98%;
 
-    --card: 210 25% 15%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 210 25% 15%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 165 100% 50%;
-    /* Brighter emerald for dark */
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 8%;
 
-    --secondary: 75 80% 50%;
-    /* Lime */
-    --secondary-foreground: 0 0% 10%;
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 200 10% 35%;
-    --muted-foreground: 200 15% 65%;
+    --muted: 0 0% 25%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 165 100% 20%;
-    /* Darker aqua */
-    --accent-foreground: 0 0% 100%;
+    --accent: 0 0% 18%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 80% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 15% 25%;
-    --input: 210 15% 25%;
-    --ring: 170 100% 40%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 60%;
 
     /* Sidebar Dark */
-    --sidebar-background: 210 25% 8%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 170 100% 40%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 75 80% 50%;
-    --sidebar-accent-foreground: 210 25% 10%;
-    --sidebar-border: 210 15% 25%;
-    --sidebar-ring: 170 100% 40%;
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 0 0% 6%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 0 0% 60%;
   }
 
   :root {
-    /* Sacred Color Palette - Light Theme */
-    --background: 210 40% 99%;
-    /* Pure spiritual white (#FCFDFE) */
-    --foreground: 210 25% 12%;
-    /* Deep wisdom text (#1A2429) */
+    /* White Theme - Light */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
 
     --card: 0 0% 100%;
-    /* Sacred white cards */
-    --card-foreground: 210 25% 12%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 25% 12%;
+    --popover-foreground: 0 0% 10%;
 
-    /* Primary Sacred Colors */
-    --primary: 165 100% 45%;
-    /* Sacred emerald (#00D4AA) */
+    /* Primary Colors - White Theme */
+    --primary: 0 0% 15%;
     --primary-foreground: 0 0% 100%;
-    /* Pure white */
 
-    --secondary: 180 100% 50%;
-    /* Spiritual cyan (#00E5E5) */
-    --secondary-foreground: 210 25% 12%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 15%;
 
-    --muted: 200 15% 65%;
-    /* Gentle gray (#8BA3B0) */
-    --muted-foreground: 200 10% 40%;
+    --muted: 0 0% 60%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 165 100% 95%;
-    /* Sacred aqua light (#E6FFFA) */
-    --accent-foreground: 165 100% 25%;
+    --accent: 0 0% 95%;
+    --accent-foreground: 0 0% 15%;
 
     --destructive: 0 75% 55%;
-    /* Soft red (#E55A5A) */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 200 20% 85%;
-    --input: 200 20% 92%;
-    --ring: 165 100% 45%;
+    --border: 0 0% 88%;
+    --input: 0 0% 93%;
+    --ring: 0 0% 20%;
 
-    /* Sacred Chart Colors */
-    --chart-1: 165 100% 45%;
-    /* Emerald */
-    --chart-2: 180 100% 50%;
-    /* Cyan */
-    --chart-3: 150 100% 55%;
-    /* Teal */
-    --chart-4: 120 100% 60%;
-    /* Green */
-    --chart-5: 210 100% 70%;
-    /* Blue */
+    /* Chart Colors */
+    --chart-1: 0 0% 20%;
+    --chart-2: 0 0% 40%;
+    --chart-3: 0 0% 55%;
+    --chart-4: 0 0% 70%;
+    --chart-5: 0 0% 85%;
 
-    /* Sacred Sidebar */
-    --sidebar-background: 210 25% 8%;
-    /* Deep spiritual navy (#0A1218) */
+    /* Sidebar */
+    --sidebar-background: 0 0% 10%;
     --sidebar-foreground: 0 0% 100%;
-    /* Pure white */
-    --sidebar-primary: 165 100% 45%;
-    /* Sacred emerald */
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 180 100% 50%;
-    /* Spiritual cyan */
-    --sidebar-accent-foreground: 210 25% 8%;
-    --sidebar-border: 200 15% 25%;
-    --sidebar-ring: 165 100% 45%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 0 0% 10%;
+    --sidebar-accent: 0 0% 20%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 0 0% 60%;
   }
 
   .dark {
-    --background: 210 25% 10%;
-    /* Dark navy (#0C1C24) */
-    --foreground: 0 0% 100%;
-    /* White */
+    --background: 0 0% 8%;
+    --foreground: 0 0% 98%;
 
-    --card: 210 25% 15%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 210 25% 15%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 165 100% 50%;
-    /* Brighter emerald for dark */
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 8%;
 
-    --secondary: 75 80% 50%;
-    /* Lime */
-    --secondary-foreground: 0 0% 10%;
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 200 10% 35%;
-    --muted-foreground: 200 15% 65%;
+    --muted: 0 0% 25%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 165 100% 20%;
-    /* Darker aqua */
-    --accent-foreground: 0 0% 100%;
+    --accent: 0 0% 18%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 80% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 15% 25%;
-    --input: 210 15% 25%;
-    --ring: 170 100% 40%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 60%;
 
     /* Sidebar Dark */
-    --sidebar-background: 210 25% 8%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 170 100% 40%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 75 80% 50%;
-    --sidebar-accent-foreground: 210 25% 10%;
-    --sidebar-border: 210 15% 25%;
-    --sidebar-ring: 170 100% 40%;
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 0 0% 6%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 0 0% 60%;
   }
 
 }
@@ -431,7 +390,7 @@
     @apply text-4xl sm:text-5xl lg:text-6xl font-bold;
     @apply leading-tight tracking-tight;
     font-family: 'Cinzel', 'Georgia', serif;
-    background: linear-gradient(135deg, #115e59 0%, #0f766e 25%, #0e7490 50%, #0c4a6e 75%, #075985 100%);
+    background: linear-gradient(135deg, #111111 0%, #333333 40%, #555555 70%, #222222 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -443,7 +402,7 @@
     @apply text-3xl sm:text-4xl lg:text-5xl font-semibold;
     @apply leading-tight tracking-tight;
     font-family: 'Fondamento', 'Cinzel', 'Georgia', serif;
-    background: linear-gradient(135deg, #134e4a 0%, #0f766e 30%, #0e7490 60%, #0c4a6e 90%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #3a3a3a 40%, #555555 70%, #2a2a2a 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -455,7 +414,7 @@
     @apply text-2xl sm:text-3xl lg:text-4xl font-semibold;
     @apply leading-tight tracking-tight;
     font-family: 'Fondamento', 'Cinzel', 'Georgia', serif;
-    background: linear-gradient(135deg, #115e59 0%, #0f766e 40%, #0e7490 80%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #444444 50%, #666666 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -467,7 +426,7 @@
     @apply text-lg sm:text-xl lg:text-2xl;
     @apply leading-relaxed;
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #134e4a 0%, #0f766e 50%, #0c4a6e 100%);
+    background: linear-gradient(135deg, #222222 0%, #555555 50%, #333333 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -484,9 +443,9 @@
     }
   }
 
-  /* Darker variant for headings - matches secondary structure but darker */
+  /* Darker variant for headings */
   .heading-dark {
-    background: linear-gradient(135deg, #0a3838 0%, #0a5454 30%, #0a6b7a 60%, #083a5c 90%);
+    background: linear-gradient(135deg, #0a0a0a 0%, #2a2a2a 40%, #444444 70%, #1a1a1a 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -502,16 +461,16 @@
     border: 1px solid rgba(255, 255, 255, 0.18);
   }
 
-  /* Sacred Button Styles */
+  /* Button Styles - White Theme */
   .btn-sacred {
-    @apply bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500;
-    @apply hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600;
+    @apply bg-gradient-to-r from-gray-800 via-gray-700 to-gray-900;
+    @apply hover:from-gray-900 hover:via-gray-800 hover:to-black;
     @apply text-white font-semibold px-8 py-4 rounded-3xl;
     @apply transition-all duration-500 transform hover:scale-105;
-    @apply shadow-lg hover:shadow-emerald-500/30 hover:shadow-2xl;
-    @apply focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2;
+    @apply shadow-lg hover:shadow-gray-500/30 hover:shadow-2xl;
+    @apply focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
     @apply relative overflow-hidden;
-    @apply border border-emerald-400/20;
+    @apply border border-gray-600/20;
     position: relative;
   }
 
@@ -538,13 +497,13 @@
   }
 
   .btn-sacred:hover {
-    box-shadow: 0 0 30px rgba(16, 185, 129, 0.4), 0 0 60px rgba(16, 185, 129, 0.2);
+    box-shadow: 0 0 30px rgba(50, 50, 50, 0.4), 0 0 60px rgba(50, 50, 50, 0.2);
   }
 
   .btn-spiritual {
-    @apply bg-white/95 backdrop-blur-md border-2 border-emerald-200/50;
-    @apply hover:bg-white hover:border-emerald-300/70;
-    @apply text-emerald-700 font-semibold px-8 py-4 rounded-3xl;
+    @apply bg-white/95 backdrop-blur-md border-2 border-gray-200/50;
+    @apply hover:bg-white hover:border-gray-300/70;
+    @apply text-gray-800 font-semibold px-8 py-4 rounded-3xl;
     @apply transition-all duration-500 transform hover:scale-105;
     @apply shadow-lg hover:shadow-xl;
     @apply relative overflow-hidden;
@@ -552,7 +511,7 @@
 
   .btn-spiritual::before {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-emerald-500/0;
+    @apply absolute inset-0 bg-gradient-to-r from-gray-500/0 via-gray-500/10 to-gray-500/0;
     @apply opacity-0 transition-opacity duration-300;
   }
 
@@ -561,38 +520,38 @@
   }
 
   .btn-quantum {
-    @apply bg-gradient-to-br from-white via-emerald-100 to-teal-200;
-    @apply hover:from-emerald-50 hover:via-teal-100 hover:to-emerald-200;
-    @apply text-white font-semibold px-8 py-4 rounded-3xl;
+    @apply bg-gradient-to-br from-white via-gray-100 to-gray-200;
+    @apply hover:from-gray-50 hover:via-gray-100 hover:to-gray-200;
+    @apply text-gray-800 font-semibold px-8 py-4 rounded-3xl;
     @apply transition-all duration-500 transform hover:scale-105;
-    @apply shadow-2xl hover:shadow-emerald-500/20;
-    @apply border border-emerald-500/30;
+    @apply shadow-2xl hover:shadow-gray-500/20;
+    @apply border border-gray-300/30;
     @apply relative overflow-hidden;
     background-size: 200% 200%;
     animation: aurora-wave 6s ease infinite;
   }
 
   .btn-ethereal {
-    @apply bg-gradient-to-r from-emerald-400/20 via-teal-400/20 to-cyan-400/20;
-    @apply backdrop-blur-xl border border-emerald-300/30;
-    @apply hover:from-emerald-400/30 hover:via-teal-400/30 hover:to-cyan-400/30;
-    @apply text-emerald-800 font-semibold px-8 py-4 rounded-3xl;
+    @apply bg-gradient-to-r from-gray-400/20 via-gray-300/20 to-gray-400/20;
+    @apply backdrop-blur-xl border border-gray-300/30;
+    @apply hover:from-gray-400/30 hover:via-gray-300/30 hover:to-gray-400/30;
+    @apply text-gray-800 font-semibold px-8 py-4 rounded-3xl;
     @apply transition-all duration-500 transform hover:scale-105;
-    @apply shadow-lg hover:shadow-emerald-500/25;
+    @apply shadow-lg hover:shadow-gray-500/25;
     @apply relative overflow-hidden;
   }
 
-  /* Sacred Card Styles */
+  /* Card Styles - White Theme */
   .card-sacred {
     @apply bg-white/95 backdrop-blur-md rounded-3xl shadow-lg hover:shadow-2xl;
     @apply transition-all duration-500 transform hover:-translate-y-2 hover:scale-[1.02];
-    @apply border border-emerald-100/50 hover:border-emerald-200;
+    @apply border border-gray-100/50 hover:border-gray-200;
     @apply relative overflow-hidden;
   }
 
   .card-sacred::before {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-br from-emerald-50/50 via-transparent to-cyan-50/50;
+    @apply absolute inset-0 bg-gradient-to-br from-gray-50/50 via-transparent to-gray-50/50;
     @apply opacity-0 transition-opacity duration-500;
   }
 
@@ -612,10 +571,10 @@
   }
 
   .card-sacred:hover {
-    box-shadow: 0 20px 40px -12px rgba(16, 185, 129, 0.25);
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
   }
 
-  /* Spiritual Glass Effect */
+  /* Glass Effect - White Theme */
   .glass-sacred {
     @apply bg-white/15 backdrop-blur-xl border border-white/25;
     @apply shadow-lg hover:shadow-xl transition-all duration-500;
@@ -632,8 +591,8 @@
   }
 
   .glass-quantum {
-    @apply bg-gradient-to-br from-emerald-100/30 via-teal-100/30 to-emerald-200/30;
-    @apply backdrop-blur-2xl border border-emerald-400/30;
+    @apply bg-gradient-to-br from-gray-100/30 via-white/30 to-gray-200/30;
+    @apply backdrop-blur-2xl border border-gray-300/30;
     @apply rounded-3xl shadow-2xl;
     @apply transition-all duration-500;
     background-size: 200% 200%;
@@ -641,8 +600,8 @@
   }
 
   .glass-ethereal {
-    @apply bg-gradient-to-r from-emerald-400/10 via-teal-400/10 to-cyan-400/10;
-    @apply backdrop-blur-xl border border-emerald-300/20;
+    @apply bg-gradient-to-r from-gray-400/10 via-white/10 to-gray-400/10;
+    @apply backdrop-blur-xl border border-gray-300/20;
     @apply rounded-3xl shadow-xl;
     @apply transition-all duration-500;
     position: relative;
@@ -660,35 +619,35 @@
     @apply opacity-100;
   }
 
-  /* Sacred Glow Effects */
+  /* Glow Effects - White Theme */
   .glow-emerald {
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1);
+    box-shadow: 0 0 20px rgba(100, 100, 100, 0.2), 0 0 40px rgba(100, 100, 100, 0.08);
     transition: box-shadow 0.3s ease;
   }
 
   .glow-emerald:hover {
-    box-shadow: 0 0 30px rgba(16, 185, 129, 0.5), 0 0 60px rgba(16, 185, 129, 0.2);
+    box-shadow: 0 0 30px rgba(80, 80, 80, 0.3), 0 0 60px rgba(80, 80, 80, 0.12);
   }
 
   .glow-cyan {
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), 0 0 40px rgba(6, 182, 212, 0.1);
+    box-shadow: 0 0 20px rgba(100, 100, 100, 0.2), 0 0 40px rgba(100, 100, 100, 0.08);
     transition: box-shadow 0.3s ease;
   }
 
   .glow-cyan:hover {
-    box-shadow: 0 0 30px rgba(6, 182, 212, 0.5), 0 0 60px rgba(6, 182, 212, 0.2);
+    box-shadow: 0 0 30px rgba(80, 80, 80, 0.3), 0 0 60px rgba(80, 80, 80, 0.12);
   }
 
   .glow-teal {
-    box-shadow: 0 0 20px rgba(20, 184, 166, 0.3), 0 0 40px rgba(20, 184, 166, 0.1);
+    box-shadow: 0 0 20px rgba(100, 100, 100, 0.2), 0 0 40px rgba(100, 100, 100, 0.08);
     transition: box-shadow 0.3s ease;
   }
 
   .glow-teal:hover {
-    box-shadow: 0 0 30px rgba(20, 184, 166, 0.5), 0 0 60px rgba(20, 184, 166, 0.2);
+    box-shadow: 0 0 30px rgba(80, 80, 80, 0.3), 0 0 60px rgba(80, 80, 80, 0.12);
   }
 
-  /* Modern Spiritual Effects */
+  /* Modern Effects - White Theme */
   .spiritual-aura {
     position: relative;
     overflow: hidden;
@@ -701,18 +660,18 @@
     left: -50%;
     width: 200%;
     height: 200%;
-    background: conic-gradient(from 0deg, transparent, rgba(16, 185, 129, 0.1), transparent);
+    background: conic-gradient(from 0deg, transparent, rgba(100, 100, 100, 0.05), transparent);
     animation: ethereal-bloom 4s linear infinite;
     pointer-events: none;
   }
 
   .quantum-field {
     background: linear-gradient(45deg,
-        rgba(16, 185, 129, 0.1) 0%,
-        rgba(20, 184, 166, 0.1) 25%,
-        rgba(6, 182, 212, 0.1) 50%,
-        rgba(20, 184, 166, 0.1) 75%,
-        rgba(16, 185, 129, 0.1) 100%);
+        rgba(200, 200, 200, 0.1) 0%,
+        rgba(220, 220, 220, 0.1) 25%,
+        rgba(240, 240, 240, 0.1) 50%,
+        rgba(220, 220, 220, 0.1) 75%,
+        rgba(200, 200, 200, 0.1) 100%);
     background-size: 400% 400%;
     animation: aurora-wave 10s ease infinite;
   }
@@ -726,10 +685,10 @@
     position: absolute;
     inset: -2px;
     background: linear-gradient(45deg,
-        rgba(16, 185, 129, 0.5),
-        rgba(20, 184, 166, 0.5),
-        rgba(6, 182, 212, 0.5),
-        rgba(16, 185, 129, 0.5));
+        rgba(150, 150, 150, 0.4),
+        rgba(200, 200, 200, 0.4),
+        rgba(180, 180, 180, 0.4),
+        rgba(150, 150, 150, 0.4));
     border-radius: inherit;
     z-index: -1;
     opacity: 0;
@@ -743,11 +702,11 @@
 
   .cosmic-gradient {
     background: linear-gradient(135deg,
-        #0f172a 0%,
-        #1e293b 25%,
-        #065f46 50%,
-        #0d9488 75%,
-        #0891b2 100%);
+        #1a1a1a 0%,
+        #2d2d2d 25%,
+        #404040 50%,
+        #555555 75%,
+        #333333 100%);
     background-size: 200% 200%;
     animation: aurora-wave 8s ease infinite;
   }
@@ -762,20 +721,18 @@
     @apply focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2;
   }
 
-  /* Spiritual continuous page background */
+  /* Spiritual continuous page background - White Theme */
   .spiritual-page-bg {
     background: linear-gradient(180deg,
-        #0d4038 0%,
-        #115c4f 15%,
-        #1a6e5e 30%,
-        #2e7f74 45%,
-        #4fa89d 60%,
-        #6dc5b8 75%,
-        #8dd9ce 90%,
-        #a9e7da 100%);
+        #ffffff 0%,
+        #f9f9f9 20%,
+        #f5f5f5 40%,
+        #f0f0f0 60%,
+        #ebebeb 80%,
+        #e8e8e8 100%);
   }
 
-  /* Hero blend into content */
+  /* Hero blend into content - White Theme */
   .hero-blend {
     position: relative;
   }
@@ -788,32 +745,24 @@
     width: 100%;
     height: 30vh;
     background: linear-gradient(to bottom,
-        rgba(7, 24, 22, 0) 0%,
-        rgba(7, 24, 22, 0.6) 45%,
-        rgba(12, 45, 40, 0.95) 100%);
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.6) 45%,
+        rgba(255, 255, 255, 0.95) 100%);
     pointer-events: none;
     z-index: 5;
-    /* Above video overlay but below content */
   }
 
-  /* GoldenShowcase smooth gradient background */
+  /* GoldenShowcase smooth gradient background - White Theme */
   .goldenshowcase-bg {
     position: relative;
     background: linear-gradient(180deg,
-        #0c2d28 0%,
-        /* continuation of hero */
-        #14433c 18%,
-        /* early transition - reduced intensity */
-        #1e5a52 35%,
-        /* smoother mid transition */
-        #2e7f74 50%,
-        /* mid calm teal */
-        #4fa89d 70%,
-        /* lighter teal transition */
-        #6dc5b8 85%,
-        /* soft teal */
-        #7fd3c8 100%
-        /* final light teal (not white) */
+        #f8f8f8 0%,
+        #f4f4f4 18%,
+        #f0f0f0 35%,
+        #ececec 50%,
+        #e8e8e8 70%,
+        #e4e4e4 85%,
+        #e0e0e0 100%
       );
     background-size: 100% 200%;
     background-position: 50% 0%;
@@ -944,24 +893,20 @@
     }
   }
 
-  /* Services section - smooth continuation from GoldenShowcase */
+  /* Services section - White Theme */
   .services-showcase-bg {
     position: relative;
-    background: #dce9dc;
+    background: #f5f5f5;
   }
 
-  /* Community section - smooth continuation */
+  /* Community section - White Theme */
   .community-section-bg {
     position: relative;
     background: linear-gradient(180deg,
-        #b7eee0 0%,
-        /* continue from Services */
-        #c0f1e5 30%,
-        /* very light teal */
-        #c9f4ea 60%,
-        /* lighter teal */
-        #d2f7ef 100%
-        /* lightest teal (not white) */
+        #f0f0f0 0%,
+        #eeeeee 30%,
+        #ebebeb 60%,
+        #e8e8e8 100%
       );
   }
 
@@ -974,9 +919,10 @@
     overflow: hidden;
   }
 
+  /* Floating Spiritual Symbols - White Theme */
   .floating-symbol {
     position: absolute;
-    color: rgba(16, 185, 129, 0.08);
+    color: rgba(50, 50, 50, 0.06);
     font-size: clamp(2rem, 4vw, 5rem);
     mix-blend-mode: soft-light;
     will-change: transform, opacity;
@@ -1272,18 +1218,14 @@
     }
   }
 
-  /* Collaborators section - smooth continuation */
+  /* Collaborators section - White Theme */
   .collaborators-section-bg {
     position: relative;
     background: linear-gradient(180deg,
-        #d2f7ef 0%,
-        /* continue from Community */
-        #d8f9f2 40%,
-        /* very light teal */
-        #defbf5 80%,
-        /* lighter teal */
-        #e4fdf8 100%
-        /* lightest teal (not white) */
+        #e8e8e8 0%,
+        #ebebeb 40%,
+        #eeeeee 80%,
+        #f2f2f2 100%
       );
   }
 
@@ -1451,11 +1393,11 @@
 
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1), 0 0 80px rgba(16, 185, 129, 0.05);
+    box-shadow: 0 0 20px rgba(80, 80, 80, 0.2), 0 0 40px rgba(80, 80, 80, 0.08), 0 0 80px rgba(80, 80, 80, 0.04);
   }
 
   50% {
-    box-shadow: 0 0 30px rgba(16, 185, 129, 0.5), 0 0 60px rgba(16, 185, 129, 0.2), 0 0 120px rgba(16, 185, 129, 0.1);
+    box-shadow: 0 0 30px rgba(60, 60, 60, 0.3), 0 0 60px rgba(60, 60, 60, 0.12), 0 0 120px rgba(60, 60, 60, 0.06);
   }
 }
 
@@ -1620,12 +1562,12 @@
   0%,
   100% {
     transform: scale(1) rotate(0deg);
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 20px rgba(80, 80, 80, 0.2);
   }
 
   50% {
     transform: scale(1.2) rotate(180deg);
-    box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
+    box-shadow: 0 0 40px rgba(60, 60, 60, 0.4);
   }
 }
 
@@ -1661,7 +1603,7 @@
 }
 
 .animate-aurora-wave {
-  background: linear-gradient(-45deg, rgba(16, 185, 129, 0.1), rgba(20, 184, 166, 0.1), rgba(6, 182, 212, 0.1), rgba(16, 185, 129, 0.1));
+  background: linear-gradient(-45deg, rgba(200, 200, 200, 0.1), rgba(220, 220, 220, 0.1), rgba(240, 240, 240, 0.1), rgba(200, 200, 200, 0.1));
   background-size: 400% 400%;
   animation: aurora-wave 8s ease infinite;
 }
@@ -1957,9 +1899,9 @@
   box-shadow: 0 20px 60px 0 rgba(77, 48, 98, 0.2);
 }
 
-/* Sacred Gradient Text */
+/* Sacred Gradient Text - White Theme */
 .text-sacred-gradient {
-  background: linear-gradient(135deg, #4D3062 0%, #E6B21E 50%, #00C9B1 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #555555 50%, #333333 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1967,19 +1909,19 @@
   animation: aurora-wave 6s ease infinite;
 }
 
-/* Spiritual Border Animation */
+/* Spiritual Border Animation - White Theme */
 .border-sacred {
   position: relative;
   border: 2px solid transparent;
   background: linear-gradient(white, white) padding-box,
-    linear-gradient(135deg, #E6B21E, #00C9B1, #4D3062) border-box;
+    linear-gradient(135deg, #aaaaaa, #555555, #888888) border-box;
 }
 
 .border-sacred-animated {
   position: relative;
   border: 2px solid transparent;
   background: linear-gradient(white, white) padding-box,
-    linear-gradient(135deg, #E6B21E, #00C9B1, #4D3062, #E6B21E) border-box;
+    linear-gradient(135deg, #aaaaaa, #555555, #888888, #aaaaaa) border-box;
   background-size: 200% 200%;
   animation: aurora-wave 4s ease infinite;
 }
@@ -1990,4 +1932,35 @@
   font-weight: 400;
   letter-spacing: .0069444444em;
   line-height: 2.75rem;
+}
+
+/* Animated Gradient Text - for Meditation & Guidance labels */
+.animated-gradient-text {
+  position: relative;
+  display: inline-flex;
+  max-width: fit-content;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  overflow: visible;
+  cursor: pointer;
+  background: none !important;
+}
+
+.animated-gradient-text.with-border {
+  padding: 0;
+}
+
+.gradient-overlay {
+  display: none;
+}
+
+.text-content {
+  display: inline-block;
+  position: relative;
+  z-index: 2;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
 }

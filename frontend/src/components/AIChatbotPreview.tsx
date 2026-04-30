@@ -1,15 +1,15 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { Bot, Sparkles, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export function AIChatbotPreview() {
   const navigate = useNavigate();
   return (
-    <section className="relative pt-32 pb-24 px-6 overflow-hidden bg-gradient-to-br from-teal-50 via-emerald-50 to-white">
+    <section className="relative pt-32 pb-24 px-6 overflow-hidden bg-gradient-to-br from-gray-50 via-gray-50 to-white">
       {/* Ambient Background */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute top-0 right-0 w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl"
+          className="absolute top-0 right-0 w-96 h-96 bg-gray-400/10 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -37,9 +37,9 @@ export function AIChatbotPreview() {
               <span className="text-sm text-lime-700">AI-Powered Guidance</span>
             </div>
 
-            <h2 className="text-emerald-800">Your Personal Spiritual Companion</h2>
+            <h2 className="text-gray-800">Your Personal Spiritual Companion</h2>
 
-            <p className="text-lg text-teal-700">
+            <p className="text-lg text-gray-700">
               Meet NIRVAHA AI — your intelligent guide on the path to enlightenment. 
               Get personalized meditation recommendations, spiritual insights, and answers 
               to your deepest questions, available 24/7.
@@ -60,7 +60,7 @@ export function AIChatbotPreview() {
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   className="flex items-center gap-3"
                 >
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 flex items-center justify-center flex-shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gray-400 to-gray-400 flex items-center justify-center flex-shrink-0">
                     <svg
                       className="w-4 h-4 text-white"
                       fill="none"
@@ -75,7 +75,7 @@ export function AIChatbotPreview() {
                       />
                     </svg>
                   </div>
-                  <span className="text-teal-700">{feature}</span>
+                  <span className="text-gray-700">{feature}</span>
                 </motion.li>
               ))}
             </ul>
@@ -84,7 +84,7 @@ export function AIChatbotPreview() {
               onClick={() => navigate('/dashboard/chatbot')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
-              className="group px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+              className="group px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
             >
               <MessageCircle className="w-5 h-5" />
               Start Conversation
@@ -108,10 +108,10 @@ export function AIChatbotPreview() {
             <motion.div
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-emerald-200/50 overflow-hidden"
+              className="relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 overflow-hidden"
             >
               {/* Chat Header */}
-              <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-6 flex items-center gap-4">
+              <div className="bg-gradient-to-r from-gray-500 to-gray-500 p-6 flex items-center gap-4">
                 <motion.div
                   animate={{
                     boxShadow: [
@@ -121,7 +121,7 @@ export function AIChatbotPreview() {
                     ],
                   }}
                   transition={{ duration: 2, repeat: Infinity }}
-                  className="w-12 h-12 rounded-full bg-gradient-to-br from-lime-400 to-emerald-300 flex items-center justify-center"
+                  className="w-12 h-12 rounded-full bg-gradient-to-br from-lime-400 to-gray-300 flex items-center justify-center"
                 >
                   <Bot className="w-6 h-6 text-white" />
                 </motion.div>
@@ -129,7 +129,7 @@ export function AIChatbotPreview() {
                   <h4 className="text-white">NIRVAHA AI</h4>
                   <div className="flex items-center gap-2 mt-1">
                     <div className="w-2 h-2 rounded-full bg-lime-300 animate-pulse" />
-                    <span className="text-xs text-emerald-100">Always here for you</span>
+                    <span className="text-xs text-gray-100">Always here for you</span>
                   </div>
                 </div>
               </div>
@@ -143,11 +143,11 @@ export function AIChatbotPreview() {
                   transition={{ delay: 0.5 }}
                   className="flex gap-3"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 flex-shrink-0 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-400 flex-shrink-0 flex items-center justify-center">
                     <Bot className="w-4 h-4 text-white" />
                   </div>
-                  <div className="flex-1 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl rounded-tl-sm p-4 shadow-sm">
-                    <p className="text-sm text-teal-800">
+                  <div className="flex-1 bg-gradient-to-br from-gray-50 to-gray-50 rounded-2xl rounded-tl-sm p-4 shadow-sm">
+                    <p className="text-sm text-gray-800">
                       Welcome! I'm here to guide you on your spiritual journey. 
                       How are you feeling today? 🙏
                     </p>
@@ -161,7 +161,7 @@ export function AIChatbotPreview() {
                   transition={{ delay: 1 }}
                   className="flex gap-3 justify-end"
                 >
-                  <div className="bg-gradient-to-br from-lime-500 to-emerald-500 rounded-2xl rounded-tr-sm p-4 shadow-sm max-w-[80%]">
+                  <div className="bg-gradient-to-br from-lime-500 to-gray-500 rounded-2xl rounded-tr-sm p-4 shadow-sm max-w-[80%]">
                     <p className="text-sm text-white">
                       I'm feeling stressed. Can you recommend a meditation?
                     </p>
@@ -175,11 +175,11 @@ export function AIChatbotPreview() {
                   transition={{ delay: 1.5 }}
                   className="flex gap-3"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 flex-shrink-0 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-400 flex-shrink-0 flex items-center justify-center">
                     <Bot className="w-4 h-4 text-white" />
                   </div>
-                  <div className="flex-1 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl rounded-tl-sm p-4 shadow-sm">
-                    <p className="text-sm text-teal-800">
+                  <div className="flex-1 bg-gradient-to-br from-gray-50 to-gray-50 rounded-2xl rounded-tl-sm p-4 shadow-sm">
+                    <p className="text-sm text-gray-800">
                       I sense your tension. Let's try a 5-minute breath awareness meditation. 
                       Focus on your breath, let thoughts pass like clouds... ✨
                     </p>
@@ -193,15 +193,15 @@ export function AIChatbotPreview() {
                   transition={{ delay: 2.5 }}
                   className="flex gap-3"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 flex-shrink-0 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-400 flex-shrink-0 flex items-center justify-center">
                     <Bot className="w-4 h-4 text-white" />
                   </div>
-                  <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl rounded-tl-sm px-5 py-3 shadow-sm">
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-50 rounded-2xl rounded-tl-sm px-5 py-3 shadow-sm">
                     <div className="flex gap-1">
                       {[0, 1, 2].map((i) => (
                         <motion.div
                           key={i}
-                          className="w-2 h-2 rounded-full bg-emerald-400"
+                          className="w-2 h-2 rounded-full bg-gray-400"
                           animate={{ y: [0, -8, 0], opacity: [0.4, 1, 0.4] }}
                           transition={{
                             duration: 1,
@@ -227,7 +227,7 @@ export function AIChatbotPreview() {
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
-              className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-lime-400 to-emerald-400 rounded-2xl shadow-xl flex items-center justify-center rotate-12"
+              className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-lime-400 to-gray-400 rounded-2xl shadow-xl flex items-center justify-center rotate-12"
             >
               <Sparkles className="w-12 h-12 text-white" />
             </motion.div>

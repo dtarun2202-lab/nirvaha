@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { Users, Star, Heart, MessageCircle } from "lucide-react";
 
 export function CommunitySection() {
@@ -27,10 +27,10 @@ export function CommunitySection() {
   ];
 
   return (
-    <section className="relative py-24 px-6 overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+    <section className="relative py-24 px-6 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50">
       {/* Breathing Background Animation */}
       <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-emerald-400/5 to-teal-400/5"
+        className="absolute inset-0 bg-gradient-to-br from-gray-400/5 to-gray-400/5"
         animate={{
           opacity: [0.3, 0.5, 0.3],
         }}
@@ -54,14 +54,14 @@ export function CommunitySection() {
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100/50 rounded-full border border-emerald-300/30 mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100/50 rounded-full border border-gray-300/30 mb-6"
           >
-            <Users className="w-4 h-4 text-emerald-600" />
-            <span className="text-sm text-emerald-700">Community Love</span>
+            <Users className="w-4 h-4 text-gray-600" />
+            <span className="text-sm text-gray-700">Community Love</span>
           </motion.div>
 
-          <h2 className="text-emerald-800 mb-4">Join 50,000+ Spiritual Seekers</h2>
-          <p className="max-w-2xl mx-auto text-lg text-teal-700">
+          <h2 className="text-gray-800 mb-4">Join 50,000+ Spiritual Seekers</h2>
+          <p className="max-w-2xl mx-auto text-lg text-gray-700">
             Experience the transformation that thousands are already enjoying. 
             Our community is here to support your journey every step of the way.
           </p>
@@ -88,7 +88,7 @@ export function CommunitySection() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               whileHover={{ y: -8 }}
-              className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-emerald-200/30 text-center"
+              className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-gray-200/30 text-center"
             >
               <motion.div
                 animate={{ rotate: [0, 10, -10, 0] }}
@@ -98,14 +98,14 @@ export function CommunitySection() {
                   ease: "easeInOut",
                   delay: index * 0.5,
                 }}
-                className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-400 flex items-center justify-center"
+                className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-gray-400 to-gray-400 flex items-center justify-center"
               >
                 <stat.icon className="w-6 h-6 text-white" />
               </motion.div>
-              <div className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent text-2xl mb-1">
+              <div className="bg-gradient-to-r from-gray-600 to-gray-600 bg-clip-text text-transparent text-2xl mb-1">
                 {stat.value}
               </div>
-              <div className="text-sm text-teal-600">{stat.label}</div>
+              <div className="text-sm text-gray-600">{stat.label}</div>
             </motion.div>
           ))}
         </motion.div>
@@ -124,11 +124,11 @@ export function CommunitySection() {
             >
               {/* Glow Effect */}
               <motion.div
-                className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-[32px] blur-xl opacity-0 group-hover:opacity-20 transition-opacity"
+                className="absolute inset-0 bg-gradient-to-br from-gray-400 to-gray-400 rounded-[32px] blur-xl opacity-0 group-hover:opacity-20 transition-opacity"
               />
 
               {/* Card */}
-              <div className="relative bg-white/90 backdrop-blur-xl rounded-[32px] p-8 shadow-xl border border-emerald-200/30 h-full flex flex-col">
+              <div className="relative bg-white/90 backdrop-blur-xl rounded-[32px] p-8 shadow-xl border border-gray-200/30 h-full flex flex-col">
                 {/* Stars */}
                 <div className="flex gap-1 mb-4">
                   {Array.from({ length: testimonial.rating }).map((_, i) => (
@@ -145,7 +145,7 @@ export function CommunitySection() {
                 </div>
 
                 {/* Quote */}
-                <p className="text-teal-700 mb-6 flex-1 leading-relaxed">
+                <p className="text-gray-700 mb-6 flex-1 leading-relaxed">
                   "{testimonial.quote}"
                 </p>
 
@@ -155,7 +155,7 @@ export function CommunitySection() {
                     whileHover={{ scale: 1.1, rotate: 5 }}
                     className="relative"
                   >
-                    <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-emerald-300">
+                    <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-gray-300">
                       <img
                         src={testimonial.image}
                         alt={testimonial.name}
@@ -166,8 +166,8 @@ export function CommunitySection() {
                     <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-lime-400 rounded-full border-2 border-white" />
                   </motion.div>
                   <div>
-                    <h5 className="text-teal-800">{testimonial.name}</h5>
-                    <p className="text-sm text-teal-600">{testimonial.role}</p>
+                    <h5 className="text-gray-800">{testimonial.name}</h5>
+                    <p className="text-sm text-gray-600">{testimonial.role}</p>
                   </div>
                 </div>
 
@@ -191,13 +191,13 @@ export function CommunitySection() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="inline-flex items-center gap-4 px-8 py-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-full border border-emerald-200/50"
+            className="inline-flex items-center gap-4 px-8 py-4 bg-gradient-to-r from-gray-50 to-gray-50 rounded-full border border-gray-200/50"
           >
             <div className="flex -space-x-3">
               {[1, 2, 3, 4, 5].map((i) => (
                 <motion.div
                   key={i}
-                  className="w-10 h-10 rounded-full border-2 border-white bg-gradient-to-br from-emerald-400 to-teal-400"
+                  className="w-10 h-10 rounded-full border-2 border-white bg-gradient-to-br from-gray-400 to-gray-400"
                   whileHover={{ scale: 1.2, zIndex: 10 }}
                   animate={{ y: [0, -5, 0] }}
                   transition={{
@@ -210,8 +210,8 @@ export function CommunitySection() {
                 />
               ))}
             </div>
-            <p className="text-teal-700">
-              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            <p className="text-gray-700">
+              <span className="bg-gradient-to-r from-gray-600 to-gray-600 bg-clip-text text-transparent">
                 215 members
               </span>{" "}
               joined this week

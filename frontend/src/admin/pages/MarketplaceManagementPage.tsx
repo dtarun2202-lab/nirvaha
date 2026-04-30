@@ -43,7 +43,7 @@ export function MarketplaceManagementPage() {
     try {
       console.log('📥 [ADMIN] Fetching requests from backend API...');
       
-      const response = await fetch("http://localhost:5000/api/marketplace/requests");
+      const response = await fetch("http://localhost:5001/api/marketplace/requests");
       if (!response.ok) {
         throw new Error("Failed to fetch requests");
       }
@@ -100,7 +100,7 @@ export function MarketplaceManagementPage() {
     loadRequests();
     
     // Set up Socket.IO connection for real-time updates
-    const socket = io("http://localhost:5000");
+    const socket = io("http://localhost:5001");
     
     socket.on("marketplace-new-request", () => {
       console.log("📨 [SOCKET] New marketplace request received");
@@ -172,7 +172,7 @@ export function MarketplaceManagementPage() {
       
       // Call backend API
       const response = await fetch(
-        `http://localhost:5000/api/marketplace/requests/${request.id}/approve`,
+        `http://localhost:5001/api/marketplace/requests/${request.id}/approve`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -204,7 +204,7 @@ export function MarketplaceManagementPage() {
       
       // Call backend API
       const response = await fetch(
-        `http://localhost:5000/api/marketplace/requests/${request.id}`,
+        `http://localhost:5001/api/marketplace/requests/${request.id}`,
         { method: "DELETE" }
       );
 
@@ -253,7 +253,7 @@ export function MarketplaceManagementPage() {
         <span
           className={`px-2 py-1 rounded-full text-xs font-semibold border ${
             item.status === "approved"
-              ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+              ? "bg-gray-100 text-gray-700 border-gray-200"
               : "bg-amber-100 text-amber-700 border-amber-200"
           }`}
         >
@@ -277,7 +277,7 @@ export function MarketplaceManagementPage() {
         <div className="flex gap-2">
           <Button
             size="sm"
-            className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1"
+            className="bg-gray-500 hover:bg-gray-600 text-white flex items-center gap-1"
             onClick={() => setConfirmAction({ type: "approve", request: item })}
             disabled={item.status === "approved"}
           >
@@ -314,14 +314,14 @@ export function MarketplaceManagementPage() {
         <Button
           onClick={handleManualRefresh}
           disabled={isRefreshing}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2"
+          className="bg-gray-500 hover:bg-gray-600 text-white flex items-center gap-2"
         >
           <RotateCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>
 
-      <Card className="bg-white border-emerald-200 p-6">
+      <Card className="bg-white border-gray-200 p-6">
         <div className="flex items-center gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -329,13 +329,13 @@ export function MarketplaceManagementPage() {
               placeholder="Search by title or type..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white border-emerald-200 text-black placeholder:text-gray-400"
+              className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-400"
             />
           </div>
         </div>
       </Card>
 
-      <Card className="bg-white border-emerald-200">
+      <Card className="bg-white border-gray-200">
         <AdminTable
           data={filteredRequests}
           columns={columns}

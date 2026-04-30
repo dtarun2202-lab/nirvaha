@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const features = [
@@ -7,7 +7,7 @@ const features = [
         title: "Guided Meditation",
         description: "Experience personalized meditation sessions that adapt to your emotional state. Our AI-powered guidance helps you find peace, clarity, and balance through ancient techniques reimagined for modern life.",
         image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80",
-        color: "#1a5d47"
+        color: "#333333"
     },
     {
         title: "Mood Tracking",
@@ -120,7 +120,7 @@ export const FeaturesBentoGrid = () => {
                     {/* Left Arrow */}
                     <button
                         onClick={handlePrev}
-                        className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#1a5d47] transition-colors"
+                        className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#333333] transition-colors"
                     >
                         <ChevronLeft className="w-6 h-6" />
                     </button>
@@ -166,7 +166,7 @@ export const FeaturesBentoGrid = () => {
                     {/* Right Arrow */}
                     <button
                         onClick={handleNext}
-                        className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#1a5d47] transition-colors"
+                        className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#333333] transition-colors"
                     >
                         <ChevronRight className="w-6 h-6" />
                     </button>

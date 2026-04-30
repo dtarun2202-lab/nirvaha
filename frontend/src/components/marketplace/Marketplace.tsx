@@ -58,10 +58,10 @@ const Marketplace: React.FC<MarketplaceProps> = ({
     <section className="py-20 sm:py-24 lg:py-32">
       <div className="max-w-7xl w-[95%] mx-auto px-4 sm:px-6 lg:px-8 fade-up">
         <div className="mb-12 text-center">
-          <h2 className="heading-secondary text-teal-800 text-center">
+          <h2 className="heading-secondary text-gray-800 text-center">
             Explore Our Offerings
           </h2>
-          <p className="subheading text-center text-teal-700 max-w-3xl mx-auto mt-3">
+          <p className="subheading text-center text-gray-700 max-w-3xl mx-auto mt-3">
             Discover our sessions, retreats, and products designed for your holistic well-being.
           </p>
         </div>
@@ -71,8 +71,8 @@ const Marketplace: React.FC<MarketplaceProps> = ({
             onClick={() => setActiveTab("sessions")}
             className={`px-6 py-2 rounded-full font-semibold transition-colors ${
               activeTab === "sessions"
-                ? "bg-teal-600 text-white"
-                : "bg-gray-200 text-teal-800 hover:bg-gray-300"
+                ? "bg-gray-600 text-white"
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
             }`}
           >
             Sessions
@@ -81,8 +81,8 @@ const Marketplace: React.FC<MarketplaceProps> = ({
             onClick={() => setActiveTab("products")}
             className={`px-6 py-2 rounded-full font-semibold transition-colors ${
               activeTab === "products"
-                ? "bg-teal-600 text-white"
-                : "bg-gray-200 text-teal-800 hover:bg-gray-300"
+                ? "bg-gray-600 text-white"
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
             }`}
           >
             Products
@@ -91,15 +91,15 @@ const Marketplace: React.FC<MarketplaceProps> = ({
             onClick={() => setActiveTab("retreats")}
             className={`px-6 py-2 rounded-full font-semibold transition-colors ${
               activeTab === "retreats"
-                ? "bg-teal-600 text-white"
-                : "bg-gray-200 text-teal-800 hover:bg-gray-300"
+                ? "bg-gray-600 text-white"
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
             }`}
           >
             Retreats
           </button>
           <button
             onClick={onAddClick}
-            className="px-6 py-2 rounded-full bg-yellow-500 text-teal-900 font-semibold hover:bg-yellow-600 transition-colors"
+            className="px-6 py-2 rounded-full bg-yellow-500 text-gray-900 font-semibold hover:bg-yellow-600 transition-colors"
           >
             Add New
           </button>

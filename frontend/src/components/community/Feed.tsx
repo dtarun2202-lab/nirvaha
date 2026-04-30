@@ -1,63 +1,161 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PostCard from "./PostCard";
+import type { Post, Comment } from "./communityData";
+import { motion, AnimatePresence } from "framer-motion";
+import MemoryMatch from "./MemoryMatch";
 
-export default function Feed({ posts: initialPosts, onProfileClick, filter = 'Recent' }: { posts: any[]; onProfileClick?: (p: any) => void; filter?: string }) {
-  const [posts, setPosts] = useState(initialPosts || []);
-  const [loading, setLoading] = useState(false);
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
+interface FeedProps {
+  posts: Post[];
+  filter: string;
+  searchQuery: string;
+  hashtagFilter: string;
+  currentUser: { name: string; initial: string; avatarColor: string };
+  onPostsChange: (posts: Post[]) => void;
+  onToast: (msg: string) => void;
+  onProfileClick: (post: Post) => void;
+}
 
-  useEffect(() => setPosts(initialPosts || []), [initialPosts]);
+export default function Feed({
+  posts,
+  filter,
+  searchQuery,
+  hashtagFilter,
+  currentUser,
+  onPostsChange,
+  onToast,
+  onProfileClick,
+}: FeedProps) {
 
-  // Very lightweight infinite scroll: when sentinel appears, append cloned posts (placeholder behavior)
-  useEffect(() => {
-    if (!sentinelRef.current) return;
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting && !loading) {
-          setLoading(true);
-          // simulate fetching
-          setTimeout(() => {
-            const more = (initialPosts || []).map((p: any, i: number) => ({ ...p, time: "some time ago" }));
-            setPosts((s) => [...s, ...more]);
-            setLoading(false);
-          }, 800);
-        }
+  const handleLike = useCallback(async (id: string) => {
+    const post = posts.find(p => p.id === id);
+    if (!post) return;
+    const isLiking = !post.liked;
+
+    // Optimistic update
+    onPostsChange(posts.map(p =>
+      p.id === id
+        ? { ...p, liked: isLiking, likes: isLiking ? p.likes + 1 : p.likes - 1 }
+        : p
+    ));
+
+    try {
+      await fetch(`http://localhost:5001/api/posts/${id}/like`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ liked: isLiking })
       });
-    }, { rootMargin: "200px" });
+    } catch (e) {
+      console.error(e);
+      onToast("Failed to update like");
+    }
+  }, [posts, onPostsChange, onToast]);
 
-    obs.observe(sentinelRef.current);
-    return () => obs.disconnect();
-  }, [initialPosts, loading]);
+  const handleComment = useCallback(async (id: string, text: string) => {
+    const newComment: Comment = {
+      id: `c-${Date.now()}`,
+      userId: "current",
+      userName: currentUser.name,
+      userInitial: currentUser.initial,
+      avatarColor: currentUser.avatarColor,
+      text,
+      createdAt: Date.now(),
+    };
+    
+    // Optimistic update
+    onPostsChange(posts.map(p =>
+      p.id === id ? { ...p, comments: [...p.comments, newComment] } : p
+    ));
 
-  const handleLike = (post: any) => {
-    setPosts((prev) => prev.map((p) => (p === post ? { ...p, likes: (p.likes || 0) + 1 } : p)));
-    // Comment: Call backend like API here when available
-  };
-  // Apply simple filters based on left nav
-  const visible = (() => {
-    if (filter === "Popular") return [...posts].sort((a, b) => (b.likes || 0) - (a.likes || 0));
-    if (filter === "All") return posts;
-    if (filter === "Games") return [];
-    // Recent / Recommended
-    return posts;
-  })();
+    try {
+      await fetch(`http://localhost:5001/api/posts/${id}/comment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: "current",
+          userName: currentUser.name,
+          userInitial: currentUser.initial,
+          avatarColor: currentUser.avatarColor,
+          text
+        })
+      });
+    } catch (e) {
+      console.error(e);
+      onToast("Failed to add comment");
+    }
+  }, [posts, onPostsChange, currentUser, onToast]);
+
+  // ── Apply filters ────────────────────────────────────────
+  let visible = [...posts];
+
+  // Hashtag filter (from right sidebar trending click)
+  if (hashtagFilter) {
+    const tag = hashtagFilter.replace("#", "").toLowerCase();
+    visible = visible.filter(p =>
+      p.hashtags.some(h => h.toLowerCase() === tag) ||
+      p.body.toLowerCase().includes(tag) ||
+      p.title.toLowerCase().includes(tag)
+    );
+  }
+
+  // NOTE: Search query and Popular sorting are now completely handled by the backend API.
+
+  // ── Header label ─────────────────────────────────────────
+  let headerLabel = "Recommended for you";
+  let headerRight = "Best";
+
+  if (filter === "Games") {
+    return <MemoryMatch currentUser={currentUser} />;
+  }
+
+  if (hashtagFilter) {
+    headerLabel = `Posts tagged ${hashtagFilter}`;
+    headerRight = `${visible.length} post${visible.length !== 1 ? "s" : ""}`;
+  } else if (searchQuery.trim()) {
+    headerLabel = `Results for "${searchQuery.trim()}"`;
+    headerRight = `${visible.length} found`;
+  } else if (filter === "Popular") {
+    headerLabel = "Most Popular";
+    headerRight = "Top";
+  }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold text-black/80">Recommended for you</h3>
-        <div className="text-xs text-black/50">Best</div>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold text-[#0f172a]">{headerLabel}</h3>
+        <span className="text-xs text-[#6b7280]">{headerRight}</span>
       </div>
 
-      <div className="space-y-5">
-        {visible.length === 0 && <div className="text-center py-8 text-sm text-black/50">No posts in this section yet.</div>}
-        {visible.map((post, i) => (
-          <PostCard key={i} post={post} onProfileClick={onProfileClick} onLike={handleLike} />
-        ))}
+      <div className="space-y-4">
+        {visible.length === 0 && (
+          <div className="text-center py-12 text-[#6b7280]">
+            {searchQuery.trim()
+              ? <><p className="text-base font-medium text-[#0f172a]">No posts found for "{searchQuery.trim()}" 🙏</p><p className="text-sm mt-1">Try a different keyword or browse all posts.</p></>
+              : <p className="text-sm">No posts here yet.</p>
+            }
+          </div>
+        )}
+        <AnimatePresence mode="popLayout">
+          {visible.map(post => (
+            <motion.div
+              key={post.id}
+              layout
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+            >
+              <PostCard
+                post={post}
+                currentUser={currentUser}
+                onLike={() => handleLike(post.id)}
+                onComment={(text) => handleComment(post.id, text)}
+                onProfileClick={onProfileClick}
+                onToast={onToast}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
-
-      <div ref={sentinelRef} className="h-8" aria-hidden />
-      {loading && <div className="text-center py-4 text-sm text-black/50">Loading more...</div>}
     </div>
   );
 }
