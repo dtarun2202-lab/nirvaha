@@ -1,8 +1,10 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Cloud, Moon, Zap, Activity, Users, Flame, X, Play, Headphones, MessageCircle, Calendar, Check } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const CommonProblems = () => {
+    const navigate = useNavigate();
     const [modalProblem, setModalProblem] = useState<any | null>(null);
 
     const problems = [
@@ -16,6 +18,8 @@ export const CommonProblems = () => {
             activeBg: "bg-orange-100",
             gradientFrom: "from-orange-500",
             gradientTo: "to-red-500",
+
+            image: "https://th.bing.com/th/id/OIP.rykyx330ZobyXNqSwR4pbAHaE8?w=256&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7",
             description: "Feeling exhausted and overwhelmed from work or life demands?",
             solutions: ["Practice daily meditation", "Set healthy boundaries", "Take regular breaks", "Engage in sound healing"],
             recommendations: [
@@ -35,6 +39,9 @@ export const CommonProblems = () => {
             activeBg: "bg-yellow-100",
             gradientFrom: "from-yellow-500",
             gradientTo: "to-orange-500",
+
+            image: "https://static.vecteezy.com/system/resources/thumbnails/026/920/888/small_2x/ai-generative-frustrated-millennial-female-worker-sitting-at-table-with-colleagues-felling-tired-of-working-quarreling-at-business-meeting-upset-stressed-young-businesswoman-suffering-from-head-ache-a-photo.jpg",
+
             description: "Chronic stress can impact your health and productivity.",
             solutions: ["Breathing exercises", "Mindfulness practices", "Regular physical activity", "Connect with AI companion"],
             recommendations: [
@@ -54,6 +61,9 @@ export const CommonProblems = () => {
             activeBg: "bg-purple-100",
             gradientFrom: "from-purple-500",
             gradientTo: "to-indigo-500",
+
+            image: "https://img.freepik.com/premium-photo/person-experiences-insomnia-bed-cannot-fall-asleep-feeling-restless-depressed-afraid_449728-5435.jpg",
+
             description: "Quality sleep is essential for recovery and mental clarity.",
             solutions: ["Sleep meditation tracks", "Calming frequencies", "Evening routines", "Binaural beats"],
             recommendations: [
@@ -72,7 +82,10 @@ export const CommonProblems = () => {
             hoverBg: "hover:bg-blue-50",
             activeBg: "bg-blue-100",
             gradientFrom: "from-blue-500",
-            gradientTo: "to-gray-500",
+            gradientTo: "to-cyan-500",
+
+            image: "https://jenniferpartridge.com/wp-content/uploads/2016/01/RELEASE-ANXIETY-AND-FEAR.jpg",
+
             description: "Anxiety can feel overwhelming, but you can find peace.",
             solutions: ["Guided anxiety relief", "Grounding techniques", "Crystal bowl therapy", "Community support"],
             recommendations: [
@@ -92,6 +105,9 @@ export const CommonProblems = () => {
             activeBg: "bg-pink-100",
             gradientFrom: "from-pink-500",
             gradientTo: "to-rose-500",
+
+            image: "https://unicare-clinic.com/wp-content/uploads/2025/06/mood-swings-mental-health-bali.webp",
+
             description: "Emotional fluctuations affect your daily life.",
             solutions: ["Chakra balancing", "Emotional regulation", "Journaling exercises", "Companion sessions"],
             recommendations: [
@@ -104,13 +120,16 @@ export const CommonProblems = () => {
         {
             title: "Feeling Isolated",
             icon: Users,
-            color: "text-gray-500",
-            bgColor: "bg-gray-50",
-            borderColor: "border-gray-200",
-            hoverBg: "hover:bg-gray-50",
-            activeBg: "bg-gray-100",
-            gradientFrom: "from-gray-500",
-            gradientTo: "to-gray-500",
+            color: "text-teal-500",
+            bgColor: "bg-teal-50",
+            borderColor: "border-teal-200",
+            hoverBg: "hover:bg-teal-50",
+            activeBg: "bg-teal-100",
+            gradientFrom: "from-teal-500",
+            gradientTo: "to-emerald-500",
+
+            image: "https://as1.ftcdn.net/v2/jpg/06/51/06/24/1000_F_651062454_imP7HlbynRbImuzMaCePbYzpqg31jS1Z.jpg",
+
             description: "Connection is a fundamental human need.",
             solutions: ["Join community groups", "Attend live sessions", "Connect with companions", "Group retreats"],
             recommendations: [
@@ -123,11 +142,12 @@ export const CommonProblems = () => {
     ];
 
     return (
-        <section className="py-8 bg-white relative">
+       <section className="min-h-screen flex flex-col justify-center py-8 bg-[#EEF7F1] relative">
             <div className="w-full px-6 md:px-12 lg:px-20">
                 <div className="text-center mb-8">
                     <motion.h2
-                        className="text-2xl md:text-3xl font-bold text-[#0F131A] mb-2"
+                        className="text-2xl md:text-4xl font-bold text-[#0F131A] mb-2 tracking-wide"
+                        style={{ fontFamily: "'Cinzel', serif" }}
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -138,37 +158,44 @@ export const CommonProblems = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {problems.map((p, idx) => (
-                        <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: idx * 0.1 }}
-                            whileHover={{ scale: 1.02, y: -4 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => setModalProblem(p)}
-                            className={`group rounded-2xl border transition-all duration-300 cursor-pointer overflow-hidden bg-white border-gray-200 ${p.hoverBg} hover:shadow-xl hover:${p.borderColor}`}
+                       <motion.div
+                         key={idx}
+                         initial={{ opacity: 0, y: 20 }}
+                         whileInView={{ opacity: 1, y: 0 }}
+                         viewport={{ once: true }}
+                         transition={{ delay: idx * 0.1 }}
+                         whileHover={{ scale: 1.02, y: -4 }}
+                         whileTap={{ scale: 0.98 }}
+                         onClick={() => setModalProblem(p)}
+                         className={`group rounded-2xl border transition-all duration-300 cursor-pointer overflow-hidden bg-white border-gray-200 ${p.hoverBg} hover:shadow-xl hover:${p.borderColor}`}
                         >
-                            <div className="flex items-center justify-between p-6">
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-12 h-12 rounded-xl ${p.bgColor} flex items-center justify-center transition-all group-hover:scale-110`}>
-                                        <p.icon className={`w-6 h-6 ${p.color}`} />
-                                    </div>
-                                    <span className="text-lg font-semibold text-gray-900 group-hover:text-[#333333] transition-colors">
-                                        {p.title}
-                                    </span>
-                                </div>
+                         <img
+                           src={p.image}
+                           alt={p.title}
+                           className="w-full h-40 object-cover"
+                         />
 
-                                <div className={`w-8 h-8 rounded-full ${p.bgColor} flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}>
-                                    <svg className={`w-4 h-4 ${p.color}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </div>
+                        <div className="flex items-center justify-between p-4">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-12 h-12 rounded-xl ${p.bgColor} flex items-center justify-center transition-all group-hover:scale-110`}>
+                                <p.icon className={`w-6 h-6 ${p.color}`} />
                             </div>
-                        </motion.div>
-                    ))}
+
+                            <span className="text-lg font-semibold text-gray-900 group-hover:text-[#1a5d47] transition-colors">
+                              {p.title}
+                            </span>
+                          </div>
+
+                          <div className={`w-8 h-8 rounded-full ${p.bgColor} flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}>
+                            <svg className={`w-4 h-4 ${p.color}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                         </div>
+                        </div>
+                     </motion.div>
+                    ))} 
                 </div>
-            </div>
+              </div>
 
             {/* Compact Rectangular Modal */}
             <AnimatePresence>
@@ -186,10 +213,10 @@ export const CommonProblems = () => {
                             exit={{ scale: 0.9, opacity: 0 }}
                             transition={{ type: 'spring', damping: 30, stiffness: 400 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="relative bg-white rounded-2xl w-full max-w-xl max-h-[85vh] shadow-2xl overflow-hidden"
+                           className="relative bg-white rounded-2xl max-w-6xl w-full h-[70vh] shadow-2xl overflow-hidden"
                         >
                             {/* Header with gradient bar */}
-                            <div className={`h-3 bg-gradient-to-r ${modalProblem.gradientFrom} ${modalProblem.gradientTo}`} />
+                            <div className="h-3 bg-gradient-to-r from-emerald-400 to-emerald-500" />
 
                             {/* X Close Button */}
                             <motion.button
@@ -202,18 +229,29 @@ export const CommonProblems = () => {
                             </motion.button>
 
                             {/* Scrollable Content */}
-                            <div className="p-6 overflow-y-auto max-h-[calc(85vh-12px)]">
+                            <div className="p-6 h-[calc(70vh-12px)] flex flex-col">
                                 {/* Title Section */}
                                 <div className="flex items-center gap-4 mb-6">
-                                    <div className={`w-14 h-14 rounded-xl ${modalProblem.bgColor} flex items-center justify-center`}>
-                                        <modalProblem.icon className={`w-7 h-7 ${modalProblem.color}`} />
+                                    <div className="w-14 h-14 rounded-xl bg-emerald-50 flex items-center justify-center">
+                                        <modalProblem.icon className="w-7 h-7 text-emerald-500" />
                                     </div>
                                     <div>
-                                        <h3 className="text-2xl font-bold text-gray-900">{modalProblem.title}</h3>
-                                        <p className="text-sm text-gray-500 mt-1">{modalProblem.description}</p>
+                                        <h3
+                                           className="text-2xl font-bold text-[#0F131A] tracking-wide"
+                                           style={{ fontFamily: "'Cinzel', serif" }}
+                                        >
+                                            {modalProblem.title}
+                                       </h3>
+                                        <p
+                                          className="text-sm text-[#5f6f65] mt-1 leading-relaxed"
+                                          style={{ fontFamily: "'Poppins', sans-serif" }}
+                                       >
+                                          {modalProblem.description}
+                                       </p>
                                     </div>
                                 </div>
 
+                                <div className="flex-1 overflow-y-auto pr-2">
                                 {/* Solutions */}
                                 <div className="mb-6">
                                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
@@ -222,7 +260,7 @@ export const CommonProblems = () => {
                                     <div className="grid grid-cols-2 gap-3">
                                         {modalProblem.solutions.map((solution: string, sIdx: number) => (
                                             <div key={sIdx} className="flex items-center gap-2">
-                                                <Check className={`w-5 h-5 ${modalProblem.color}`} />
+                                                <Check className="w-5 h-5 text-emerald-500" />
                                                 <span className="text-sm text-gray-600">{solution}</span>
                                             </div>
                                         ))}
@@ -240,9 +278,9 @@ export const CommonProblems = () => {
                                                 key={rIdx}
                                                 whileHover={{ scale: 1.03 }}
                                                 whileTap={{ scale: 0.97 }}
-                                                className={`flex items-center gap-3 p-3 rounded-xl ${modalProblem.bgColor} hover:${modalProblem.activeBg} transition-all text-left`}
+                                                className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-all text-left"
                                             >
-                                                <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${modalProblem.gradientFrom} ${modalProblem.gradientTo} flex items-center justify-center`}>
+                                                <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-emerald-400 to-emerald-500 flex items-center justify-center">
                                                     <rec.icon className="w-5 h-5 text-white" />
                                                 </div>
                                                 <span className="text-sm font-medium text-gray-700">{rec.text}</span>
@@ -251,8 +289,50 @@ export const CommonProblems = () => {
                                     </div>
                                 </div>
 
+                                {/* NEW DROPDOWN BOXES */}
+                                <div className="mb-6">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-300 pb-2">
+                                        Why the mind keeps repeating
+                                  </h3>
+
+                                  <div className="space-y-3">
+
+                                    <details className="border border-gray-300 rounded-md bg-white px-4 py-3">
+                                        <summary className="cursor-pointer font-medium text-gray-800">
+                                            The mind seeks closure
+                                      </summary>
+                                      <p className="mt-2 text-sm text-gray-600">
+                                          Unfinished thoughts replay because the brain wants resolution.
+                                      </p>
+                                  </details>
+
+                                  <details className="border border-gray-300 rounded-md bg-white px-4 py-3">
+                                      <summary className="cursor-pointer font-medium text-gray-800">
+                                          Fear keeps loops alive
+                                      </summary>
+                                      <p className="mt-2 text-sm text-gray-600">
+                                          Stress and fear keep repetitive thinking active.
+                                      </p>
+                                  </details>
+
+                                  <details className="border border-gray-300 rounded-md bg-white px-4 py-3">
+                                      <summary className="cursor-pointer font-medium text-gray-800">
+                                        Thinking vs Looping
+                                      </summary>
+                                      <p className="mt-2 text-sm text-gray-600">
+                                          Thinking solves problems. Looping repeats without progress.
+                                       </p>
+                                  </details>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                                
                                 {/* Action Buttons */}
-                                <div className="flex gap-3 pt-2">
+                                <div className="sticky bottom-0 bg-white pt-4 pb-4 flex gap-3 border-t border-gray-200 mt-6 z-50">
                                     <motion.button
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
@@ -264,7 +344,11 @@ export const CommonProblems = () => {
                                     <motion.button
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
-                                        className={`flex-1 py-3 rounded-xl text-white font-semibold text-sm bg-gradient-to-r ${modalProblem.gradientFrom} ${modalProblem.gradientTo} hover:shadow-lg transition-all`}
+                                        onClick={() => {
+                                          navigate('/dashboard/companion');
+                                          setModalProblem(null);
+                                        }}
+                                        className="flex-1 py-3 rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-emerald-400 to-emerald-500"
                                     >
                                         Start Journey
                                     </motion.button>

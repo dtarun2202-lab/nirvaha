@@ -27,21 +27,21 @@ export function AdminDashboard() {
       title: "Total Users",
       value: "2,543",
       icon: Users,
-      color: "from-gray-500 to-gray-500",
+      color: "from-emerald-500 to-teal-500",
       change: "+12%",
     },
     {
       title: "Active Sessions",
       value: "483",
       icon: Activity,
-      color: "from-gray-500 to-gray-500",
+      color: "from-teal-500 to-cyan-500",
       change: "+8%",
     },
     {
       title: "Revenue",
       value: "$45,231",
       icon: TrendingUp,
-      color: "from-gray-500 to-blue-500",
+      color: "from-cyan-500 to-blue-500",
       change: "+23%",
     },
     {
@@ -58,21 +58,21 @@ export function AdminDashboard() {
       title: "Companion Management",
       description: "Approve, reject, or manage companion applications",
       icon: Users,
-      color: "from-gray-400 to-gray-400",
+      color: "from-emerald-400 to-teal-400",
       link: "#companions",
     },
     {
       title: "Content Management",
       description: "Manage meditations, sounds, courses, and products",
       icon: Settings,
-      color: "from-gray-400 to-gray-300",
+      color: "from-teal-400 to-cyan-400",
       link: "#content",
     },
     {
       title: "Booking Management",
       description: "View and manage all platform bookings",
       icon: BarChart3,
-      color: "from-gray-300 to-blue-400",
+      color: "from-cyan-400 to-blue-400",
       link: "#bookings",
     },
     {
@@ -93,7 +93,7 @@ export function AdminDashboard() {
             "linear-gradient(180deg, #0a2f2a 0%, #0f3d38 14%, #1a5d54 28%, #2e7f74 42%, #4fa89d 56%, #6dc5b8 70%, #8dd9ce 84%, #a9e7da 100%)",
         }}
       />
-      <div className="absolute inset-0 bg-gray-900/20 z-0" />
+      <div className="absolute inset-0 bg-teal-900/20 z-0" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         {/* Header */}
@@ -134,7 +134,7 @@ export function AdminDashboard() {
                     <span className="text-3xl font-bold text-white">
                       {stat.value}
                     </span>
-                    <span className="text-gray-400 text-sm font-semibold">
+                    <span className="text-emerald-400 text-sm font-semibold">
                       {stat.change}
                     </span>
                   </div>
@@ -192,13 +192,13 @@ export function AdminDashboard() {
         <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-lg">
           <h2 className="text-2xl font-bold text-white mb-6">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-500 text-white rounded-lg font-medium shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all">
+            <button className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg font-medium shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all">
               View All Companions
             </button>
-            <button className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-500 text-white rounded-lg font-medium shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all">
+            <button className="px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-lg font-medium shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all">
               View All Bookings
             </button>
-            <button className="px-6 py-3 bg-gradient-to-r from-gray-500 to-blue-500 text-white rounded-lg font-medium shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all">
+            <button className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg font-medium shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all">
               View Analytics
             </button>
           </div>

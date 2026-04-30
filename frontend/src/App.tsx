@@ -10,7 +10,6 @@ import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import MeditationPage from "./components/pages/MeditationPage";
-import MeditationDemo from "./pages/MeditationDemo";
 import { SoundHealingPage } from "./components/pages/SoundHealingPage";
 import { CommunityPage } from "./components/pages/CommunityPage";
 import { ChatbotPage } from "./components/pages/ChatbotPage";
@@ -18,6 +17,7 @@ import { MarketplacePage } from "./components/pages/MarketplacePage";
 import { CompanionPage } from "./components/pages/CompanionPage";
 import { ProfilePage } from "./components/ProfilePage";
 import { Navigation } from "./components/Navigation";
+import { DashboardPage } from "./components/pages/DashboardPage";
 
 import { FeaturesBentoGrid } from "./components/dashboard/FeaturesBentoGrid";
 import { CommonProblems } from "./components/dashboard/CommonProblems";
@@ -48,21 +48,8 @@ import { MarketplaceManagementPage } from "./admin/pages/MarketplaceManagementPa
 const DashboardRoutes = () => (
   <Routes>
     <Route path="/" element={<Navigate to="overview" replace />} />
-    <Route path="overview" element={
-      <div className="min-h-screen bg-white">
-        <CertificationsBanner />
-        <FeaturesBentoGrid />
-        <CommonProblems />
-        <WellnessOTT />
-        <GamingHubSection />
-        <InspirationalQuotes />
-        <CaseStudies />
-        <FAQSection />
-        <DashboardFooter />
-      </div>
-    } />
+    <Route path="overview" element={<DashboardPage />} />
     <Route path="meditation" element={<><MeditationPage /><DashboardFooter /></>} />
-    <Route path="meditation-poses" element={<><MeditationDemo /><DashboardFooter /></>} />
     <Route path="sound" element={<><SoundHealingPage /><DashboardFooter /></>} />
     <Route path="community" element={<><CommunityPage /><DashboardFooter /></>} />
     <Route path="chatbot" element={<><ChatbotPage /><DashboardFooter /></>} />
@@ -75,13 +62,12 @@ const DashboardRoutes = () => (
 
 function AppInner() {
   return (
-    <div className="min-h-screen spiritual-page-bg relative">
+    <div className="min-h-screen spiritual-page-bg relative overflow-hidden">
 
       <Routes>
         {/* Public Landing Page */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/academy" element={<NirvahaAcademyPage />} />
-        <Route path="/meditation-poses-demo" element={<MeditationDemo />} />
 
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />

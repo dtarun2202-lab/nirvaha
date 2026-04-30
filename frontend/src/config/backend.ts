@@ -14,7 +14,7 @@ export const BACKEND_CONFIG = {
                   window.location.hostname === '127.0.0.1',
   
   // Force local development (set to true for local development)
-  FORCE_LOCAL: false,
+  FORCE_LOCAL: true,
   
   // Get the appropriate URL based on environment
   get API_BASE_URL() {

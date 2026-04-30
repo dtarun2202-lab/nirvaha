@@ -1,4 +1,4 @@
-// import { motion } from "framer-motion";
+// import { motion } from "motion/react";
 // import { ImageWithFallback } from "./figma/ImageWithFallback";
 // import { Hand, Heart, Zap, Wind, Flame, Droplet } from "lucide-react";
 // import { useNavigate } from "react-router-dom";
@@ -17,7 +17,7 @@
 //       name: "Anjali Mudra",
 //       description: "Heart Connection",
 //       chakra: "Heart",
-//       color: "from-gray-400 to-green-400",
+//       color: "from-emerald-400 to-green-400",
 //       image: "/Mudras/AM.jpeg",
 //     },
 //     {
@@ -31,7 +31,7 @@
 //       name: "Vayu Mudra",
 //       description: "Air Element",
 //       chakra: "Throat",
-//       color: "from-gray-300 to-blue-400",
+//       color: "from-cyan-400 to-blue-400",
 //       image: "/Mudras/VM.jpeg",
 //     },
 //   ];
@@ -48,7 +48,7 @@
 //           className="text-center mb-16"
 //         >
 //           <h2 className="text-white text-5xl md:text-6xl font-extrabold mb-6">Mudras & Meditation</h2>
-//           <p className="max-w-2xl mx-auto text-lg text-gray-700">
+//           <p className="max-w-2xl mx-auto text-lg text-teal-700">
 //             Harness the power of sacred hand gestures to channel energy, 
 //             balance chakras, and deepen your meditation practice.
 //           </p>
@@ -72,7 +72,7 @@
 //               />
 
 //               {/* Card */}
-//               <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-gray-200/30 hover:border-gray-300 transition-all">
+//               <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-emerald-200/30 hover:border-emerald-300 transition-all">
 //                 {/* Mudra Image Container */}
 //                 <motion.div
 //                   whileHover={{ rotate: [0, -10, 10, 0] }}
@@ -86,15 +86,15 @@
 //                   />
 //                 </motion.div>
 
-//                 <h4 className="text-center text-gray-800 mb-2">{mudra.name}</h4>
-//                 <p className="text-sm text-center text-gray-600 mb-3">
+//                 <h4 className="text-center text-teal-800 mb-2">{mudra.name}</h4>
+//                 <p className="text-sm text-center text-teal-600 mb-3">
 //                   {mudra.description}
 //                 </p>
 
 //                 {/* Chakra Badge */}
 //                 <div className="flex items-center justify-center gap-2">
 //                   <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${mudra.color}`} />
-//                   <span className="text-xs text-gray-500">{mudra.chakra} Chakra</span>
+//                   <span className="text-xs text-teal-500">{mudra.chakra} Chakra</span>
 //                 </div>
 
 //                 {/* Energy Glow Animation */}
@@ -117,10 +117,11 @@
 //         {/* Guided Meditation Section */}
 //         <motion.div
 //           initial={{ opacity: 0, y: 30 }}
-//           whileInView={{ opacity: 1, y: 0 }}
+//           whileInView={{ opacity: 1, y: 0 }
+//           whileHover={{ y: -10, scale: 1.02 }}
 //           viewport={{ once: true }}
-//           transition={{ duration: 0.8 }}
-//           className="relative bg-gradient-to-br from-green-600 via-gray-600 to-gray-700 rounded-[40px] p-12 shadow-2xl overflow-hidden"
+//           transition={{ duration: 0.5 }}
+//           className="relative bg-gradient-to-br from-green-600 via-emerald-600 to-teal-700 rounded-[40px] p-12 shadow-2xl overflow-hidden"
 //         >
 //           {/* Background Pattern */}
 //           <div className="absolute inset-0 opacity-10">
@@ -241,7 +242,7 @@
 //   );
 // }
 
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Hand, Heart, Zap, Wind, Flame, Droplet } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -260,7 +261,7 @@ export function MeditationPreview() {
       name: "Anjali Mudra",
       description: "Heart Connection",
       chakra: "Heart",
-      color: "from-gray-400 to-green-400",
+      color: "from-emerald-400 to-green-400",
       image: "/Mudras/AM.jpeg",
     },
     {
@@ -274,7 +275,7 @@ export function MeditationPreview() {
       name: "Vayu Mudra",
       description: "Air Element",
       chakra: "Throat",
-      color: "from-gray-300 to-blue-400",
+      color: "from-cyan-400 to-blue-400",
       image: "/Mudras/VM.jpeg",
     },
   ];
@@ -291,7 +292,7 @@ export function MeditationPreview() {
           className="text-center mb-16"
         >
           <h2 className="text-white text-5xl md:text-6xl font-extrabold mb-6">Mudras & Meditation</h2>
-          <p className="max-w-2xl mx-auto text-lg text-gray-700">
+          <p className="max-w-2xl mx-auto text-lg text-teal-700">
             Harness the power of sacred hand gestures to channel energy, 
             balance chakras, and deepen your meditation practice.
           </p>
@@ -315,7 +316,7 @@ export function MeditationPreview() {
               />
 
               {/* Card */}
-              <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-gray-200/30 hover:border-gray-300 transition-all">
+              <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-emerald-200/30 hover:border-emerald-300 transition-all">
                 {/* Mudra Image Container */}
                 <motion.div
                   whileHover={{ rotate: [0, -10, 10, 0] }}
@@ -329,15 +330,15 @@ export function MeditationPreview() {
                   />
                 </motion.div>
 
-                <h4 className="text-center text-gray-800 mb-2">{mudra.name}</h4>
-                <p className="text-sm text-center text-gray-600 mb-3">
+                <h4 className="text-center text-teal-800 mb-2">{mudra.name}</h4>
+                <p className="text-sm text-center text-teal-600 mb-3">
                   {mudra.description}
                 </p>
 
                 {/* Chakra Badge */}
                 <div className="flex items-center justify-center gap-2">
                   <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${mudra.color}`} />
-                  <span className="text-xs text-gray-500">{mudra.chakra} Chakra</span>
+                  <span className="text-xs text-teal-500">{mudra.chakra} Chakra</span>
                 </div>
 
                 {/* Energy Glow Animation */}
@@ -398,12 +399,12 @@ export function MeditationPreview() {
               {/* Floating Badge (static) */}
               <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl p-4 shadow-xl">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-500 to-gray-500 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center">
                     <Heart className="w-6 h-6 text-white" />
                   </div>
                   <div>
                     <div className="text-xs text-green-900">Active Users</div>
-                    <div className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent font-bold">50K+</div>
+                    <div className="bg-gradient-to-r from-teal-800 to-teal-600 bg-clip-text text-transparent font-bold">50K+</div>
                   </div>
                 </div>
               </div>

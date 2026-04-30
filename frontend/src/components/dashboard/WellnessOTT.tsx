@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Play } from 'lucide-react';
 
 const videos = [
@@ -12,7 +12,7 @@ const videos = [
         title: "Deep Sleep Guide",
         category: "Sleep",
         duration: "45 min",
-        thumbnail: "https://images.unsplash.com/photo-1511296933631-18b520a86d8b?q=80&w=600&auto=format&fit=crop"
+        thumbnail: "https://images.squarespace-cdn.com/content/v1/57b5ef68c534a5cc06edc769/b50a955f-e95f-42c1-beb6-4e74d753bfbb/restorative+yoga"
     },
     {
         title: "Anxiety Relief",
@@ -24,7 +24,7 @@ const videos = [
         title: "Focus Flow",
         category: "Productivity",
         duration: "30 min",
-        thumbnail: "https://images.unsplash.com/photo-1499209974431-2761386a123d?q=80&w=600&auto=format&fit=crop"
+        thumbnail: "https://lonestarneurology.net/wp-content/uploads/2025/08/3-Mental-Clarity-and-Cognitive-Function-from-Yoga.jpg"
     },
     {
         title: "Chakra Balance",
@@ -36,34 +36,34 @@ const videos = [
 
 export const WellnessOTT = () => {
     return (
-        <section className="py-8 bg-[#f8faf9] overflow-hidden">
+       <section className="flex flex-col justify-start pt-2 pb-8 bg-[#EEF7F1] overflow-hidden">
             <div className="max-w-[1440px] mx-auto px-6 md:px-8">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                     <div>
                         <div className="flex items-center gap-2 mb-3">
-                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#333333]/10 text-[#333333]">
+                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1a5d47]/10 text-[#1a5d47]">
                                 <Play className="w-3.5 h-3.5" />
                             </span>
-                            <span className="text-[#333333] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">Nirvaha Stream</span>
+                            <span className="text-[#1a5d47] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">Nirvaha Stream</span>
                         </div>
                         <h2
-                            className="text-3xl font-bold text-[#0F131A] tracking-tight mb-2"
+                            className="text-4xl md:text-5xl font-bold text-[#0F131A] tracking-tight mb-2"
                             style={{ fontFamily: "'Cinzel', serif" }}
                         >
                             Wellness OTT
                         </h2>
-                        <p className="text-gray-500 text-base">
+                        <p className="text-gray-500 text-base font-medium tracking-tight">
                             Stream your path to peace.
                         </p>
                     </div>
                     <motion.button
-                        className="group flex items-center gap-2 text-[#333333] font-semibold hover:text-[#113d2f] transition-all duration-300 pb-1"
+                        className="group flex items-center gap-2 text-[#1a5d47] font-semibold hover:text-[#113d2f] transition-all duration-300 pb-1"
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
                     >
-                        <span className="border-b-2 border-transparent group-hover:border-[#333333] transition-all duration-300">View More</span>
+                        <span className="border-b-2 border-transparent group-hover:border-[#1a5d47] transition-all duration-300">View More</span>
                         <svg
                             className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
                             fill="none"
@@ -79,8 +79,24 @@ export const WellnessOTT = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
                     {videos.map((vid, idx) => (
                         <motion.div
-                            key={idx}
-                            className="group relative rounded-2xl overflow-hidden cursor-pointer bg-white shadow-sm hover:shadow-xl transition-shadow duration-300"
+                           key={idx}
+                           onClick={() => {
+                              if (vid.title === "Morning Calm")
+                                  window.open("https://www.mindful.org/category/meditation-practices/", "_blank");
+
+                              else if (vid.title === "Deep Sleep Guide")
+                                  window.open("https://www.sleepfoundation.org/", "_blank");
+
+                              else if (vid.title === "Anxiety Relief")
+                                  window.open("https://www.youtube.com/results?search_query=anxiety+relief+meditation", "_blank");
+
+                              else if (vid.title === "Focus Flow")
+                                  window.open("https://www.youtube.com/results?search_query=focus+music+for+work", "_blank");
+
+                              else if (vid.title === "Chakra Balance")
+                                  window.open("https://www.youtube.com/results?search_query=chakra+healing+meditation", "_blank");
+                            }}
+                            className="group relative rounded-2xl overflow-hidden cursor-pointer bg-white shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-shadow duration-300"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
@@ -99,14 +115,14 @@ export const WellnessOTT = () => {
 
                                 {/* Play Button */}
                                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <div className="w-14 h-14 bg-[#333333] rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                                    <div className="w-14 h-14 bg-[#1a5d47] rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
                                         <Play className="w-6 h-6 text-white fill-white ml-1" />
                                     </div>
                                 </div>
 
                                 {/* Category Badge */}
                                 <div className="absolute top-3 left-3">
-                                    <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-[#333333] text-xs font-semibold rounded-full">
+                                    <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-[#1a5d47] text-xs font-semibold rounded-full">
                                         {vid.category}
                                     </span>
                                 </div>
@@ -115,9 +131,8 @@ export const WellnessOTT = () => {
                             {/* Content */}
                             <div className="p-4">
                                 <h3
-                                    className="font-bold text-[#0F131A] group-hover:text-[#333333] transition-colors"
-                                    style={{ fontFamily: "'Cinzel', serif" }}
-                                >
+                                    className="text-lg font-semibold text-[#0F131A] group-hover:text-[#1a5d47] transition-colors tracking-tight">
+
                                     {vid.title}
                                 </h3>
                             </div>

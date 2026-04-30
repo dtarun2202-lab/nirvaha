@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSocket } from "@/contexts/SocketContext";
+import BACKEND_CONFIG from "@/config/backend";
 import {
   Users,
   BarChart3,
@@ -29,24 +31,38 @@ type Companion = {
 type Booking = {
   id: string;
   userName: string;
-  companionName: string;
+  companionName?: string;
+  itemName?: string;
   type: string;
   platform: string;
   date: string;
   time: string;
   status: string;
+  price?: number;
+};
+
+type Registration = {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
 };
 
 export function AdminDashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { socket } = useSocket();
 
   // State for dynamic data
   const [recentCompanions, setRecentCompanions] = useState<Companion[]>([]);
   const [recentBookings, setRecentBookings] = useState<Booking[]>([]);
+  const [recentRegistrations, setRecentRegistrations] = useState<Registration[]>([]);
   const [totalUsers, setTotalUsers] = useState("0");
   const [totalBookings, setTotalBookings] = useState("0");
+  const [activeSessions, setActiveSessions] = useState("0");
+  const [revenue, setRevenue] = useState("$0");
   const [loading, setLoading] = useState(true);
+  const apiBaseUrl = BACKEND_CONFIG.API_BASE_URL;
 
   // Fetch data from backend
   useEffect(() => {
@@ -54,59 +70,194 @@ export function AdminDashboardPage() {
       try {
         setLoading(true);
 
-        // Fetch companion applications from localStorage or backend
-        const companionJSON = localStorage.getItem("nirvaha_companion_applications");
-        const companions = companionJSON ? JSON.parse(companionJSON) : [];
-        const recent = companions.slice(0, 3);
-        setRecentCompanions(
-          recent.length > 0
-            ? recent
-            : []
-        );
+        const [statsResponse, bookingsResponse, usersResponse, companionsResponse] = await Promise.all([
+          fetch(`${apiBaseUrl}/api/admin/stats`),
+          fetch(`${apiBaseUrl}/api/bookings`),
+          fetch(`${apiBaseUrl}/api/users?limit=5`),
+          fetch(`${apiBaseUrl}/api/companion-applications?status=all`),
+        ]);
 
-        // Fetch bookings from localStorage or backend
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          setTotalUsers(statsData.totalUsers.toString());
+          setTotalBookings(statsData.totalBookings.toString());
+          setRevenue(`$${statsData.revenue}`);
+        }
+
+        if (bookingsResponse.ok) {
+          const bookingsData = await bookingsResponse.json();
+          const normalizedBookings = Array.isArray(bookingsData)
+            ? bookingsData.map((booking: any) => ({
+                ...booking,
+                id: booking.id || booking._id || booking._doc?.id || booking._doc?._id,
+              }))
+            : [];
+          setRecentBookings(normalizedBookings.slice(0, 5));
+          
+          const inProgressCount = normalizedBookings.filter(
+            (b: any) => b.status === "in-progress" || b.status === "In Progress" || b.status === "in progress"
+          ).length;
+          setActiveSessions(inProgressCount.toString());
+        }
+
+        if (usersResponse.ok) {
+          const usersData = await usersResponse.json();
+          const normalizedUsers = Array.isArray(usersData)
+            ? usersData.map((user: any) => ({
+                ...user,
+                id: user.id || user._id || user._doc?.id || user._doc?._id,
+              }))
+            : [];
+          setRecentRegistrations(normalizedUsers);
+        }
+
+        if (companionsResponse.ok) {
+          const companionsData = await companionsResponse.json();
+          const normalizedCompanions = Array.isArray(companionsData)
+            ? companionsData.map((companion: any) => ({
+                id: companion.id,
+                name: companion.name || companion.fullName || "Unknown",
+                expertise: companion.expertise || companion.title || "N/A",
+                status: companion.status || "pending",
+                appliedDate: companion.appliedDate || companion.submittedAt || companion.createdAt || "",
+              }))
+            : [];
+          setRecentCompanions(normalizedCompanions.slice(0, 3));
+        }
+      } catch (error) {
+        console.error("Failed to fetch admin dashboard data:", error);
+
         const bookingsJSON = localStorage.getItem("nirvaha_admin_bookings");
         const bookings = bookingsJSON ? JSON.parse(bookingsJSON) : [];
-        const recentBooks = bookings.slice(0, 5);
-        setRecentBookings(recentBooks);
+        setRecentBookings(bookings.slice(0, 5));
 
-        // Fetch or calculate stats
         const usersJSON = localStorage.getItem("nirvaha_users");
         const users = usersJSON ? JSON.parse(usersJSON) : [];
         setTotalUsers(users.length.toString());
         setTotalBookings(bookings.length.toString());
-      } catch (error) {
-        console.error("Failed to fetch admin dashboard data:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [apiBaseUrl]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const refresh = () => {
+      // Small delay to allow DB update
+      setTimeout(() => {
+        const event = new Event("refreshAdminDashboard");
+        window.dispatchEvent(event);
+      }, 500);
+    };
+
+    socket.on("new-companion-request", refresh);
+    socket.on("booking-created", refresh);
+    socket.on("user-registered", refresh);
+
+    return () => {
+      socket.off("new-companion-request", refresh);
+      socket.off("booking-created", refresh);
+      socket.off("user-registered", refresh);
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    const handleRefresh = () => {
+      // Re-fetch logic triggered by socket events
+      const fetchData = async () => {
+        try {
+          const [statsResponse, bookingsResponse, usersResponse, companionsResponse] = await Promise.all([
+            fetch(`${apiBaseUrl}/api/admin/stats`),
+            fetch(`${apiBaseUrl}/api/bookings`),
+            fetch(`${apiBaseUrl}/api/users?limit=5`),
+            fetch(`${apiBaseUrl}/api/companion-applications?status=all`),
+          ]);
+
+          if (statsResponse.ok) {
+            const statsData = await statsResponse.json();
+            setTotalUsers(statsData.totalUsers.toString());
+            setTotalBookings(statsData.totalBookings.toString());
+            setRevenue(`$${statsData.revenue}`);
+          }
+
+          if (bookingsResponse.ok) {
+            const bookingsData = await bookingsResponse.json();
+            const normalizedBookings = Array.isArray(bookingsData)
+              ? bookingsData.map((booking: any) => ({
+                  ...booking,
+                  id: booking.id || booking._id || booking._doc?.id || booking._doc?._id,
+                }))
+              : [];
+            setRecentBookings(normalizedBookings.slice(0, 5));
+            
+            const inProgressCount = normalizedBookings.filter(
+              (b: any) => b.status === "in-progress" || b.status === "In Progress" || b.status === "in progress"
+            ).length;
+            setActiveSessions(inProgressCount.toString());
+          }
+
+          if (usersResponse.ok) {
+            const usersData = await usersResponse.json();
+            const normalizedUsers = Array.isArray(usersData)
+              ? usersData.map((user: any) => ({
+                  ...user,
+                  id: user.id || user._id || user._doc?.id || user._doc?._id,
+                }))
+              : [];
+            setRecentRegistrations(normalizedUsers);
+          }
+
+          if (companionsResponse.ok) {
+            const companionsData = await companionsResponse.json();
+            const normalizedCompanions = Array.isArray(companionsData)
+              ? companionsData.map((companion: any) => ({
+                  id: companion.id,
+                  name: companion.name || companion.fullName || "Unknown",
+                  expertise: companion.expertise || companion.title || "N/A",
+                  status: companion.status || "pending",
+                  appliedDate: companion.appliedDate || companion.submittedAt || companion.createdAt || "",
+                }))
+              : [];
+            setRecentCompanions(normalizedCompanions.slice(0, 3));
+          }
+        } catch (error) {
+          console.error("Failed to refresh admin dashboard data:", error);
+        }
+      };
+
+      fetchData();
+    };
+
+    window.addEventListener("refreshAdminDashboard", handleRefresh);
+    return () => window.removeEventListener("refreshAdminDashboard", handleRefresh);
+  }, [apiBaseUrl]);
 
   const stats = [
     {
       title: "Total Users",
       value: totalUsers,
       icon: Users,
-      color: "from-gray-500 to-gray-500",
+      color: "from-emerald-500 to-teal-500",
       change: "+0%",
       path: "/admin/users",
     },
     {
       title: "Active Sessions",
-      value: recentBookings.filter((b) => b.status === "upcoming").length.toString(),
+      value: activeSessions,
       icon: Activity,
-      color: "from-gray-500 to-gray-500",
+      color: "from-teal-500 to-cyan-500",
       change: "+0%",
       path: "/admin/bookings",
     },
     {
       title: "Revenue",
-      value: "$0",
+      value: revenue,
       icon: TrendingUp,
-      color: "from-gray-500 to-blue-500",
+      color: "from-cyan-500 to-blue-500",
       change: "+0%",
       path: "/admin/analytics",
     },
@@ -148,7 +299,7 @@ export function AdminDashboardPage() {
             <Card
               key={index}
               onClick={() => navigate(stat.path)}
-              className="bg-white border-gray-200 hover:border-gray-400 hover:shadow-lg cursor-pointer transition-all group"
+              className="bg-white border-emerald-200 hover:border-emerald-400 hover:shadow-lg cursor-pointer transition-all group"
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -161,7 +312,7 @@ export function AdminDashboardPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-3xl font-bold text-black">{stat.value}</span>
-                  <span className="text-gray-600 text-sm font-semibold">{stat.change}</span>
+                  <span className="text-emerald-600 text-sm font-semibold">{stat.change}</span>
                 </div>
               </div>
             </Card>
@@ -185,7 +336,7 @@ export function AdminDashboardPage() {
               </div>
               <Button
                 onClick={() => navigate("/admin/companions?filter=pending")}
-                className="bg-gradient-to-r from-gray-500 to-green-600 hover:from-gray-600 hover:to-green-700 text-white"
+                className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white"
               >
                 Review Now
               </Button>
@@ -196,7 +347,7 @@ export function AdminDashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Companion Applications */}
-        <Card className="bg-white border-gray-200 shadow-md">
+        <Card className="bg-white border-emerald-200 shadow-md">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-black">Recent Companion Applications</h2>
@@ -204,7 +355,7 @@ export function AdminDashboardPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("/admin/companions")}
-                className="text-gray-700 hover:text-black hover:bg-gray-50"
+                className="text-emerald-700 hover:text-black hover:bg-emerald-50"
               >
                 View All
                 <ArrowRight className="ml-2 w-4 h-4" />
@@ -231,13 +382,12 @@ export function AdminDashboardPage() {
                   header: "Applied",
                 },
               ]}
-              emptyMessage="No recent companion applications"
             />
           </div>
         </Card>
 
         {/* Recent Bookings */}
-        <Card className="bg-white border-gray-200 shadow-md">
+        <Card className="bg-white border-emerald-200 shadow-md">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-black">Recent Bookings</h2>
@@ -245,7 +395,7 @@ export function AdminDashboardPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("/admin/bookings")}
-                className="text-gray-700 hover:text-black hover:bg-gray-50"
+                className="text-emerald-700 hover:text-black hover:bg-emerald-50"
               >
                 View All
                 <ArrowRight className="ml-2 w-4 h-4" />
@@ -265,6 +415,7 @@ export function AdminDashboardPage() {
                 {
                   key: "companionName",
                   header: "Companion",
+                  render: (item) => item.companionName || item.itemName || item.type,
                 },
                 {
                   key: "status",
@@ -282,6 +433,47 @@ export function AdminDashboardPage() {
                 },
               ]}
               emptyMessage="No recent bookings"
+            />
+          </div>
+        </Card>
+
+        <Card className="bg-white border-emerald-200 shadow-md">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-black">Recent Registrations</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/admin/users")}
+                className="text-emerald-700 hover:text-black hover:bg-emerald-50"
+              >
+                View All
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+            </div>
+            <AdminTable
+              data={recentRegistrations}
+              columns={[
+                {
+                  key: "name",
+                  header: "Name",
+                },
+                {
+                  key: "email",
+                  header: "Email",
+                },
+                {
+                  key: "createdAt",
+                  header: "Registered",
+                  render: (item) => (
+                    <span className="text-gray-700 text-sm">
+                      {new Date(item.createdAt).toLocaleDateString()} 
+                      {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  ),
+                },
+              ]}
+              emptyMessage="No recent registrations"
             />
           </div>
         </Card>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 interface ProductFormProps {
   onSubmit: (formData: any) => void;
@@ -61,7 +61,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
             errors.name ? 'border-red-500' : ''
           }`}
           style={{
-            borderColor: errors.name ? undefined : "#333333",
+            borderColor: errors.name ? undefined : "#1a5d47",
             color: "#0f131a"
           }}
         />
@@ -84,7 +84,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
             errors.description ? 'border-red-500' : ''
           }`}
           style={{
-            borderColor: errors.description ? undefined : "#333333",
+            borderColor: errors.description ? undefined : "#1a5d47",
             color: "#0f131a"
           }}
         />
@@ -107,7 +107,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
             errors.images ? 'border-red-500' : ''
           }`}
           style={{
-            borderColor: errors.images ? undefined : "#333333",
+            borderColor: errors.images ? undefined : "#1a5d47",
             color: "#0f131a"
           }}
         />
@@ -131,7 +131,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
             errors.price ? 'border-red-500' : ''
           }`}
           style={{
-            borderColor: errors.price ? undefined : "#333333",
+            borderColor: errors.price ? undefined : "#1a5d47",
             color: "#0f131a"
           }}
         />
@@ -152,7 +152,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
           rows={2}
           className="w-full px-4 py-3 border rounded-[20px] focus:outline-none focus:ring-2 focus:border-transparent"
           style={{
-            borderColor: "#333333",
+            borderColor: "#1a5d47",
             color: "#0f131a"
           }}
         />
@@ -172,7 +172,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
           rows={2}
           className="w-full px-4 py-2 border rounded-[12px] focus:outline-none focus:ring-2 focus:border-transparent"
           style={{
-            borderColor: "#333333",
+            borderColor: "#1a5d47",
             color: "#0f131a"
           }}
         />
@@ -190,7 +190,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
           onChange={handleChange}
           className="w-full px-4 py-3 border rounded-[20px] focus:outline-none focus:ring-2 focus:border-transparent"
           style={{
-            borderColor: "#333333",
+            borderColor: "#1a5d47",
             color: "#0f131a"
           }}
         >
@@ -215,7 +215,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
           onChange={handleChange}
           className="w-full px-4 py-3 border rounded-[20px] focus:outline-none focus:ring-2 focus:border-transparent"
           style={{
-            borderColor: "#333333",
+            borderColor: "#1a5d47",
             color: "#0f131a"
           }}
         >
@@ -232,7 +232,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
         whileTap={{ scale: 0.98 }}
         type="submit"
         className="w-full mt-6 py-3 text-white font-semibold rounded-[20px] hover:shadow-xl transition-all text-lg"
-        style={{ backgroundColor: "#333333" }}
+        style={{ backgroundColor: "#1a5d47" }}
       >
         Create Product
       </motion.button>

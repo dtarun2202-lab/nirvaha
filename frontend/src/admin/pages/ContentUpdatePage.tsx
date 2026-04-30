@@ -3,7 +3,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Save } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
+import { toast } from "react-toastify";
+import BACKEND_CONFIG from "@/config/backend";
 
 type Pillar = {
   id: string;
@@ -111,52 +113,74 @@ export function ContentUpdatePage() {
     },
   ]);
 
-  // Load from localStorage on mount
+  const apiBaseUrl = BACKEND_CONFIG.API_BASE_URL;
+
+  // Load from backend on mount
   useEffect(() => {
-    const savedPillars = localStorage.getItem("nirvaha_pillars");
-    const savedLibrary = localStorage.getItem("nirvaha_library");
-    const savedGoals = localStorage.getItem("nirvaha_goals");
-
-    if (savedPillars) {
+    const fetchContent = async () => {
       try {
-        setPillars(JSON.parse(savedPillars));
-      } catch (e) {
-        console.error("Failed to load pillars from localStorage", e);
-      }
-    }
+        const response = await fetch(`${apiBaseUrl}/api/content`);
+        if (!response.ok) return;
+        const data = await response.json();
 
-    if (savedLibrary) {
-      try {
-        setLibraryItems(JSON.parse(savedLibrary));
-      } catch (e) {
-        console.error("Failed to load library from localStorage", e);
+        if (data.landing_pillars?.value) {
+          try {
+            setPillars(JSON.parse(data.landing_pillars.value));
+          } catch (e) {
+            console.error("Failed to parse pillars", e);
+          }
+        }
+        if (data.landing_library?.value) {
+          try {
+            setLibraryItems(JSON.parse(data.landing_library.value));
+          } catch (e) {
+            console.error("Failed to parse library", e);
+          }
+        }
+        if (data.landing_goals?.value) {
+          try {
+            setGoals(JSON.parse(data.landing_goals.value));
+          } catch (e) {
+            console.error("Failed to parse goals", e);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch landing content", error);
       }
-    }
+    };
+    fetchContent();
+  }, [apiBaseUrl]);
 
-    if (savedGoals) {
-      try {
-        setGoals(JSON.parse(savedGoals));
-      } catch (e) {
-        console.error("Failed to load goals from localStorage", e);
+  // Save to backend
+  const saveContent = async (key: string, value: any, sectionName: string) => {
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/content/${key}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          value: JSON.stringify(value),
+          type: "json",
+          section: "landing",
+          description: `Landing page ${sectionName} section content`,
+        }),
+      });
+
+      if (response.ok) {
+        toast.success(`${sectionName} saved successfully!`);
+      } else {
+        toast.error(`Failed to save ${sectionName}`);
       }
+    } catch (error) {
+      console.error(`Error saving ${key}:`, error);
+      toast.error(`Error saving ${sectionName}`);
     }
-  }, []);
-
-  // Save to localStorage
-  const savePillars = () => {
-    localStorage.setItem("nirvaha_pillars", JSON.stringify(pillars));
-    alert("What is Nirvaha sections saved successfully!");
   };
 
-  const saveLibraryItems = () => {
-    localStorage.setItem("nirvaha_library", JSON.stringify(libraryItems));
-    alert("Explore Our Learning sections saved successfully!");
-  };
-
-  const saveGoals = () => {
-    localStorage.setItem("nirvaha_goals", JSON.stringify(goals));
-    alert("Why Ancient Wisdom? sections saved successfully!");
-  };
+  const savePillars = () => saveContent("landing_pillars", pillars, "What is Nirvaha sections");
+  const saveLibraryItems = () => saveContent("landing_library", libraryItems, "Explore Our Learning sections");
+  const saveGoals = () => saveContent("landing_goals", goals, "Why Ancient Wisdom? sections");
 
   // Pillar handlers
   const updatePillar = (id: string, field: string, value: string) => {
@@ -280,7 +304,7 @@ export function ContentUpdatePage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <Card className="bg-white border-gray-200 p-6 space-y-4">
+                <Card className="bg-white border-emerald-200 p-6 space-y-4">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-black">Pillar {pillar.id}</h3>
                     <Button
@@ -310,7 +334,7 @@ export function ContentUpdatePage() {
                         type="text"
                         value={pillar.image}
                         onChange={(e) => updatePillar(pillar.id, "image", e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 text-sm"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
                         placeholder="Image URL"
                       />
                     </div>
@@ -323,7 +347,7 @@ export function ContentUpdatePage() {
                           type="text"
                           value={pillar.title}
                           onChange={(e) => updatePillar(pillar.id, "title", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                           placeholder="Pillar title"
                         />
                       </div>
@@ -334,7 +358,7 @@ export function ContentUpdatePage() {
                           value={pillar.desc}
                           onChange={(e) => updatePillar(pillar.id, "desc", e.target.value)}
                           rows={4}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 resize-none"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
                           placeholder="Pillar description"
                         />
                       </div>
@@ -348,14 +372,14 @@ export function ContentUpdatePage() {
           <div className="flex gap-3">
             <Button
               onClick={addPillar}
-              className="bg-gradient-to-r from-gray-500 to-green-600 hover:from-gray-600 hover:to-green-700 text-white"
+              className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add New Pillar
             </Button>
             <Button
               onClick={savePillars}
-              className="bg-gradient-to-r from-blue-500 to-gray-500 hover:from-blue-600 hover:to-gray-700 text-white"
+              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white"
             >
               <Save className="w-4 h-4 mr-2" />
               Save All Changes
@@ -372,7 +396,7 @@ export function ContentUpdatePage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <Card className="bg-white border-gray-200 p-4 space-y-4 relative">
+                <Card className="bg-white border-emerald-200 p-4 space-y-4 relative">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -397,7 +421,7 @@ export function ContentUpdatePage() {
                       type="text"
                       value={item.image}
                       onChange={(e) => updateLibraryItem(index, "image", e.target.value)}
-                      className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-gray-400"
+                      className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       placeholder="Image URL"
                     />
                   </div>
@@ -410,7 +434,7 @@ export function ContentUpdatePage() {
                         type="text"
                         value={item.title}
                         onChange={(e) => updateLibraryItem(index, "title", e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         placeholder="Item title"
                       />
                     </div>
@@ -421,7 +445,7 @@ export function ContentUpdatePage() {
                         type="text"
                         value={item.category}
                         onChange={(e) => updateLibraryItem(index, "category", e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         placeholder="Category"
                       />
                     </div>
@@ -432,7 +456,7 @@ export function ContentUpdatePage() {
                         type="text"
                         value={item.duration}
                         onChange={(e) => updateLibraryItem(index, "duration", e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         placeholder="Duration"
                       />
                     </div>
@@ -445,14 +469,14 @@ export function ContentUpdatePage() {
           <div className="flex gap-3">
             <Button
               onClick={addLibraryItem}
-              className="bg-gradient-to-r from-gray-500 to-green-600 hover:from-gray-600 hover:to-green-700 text-white"
+              className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add New Item
             </Button>
             <Button
               onClick={saveLibraryItems}
-              className="bg-gradient-to-r from-blue-500 to-gray-500 hover:from-blue-600 hover:to-gray-700 text-white"
+              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white"
             >
               <Save className="w-4 h-4 mr-2" />
               Save All Changes
@@ -469,7 +493,7 @@ export function ContentUpdatePage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <Card className="bg-white border-gray-200 p-6 space-y-4">
+                <Card className="bg-white border-emerald-200 p-6 space-y-4">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-black">Goal {goal.id}</h3>
                     <Button
@@ -499,7 +523,7 @@ export function ContentUpdatePage() {
                         type="text"
                         value={goal.image}
                         onChange={(e) => updateGoal(goal.id, "image", e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 text-sm"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
                         placeholder="Image URL"
                       />
                     </div>
@@ -512,7 +536,7 @@ export function ContentUpdatePage() {
                           type="text"
                           value={goal.title}
                           onChange={(e) => updateGoal(goal.id, "title", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                           placeholder="Goal title"
                         />
                       </div>
@@ -523,7 +547,7 @@ export function ContentUpdatePage() {
                           type="text"
                           value={goal.subtitle}
                           onChange={(e) => updateGoal(goal.id, "subtitle", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                           placeholder="Goal subtitle"
                         />
                       </div>
@@ -534,7 +558,7 @@ export function ContentUpdatePage() {
                           value={goal.desc}
                           onChange={(e) => updateGoal(goal.id, "desc", e.target.value)}
                           rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 resize-none"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
                           placeholder="Goal description"
                         />
                       </div>
@@ -548,14 +572,14 @@ export function ContentUpdatePage() {
           <div className="flex gap-3">
             <Button
               onClick={addGoal}
-              className="bg-gradient-to-r from-gray-500 to-green-600 hover:from-gray-600 hover:to-green-700 text-white"
+              className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add New Goal
             </Button>
             <Button
               onClick={saveGoals}
-              className="bg-gradient-to-r from-blue-500 to-gray-500 hover:from-blue-600 hover:to-gray-700 text-white"
+              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white"
             >
               <Save className="w-4 h-4 mr-2" />
               Save All Changes

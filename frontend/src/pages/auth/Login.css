@@ -4,44 +4,129 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem;
+    padding: 1.5rem;
     overflow: hidden;
-    background: linear-gradient(to bottom right, rgb(15, 23, 42), rgb(17, 24, 39), rgb(30, 41, 59));
+    background-color: #f0f7f4; /* Light Emerald base */
     cursor: default;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Aged Texture Overlay */
+.login-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.1;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Masonry Grid Background */
+.login-grid {
+    position: absolute;
+    inset: -5%;
+    width: 110%;
+    height: 110%;
+    display: grid;
+    grid-template-columns: repeat(20, 1fr);
+    grid-auto-rows: 60px;
+    gap: 8px;
+    padding: 20px;
+    z-index: 0;
+    transform: rotate(-0.5deg);
+}
+
+.login-tile {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.5s ease;
+    border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.login-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.8) contrast(1.05) brightness(0.95); /* Clean, modern effect */
+}
+
+/* Emerald Dark Overlay with Blur */
+.login-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(6, 78, 59, 0.3) 0%, rgba(2, 44, 34, 0.7) 100%);
+    backdrop-filter: blur(3px); /* Reduced blur for clearer imagery */
+    z-index: 2;
 }
 
 .logo-container {
     position: fixed;
-    top: 1.5rem;
-    left: 1.5rem;
-    z-index: 50;
+    top: 2rem;
+    left: 2rem;
+    z-index: 100;
 }
 
-.login-grid {
-    position: absolute;
-    inset: 0;
+/* Login Card Refinement */
+.login-card {
+    position: relative;
+    z-index: 10;
     width: 100%;
-    height: 100%;
-    opacity: 0.3;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    grid-auto-rows: 110px;
-    gap: 2px;
-    grid-auto-flow: dense;
-    padding: 2px;
+    max-width: 440px;
+    padding: 3rem;
+    background: rgba(240, 253, 244, 0.9); /* Light Emerald card shade */
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 32px;
+    box-shadow: 
+        0 30px 60px rgba(0, 44, 34, 0.25),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
-.login-grid-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+.login-title {
+    font-family: 'Cinzel', serif;
+    color: #064e3b;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.overlay {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.4);
+.login-subtitle {
+    color: #065f46;
+    font-weight: 500;
 }
+
+/* Modern Input Styles */
+.ancient-input {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #064e3b;
+    transition: all 0.3s ease;
+}
+
+.ancient-input:focus {
+    border-color: #10b981;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+/* Premium Emerald Button */
+.btn-ancient {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: 2px;
+    transition: all 0.4s ease;
+    box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);
+    border: none;
+}
+
+.btn-ancient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(5, 150, 105, 0.4);
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 
 const defaultPillars = [
@@ -7,31 +7,31 @@ const defaultPillars = [
         id: "01",
         title: "Systemic Diagnostics",
         desc: "We analyze your organizational pulse through confidential, culturally-aware assessments to identify latent stressors.",
-        image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1000&auto=format&fit=crop"
+        image: "/1.png"
     },
     {
         id: "02",
         title: "Scalable Protocols",
         desc: "Deployment of curated wellness frameworks that adapt to team size, location, and operational intensity.",
-        image: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1000&auto=format&fit=crop"
+        image: "/2.png"
     },
     {
         id: "03",
         title: "Leadership Synergy",
         desc: "Equipping managers with high-EQ toolkits to foster psychological safety and resilient decision-making.",
-        image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1000&auto=format&fit=crop"
+        image: "/3.png"
     },
     {
         id: "04",
         title: "Cultural Integration",
         desc: "Weaving emotional intelligence into the daily fabric of operations, transforming wellness from a perk to a practice.",
-        image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1000&auto=format&fit=crop"
+        image: "/4.png"
     },
     {
         id: "05",
         title: "Impact & ROI",
         desc: "Real-time analytics measuring engagement, retention shifts, and emotional capital growth.",
-        image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop"
+        image: "/5.png"
     }
 ];
 
@@ -54,42 +54,42 @@ const WhatIsNirvaha: React.FC = () => {
     }, []);
 
     return (
-        <section className="relative w-full py-16 lg:py-24 bg-white overflow-hidden">
+        <section className="relative w-full py-16 lg:py-24 bg-[#eaf5ef] overflow-hidden">
 
             {/* Decorative Background Shapes */}
             <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
                 {/* Top-left corner — lotus / circle */}
-                <svg className="absolute -top-6 -left-8 w-36 h-36 text-[#333333] opacity-[0.04]" viewBox="0 0 100 100" fill="currentColor">
+                <svg className="absolute -top-6 -left-8 w-36 h-36 text-[#1a5d47] opacity-[0.04]" viewBox="0 0 100 100" fill="currentColor">
                     <circle cx="50" cy="50" r="45" />
                 </svg>
 
                 {/* Top-right — diamond */}
-                <svg className="absolute top-10 right-6 w-20 h-20 text-[#333333] opacity-[0.06] rotate-45" viewBox="0 0 100 100" fill="currentColor">
+                <svg className="absolute top-10 right-6 w-20 h-20 text-[#1a5d47] opacity-[0.06] rotate-45" viewBox="0 0 100 100" fill="currentColor">
                     <rect x="15" y="15" width="70" height="70" rx="8" />
                 </svg>
 
                 {/* Left edge mid — hexagon */}
-                <svg className="absolute top-1/3 -left-4 w-28 h-28 text-[#333333] opacity-[0.03]" viewBox="0 0 100 100" fill="currentColor">
+                <svg className="absolute top-1/3 -left-4 w-28 h-28 text-[#1a5d47] opacity-[0.03]" viewBox="0 0 100 100" fill="currentColor">
                     <polygon points="50,3 93,25 93,75 50,97 7,75 7,25" />
                 </svg>
 
                 {/* Right edge mid — triangle */}
-                <svg className="absolute top-[45%] -right-3 w-24 h-24 text-[#333333] opacity-[0.05] rotate-12" viewBox="0 0 100 100" fill="currentColor">
+                <svg className="absolute top-[45%] -right-3 w-24 h-24 text-[#1a5d47] opacity-[0.05] rotate-12" viewBox="0 0 100 100" fill="currentColor">
                     <polygon points="50,10 90,85 10,85" />
                 </svg>
 
                 {/* Below card left — small circle */}
-                <svg className="absolute bottom-16 left-[8%] w-14 h-14 text-[#333333] opacity-[0.07]" viewBox="0 0 100 100" fill="currentColor">
+                <svg className="absolute bottom-16 left-[8%] w-14 h-14 text-[#1a5d47] opacity-[0.07]" viewBox="0 0 100 100" fill="currentColor">
                     <circle cx="50" cy="50" r="40" />
                 </svg>
 
                 {/* Below card right — rounded square */}
-                <svg className="absolute bottom-20 right-[10%] w-18 h-18 text-[#333333] opacity-[0.05] -rotate-12" viewBox="0 0 100 100" fill="currentColor">
+                <svg className="absolute bottom-20 right-[10%] w-18 h-18 text-[#1a5d47] opacity-[0.05] -rotate-12" viewBox="0 0 100 100" fill="currentColor">
                     <rect x="10" y="10" width="80" height="80" rx="20" />
                 </svg>
 
                 {/* Bottom-left corner — dots cluster */}
-                <svg className="absolute -bottom-4 -left-6 w-32 h-32 text-[#333333] opacity-[0.03]" viewBox="0 0 100 100" fill="currentColor">
+                <svg className="absolute -bottom-4 -left-6 w-32 h-32 text-[#1a5d47] opacity-[0.03]" viewBox="0 0 100 100" fill="currentColor">
                     <circle cx="20" cy="20" r="8" />
                     <circle cx="50" cy="30" r="6" />
                     <circle cx="35" cy="55" r="10" />
@@ -97,18 +97,18 @@ const WhatIsNirvaha: React.FC = () => {
                 </svg>
 
                 {/* Bottom-right corner — ring */}
-                <svg className="absolute -bottom-6 -right-8 w-40 h-40 text-[#333333] opacity-[0.04]" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
+                <svg className="absolute -bottom-6 -right-8 w-40 h-40 text-[#1a5d47] opacity-[0.04]" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
                     <circle cx="50" cy="50" r="42" />
                     <circle cx="50" cy="50" r="28" />
                 </svg>
 
                 {/* Upper-center — small diamond */}
-                <svg className="absolute top-20 left-[55%] w-10 h-10 text-[#333333] opacity-[0.06] rotate-45" viewBox="0 0 100 100" fill="currentColor">
+                <svg className="absolute top-20 left-[55%] w-10 h-10 text-[#1a5d47] opacity-[0.06] rotate-45" viewBox="0 0 100 100" fill="currentColor">
                     <rect x="20" y="20" width="60" height="60" rx="6" />
                 </svg>
 
                 {/* Mid-left below header — leaf shape */}
-                <svg className="absolute top-[28%] left-[15%] w-12 h-12 text-[#333333] opacity-[0.05] rotate-[30deg]" viewBox="0 0 100 100" fill="currentColor">
+                <svg className="absolute top-[28%] left-[15%] w-12 h-12 text-[#1a5d47] opacity-[0.05] rotate-[30deg]" viewBox="0 0 100 100" fill="currentColor">
                     <ellipse cx="50" cy="50" rx="20" ry="45" />
                 </svg>
             </div>
@@ -167,7 +167,7 @@ const WhatIsNirvaha: React.FC = () => {
                                     className="absolute inset-0 bg-[#0F131A] flex flex-col items-center justify-center p-10 text-center"
                                 >
                                     <span className="text-white/20 text-5xl lg:text-9xl mb-4 opacity-10 font-bold">N</span>
-                                    <h3 className="text-white/40 text-xl font-serif italic tracking-wider">Hover over a pillar to reveal insights</h3>
+                                    <h3 className="text-white/40 text-xl font-serif italic tracking-wider">Click a pillar to reveal insights</h3>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -179,7 +179,6 @@ const WhatIsNirvaha: React.FC = () => {
                     {/* RIGHT COLUMN: Interactive Accordion - Attached 50% width */}
                     <div
                         className="w-full lg:w-1/2 bg-[#fafafa] flex flex-col border-l border-gray-100"
-                        onMouseLeave={() => setActiveIndex(null)}
                     >
                         {pillars.map((pillar, index) => {
                             const isActive = activeIndex === index;
@@ -187,14 +186,14 @@ const WhatIsNirvaha: React.FC = () => {
                             return (
                                 <div
                                     key={pillar.id}
-                                    onMouseEnter={() => setActiveIndex(index)}
+                                    onClick={() => setActiveIndex(index === activeIndex ? null : index)}
                                     // Smooth CSS transition relative to motion
                                     className={`group relative flex-1 flex flex-col justify-center border-b border-gray-200 last:border-0 px-8 lg:px-10 py-6 cursor-pointer transition-all duration-700 ease-in-out 
-                                        ${isActive ? 'bg-[#333333]' : 'bg-[#fafafa] hover:bg-white'}`}
+                                        ${isActive ? 'bg-[#1a5d47]' : 'bg-[#fafafa] hover:bg-white'}`}
                                 >
                                     <div className="flex items-center justify-between pointer-events-none">
                                         <h4 className={`text-xl font-medium transition-colors duration-500 delay-100 ${isActive ? 'text-white' : 'text-[#0F131A]/60'}`}>
-                                            <span className={`text-sm font-mono mr-4 opacity-60 transition-colors duration-500 ${isActive ? 'text-[#4ade80]' : 'text-[#333333]/60'}`}>
+                                            <span className={`text-sm font-mono mr-4 opacity-60 transition-colors duration-500 ${isActive ? 'text-[#4ade80]' : 'text-[#1a5d47]/60'}`}>
                                                 {pillar.id}
                                             </span>
                                             {pillar.title}

@@ -3,6 +3,7 @@ import SessionForm from './forms/SessionForm';
 import RetreatForm from './forms/RetreatForm';
 import ProductForm from './forms/ProductForm';
 import { v4 as uuidv4 } from 'uuid';
+import BACKEND_CONFIG from '../../config/backend';
 
 type AddItemType = "session" | "retreat" | "product";
 
@@ -69,7 +70,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
       };
 
       // Send to backend API
-      const response = await fetch("http://localhost:5001/api/marketplace/requests", {
+      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/marketplace/requests`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -135,21 +136,21 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
               <button
                 onClick={() => handleTypeSelect("retreat")}
                 className="w-80 py-4 rounded-2xl font-semibold hover:shadow-md transition-all text-lg border-2 hover:border-opacity-80"
-                style={{ color: "#333333", borderColor: "#333333", backgroundColor: "transparent" }}
+                style={{ color: "#1a5d47", borderColor: "#1a5d47", backgroundColor: "transparent" }}
               >
                 Retreat
               </button>
               <button
                 onClick={() => handleTypeSelect("session")}
                 className="w-80 py-4 rounded-2xl font-semibold hover:shadow-md transition-all text-lg border-2 hover:border-opacity-80"
-                style={{ color: "#333333", borderColor: "#333333", backgroundColor: "transparent" }}
+                style={{ color: "#1a5d47", borderColor: "#1a5d47", backgroundColor: "transparent" }}
               >
                 Session
               </button>
               <button
                 onClick={() => handleTypeSelect("product")}
                 className="w-80 py-4 rounded-2xl font-semibold hover:shadow-md transition-all text-lg border-2 hover:border-opacity-80"
-                style={{ color: "#333333", borderColor: "#333333", backgroundColor: "transparent" }}
+                style={{ color: "#1a5d47", borderColor: "#1a5d47", backgroundColor: "transparent" }}
               >
                 Product
               </button>

@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import BACKEND_CONFIG from "@/config/backend";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -6,6 +7,7 @@ import { AdminTable } from "@/admin/components/AdminTable";
 import { StatusBadge } from "@/admin/components/StatusBadge";
 import { ActionMenu } from "@/admin/components/ActionMenu";
 import { ConfirmModal } from "@/admin/components/ConfirmModal";
+import { useSocket } from "@/contexts/SocketContext";
 import {
   Dialog,
   DialogContent,
@@ -49,38 +51,83 @@ interface Booking {
   createdAt: string;
 }
 
-const STORAGE_KEY = "nirvaha_admin_bookings";
-const INITIAL_BOOKINGS: Booking[] = [];
-
-const loadBookings = (): Booking[] => {
-  if (typeof window === "undefined") return INITIAL_BOOKINGS;
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (!raw) return INITIAL_BOOKINGS;
-  try {
-    const parsed = JSON.parse(raw) as Booking[];
-    return Array.isArray(parsed) ? parsed : INITIAL_BOOKINGS;
-  } catch {
-    return INITIAL_BOOKINGS;
-  }
-};
-
 export function BookingManagementPage() {
+  const { socket } = useSocket();
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
-  const [bookings, setBookings] = useState<Booking[]>(() => loadBookings());
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [loading, setLoading] = useState(true);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{
     type: "cancel" | "complete";
     booking: Booking;
   } | null>(null);
 
+  const fetchBookings = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/bookings`);
+      if (!response.ok) {
+        throw new Error("Unable to load bookings");
+      }
+      const data = await response.json();
+      setBookings(
+        Array.isArray(data)
+          ? data.map((booking: any) => ({
+            id: booking.id || booking._id || "",
+            userId: booking.userId || "",
+            userName: booking.userName || booking.name || "Guest",
+            userEmail: booking.email || "",
+            companionId: booking.companionId || booking.itemId || "",
+            companionName:
+              booking.companionName || booking.itemName || booking.companion || "",
+            companionEmail: booking.companionEmail || "",
+            type:
+              booking.type === "video"
+                ? "Video"
+                : booking.type === "chat"
+                  ? "Chat"
+                  : booking.type === "retreat"
+                    ? "Video"
+                    : booking.type === "product"
+                      ? "Video"
+                      : String(booking.type || "Chat"),
+            platform: booking.platform || "",
+            date: booking.date ? String(booking.date) : "",
+            time: booking.time ? String(booking.time) : "",
+            duration: typeof booking.duration === "number" ? booking.duration : 60,
+            status: booking.status || "upcoming",
+            price: Number(booking.price || 0),
+            createdAt: booking.createdAt || new Date().toISOString(),
+          }))
+          : []
+      );
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+      setBookings([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(bookings));
-  }, [bookings]);
+    fetchBookings();
+  }, [fetchBookings]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("booking-created", () => {
+      fetchBookings();
+    });
+
+    return () => {
+      socket.off("booking-created");
+    };
+  }, [socket, fetchBookings]);
 
   const filteredBookings = useMemo(
     () =>
@@ -152,11 +199,10 @@ export function BookingManagementPage() {
       header: "Type",
       render: (item: Booking) => (
         <span
-          className={`px-2 py-1 rounded text-xs font-medium ${
-            item.type === "Video"
+          className={`px-2 py-1 rounded text-xs font-medium ${item.type === "Video"
               ? "bg-blue-100 text-blue-800 border border-blue-300"
-              : "bg-gray-100 text-gray-800 border border-gray-300"
-          }`}
+              : "bg-teal-100 text-teal-800 border border-teal-300"
+            }`}
         >
           {item.type}
         </span>
@@ -215,14 +261,14 @@ export function BookingManagementPage() {
           <h1 className="text-3xl font-bold text-black mb-2">Booking Management</h1>
           <p className="text-gray-700">View and manage all platform bookings</p>
         </div>
-        <Button className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white">
+        <Button className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white">
           <Download className="mr-2 w-4 h-4" />
           Export CSV
         </Button>
       </div>
 
       {/* Filters */}
-      <Card className="bg-white border-gray-200 p-6">
+      <Card className="bg-white border-emerald-200 p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="relative md:col-span-2">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -230,11 +276,11 @@ export function BookingManagementPage() {
               placeholder="Search by ID, user, or companion..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-400"
+              className="pl-10 bg-white border-emerald-200 text-black placeholder:text-gray-400"
             />
           </div>
           <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-full bg-white border-gray-200 text-black">
+            <SelectTrigger className="w-full bg-white border-emerald-200 text-black">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-white">
@@ -250,7 +296,7 @@ export function BookingManagementPage() {
               <Button
                 variant="outline"
                 className={cn(
-                  "w-full justify-start text-left font-normal bg-white border-gray-200 text-black hover:bg-gray-50",
+                  "w-full justify-start text-left font-normal bg-white border-emerald-200 text-black hover:bg-emerald-50",
                   !dateFrom && "text-gray-400"
                 )}
               >
@@ -285,12 +331,19 @@ export function BookingManagementPage() {
       </Card>
 
       {/* Table */}
-      <Card className="bg-white border-gray-200">
-        <AdminTable
-          data={filteredBookings}
-          columns={columns}
-          emptyMessage="No bookings found"
-        />
+      <Card className="bg-white border-emerald-200">
+        {loading ? (
+          <div className="p-6 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+            <p className="text-lg font-medium text-gray-700">Loading bookings...</p>
+          </div>
+        ) : (
+          <AdminTable
+            data={filteredBookings}
+            columns={columns}
+            emptyMessage="No bookings found"
+          />
+        )}
       </Card>
 
       {/* View Booking Details Modal */}
@@ -361,7 +414,7 @@ export function BookingManagementPage() {
                   Cancel Booking
                 </Button>
                 <Button
-                  className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white"
+                  className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
                   onClick={() => {
                     setIsViewModalOpen(false);
                     handleAction("complete", selectedBooking);

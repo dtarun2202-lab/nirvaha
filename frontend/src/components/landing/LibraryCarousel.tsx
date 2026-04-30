@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import DecorativeShapes from './DecorativeShapes';
 
 const defaultLibraryItems = [
-    { title: "Meditation", category: "Mindfulness", image: "/services/meditation.png", duration: "10 min" },
-    { title: "Sleep Stories", category: "Rest", image: "/services/sound_healing.png", duration: "25 min" },
-    { title: "Ancient Wisdom", category: "Philosophy", image: "/Book.png", duration: "Series" },
-    { title: "Breathwork", category: "Practice", image: "/services/BF.png", duration: "5 min" },
-    { title: "Sound Healing", category: "Therapy", image: "/services/sound_healing.png", duration: "45 min" },
-    { title: "Zen Chat", category: "AI Companion", image: "/services/zenchat.png", duration: "Unlimited" },
+    { title: "Agni", category: "Transformation", image: "/agni.png", duration: "15 min" },
+    { title: "Dharma", category: "Purpose", image: "/dharma.png", duration: "Series" },
+    { title: "Indriya", category: "Senses", image: "/indriya.png", duration: "10 min" },
+    { title: "Manas", category: "Mind", image: "/manas.png", duration: "20 min" },
+    { title: "Nehru", category: "Wisdom", image: "/nehru.png", duration: "Lecture" },
+    { title: "Ramdas", category: "Devotion", image: "/ramdas.png", duration: "Music" },
+    { title: "Sadvritta", category: "Ethics", image: "/sadvritta.png", duration: "Practice" },
+    { title: "Saradhi", category: "Guidance", image: "/saradhi.png", duration: "Journey" },
+    { title: "Vyayama", category: "Discipline", image: "/vyayama.png", duration: "Movement" },
 ];
 
 
@@ -28,7 +31,7 @@ const LibraryCarousel: React.FC = () => {
         }
     }, []);
     return (
-        <section className="w-full pt-4 pb-12 bg-white overflow-hidden relative">
+        <section className="w-full pt-4 pb-12 bg-[#eaf5ef] overflow-hidden relative">
             <DecorativeShapes variant={4} />
             <div className="max-w-7xl pl-4 sm:pl-6 lg:pl-8 pr-4 mb-8 relative z-10">
                 <div className="text-left">
@@ -42,7 +45,7 @@ const LibraryCarousel: React.FC = () => {
                     </motion.h2>
                     <p className="text-lg sm:text-xl text-[#595e67] max-w-3xl leading-relaxed" style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 300 }}>
                         Dive into a curated collection of ancient wisdom and modern practices designed for your inner journey.
-                        <span className="font-medium text-[#333333] ml-1">Discover your path inward.</span>
+                        <span className="font-medium text-[#1a5d47] ml-1">Discover your path inward.</span>
                     </p>
                 </div>
             </div>
@@ -74,14 +77,7 @@ const LibraryCarousel: React.FC = () => {
                                 className="w-full h-full object-cover"
                                 onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x400/e2e8f0/1a5d47?text=Nirvaha' }}
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent p-5 flex flex-col justify-end">
-                                <span className="text-xs text-white/80 font-medium uppercase tracking-wider mb-1">{item.category}</span>
-                                <h3 className="text-white text-xl font-bold font-sans">{item.title}</h3>
-                                <div className="mt-2 flex items-center gap-2">
-                                    <span className="text-xs text-white/90 bg-white/20 px-2 py-1 rounded backdrop-blur-sm">
-                                        {item.duration}
-                                    </span>
-                                </div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent p-5 flex flex-col justify-end">
                             </div>
                         </div>
                     ))}
@@ -102,14 +98,7 @@ const LibraryCarousel: React.FC = () => {
                                 className="w-full h-full object-cover"
                                 onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x400/e2e8f0/1a5d47?text=Nirvaha' }}
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent p-5 flex flex-col justify-end">
-                                <span className="text-xs text-white/80 font-medium uppercase tracking-wider mb-1">{item.category}</span>
-                                <h3 className="text-white text-xl font-bold font-sans">{item.title}</h3>
-                                <div className="mt-2 flex items-center gap-2">
-                                    <span className="text-xs text-white/90 bg-white/20 px-2 py-1 rounded backdrop-blur-sm">
-                                        {item.duration}
-                                    </span>
-                                </div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent p-5 flex flex-col justify-end">
                             </div>
                         </div>
                     ))}

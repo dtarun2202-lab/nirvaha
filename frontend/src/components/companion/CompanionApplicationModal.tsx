@@ -1,577 +1,321 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Upload, ChevronRight, ChevronLeft, CheckCircle } from "lucide-react";
+import { createCompanionApplication } from "@/lib/companionApi";
+import BACKEND_CONFIG from "@/config/backend";
 
 interface CompanionApplicationModalProps {
+  isOpen: boolean;
   onClose: () => void;
-  onSubmit: (formData: any) => void;
 }
 
-const CompanionApplicationModal: React.FC<CompanionApplicationModalProps> = ({
-  onClose,
-  onSubmit,
-}) => {
-  const modalRef = useRef<HTMLDivElement>(null);
+export default function CompanionApplicationModal({ isOpen, onClose }: CompanionApplicationModalProps) {
+  const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    title: '',
-    bio: '',
-    experience: '',
-    location: '',
-    languages: '',
-    specialties: '',
-    certifications: '',
-    hourlyRate: '',
-    callRate: '',
-    availability: 'full-time',
-    profileImage: '',
-    coverImage: '',
-    website: '',
-    socialLinks: '',
-    whyJoin: '',
+    fullName: "",
+    email: "",
+    phone: "",
+    age: "",
+    gender: "",
+    location: "",
+    title: "",
+    experience: "",
+    languages: "",
+    bio: "",
+    availability: "",
+    hourlyRate: "",
+    callRate: "",
+    idProofUrl: "",
+    certificatesUrl: "",
+    whyJoin: "Passionate about spiritual wellness",
+    specialties: "Wellness, Healing",
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [idFile, setIdFile] = useState<File | null>(null);
+  const [certFile, setCertFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
-  const handleEscape = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    },
-    [onClose]
-  );
-
-  const handleClickOutside = useCallback(
-    (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    },
-    [onClose]
-  );
-
-  useEffect(() => {
-    document.addEventListener('keydown', handleEscape);
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [handleEscape, handleClickOutside]);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
-    if (!formData.title.trim()) newErrors.title = 'Professional title is required';
-    if (!formData.bio.trim()) newErrors.bio = 'Bio is required';
-    if (!formData.experience.trim()) newErrors.experience = 'Experience is required';
-    if (!formData.location.trim()) newErrors.location = 'Location is required';
-    if (!formData.languages.trim()) newErrors.languages = 'Languages are required';
-    if (!formData.specialties.trim()) newErrors.specialties = 'Specialties are required';
-    if (!formData.hourlyRate.trim()) newErrors.hourlyRate = 'Hourly rate is required';
-    if (!formData.callRate.trim()) newErrors.callRate = 'Call rate is required';
-    if (!formData.whyJoin.trim()) newErrors.whyJoin = 'Please tell us why you want to join';
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateForm()) {
-      onSubmit(formData);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: "id" | "cert") => {
+    if (e.target.files && e.target.files[0]) {
+      if (type === "id") setIdFile(e.target.files[0]);
+      if (type === "cert") setCertFile(e.target.files[0]);
     }
   };
 
+  const uploadFile = async (file: File) => {
+    const data = new FormData();
+    data.append("file", file);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || BACKEND_CONFIG.API_BASE_URL || "http://localhost:5000";
+    const res = await fetch(`${API_BASE_URL}/api/upload`, {
+      method: "POST",
+      body: data,
+    });
+    if (!res.ok) throw new Error("File upload failed");
+    const json = await res.json();
+    return json.url;
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      setUploading(true);
+
+      let idUrl = formData.idProofUrl;
+      let certUrl = formData.certificatesUrl;
+
+      if (idFile) idUrl = await uploadFile(idFile);
+      if (certFile) certUrl = await uploadFile(certFile);
+
+      setUploading(false);
+
+      const payload = {
+        ...formData,
+        age: Number(formData.age) || 0,
+        hourlyRate: Number(formData.hourlyRate) || 0,
+        callRate: Number(formData.callRate) || 0,
+        idProofUrl: idUrl,
+        certificatesUrl: certUrl,
+      };
+
+      const result = await createCompanionApplication(payload);
+      localStorage.setItem("nirvaha_companion_application_id", result.id);
+      setSuccess(true);
+    } catch (err: any) {
+      setError(err.message || "Failed to submit application");
+      setUploading(false);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm overflow-y-auto py-6">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-emerald-950/40 backdrop-blur-sm">
       <motion.div
-        ref={modalRef}
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="bg-white rounded-[32px] shadow-2xl w-full max-w-4xl mx-4 relative max-h-[90vh] overflow-y-auto"
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
       >
-        <div className="sticky top-0 bg-white z-10 px-8 pt-8 pb-4 border-b border-gray-200 rounded-t-[32px]">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-bold" style={{ color: '#0f131a' }}>
-                Become a Companion
-              </h2>
-              <p className="text-sm mt-1" style={{ color: '#595b67' }}>
-                Share your wisdom and help seekers on their spiritual journey
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
-            >
-              <X className="w-6 h-6" style={{ color: '#595b67' }} />
-            </button>
+        <div className="p-6 border-b border-emerald-50 flex justify-between items-center bg-emerald-50/30">
+          <div>
+            <h2 className="text-2xl font-bold text-emerald-950">Apply as a Companion</h2>
+            <p className="text-emerald-700/70 text-sm">Join our network of spiritual guides</p>
           </div>
+          <button onClick={onClose} className="p-2 hover:bg-emerald-100 rounded-full transition-colors">
+            <X className="w-6 h-6 text-emerald-900" />
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          {/* Personal Information */}
-          <div>
-            <h3 className="text-xl font-semibold mb-4" style={{ color: '#0f131a' }}>
-              Personal Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  id="fullName"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  placeholder="Your full name"
-                  className={`w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2 ${
-                    errors.fullName ? 'border-red-500' : ''
-                  }`}
-                  style={{
-                    borderColor: errors.fullName ? undefined : '#333333',
-                    color: '#0f131a',
-                  }}
-                />
-                {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
+        <div className="p-6 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-emerald-200">
+          {success ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
+                <CheckCircle className="w-10 h-10 text-emerald-600" />
               </div>
-
-              <div>
-                <label htmlFor="email" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                  Email Address *
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="your.email@example.com"
-                  className={`w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2 ${
-                    errors.email ? 'border-red-500' : ''
-                  }`}
-                  style={{
-                    borderColor: errors.email ? undefined : '#333333',
-                    color: '#0f131a',
-                  }}
-                />
-                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="phone" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                  Phone Number *
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="+1 (555) 123-4567"
-                  className={`w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2 ${
-                    errors.phone ? 'border-red-500' : ''
-                  }`}
-                  style={{
-                    borderColor: errors.phone ? undefined : '#333333',
-                    color: '#0f131a',
-                  }}
-                />
-                {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="location" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                  Location *
-                </label>
-                <input
-                  type="text"
-                  id="location"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  placeholder="City, Country"
-                  className={`w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2 ${
-                    errors.location ? 'border-red-500' : ''
-                  }`}
-                  style={{
-                    borderColor: errors.location ? undefined : '#333333',
-                    color: '#0f131a',
-                  }}
-                />
-                {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
-              </div>
+              <h3 className="text-2xl font-bold text-emerald-950 mb-2">Application Submitted!</h3>
+              <p className="text-emerald-700/70 max-w-md mb-8">
+                Your application has been submitted successfully. Our team will review your profile soon.
+              </p>
+              <button
+                onClick={onClose}
+                className="px-8 py-3 bg-emerald-900 text-white rounded-xl font-bold shadow-lg hover:bg-emerald-800 transition-colors"
+              >
+                Close Window
+              </button>
             </div>
-          </div>
-
-          {/* Professional Details */}
-          <div>
-            <h3 className="text-xl font-semibold mb-4" style={{ color: '#0f131a' }}>
-              Professional Details
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="title" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                  Professional Title *
-                </label>
-                <input
-                  type="text"
-                  id="title"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  placeholder="e.g., Mindfulness & Meditation Expert"
-                  className={`w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2 ${
-                    errors.title ? 'border-red-500' : ''
-                  }`}
-                  style={{
-                    borderColor: errors.title ? undefined : '#333333',
-                    color: '#0f131a',
-                  }}
-                />
-                {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+          ) : (
+            <div className="space-y-6">
+              {/* Progress Bar */}
+              <div className="flex items-center justify-between mb-8">
+                {[1, 2, 3, 4].map((s) => (
+                  <div key={s} className="flex items-center">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                        step >= s ? "bg-emerald-600 text-white" : "bg-emerald-100 text-emerald-600"
+                      }`}
+                    >
+                      {s}
+                    </div>
+                    {s < 4 && (
+                      <div
+                        className={`h-1 w-12 sm:w-24 mx-2 rounded-full ${
+                          step > s ? "bg-emerald-600" : "bg-emerald-100"
+                        }`}
+                      />
+                    )}
+                  </div>
+                ))}
               </div>
 
-              <div>
-                <label htmlFor="bio" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                  Professional Bio *
-                </label>
-                <textarea
-                  id="bio"
-                  name="bio"
-                  value={formData.bio}
-                  onChange={handleChange}
-                  rows={4}
-                  placeholder="Tell us about your experience and approach..."
-                  className={`w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2 ${
-                    errors.bio ? 'border-red-500' : ''
-                  }`}
-                  style={{
-                    borderColor: errors.bio ? undefined : '#333333',
-                    color: '#0f131a',
-                  }}
-                />
-                {errors.bio && <p className="text-red-500 text-sm mt-1">{errors.bio}</p>}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="experience" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                    Years of Experience *
-                  </label>
-                  <input
-                    type="text"
-                    id="experience"
-                    name="experience"
-                    value={formData.experience}
-                    onChange={handleChange}
-                    placeholder="e.g., 10+ years"
-                    className={`w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2 ${
-                      errors.experience ? 'border-red-500' : ''
-                    }`}
-                    style={{
-                      borderColor: errors.experience ? undefined : '#333333',
-                      color: '#0f131a',
-                    }}
-                  />
-                  {errors.experience && <p className="text-red-500 text-sm mt-1">{errors.experience}</p>}
+              {error && (
+                <div className="p-4 bg-red-50 text-red-600 rounded-xl text-sm font-medium">
+                  {error}
                 </div>
+              )}
 
-                <div>
-                  <label htmlFor="languages" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                    Languages *
-                  </label>
-                  <input
-                    type="text"
-                    id="languages"
-                    name="languages"
-                    value={formData.languages}
-                    onChange={handleChange}
-                    placeholder="e.g., English, Hindi, Spanish"
-                    className={`w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2 ${
-                      errors.languages ? 'border-red-500' : ''
-                    }`}
-                    style={{
-                      borderColor: errors.languages ? undefined : '#333333',
-                      color: '#0f131a',
-                    }}
-                  />
-                  {errors.languages && <p className="text-red-500 text-sm mt-1">{errors.languages}</p>}
-                </div>
-              </div>
+              {/* Form Steps */}
+              {step === 1 && (
+                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                  <h3 className="text-lg font-bold text-emerald-950 mb-4">Personal Details</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-emerald-800 mb-1">Full Name</label>
+                      <input name="fullName" value={formData.fullName} onChange={handleInputChange} className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-emerald-800 mb-1">Email</label>
+                      <input name="email" type="email" value={formData.email} onChange={handleInputChange} className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-emerald-800 mb-1">Phone Number</label>
+                      <input name="phone" value={formData.phone} onChange={handleInputChange} className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-emerald-800 mb-1">Age</label>
+                      <input name="age" type="number" value={formData.age} onChange={handleInputChange} className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-emerald-800 mb-1">Gender</label>
+                      <select name="gender" value={formData.gender} onChange={handleInputChange} className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none">
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                        <option value="Prefer not to say">Prefer not to say</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-emerald-800 mb-1">Location</label>
+                      <input name="location" value={formData.location} onChange={handleInputChange} placeholder="City, Country" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
 
-              <div>
-                <label htmlFor="specialties" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                  Specialties *
-                </label>
-                <input
-                  type="text"
-                  id="specialties"
-                  name="specialties"
-                  value={formData.specialties}
-                  onChange={handleChange}
-                  placeholder="e.g., Breath Work, Chakra Healing, Stress Management"
-                  className={`w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2 ${
-                    errors.specialties ? 'border-red-500' : ''
-                  }`}
-                  style={{
-                    borderColor: errors.specialties ? undefined : '#333333',
-                    color: '#0f131a',
-                  }}
-                />
-                {errors.specialties && <p className="text-red-500 text-sm mt-1">{errors.specialties}</p>}
-              </div>
+              {step === 2 && (
+                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                  <h3 className="text-lg font-bold text-emerald-950 mb-4">Professional Details</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-emerald-800 mb-1">Area of Expertise / Title</label>
+                      <input name="title" value={formData.title} onChange={handleInputChange} placeholder="e.g. Yoga Instructor, Energy Healer" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-bold text-emerald-800 mb-1">Years of Experience</label>
+                        <input name="experience" value={formData.experience} onChange={handleInputChange} placeholder="e.g. 5 Years" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-emerald-800 mb-1">Languages Known</label>
+                        <input name="languages" value={formData.languages} onChange={handleInputChange} placeholder="English, Hindi" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-emerald-800 mb-1">Short Bio</label>
+                      <textarea name="bio" value={formData.bio} onChange={handleInputChange} rows={3} placeholder="Tell us about yourself and your journey..." className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none resize-none" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-emerald-800 mb-1">Why do you want to become a companion?</label>
+                      <textarea name="whyJoin" value={formData.whyJoin} onChange={handleInputChange} rows={3} placeholder="Share your motivation for joining our network..." className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none resize-none" />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
 
-              <div>
-                <label htmlFor="certifications" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                  Certifications (Optional)
-                </label>
-                <textarea
-                  id="certifications"
-                  name="certifications"
-                  value={formData.certifications}
-                  onChange={handleChange}
-                  rows={2}
-                  placeholder="List your relevant certifications..."
-                  className="w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2"
-                  style={{
-                    borderColor: '#333333',
-                    color: '#0f131a',
-                  }}
-                />
-              </div>
+              {step === 3 && (
+                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                  <h3 className="text-lg font-bold text-emerald-950 mb-4">Availability & Pricing</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-emerald-800 mb-1">Available Timings</label>
+                      <input name="availability" value={formData.availability} onChange={handleInputChange} placeholder="e.g. Mon-Fri, 10 AM - 5 PM" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-bold text-emerald-800 mb-1">Chat Session Charge (₹/hr)</label>
+                        <input name="callRate" type="number" value={formData.callRate} onChange={handleInputChange} placeholder="500" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-emerald-800 mb-1">Video Session Charge (₹/hr)</label>
+                        <input name="hourlyRate" type="number" value={formData.hourlyRate} onChange={handleInputChange} placeholder="1000" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {step === 4 && (
+                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                  <h3 className="text-lg font-bold text-emerald-950 mb-4">Document Verification (Optional)</h3>
+                  <div className="grid grid-cols-1 gap-6">
+                    <div>
+                      <label className="block text-sm font-bold text-emerald-800 mb-2">Upload Resume</label>
+                      <div className="relative border-2 border-dashed border-emerald-200 rounded-xl p-6 text-center hover:bg-emerald-50/50 transition-colors">
+                        <input type="file" accept="application/pdf,.doc,.docx" onChange={(e) => handleFileChange(e, "id")} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                        <Upload className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
+                        <p className="text-sm font-medium text-emerald-800">
+                          {idFile ? idFile.name : "Click or drag to upload Resume"}
+                        </p>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-emerald-800 mb-2">Upload Portfolio / Certifications</label>
+                      <div className="relative border-2 border-dashed border-emerald-200 rounded-xl p-6 text-center hover:bg-emerald-50/50 transition-colors">
+                        <input type="file" accept="image/*,.pdf" onChange={(e) => handleFileChange(e, "cert")} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                        <Upload className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
+                        <p className="text-sm font-medium text-emerald-800">
+                          {certFile ? certFile.name : "Click or drag to upload Portfolio"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* Pricing & Availability */}
-          <div>
-            <h3 className="text-xl font-semibold mb-4" style={{ color: '#0f131a' }}>
-              Pricing & Availability
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label htmlFor="hourlyRate" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                  Hourly Rate (INR ₹) *
-                </label>
-                <input
-                  type="number"
-                  id="hourlyRate"
-                  name="hourlyRate"
-                  value={formData.hourlyRate}
-                  onChange={handleChange}
-                  placeholder="60"
-                  className={`w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2 ${
-                    errors.hourlyRate ? 'border-red-500' : ''
-                  }`}
-                  style={{
-                    borderColor: errors.hourlyRate ? undefined : '#333333',
-                    color: '#0f131a',
-                  }}
-                />
-                {errors.hourlyRate && <p className="text-red-500 text-sm mt-1">{errors.hourlyRate}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="callRate" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                  Per Call Rate (INR ₹) *
-                </label>
-                <input
-                  type="number"
-                  id="callRate"
-                  name="callRate"
-                  value={formData.callRate}
-                  onChange={handleChange}
-                  placeholder="25"
-                  className={`w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2 ${
-                    errors.callRate ? 'border-red-500' : ''
-                  }`}
-                  style={{
-                    borderColor: errors.callRate ? undefined : '#333333',
-                    color: '#0f131a',
-                  }}
-                />
-                {errors.callRate && <p className="text-red-500 text-sm mt-1">{errors.callRate}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="availability" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                  Availability
-                </label>
-                <select
-                  id="availability"
-                  name="availability"
-                  value={formData.availability}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2"
-                  style={{
-                    borderColor: '#333333',
-                    color: '#0f131a',
-                  }}
-                >
-                  <option value="full-time">Full-time</option>
-                  <option value="part-time">Part-time</option>
-                  <option value="weekends">Weekends Only</option>
-                  <option value="flexible">Flexible</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Media Links */}
-          <div>
-            <h3 className="text-xl font-semibold mb-4" style={{ color: '#0f131a' }}>
-              Media & Links (Optional)
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="profileImage" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                  Profile Image URL
-                </label>
-                <input
-                  type="url"
-                  id="profileImage"
-                  name="profileImage"
-                  value={formData.profileImage}
-                  onChange={handleChange}
-                  placeholder="https://example.com/profile.jpg"
-                  className="w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2"
-                  style={{
-                    borderColor: '#333333',
-                    color: '#0f131a',
-                  }}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="coverImage" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                  Cover Image URL
-                </label>
-                <input
-                  type="url"
-                  id="coverImage"
-                  name="coverImage"
-                  value={formData.coverImage}
-                  onChange={handleChange}
-                  placeholder="https://example.com/cover.jpg"
-                  className="w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2"
-                  style={{
-                    borderColor: '#333333',
-                    color: '#0f131a',
-                  }}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="website" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                  Website
-                </label>
-                <input
-                  type="url"
-                  id="website"
-                  name="website"
-                  value={formData.website}
-                  onChange={handleChange}
-                  placeholder="https://yourwebsite.com"
-                  className="w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2"
-                  style={{
-                    borderColor: '#333333',
-                    color: '#0f131a',
-                  }}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="socialLinks" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                  Social Links
-                </label>
-                <input
-                  type="text"
-                  id="socialLinks"
-                  name="socialLinks"
-                  value={formData.socialLinks}
-                  onChange={handleChange}
-                  placeholder="Instagram, LinkedIn, etc."
-                  className="w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2"
-                  style={{
-                    borderColor: '#333333',
-                    color: '#0f131a',
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Why Join */}
-          <div>
-            <h3 className="text-xl font-semibold mb-4" style={{ color: '#0f131a' }}>
-              Additional Information
-            </h3>
-            <div>
-              <label htmlFor="whyJoin" className="block text-sm font-semibold mb-2" style={{ color: '#0f131a' }}>
-                Why do you want to become a companion? *
-              </label>
-              <textarea
-                id="whyJoin"
-                name="whyJoin"
-                value={formData.whyJoin}
-                onChange={handleChange}
-                rows={4}
-                placeholder="Share your motivation and how you can help seekers..."
-                className={`w-full px-4 py-3 border rounded-[16px] focus:outline-none focus:ring-2 ${
-                  errors.whyJoin ? 'border-red-500' : ''
-                }`}
-                style={{
-                  borderColor: errors.whyJoin ? undefined : '#333333',
-                  color: '#0f131a',
-                }}
-              />
-              {errors.whyJoin && <p className="text-red-500 text-sm mt-1">{errors.whyJoin}</p>}
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={onClose}
-              className="px-6 py-3 border-2 rounded-[16px] font-semibold transition-all"
-              style={{ color: '#0f131a', borderColor: '#333333' }}
+        {!success && (
+          <div className="p-6 border-t border-emerald-50 bg-gray-50 flex justify-between items-center">
+            <button
+              onClick={() => setStep(step > 1 ? step - 1 : 1)}
+              className={`px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 ${
+                step === 1 ? "opacity-0 pointer-events-none" : "text-emerald-700 bg-emerald-100 hover:bg-emerald-200"
+              }`}
             >
-              Cancel
-            </motion.button>
-            <motion.button
-              type="submit"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="px-8 py-3 text-white rounded-[16px] font-semibold transition-all shadow-lg hover:shadow-xl"
-              style={{ backgroundColor: '#333333' }}
-            >
-              Submit Application
-            </motion.button>
+              <ChevronLeft className="w-4 h-4" /> Back
+            </button>
+            
+            {step < 4 ? (
+              <button
+                onClick={() => setStep(step + 1)}
+                className="px-6 py-2.5 bg-emerald-900 text-white rounded-xl font-bold shadow-md hover:bg-emerald-800 transition-colors flex items-center gap-2"
+              >
+                Next <ChevronRight className="w-4 h-4" />
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting || uploading}
+                className="px-8 py-2.5 bg-emerald-600 text-white rounded-xl font-bold shadow-lg hover:bg-emerald-500 transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                {isSubmitting || uploading ? "Submitting..." : "Submit Application"} <CheckCircle className="w-4 h-4" />
+              </button>
+            )}
           </div>
-        </form>
+        )}
       </motion.div>
     </div>
   );
-};
-
-export default CompanionApplicationModal;
+}

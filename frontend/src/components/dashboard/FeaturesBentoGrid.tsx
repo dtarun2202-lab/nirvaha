@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const features = [
     {
         title: "Guided Meditation",
         description: "Experience personalized meditation sessions that adapt to your emotional state. Our AI-powered guidance helps you find peace, clarity, and balance through ancient techniques reimagined for modern life.",
-        image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80",
-        color: "#333333"
+        image: "https://brquinn.com/wp-content/uploads/2024/10/someone-meditating-in-the-house.png",
+        color: "#1a5d47"
     },
     {
         title: "Mood Tracking",
@@ -24,19 +24,19 @@ const features = [
     {
         title: "Energy Balance",
         description: "Restore your inner vitality with practices designed to harmonize your energy centers. Through guided exercises and mindful techniques, unlock your body's natural ability to heal and recharge.",
-        image: "https://images.unsplash.com/photo-1545389336-cf090694435e?auto=format&fit=crop&w=800&q=80",
+        image: "https://www.healthspectra.com/wp-content/uploads/2019/09/Vrikshasana.jpg",
         color: "#ffb74d"
     },
     {
         title: "Breathwork",
         description: "Master the art of conscious breathing with powerful techniques from ancient traditions. Reduce stress, boost focus, and transform your state of mind in just a few minutes of daily practice.",
-        image: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?auto=format&fit=crop&w=800&q=80",
+        image: "https://media.istockphoto.com/id/967773928/photo/group-of-young-sporty-people-doing-alternate-nostril-breathing-exercise.jpg?s=612x612&w=0&k=20&c=fJcn64Sv0UEHoqqkTwwR5k4X64S1ex8rv5s1kP8LW4E=",
         color: "#4fc3f7"
     },
     {
         title: "Daily Affirmations",
         description: "Begin each day with intention and positivity. Our curated affirmations are designed to rewire negative thought patterns and cultivate a mindset of abundance, gratitude, and self-love.",
-        image: "https://images.unsplash.com/photo-1490730141103-6cac27abb37f?auto=format&fit=crop&w=800&q=80",
+        image: "https://www.firstship.net/wp-content/uploads/2022/06/self_affirmation_yoga.jpg",
         color: "#ce93d8"
     },
 ];
@@ -68,7 +68,7 @@ export const FeaturesBentoGrid = () => {
     };
 
     return (
-        <section className="py-8 bg-white relative overflow-hidden">
+        <section className="py-8 bg-[#EEF7F1] relative overflow-hidden">
             <div className="w-full px-6 md:px-12 lg:px-20">
                 {/* Cards Carousel */}
                 <div className="relative h-[550px] flex items-center justify-center">
@@ -120,7 +120,7 @@ export const FeaturesBentoGrid = () => {
                     {/* Left Arrow */}
                     <button
                         onClick={handlePrev}
-                        className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#333333] transition-colors"
+                        className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#1a5d47] transition-colors"
                     >
                         <ChevronLeft className="w-6 h-6" />
                     </button>
@@ -166,7 +166,7 @@ export const FeaturesBentoGrid = () => {
                     {/* Right Arrow */}
                     <button
                         onClick={handleNext}
-                        className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#333333] transition-colors"
+                        className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#1a5d47] transition-colors"
                     >
                         <ChevronRight className="w-6 h-6" />
                     </button>
@@ -180,15 +180,20 @@ export const FeaturesBentoGrid = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
+                            whileHover={{ y: -10, scale: 1.03 }}
                             transition={{ duration: 0.3 }}
+                            className="cursor-pointer"
                         >
                             <h3
-                                className="text-2xl md:text-3xl font-bold text-[#0F131A] mb-4"
+                                className="text-2xl md:text-3xl font-bold text-[#0F131A] mb-4 tracking-wide"
                                 style={{ fontFamily: "'Cinzel', serif" }}
                             >
                                 {features[activeIndex].title}
                             </h3>
-                            <p className="text-gray-600 text-base md:text-lg leading-relaxed">
+                            <p
+                                className="text-[#5f6f65] text-base md:text-lg leading-relaxed font-medium"
+                                style={{ fontFamily: "'Poppins', sans-serif" }}
+                            >
                                 {features[activeIndex].description}
                             </p>
                         </motion.div>

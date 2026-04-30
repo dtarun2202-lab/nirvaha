@@ -1,9 +1,10 @@
+import heroBg from "../../assets/meditation/hero-bg.png";
 export const CertificationsBanner = () => {
     return (
         <section className="w-full h-[100vh] relative overflow-hidden">
             {/* Full Cover Image */}
             <img
-                src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2000&q=80"
+                src={heroBg}
                 alt="Banner"
                 className="w-full h-full object-cover"
             />

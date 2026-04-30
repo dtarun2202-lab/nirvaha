@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import DecorativeShapes from './DecorativeShapes';
 
 const defaultGoals = [
@@ -8,35 +8,35 @@ const defaultGoals = [
         id: 1,
         title: "INNER PEACE",
         subtitle: "I'm looking to find",
-        image: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?q=80&w=800&auto=format&fit=crop",
+        image: "/inner peace.png",
         desc: "Calm the mind and soothe the soul through mindful meditation and breathwork."
     },
     {
         id: 2,
         title: "EMOTIONAL HEALING",
         subtitle: "I'm looking for",
-        image: "https://images.unsplash.com/photo-1499209974431-2761386a123d?q=80&w=800&auto=format&fit=crop",
+        image: "/emotional.png",
         desc: "Process emotions and find balance with ancient healing practices."
     },
     {
         id: 3,
         title: "PHYSICAL VITALITY",
         subtitle: "I'm looking to boost",
-        image: "https://images.unsplash.com/photo-1544367563-12123d8965cd?q=80&w=800&auto=format&fit=crop",
+        image: "/physical.png",
         desc: "Energize the body and spirit with holistic wellness techniques."
     },
     {
         id: 4,
         title: "SPIRITUAL CONNECTION",
         subtitle: "I'm looking for a",
-        image: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=800&auto=format&fit=crop",
+        image: "/spiritual.png",
         desc: "Deepen connection to self and universe through sacred wisdom."
     },
     {
         id: 5,
         title: "STRESS RELIEF",
         subtitle: "I'm seeking",
-        image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=800&auto=format&fit=crop",
+        image: "/stress relief.png",
         desc: "Release tension and restore harmony with proven relaxation methods."
     }
 ];
@@ -120,7 +120,7 @@ export function AncientWisdomSection() {
     const translateX = -(currentIndex * (cardWidth + gap)) + centerOffset;
 
     return (
-        <section className="py-16 relative overflow-hidden" style={{ backgroundColor: '#ffffff' }}>
+        <section className="py-16 relative overflow-hidden bg-[#eaf5ef]">
             <DecorativeShapes variant={5} />
             <div className="w-full relative z-10">
                 {/* Header - Constrained width */}
@@ -144,7 +144,7 @@ export function AncientWisdomSection() {
                         style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 300 }}
                     >
                         Grow your inner peace, elevate your consciousness, establish deep connections, uplift your health and more.
-                        <span className="font-medium text-[#333333] ml-1">Tell us your goals</span>, and become a better you like never before.
+                        <span className="font-medium text-[#1a5d47] ml-1">Tell us your goals</span>, and become a better you like never before.
                     </motion.p>
                 </div>
 
@@ -216,7 +216,7 @@ export function AncientWisdomSection() {
                     <button
                         onClick={handlePrev}
                         disabled={isTransitioning}
-                        className="w-16 h-16 rounded-full bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)] flex items-center justify-center text-[#0F131A] hover:bg-[#333333] hover:text-white transition-all duration-300 ease-out hover:-translate-x-2 hover:shadow-[0_12px_40px_rgba(26,93,71,0.25)] active:scale-95 active:shadow-[0_4px_15px_rgba(26,93,71,0.2)] group disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:bg-white disabled:hover:text-[#0F131A]"
+                        className="w-16 h-16 rounded-full bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)] flex items-center justify-center text-[#0F131A] hover:bg-[#1a5d47] hover:text-white transition-all duration-300 ease-out hover:-translate-x-2 hover:shadow-[0_12px_40px_rgba(26,93,71,0.25)] active:scale-95 active:shadow-[0_4px_15px_rgba(26,93,71,0.2)] group disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:bg-white disabled:hover:text-[#0F131A]"
                         aria-label="Previous goal"
                     >
                         <ChevronLeft size={30} className="transition-all duration-300 ease-out group-hover:scale-125 group-hover:-translate-x-0.5 group-active:scale-110" strokeWidth={2.5} />
@@ -239,7 +239,7 @@ export function AncientWisdomSection() {
                                         }
                                     }}
                                     className={`transition-all duration-700 ease-out rounded-full ${isCurrentDot
-                                        ? 'w-12 h-3 bg-[#333333] shadow-[0_4px_12px_rgba(26,93,71,0.3)]'
+                                        ? 'w-12 h-3 bg-[#1a5d47] shadow-[0_4px_12px_rgba(26,93,71,0.3)]'
                                         : 'w-3 h-3 bg-gray-300 hover:bg-gray-400 hover:shadow-[0_2px_8px_rgba(0,0,0,0.1)]'
                                         }`}
                                     aria-label={`Go to goal ${idx + 1}`}
@@ -251,7 +251,7 @@ export function AncientWisdomSection() {
                     <button
                         onClick={handleNext}
                         disabled={isTransitioning}
-                        className="w-16 h-16 rounded-full bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)] flex items-center justify-center text-[#0F131A] hover:bg-[#333333] hover:text-white transition-all duration-300 ease-out hover:translate-x-2 hover:shadow-[0_12px_40px_rgba(26,93,71,0.25)] active:scale-95 active:shadow-[0_4px_15px_rgba(26,93,71,0.2)] group disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:bg-white disabled:hover:text-[#0F131A]"
+                        className="w-16 h-16 rounded-full bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)] flex items-center justify-center text-[#0F131A] hover:bg-[#1a5d47] hover:text-white transition-all duration-300 ease-out hover:translate-x-2 hover:shadow-[0_12px_40px_rgba(26,93,71,0.25)] active:scale-95 active:shadow-[0_4px_15px_rgba(26,93,71,0.2)] group disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:bg-white disabled:hover:text-[#0F131A]"
                         aria-label="Next goal"
                     >
                         <ChevronRight size={30} className="transition-all duration-300 ease-out group-hover:scale-125 group-hover:translate-x-0.5 group-active:scale-110" strokeWidth={2.5} />

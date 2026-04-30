@@ -1,414 +1,330 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "motion/react";
 import { X, Send } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import LeftSidebar from "../community/LeftSidebar";
 import SearchBar from "../community/SearchBar";
 import Feed from "../community/Feed";
 import RightSidebar from "../community/RightSidebar";
 import type { Post } from "../community/communityData";
-import { io } from "socket.io-client";
 
-// ── Toast ────────────────────────────────────────────────────────────────────
-function Toast({ message, onDone }: { message: string; onDone: () => void }) {
-  useEffect(() => {
-    const t = setTimeout(onDone, 2200);
-    return () => clearTimeout(t);
-  }, [onDone]);
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
-      className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] bg-[#2D6A4F] text-white text-sm px-5 py-3 rounded-full shadow-xl"
-    >
-      {message}
-    </motion.div>
-  );
-}
-
-// ── Profile modal ────────────────────────────────────────────────────────────
-function ProfileModal({ profile, onClose }: { profile: any; onClose: () => void }) {
-  const [followed, setFollowed] = useState(profile.followed ?? false);
-  return (
-    <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      onClick={onClose}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.92 }}
-        onClick={e => e.stopPropagation()}
-        className="relative max-w-sm w-full bg-white rounded-3xl p-7 shadow-2xl"
-      >
-        <button onClick={onClose} className="absolute top-5 right-5 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500">
-          <X className="w-4 h-4" />
-        </button>
-
-        <div className="text-center">
-          {/* Avatar */}
-          <div className="w-20 h-20 rounded-2xl overflow-hidden border-4 border-[#52B788]/30 mx-auto mb-4">
-            {profile.avatarUrl || profile.avatar
-              ? <img src={profile.avatarUrl || profile.avatar} alt={profile.userName || profile.name} className="w-full h-full object-cover" />
-              : <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold" style={{ background: profile.avatarColor || "#2D6A4F" }}>{profile.userInitial || (profile.name?.[0] ?? "?")}</div>
-            }
-          </div>
-
-          <h3 className="text-xl font-bold text-[#0f172a]">{profile.userName || profile.name}</h3>
-          <p className="text-sm text-[#6b7280] mt-1">{profile.userRole || profile.specialty}</p>
-
-          {profile.bio && <p className="text-sm text-[#1e293b] mt-3 leading-relaxed">{profile.bio}</p>}
-
-          {/* Stats */}
-          <div className="flex justify-around mt-5 mb-5 bg-[#f6f7f8] rounded-2xl p-3">
-            <div className="text-center">
-              <p className="text-lg font-bold text-[#0f172a]">{profile.followers ?? 156}</p>
-              <p className="text-xs text-[#6b7280]">Followers</p>
-            </div>
-            <div className="w-px bg-gray-200" />
-            <div className="text-center">
-              <p className="text-lg font-bold text-[#0f172a]">{profile.posts ?? 23}</p>
-              <p className="text-xs text-[#6b7280]">Posts</p>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setFollowed(v => !v)}
-            className={`w-full py-2.5 rounded-full font-semibold text-sm transition-all ${
-              followed
-                ? "bg-[#dcfce7] text-[#16a34a] border border-[#16a34a]"
-                : "bg-[#2D6A4F] text-white hover:bg-[#1B4332]"
-            }`}
-          >
-            {followed ? "Following" : "Follow"}
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-// ── Create Post Modal ────────────────────────────────────────────────────────
-function CreateModal({
-  currentUser,
-  onClose,
-  onSubmit,
-}: {
-  currentUser: { name: string; role: string; initial: string; avatarColor: string };
-  onClose: () => void;
-  onSubmit: (title: string, body: string) => void;
-}) {
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const MAX = 500;
-
-  const handleSubmit = () => {
-    if (!title.trim() || !body.trim()) return;
-    onSubmit(title.trim(), body.trim());
-  };
-
-  // Auto-detect hashtags in body
-  const detectedTags = Array.from(body.matchAll(/#([a-zA-Z0-9_]+)/g)).map(m => m[1]);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      onClick={onClose}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.92 }}
-        onClick={e => e.stopPropagation()}
-        className="relative max-w-2xl w-full bg-white rounded-3xl p-8 shadow-2xl"
-      >
-        <button onClick={onClose} className="absolute top-6 right-6 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500">
-          <X className="w-4 h-4" />
-        </button>
-
-        <h3 className="text-xl font-bold text-[#0f172a] mb-5">Share Your Journey</h3>
-
-        {/* Author row */}
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold" style={{ background: currentUser.avatarColor }}>
-            {currentUser.initial}
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-[#0f172a]">{currentUser.name}</p>
-            <p className="text-xs text-[#6b7280]">{currentUser.role}</p>
-          </div>
-        </div>
-
-        {/* Title */}
-        <input
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-          placeholder="Post title..."
-          className="w-full border border-[#e2e8f0] rounded-xl px-4 py-2.5 text-sm text-[#0f172a] placeholder-[#9ca3af] focus:outline-none focus:border-[#52B788] mb-3"
-        />
-
-        {/* Body */}
-        <div className="relative">
-          <textarea
-            value={body}
-            onChange={e => setBody(e.target.value.slice(0, MAX))}
-            placeholder="What's on your mind? Share your wellness journey, tips, or celebrations... Use #hashtags"
-            rows={5}
-            className="w-full border border-[#e2e8f0] rounded-xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#9ca3af] focus:outline-none focus:border-[#52B788] resize-none"
-          />
-          <span className={`absolute bottom-3 right-3 text-xs ${body.length >= MAX ? "text-red-400" : "text-[#9ca3af]"}`}>
-            {body.length}/{MAX}
-          </span>
-        </div>
-
-        {/* Detected hashtags */}
-        {detectedTags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2">
-            {detectedTags.map((t, i) => (
-              <span key={i} className="text-xs bg-[#f0fdf4] text-[#16a34a] border border-[#bbf7d0] px-2 py-0.5 rounded-full">#{t}</span>
-            ))}
-          </div>
-        )}
-
-        <div className="flex gap-3 mt-5">
-          <button onClick={onClose} className="flex-1 py-2.5 rounded-full border border-gray-200 text-[#1e293b] text-sm hover:bg-gray-50 transition-colors">
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={!title.trim() || !body.trim()}
-            className="flex-1 py-2.5 rounded-full bg-[#2D6A4F] text-white text-sm font-semibold hover:bg-[#1B4332] disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-          >
-            <Send className="w-4 h-4" /> Post
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-// ── Main Page ────────────────────────────────────────────────────────────────
 export function CommunityPage() {
   const { user } = useAuth();
+  const [showPostModal, setShowPostModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState<any>(null);
+  const [postContent, setPostContent] = useState("");
+  const [filter, setFilter] = useState<string>("Recent");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [hashtagFilter, setHashtagFilter] = useState("");
+  const [toast, setToast] = useState("");
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  const SUGGESTED_TAGS = ["#happiness", "#habits", "#healing", "#meditation", "#soundhealing", "#wellness"];
+  const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
 
   const currentUser = {
-    name: user?.name || "Gayar Sathvika",
-    role: user?.role || "Community Member",
-    initial: (user?.name?.[0] || "G").toUpperCase(),
+    name: user?.name || "You",
+    initial: (user?.name?.[0] || "Y").toUpperCase(),
     avatarColor: "#2D6A4F",
   };
 
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [trendingTags, setTrendingTags] = useState<any[]>([]);
-  const [mentors, setMentors] = useState<any[]>([]);
-  const [filter, setFilter] = useState("Recent");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
-  const [hashtagFilter, setHashtagFilter] = useState("");
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [profileModal, setProfileModal] = useState<any>(null);
-  const [toast, setToast] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-
-  const showToast = (msg: string) => setToast(msg);
-
-  // Debounce search query
+  // Fetch posts from backend
   useEffect(() => {
-    const handler = setTimeout(() => setDebouncedSearchQuery(searchQuery), 300);
-    return () => clearTimeout(handler);
-  }, [searchQuery]);
-
-  const fetchMentors = async () => {
-    try {
-      const res = await fetch(`http://localhost:5001/api/profiles`);
-      if (res.ok) setMentors(await res.json());
-    } catch (e) { console.error(e); }
-  };
-
-  const fetchTrending = async () => {
-    try {
-      const res = await fetch(`http://localhost:5001/api/trending`);
-      if (res.ok) setTrendingTags(await res.json());
-    } catch (e) { console.error(e); }
-  };
-
-  // Data fetching & Socket.IO
-  useEffect(() => {
-    fetchMentors();
-    
-    const socket = io("http://localhost:5001");
-
-    const loadPosts = async () => {
-      setIsLoading(true);
-      const typeParam = filter.toLowerCase();
-      if (debouncedSearchQuery.trim()) {
-        try {
-          const res = await fetch(`http://localhost:5001/api/search?q=${encodeURIComponent(debouncedSearchQuery)}&type=${typeParam}`);
-          if (res.ok) {
-            const data = await res.json();
-            setPosts(data.posts);
-          }
-        } catch (e) {}
-      } else {
-        try {
-          const res = await fetch(`http://localhost:5001/api/posts?type=${typeParam}`);
-          if (res.ok) setPosts(await res.json());
-        } catch (e) { console.error(e); }
-        await fetchTrending();
+    const fetchPosts = async () => {
+      try {
+        const params = new URLSearchParams();
+        if (filter === "Popular") params.set("sort", "popular");
+        if (searchQuery.trim()) params.set("q", searchQuery.trim());
+        const res = await fetch(`http://localhost:5001/api/posts?${params}`);
+        if (res.ok) {
+          const data = await res.json();
+          setPosts(data);
+        }
+      } catch (e) {
+        console.error("Failed to fetch posts", e);
       }
-      setIsLoading(false);
     };
+    fetchPosts();
+  }, [filter, searchQuery]);
 
-    loadPosts();
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 3000);
+  };
 
-    // Socket listeners
-    socket.on("post_created", (newPost: Post) => {
-      // Avoid duplicates if we also use optimistic UI
-      setPosts(prev => {
-        if (prev.find(p => p.id === newPost.id)) return prev;
-        
-        // If sorting by recent, add to top. If popular, it has 0 likes so add to bottom (or rely on full refresh)
-        // For simplicity, always prepend or re-sort. Prepending is fine for real-time feel.
-        return filter === "Popular" ? [...prev, newPost].sort((a,b) => b.likes - a.likes) : [newPost, ...prev];
-      });
-    });
-
-    socket.on("post_updated", (updatedPost: Post) => {
-      setPosts(prev => prev.map(p => p.id === updatedPost.id ? updatedPost : p));
-    });
-
-    socket.on("trending_updated", () => {
-      fetchTrending();
-    });
-
-    return () => {
-      socket.disconnect();
+  const handleCreatePost = async () => {
+    if (!postContent.trim()) return;
+    const hashtags = (postContent.match(/#[a-zA-Z0-9_]+/g) || []).map(t => t.toLowerCase());
+    const newPost = {
+      userId: "current",
+      userName: currentUser.name,
+      userRole: (user as any)?.role || "Wellness Seeker",
+      userInitial: currentUser.initial,
+      avatarColor: currentUser.avatarColor,
+      avatarUrl: (user as any)?.avatar || "",
+      title: postContent.split("\n")[0].slice(0, 80),
+      body: postContent,
+      hashtags,
+      isCertified: false,
+      isOnline: true,
     };
-  }, [debouncedSearchQuery, filter]);
-
-  // Clicking a hashtag toggles filter
-  const handleTrendClick = (tag: string) => {
-    setHashtagFilter(prev => prev === tag ? "" : tag);
-    setFilter("Recent");
-    setSearchQuery("");
-  };
-
-  // Left sidebar filter change clears hashtag/search
-  const handleFilterChange = (f: string) => {
-    setFilter(f);
-    setHashtagFilter("");
-    setSearchQuery("");
-  };
-
-  // Search clears hashtag filter
-  const handleSearch = (q: string) => {
-    setSearchQuery(q);
-    if (q) setHashtagFilter("");
-  };
-
-  const handleCreatePost = async (title: string, body: string) => {
-    const hashtags = Array.from(body.matchAll(/#([a-zA-Z0-9_]+)/g)).map(m => m[1].toLowerCase());
     try {
-      const res = await fetch(`http://localhost:5001/api/posts`, {
+      const res = await fetch("http://localhost:5001/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          body,
-          userName: currentUser.name,
-          userRole: currentUser.role,
-          userInitial: currentUser.initial,
-          avatarColor: currentUser.avatarColor,
-          hashtags
-        })
+        body: JSON.stringify(newPost),
       });
       if (res.ok) {
-        const newPost = await res.json();
-        setPosts(prev => [newPost, ...prev]);
-        setShowCreateModal(false);
-        showToast("Post shared with the community 🌿");
+        const saved = await res.json();
+        setPosts(prev => [saved, ...prev]);
+        showToast("Post shared!");
       }
-    } catch (e) {
-      console.error(e);
-      showToast("Failed to create post. Please try again.");
+    } catch {
+      // Optimistic fallback
+      const fallback: Post = {
+        id: `local-${Date.now()}`,
+        ...newPost,
+        timestampValue: Date.now(),
+        likes: 0,
+        liked: false,
+        comments: [],
+      };
+      setPosts(prev => [fallback, ...prev]);
+      showToast("Post shared (offline)");
     }
+    setPostContent("");
+    setShowPostModal(false);
   };
 
+  const handleProfileClick = (post: Post) => {
+    setSelectedProfile(post);
+    setShowProfileModal(true);
+  };
+
+  const [topMentors, setTopMentors] = useState([
+    {
+      id: "m1", name: "Dr. Anjali Sharma", specialty: "Vedic Meditation",
+      bio: "Certified Vedic meditation teacher with 15+ years experience.",
+      followers: 2300, posts: 48,
+      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop",
+      followed: false, starred: false,
+    },
+    {
+      id: "m2", name: "Master Li Wei", specialty: "Qi Gong & Energy",
+      bio: "Qi Gong master and energy healing practitioner.",
+      followers: 1800, posts: 32,
+      avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop",
+      followed: false, starred: false,
+    },
+    {
+      id: "m3", name: "Elena Costa", specialty: "Sound Therapy",
+      bio: "Sound therapist specializing in crystal bowl healing.",
+      followers: 3100, posts: 61,
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop",
+      followed: false, starred: false,
+    },
+  ]);
+
   return (
-    <div className="community-theme bg-[#f6f7f8] text-black min-h-screen pt-24 pb-16">
+    <div className="community-theme bg-white text-black min-h-screen pt-24 pb-16">
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] bg-[#16a34a] text-white px-5 py-2 rounded-full text-sm shadow-lg">
+          {toast}
+        </div>
+      )}
+
       <div className="w-full mx-0 px-0">
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr_320px] gap-6 px-6">
-
-          {/* Left sidebar */}
           <aside className="hidden lg:block sticky top-24 self-start px-4 border-r border-black/10">
-            <LeftSidebar active={filter} onSelect={handleFilterChange} />
+            <LeftSidebar active={filter} onSelect={(k) => { setFilter(k); setHashtagFilter(""); }} />
           </aside>
 
-          {/* Center feed */}
-          <main className="space-y-4 col-span-12 lg:col-span-1">
-            <SearchBar value={searchQuery} onChange={handleSearch} />
+          {/* Main Feed */}
+          <main className="space-y-4">
+            <div className="flex items-center justify-center">
+              <div className="w-full max-w-[760px]">
+                <SearchBar value={searchQuery} onChange={setSearchQuery} />
+              </div>
+            </div>
+
             <div className="w-full max-w-[760px] mx-auto">
               <div
-                className="h-[calc(100vh-10rem)] overflow-y-scroll"
-                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                className="h-[calc(100vh-6rem)] overflow-y-scroll hide-scrollbar"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}
               >
-                {isLoading ? (
-                  <div className="flex flex-col space-y-4 items-center mt-10">
-                    <div className="w-8 h-8 border-4 border-[#16a34a] border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-[#6b7280] text-sm animate-pulse">Loading community feed...</p>
-                  </div>
-                ) : (
-                  <Feed
-                    posts={posts}
-                    filter={filter}
-                    searchQuery={debouncedSearchQuery}
-                    hashtagFilter={hashtagFilter}
-                    currentUser={currentUser}
-                    onPostsChange={setPosts}
-                    onToast={showToast}
-                    onProfileClick={(p) => setProfileModal({
-                      ...p,
-                      avatar: p.avatarUrl,
-                      followers: Math.floor(Math.random() * 5000),
-                      posts: Math.floor(Math.random() * 200),
-                      specialty: p.userRole,
-                      bio: "Community Member"
-                    })}
-                  />
-                )}
+                <Feed
+                  posts={posts}
+                  filter={filter}
+                  searchQuery={searchQuery}
+                  hashtagFilter={hashtagFilter}
+                  currentUser={currentUser}
+                  onPostsChange={setPosts}
+                  onToast={showToast}
+                  onProfileClick={handleProfileClick}
+                />
               </div>
             </div>
           </main>
 
-          {/* Right sidebar */}
           <aside className="hidden lg:block sticky top-24 self-start px-4">
             <RightSidebar
-              trending={trendingTags}
-              mentors={mentors}
+              trending={[
+                { title: "#meditation", count: "1.2k" },
+                { title: "#soundhealing", count: "890" },
+                { title: "#wellness", count: "743" },
+                { title: "#healing", count: "612" },
+                { title: "#mindfulness", count: "534" },
+              ]}
+              mentors={topMentors}
               activeHashtag={hashtagFilter}
-              onCreate={() => setShowCreateModal(true)}
-              onTrendClick={handleTrendClick}
-              onFollow={(id) => setMentors(prev => prev.map(m => m.id === id ? { ...m, followed: !m.followed } : m))}
-              onStar={(id) => setMentors(prev => prev.map(m => m.id === id ? { ...m, starred: !m.starred } : m))}
-              onViewProfile={setProfileModal}
+              onCreate={() => setShowPostModal(true)}
+              onTrendClick={(tag) => { setHashtagFilter(tag === hashtagFilter ? "" : tag); }}
+              onFollow={(id) => setTopMentors(prev => prev.map(m => m.id === id ? { ...m, followed: !m.followed } : m))}
+              onStar={(id) => setTopMentors(prev => prev.map(m => m.id === id ? { ...m, starred: !m.starred } : m))}
+              onViewProfile={(p) => {
+                setSelectedProfile({
+                  userName: p.name, userRole: p.specialty,
+                  avatarUrl: p.avatar, timestampValue: Date.now(),
+                  body: p.bio, likes: p.followers, comments: [],
+                });
+                setShowProfileModal(true);
+              }}
             />
           </aside>
         </div>
-      </div>
 
-      {/* Modals */}
-      <AnimatePresence>
-        {showCreateModal && (
-          <CreateModal
-            currentUser={currentUser}
-            onClose={() => setShowCreateModal(false)}
-            onSubmit={handleCreatePost}
-          />
+        {/* Create Post Modal */}
+        {showPostModal && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setShowPostModal(false)}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-2xl w-full bg-white rounded-[32px] p-8 shadow-2xl"
+            >
+              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
+                onClick={() => setShowPostModal(false)}
+                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-emerald-50 hover:bg-emerald-100 flex items-center justify-center text-teal-600"
+              >
+                <X className="w-6 h-6" />
+              </motion.button>
+
+              <h3 className="text-2xl text-emerald-800 mb-6">Share Your Journey</h3>
+
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-emerald-300 flex-shrink-0 flex items-center justify-center text-white font-bold"
+                  style={{ background: currentUser.avatarColor }}>
+                  {currentUser.initial}
+                </div>
+                <div>
+                  <p className="text-teal-800 font-semibold">{currentUser.name}</p>
+                  <p className="text-sm text-teal-600">{(user as any)?.role || "Wellness Seeker"}</p>
+                </div>
+              </div>
+
+              <div className="relative">
+                <textarea
+                  value={postContent}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setPostContent(v);
+                    const m = v.match(/#([a-zA-Z0-9_]*)$/);
+                    if (m) {
+                      const q = m[1].toLowerCase();
+                      setTagSuggestions(SUGGESTED_TAGS.filter(t => t.toLowerCase().includes(q)));
+                    } else {
+                      setTagSuggestions([]);
+                    }
+                  }}
+                  placeholder="What's on your mind? Share your wellness journey, tips, or celebrations..."
+                  className="w-full h-40 p-4 rounded-2xl border border-emerald-200/50 focus:border-emerald-500 focus:outline-none resize-none text-teal-800 placeholder-teal-400"
+                />
+                {tagSuggestions.length > 0 && (
+                  <div className="absolute right-0 left-0 mt-2 max-w-md mx-auto bg-white border border-emerald-200 rounded-md shadow z-20 overflow-hidden">
+                    {tagSuggestions.map(t => (
+                      <button key={t} onClick={() => { setPostContent(postContent.replace(/#([a-zA-Z0-9_]*)$/, t + " ")); setTagSuggestions([]); }}
+                        className="w-full text-left px-3 py-2 hover:bg-emerald-50">{t}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-4 mt-6">
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowPostModal(false)}
+                  className="flex-1 px-6 py-3 rounded-full border border-emerald-300 text-teal-800 hover:bg-emerald-50 transition-colors">
+                  Cancel
+                </motion.button>
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                  onClick={handleCreatePost} disabled={!postContent.trim()}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                  <Send className="w-4 h-4" /> Post
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
-        {profileModal && (
-          <ProfileModal profile={profileModal} onClose={() => setProfileModal(null)} />
+
+        {/* Profile Modal */}
+        {showProfileModal && selectedProfile && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setShowProfileModal(false)}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-3xl w-full bg-gradient-to-br from-white via-emerald-100 to-teal-200 rounded-[32px] p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
+            >
+              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
+                onClick={() => setShowProfileModal(false)}
+                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center text-teal-600 z-10">
+                <X className="w-6 h-6" />
+              </motion.button>
+
+              <div className="text-center">
+                <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-emerald-400 mx-auto mb-6 flex items-center justify-center"
+                  style={{ background: selectedProfile.avatarColor || "#2D6A4F" }}>
+                  {selectedProfile.avatarUrl
+                    ? <img src={selectedProfile.avatarUrl} alt={selectedProfile.userName} className="w-full h-full object-cover" />
+                    : <span className="text-white text-4xl font-bold">{selectedProfile.userInitial || selectedProfile.userName?.[0]}</span>
+                  }
+                </div>
+                <h3 className="text-2xl text-emerald-800 font-bold mb-2">{selectedProfile.userName}</h3>
+                <p className="text-teal-700 font-semibold mb-4">{selectedProfile.userRole}</p>
+
+                <div className="flex justify-around gap-4 mb-6 bg-white/70 backdrop-blur-sm rounded-2xl p-4">
+                  <div className="text-center">
+                    <p className="text-2xl text-emerald-600 font-bold">{selectedProfile.likes || 0}</p>
+                    <p className="text-xs text-teal-600">Likes</p>
+                  </div>
+                  <div className="w-px bg-emerald-300/30" />
+                  <div className="text-center">
+                    <p className="text-2xl text-emerald-600 font-bold">{selectedProfile.comments?.length || 0}</p>
+                    <p className="text-xs text-teal-600">Comments</p>
+                  </div>
+                </div>
+
+                <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-4 mb-6 text-left">
+                  <p className="text-xs text-teal-600 font-semibold mb-2">Latest Post</p>
+                  <p className="text-teal-800 text-sm leading-relaxed">{selectedProfile.body}</p>
+                </div>
+
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                  className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full font-semibold hover:shadow-lg transition-all">
+                  Follow
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
-        {toast && <Toast key={toast + Date.now()} message={toast} onDone={() => setToast("")} />}
-      </AnimatePresence>
+      </div>
     </div>
   );
 }

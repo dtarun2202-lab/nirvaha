@@ -6,7 +6,7 @@ export function LeadershipHeroSection() {
 
     return (
         <section
-            className="relative w-full overflow-hidden bg-white"
+            className="relative w-full overflow-hidden bg-[#eaf5ef]"
             ref={sectionRef}
         >
             <DecorativeShapes variant={1} />
@@ -22,7 +22,7 @@ export function LeadershipHeroSection() {
                 <div
                     className={`absolute bottom-0 left-0 w-1/3 h-full transition-all duration-[2000ms] ${inView ? 'opacity-10 translate-x-0' : 'opacity-0 -translate-x-20'}`}
                     style={{
-                        background: 'radial-gradient(circle at center, #333333 0%, transparent 70%)',
+                        background: 'radial-gradient(circle at center, #1a5d47 0%, transparent 70%)',
                         filter: 'blur(100px)',
                     }}
                 />
@@ -53,7 +53,7 @@ export function LeadershipHeroSection() {
                                 <br />
                                 <span
                                     style={{
-                                        background: 'linear-gradient(135deg, #333333 0%, #2d8a6b 100%)',
+                                        background: 'linear-gradient(135deg, #1a5d47 0%, #2d8a6b 100%)',
                                         WebkitBackgroundClip: 'text',
                                         WebkitTextFillColor: 'transparent',
                                         backgroundClip: 'text',
@@ -83,7 +83,7 @@ export function LeadershipHeroSection() {
                                 <button
                                     className="group relative px-10 py-5 rounded-full font-semibold text-lg text-white overflow-hidden transition-all duration-500 hover:shadow-[0_20px_50px_rgba(26,93,71,0.3)] hover:-translate-y-2"
                                     style={{
-                                        background: 'linear-gradient(135deg, #333333 0%, #2d8a6b 100%)',
+                                        background: 'linear-gradient(135deg, #1a5d47 0%, #2d8a6b 100%)',
                                         fontFamily: "'Poppins', sans-serif",
                                     }}
                                 >
@@ -100,7 +100,7 @@ export function LeadershipHeroSection() {
                                         </svg>
                                     </span>
                                 </button>
-                                <p className="mt-4 text-[#333333] font-medium italic opacity-60">
+                                <p className="mt-4 text-[#1a5d47] font-medium italic opacity-60">
                                     Transform your calling into impact.
                                 </p>
                             </div>
@@ -108,7 +108,7 @@ export function LeadershipHeroSection() {
                             {/* Mobile CTA */}
                             <div className="mt-10 lg:hidden text-left">
                                 <button
-                                    className="px-8 py-4 rounded-full font-semibold text-white bg-[#333333] shadow-lg"
+                                    className="px-8 py-4 rounded-full font-semibold text-white bg-[#1a5d47] shadow-lg"
                                     style={{ fontFamily: "'Poppins', sans-serif" }}
                                 >
                                     Start Your Coaching Journey

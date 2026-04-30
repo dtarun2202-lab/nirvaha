@@ -11,6 +11,7 @@ import {
 import { AdminTable } from "@/admin/components/AdminTable";
 import { StatusBadge } from "@/admin/components/StatusBadge";
 import { ConfirmModal } from "@/admin/components/ConfirmModal";
+import { useSocket } from "@/contexts/SocketContext";
 import {
   Dialog,
   DialogContent,
@@ -52,6 +53,7 @@ interface Companion {
 const INITIAL_COMPANIONS: Companion[] = [];
 
 export function CompanionManagementPage() {
+  const { socket } = useSocket();
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [companions, setCompanions] = useState<Companion[]>(INITIAL_COMPANIONS);
@@ -91,23 +93,19 @@ export function CompanionManagementPage() {
 
   useEffect(() => {
     loadApplications();
+  }, []);
 
-    const interval = setInterval(() => {
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("new-companion-request", () => {
       loadApplications();
-    }, 5000);
-
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        loadApplications();
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    });
 
     return () => {
-      clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      socket.off("new-companion-request");
     };
-  }, []);
+  }, [socket]);
 
   const filteredCompanions = useMemo(
     () =>
@@ -218,7 +216,7 @@ export function CompanionManagementPage() {
           </Button>
           <Button
             size="sm"
-            className="bg-gray-500 hover:bg-gray-600 text-white flex items-center gap-1"
+            className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1"
             onClick={() => openConfirm("approve", item)}
             disabled={item.status === "approved"}
             title="Approve companion application"
@@ -267,14 +265,14 @@ export function CompanionManagementPage() {
         <Button
           onClick={handleManualRefresh}
           disabled={isRefreshing}
-          className="bg-gray-500 hover:bg-gray-600 text-white flex items-center gap-2"
+          className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2"
         >
           <RotateCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>
 
-      <Card className="bg-white border-gray-200 p-6">
+      <Card className="bg-white border-emerald-200 p-6">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -282,11 +280,11 @@ export function CompanionManagementPage() {
               placeholder="Search by name or expertise..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-400"
+              className="pl-10 bg-white border-emerald-200 text-black placeholder:text-gray-400"
             />
           </div>
           <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-full md:w-[200px] bg-white border-gray-200 text-black">
+            <SelectTrigger className="w-full md:w-[200px] bg-white border-emerald-200 text-black">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-white">
@@ -299,7 +297,7 @@ export function CompanionManagementPage() {
         </div>
       </Card>
 
-      <Card className="bg-white border-gray-200">
+      <Card className="bg-white border-emerald-200">
         <AdminTable data={filteredCompanions} columns={columns} emptyMessage="No companions found" />
       </Card>
 
@@ -321,7 +319,7 @@ export function CompanionManagementPage() {
                   {selectedCompanion.specialties.map((specialty, idx) => (
                     <span
                       key={idx}
-                      className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm"
+                      className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-sm"
                     >
                       {specialty}
                     </span>
@@ -334,7 +332,7 @@ export function CompanionManagementPage() {
                   {selectedCompanion.languages.map((lang, idx) => (
                     <span
                       key={idx}
-                      className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm"
+                      className="px-3 py-1 bg-teal-100 text-teal-800 rounded-full text-sm"
                     >
                       {lang}
                     </span>
@@ -383,7 +381,7 @@ export function CompanionManagementPage() {
                   Reject
                 </Button>
                 <Button
-                  className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white"
+                  className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
                   onClick={() => {
                     setIsViewModalOpen(false);
                     openConfirm("approve", selectedCompanion);
@@ -507,7 +505,7 @@ export function CompanionManagementPage() {
               Cancel
             </Button>
             <Button
-              className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white"
+              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
               onClick={async () => {
                 if (!editForm) return;
                 try {

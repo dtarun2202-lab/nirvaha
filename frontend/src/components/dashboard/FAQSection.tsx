@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Minus, HelpCircle } from 'lucide-react';
 
 export const FAQSection = () => {
@@ -7,12 +7,12 @@ export const FAQSection = () => {
         {
             q: "Is Nirvaha suitable for beginners?",
             a: "Absolutely. Our platform is designed for all levels, offering guided paths from foundational mindfulness to advanced spiritual practices.",
-            image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=800&auto=format&fit=crop"
+            image: "https://images.squarespace-cdn.com/content/v1/5fc7c9e713755061c74e8b28/1612789111040-E2XL7IK7US1Y68ZQQNSG/woman-sitting-yoga-pose-beach+(1).jpg"
         },
         {
             q: "How does the AI Companion work?",
             a: "Our AI guide uses empathetic language models trained on therapeutic principles to offer 24/7 support, reflection, and resource recommendations.",
-            image: "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?q=80&w=800&auto=format&fit=crop"
+            image: "https://static.vecteezy.com/system/resources/thumbnails/025/718/298/small_2x/ai-robot-artificial-paper-digital-laptop-document-office-technology-hand-generative-ai-photo.jpg"
         },
         {
             q: "Can I access offline?",
@@ -44,16 +44,16 @@ export const FAQSection = () => {
     const [openIndex, setOpenIndex] = useState<number | null>(0);
 
     return (
-        <section className="py-8 bg-white overflow-hidden">
+       <section className="py-8 bg-[#EEF7F1] overflow-hidden">
             <div className="max-w-[1440px] mx-auto px-6 md:px-8">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                     <div className="max-w-xl">
                         <div className="flex items-center gap-2 mb-3">
-                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#333333]/10 text-[#333333]">
+                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1a5d47]/10 text-[#1a5d47]">
                                 <HelpCircle className="w-3.5 h-3.5" />
                             </span>
-                            <span className="text-[#333333] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">Support Center</span>
+                            <span className="text-[#1a5d47] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">Support Center</span>
                         </div>
                         <h2 className="text-3xl font-bold text-[#0F131A] tracking-tight mb-2" style={{ fontFamily: "'Cinzel', serif" }}>
                             Clarity in Every Breath
@@ -62,8 +62,8 @@ export const FAQSection = () => {
                             Everything you need to know about starting your journey.
                         </p>
                     </div>
-                    <button className="group flex items-center gap-2 text-[#333333] font-semibold hover:text-[#113d2f] transition-all duration-300 pb-1">
-                        <span className="border-b-2 border-transparent group-hover:border-[#333333] transition-all duration-300">View More</span>
+                    <button className="group flex items-center gap-2 text-[#1a5d47] font-semibold hover:text-[#113d2f] transition-all duration-300 pb-1">
+                        <span className="border-b-2 border-transparent group-hover:border-[#1a5d47] transition-all duration-300">View More</span>
                         <svg
                             className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
                             fill="none"
@@ -104,12 +104,12 @@ export const FAQSection = () => {
                                     onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
                                     className="w-full flex items-center justify-between py-6 text-left focus:outline-none"
                                 >
-                                    <span className={`font-semibold text-base md:text-lg tracking-tight transition-all duration-300 ${openIndex === idx ? 'text-[#333333] pl-1' : 'text-[#0F131A] group-hover:text-[#333333]/80'
+                                    <span className={`font-semibold text-base md:text-lg tracking-tight transition-all duration-300 ${openIndex === idx ? 'text-[#1a5d47] pl-1' : 'text-[#0F131A] group-hover:text-[#1a5d47]/80'
                                         }`}>
                                         {faq.q}
                                     </span>
                                     <div className={`p-1.5 rounded-full transition-all duration-300 ${openIndex === idx
-                                        ? 'bg-[#333333]/10 text-[#333333] rotate-0'
+                                        ? 'bg-[#1a5d47]/10 text-[#1a5d47] rotate-0'
                                         : 'bg-transparent text-gray-300 group-hover:text-gray-500'
                                         }`}>
                                         {openIndex === idx ? <Minus className="w-5 h-5" /> : <Plus className="w-4 h-4" />}

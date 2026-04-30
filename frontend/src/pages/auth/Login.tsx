@@ -4,7 +4,7 @@ import "./Login.css";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import BACKEND_CONFIG from "../../config/backend";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import {
   Mail,
   Lock,
@@ -31,7 +31,7 @@ const Login: React.FC = () => {
     try {
       setLoading(true);
 
-      // Backend login
+      // Backend login - use /api/login for email/password auth
       const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/login`, {
         method: "POST",
         headers: {
@@ -46,14 +46,14 @@ const Login: React.FC = () => {
         throw new Error(data.message || data.error || "Login failed");
       }
 
-      // Pass user and token to AuthContext
-      login(data.user, data.token);
+      login(data.user);
+      localStorage.setItem("token", data.token);
 
       // After successful login, redirect based on user role
       if (data.user.role === "admin") {
         navigate("/admin");
       } else {
-        navigate("/dashboard/overview");
+        navigate("/dashboard");
       }
     } catch (err: any) {
       console.error(err);
@@ -114,239 +114,209 @@ const Login: React.FC = () => {
       <div className="logo-container">
         <a href="/" className="inline-block">
           <img
-            src="/logo.webp"
+            src="/logo.png"
             alt="Nirvaha Logo"
-            className="h-16 w-16 object-contain rounded-xl cursor-pointer drop-shadow-lg hover:glow-teal transition-all duration-300 hover:scale-105"
+            className="h-16 w-16 object-contain rounded-xl cursor-pointer drop-shadow-lg transition-all duration-300 hover:scale-110"
           />
         </a>
       </div>
 
-      {/* Static Login Page Images Background - Grid Layout with Varying Sizes */}
+      {/* Masonry Background Grid */}
       <div className="login-grid">
         {(() => {
-          // Create varying sizes for visual interest (similar to Canva reference) - increased by 10%
-          // Base row size is 110px, so spans calculate from that
-          const sizeVariations = [
-            { gridRow: 'span 1', gridColumn: 'span 1' },
-            { gridRow: 'span 1', gridColumn: 'span 1' },
-            { gridRow: 'span 1', gridColumn: 'span 1' },
-            { gridRow: 'span 2', gridColumn: 'span 1' },
-            { gridRow: 'span 1', gridColumn: 'span 2' },
-            { gridRow: 'span 1', gridColumn: 'span 1' },
-            { gridRow: 'span 2', gridColumn: 'span 1' },
-            { gridRow: 'span 1', gridColumn: 'span 1' },
-            { gridRow: 'span 1', gridColumn: 'span 1' },
-            { gridRow: 'span 1', gridColumn: 'span 2' },
-            { gridRow: 'span 2', gridColumn: 'span 2' },
-            { gridRow: 'span 1', gridColumn: 'span 1' },
-            { gridRow: 'span 1', gridColumn: 'span 1' },
-            { gridRow: 'span 1', gridColumn: 'span 1' },
-            { gridRow: 'span 2', gridColumn: 'span 1' },
-            { gridRow: 'span 1', gridColumn: 'span 1' },
-            { gridRow: 'span 1', gridColumn: 'span 2' },
-            { gridRow: 'span 1', gridColumn: 'span 1' },
-            { gridRow: 'span 2', gridColumn: 'span 1' },
-            { gridRow: 'span 1', gridColumn: 'span 1' },
+          const tiles = [];
+          const usedPositions = new Set();
+          
+          // Helper to check if a space is occupied
+          const isOccupied = (col, row, w, h) => {
+            for (let r = row; r < row + h; r++) {
+              for (let c = col; c < col + w; c++) {
+                if (usedPositions.has(`${c},${r}`)) return true;
+              }
+            }
+            return false;
+          };
+
+          // Helper to mark space as occupied
+          const occupy = (col, row, w, h) => {
+            for (let r = row; r < row + h; r++) {
+              for (let c = col; c < col + w; c++) {
+                usedPositions.add(`${c},${r}`);
+              }
+            }
+          };
+
+          // Grid dimensions (approximate)
+          const totalCols = 20;
+          const totalRows = 30;
+          
+          // Define the center "Dead Zone" (where the login card sits)
+          const isDeadZone = (c, r) => {
+            return c >= 7 && c <= 13 && r >= 6 && r <= 18;
+          };
+
+          const tileSizes = [
+            { w: 2, h: 2 }, // Small
+            { w: 3, h: 3 }, // Medium
+            { w: 4, h: 2 }, // Wide
+            { w: 2, h: 4 }, // Tall
+            { w: 4, h: 4 }, // Large
           ];
 
-          // Generate enough tiles to fill the entire viewport plus extra for scrolling
-          // Calculate based on typical viewport: ~20 columns × ~15 rows = 300+ tiles
-          const cellsNeeded = 400;
-          const tiles = [];
+          let imgCounter = 0;
 
-          for (let i = 0; i < cellsNeeded; i++) {
-            const imgIndex = i % loginImages.length;
-            const sizeIndex = i % sizeVariations.length;
-            const size = sizeVariations[sizeIndex];
+          for (let r = 0; r < totalRows; r++) {
+            for (let c = 0; c < totalCols; c++) {
+              if (usedPositions.has(`${c},${r}`)) continue;
+              if (isDeadZone(c, r)) continue;
 
-            tiles.push(
-              <div
-                key={i}
-                className="relative"
-                style={{
-                  // filter: 'blur(0.5px)',
-                  gridRow: size.gridRow,
-                  gridColumn: size.gridColumn,
-                  margin: '0',
-                  padding: '0',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                }}
-              >
-                <img
-                  src={loginImages[imgIndex]}
-                  alt={`Login background ${imgIndex + 1}`}
-                  className="w-full h-full"
+              let size = tileSizes[Math.floor(Math.random() * tileSizes.length)];
+              if (c + size.w > totalCols) size = { w: totalCols - c, h: size.h };
+              if (r + size.h > totalRows) size = { w: size.w, h: totalRows - r };
+              
+              if (isOccupied(c, r, size.w, size.h) || isDeadZone(c + Math.floor(size.w/2), r + Math.floor(size.h/2))) {
+                if (!isOccupied(c, r, 1, 1)) {
+                   size = { w: 1, h: 1 };
+                } else {
+                  continue;
+                }
+              }
+
+              occupy(c, r, size.w, size.h);
+              const imgIndex = imgCounter % loginImages.length;
+              imgCounter++;
+
+              tiles.push(
+                <div
+                  key={`${c}-${r}`}
+                  className="login-tile"
                   style={{
-                    objectFit: 'cover',
-                    width: '100%',
-                    height: '100%',
-                    display: 'block',
+                    gridColumn: `span ${size.w}`,
+                    gridRow: `span ${size.h}`,
                   }}
-                />
-              </div>
-            );
+                >
+                  <img
+                    src={loginImages[imgIndex]}
+                    alt={`Background ${imgIndex}`}
+                    loading="lazy"
+                  />
+                </div>
+              );
+            }
           }
 
           return tiles;
         })()}
       </div>
 
-      {/* Dark Overlay for better contrast */}
-      <div
-        className="absolute inset-0 w-full h-full bg-black/40"
-      />
+      {/* Deep Warm Overlay */}
+      <div className="login-overlay" />
 
-      {/* Login Modal Container - Modern Style */}
+      {/* Login Card */}
       <motion.div
-        className="relative z-10 w-full max-w-md mx-auto rounded-2xl p-8 sm:p-10 transition-all duration-300 backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="login-card"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        {/* Title */}
-        <motion.div
-          className="text-center mb-8"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <h1
-            className="text-3xl font-semibold mb-2 bg-gradient-to-r from-gray-400 to-gray-400 bg-clip-text text-transparent"
-          >
-            Welcome Back
+        <div className="text-center mb-8">
+          <motion.img
+            src="/logo.png"
+            alt="Nirvaha Logo"
+            className="h-20 w-20 mx-auto mb-4 object-contain drop-shadow-xl"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          />
+          <h1 className="text-4xl font-bold mb-3 login-title">
+            Nirvaha
           </h1>
-          <p
-            className="text-sm mb-6 text-gray-300"
-          >
-            Sign in to continue your spiritual wellness journey
+          <p className="text-sm login-subtitle">
+            Begin your journey to timeless wellness
           </p>
-        </motion.div>
+        </div>
 
-        {/* Login Form */}
+
         <form
-          className="space-y-6"
+          className="space-y-5"
           onSubmit={(e) => {
             e.preventDefault();
             handleLogin();
           }}
         >
-          <motion.div
-            className="relative"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <Mail
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
-            />
-            <input
-              type="email"
-              placeholder="Email Address"
-              value={userData.email}
-              onChange={(e) =>
-                setUserData({ ...userData, email: e.target.value })
-              }
-              className="w-full pl-12 pr-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 transition-all duration-300 focus:outline-none focus:border-gray-400 focus:bg-white/10 focus:ring-2 focus:ring-gray-400/20"
-              required
-            />
-          </motion.div>
+          <div className="space-y-1">
+            <label className="text-xs font-semibold ml-1 text-emerald-800 uppercase tracking-wider">Email Address</label>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600/60" />
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={userData.email}
+                onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                className="w-full pl-11 pr-4 py-3 rounded-xl ancient-input focus:outline-none"
+                required
+              />
+            </div>
+          </div>
 
-          <motion.div
-            className="relative"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <Lock
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={userData.password}
-              onChange={(e) =>
-                setUserData({ ...userData, password: e.target.value })
-              }
-              className="w-full pl-12 pr-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 transition-all duration-300 focus:outline-none focus:border-gray-400 focus:bg-white/10 focus:ring-2 focus:ring-gray-400/20"
-              required
-            />
-          </motion.div>
+          <div className="space-y-1">
+            <label className="text-xs font-semibold ml-1 text-emerald-800 uppercase tracking-wider">Password</label>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600/60" />
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={userData.password}
+                onChange={(e) => setUserData({ ...userData, password: e.target.value })}
+                className="w-full pl-11 pr-4 py-3 rounded-xl ancient-input focus:outline-none"
+                required
+              />
+            </div>
+          </div>
 
           <motion.button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-6 text-base font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all duration-300 relative overflow-hidden group bg-gradient-to-r from-gray-500 to-gray-500 text-white shadow-lg shadow-gray-400/30 hover:shadow-xl hover:shadow-gray-400/40 hover:scale-[1.02] active:scale-[0.98]"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+            className="w-full py-4 px-6 rounded-xl btn-ancient disabled:opacity-50 flex items-center justify-center gap-3 mt-4"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             {loading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin"></div>
-                <span>Signing In...</span>
-              </>
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
               <>
-                <Sparkles className="h-4 w-4" />
-                <span className="relative z-10">Continue</span>
+                <Sparkles className="h-5 w-5" />
+                <span className="font-semibold uppercase tracking-widest text-sm">Enter the Sanctuary</span>
               </>
             )}
           </motion.button>
         </form>
 
-        {/* Separator */}
-        <motion.div
-          className="text-center my-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.55 }}
-        >
-          <span className="text-gray-500 text-xs">OR</span>
-        </motion.div>
-
-        {/* Create Account Link */}
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
+        <div className="mt-8 pt-6 border-t border-emerald-100 text-center">
+          <p className="text-xs text-emerald-800/50 mb-4">New to Nirvaha?</p>
           <button
             onClick={() => navigate("/signup")}
-            className="text-sm text-gray-300 hover:text-gray-400 transition-all duration-300 hover:underline"
+            className="text-sm font-bold text-emerald-600 hover:text-emerald-800 transition-colors flex items-center justify-center gap-2 mx-auto group"
           >
-            Don't have an account? Sign up here
+            Create Your Account
+            <span className="group-hover:translate-x-1 transition-transform">→</span>
           </button>
-        </motion.div>
-      </motion.div>
-
-      {/* Simple Footer */}
-      <motion.div
-        className="absolute bottom-0 left-0 right-0 z-10 px-6 py-4 text-center text-gray-400 text-xs"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.7 }}
-      >
-        <div className="flex items-center justify-center gap-4 flex-wrap">
-          <a
-            href="#"
-            className="hover:text-gray-400 transition-colors"
-          >
-            Privacy policy
-          </a>
-          <span>|</span>
-          <a
-            href="#"
-            className="hover:text-gray-400 transition-colors"
-          >
-            Terms
-          </a>
         </div>
       </motion.div>
+
+      {/* Bottom Footer */}
+      <div className="absolute bottom-6 left-0 right-0 z-10 text-center">
+        <div className="flex items-center justify-center gap-6 text-[10px] uppercase tracking-[0.2em] text-emerald-100/60 font-bold">
+          <a href="#" className="hover:text-emerald-400 transition-colors">Privacy</a>
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/40" />
+          <a href="#" className="hover:text-emerald-400 transition-colors">Terms</a>
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/40" />
+          <a href="#" className="hover:text-emerald-400 transition-colors">Support</a>
+        </div>
+      </div>
     </div>
   );
+
 };
 
 export default Login;

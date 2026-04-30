@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 interface RetreatFormProps {
   onSubmit: (formData: any) => void;
@@ -73,9 +73,9 @@ const RetreatForm: React.FC<RetreatFormProps> = ({ onSubmit }) => {
             errors.title ? 'border-red-500' : ''
           }`}
           style={{
-            borderColor: errors.title ? undefined : "#333333",
+            borderColor: errors.title ? undefined : "#1a5d47",
             color: "#0f131a",
-            focusRing: "#333333"
+            focusRing: "#1a5d47"
           }}
         />
         {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
@@ -97,7 +97,7 @@ const RetreatForm: React.FC<RetreatFormProps> = ({ onSubmit }) => {
             errors.description ? 'border-red-500' : ''
           }`}
           style={{
-            borderColor: errors.description ? undefined : "#333333",
+            borderColor: errors.description ? undefined : "#1a5d47",
             color: "#0f131a"
           }}
         />
@@ -120,7 +120,7 @@ const RetreatForm: React.FC<RetreatFormProps> = ({ onSubmit }) => {
             errors.facilitator ? 'border-red-500' : ''
           }`}
           style={{
-            borderColor: errors.facilitator ? undefined : "#333333",
+            borderColor: errors.facilitator ? undefined : "#1a5d47",
             color: "#0f131a"
           }}
         />
@@ -143,7 +143,7 @@ const RetreatForm: React.FC<RetreatFormProps> = ({ onSubmit }) => {
             errors.location ? 'border-red-500' : ''
           }`}
           style={{
-            borderColor: errors.location ? undefined : "#333333",
+            borderColor: errors.location ? undefined : "#1a5d47",
             color: "#0f131a"
           }}
         />
@@ -166,7 +166,7 @@ const RetreatForm: React.FC<RetreatFormProps> = ({ onSubmit }) => {
               errors.startDate ? 'border-red-500' : ''
             }`}
             style={{
-              borderColor: errors.startDate ? undefined : "#333333",
+              borderColor: errors.startDate ? undefined : "#1a5d47",
               color: "#0f131a"
             }}
           />
@@ -187,7 +187,7 @@ const RetreatForm: React.FC<RetreatFormProps> = ({ onSubmit }) => {
               errors.endDate ? 'border-red-500' : ''
             }`}
             style={{
-              borderColor: errors.endDate ? undefined : "#333333",
+              borderColor: errors.endDate ? undefined : "#1a5d47",
               color: "#0f131a"
             }}
           />
@@ -211,7 +211,7 @@ const RetreatForm: React.FC<RetreatFormProps> = ({ onSubmit }) => {
             errors.accommodation ? 'border-red-500' : ''
           }`}
           style={{
-            borderColor: errors.accommodation ? undefined : "#333333",
+            borderColor: errors.accommodation ? undefined : "#1a5d47",
             color: "#0f131a"
           }}
         />
@@ -234,7 +234,7 @@ const RetreatForm: React.FC<RetreatFormProps> = ({ onSubmit }) => {
             errors.capacity ? 'border-red-500' : ''
           }`}
           style={{
-            borderColor: errors.capacity ? undefined : "#333333",
+            borderColor: errors.capacity ? undefined : "#1a5d47",
             color: "#0f131a"
           }}
         />
@@ -274,7 +274,7 @@ const RetreatForm: React.FC<RetreatFormProps> = ({ onSubmit }) => {
               errors.price ? 'border-red-500' : ''
             }`}
             style={{
-              borderColor: errors.price ? undefined : "#333333",
+              borderColor: errors.price ? undefined : "#1a5d47",
               color: "#0f131a"
             }}
           />
@@ -297,7 +297,7 @@ const RetreatForm: React.FC<RetreatFormProps> = ({ onSubmit }) => {
             rows={2}
             className="w-full px-4 py-3 border rounded-[20px] focus:outline-none focus:ring-2 focus:border-transparent"
             style={{
-              borderColor: "#333333",
+              borderColor: "#1a5d47",
               color: "#0f131a"
             }}
           />
@@ -310,7 +310,7 @@ const RetreatForm: React.FC<RetreatFormProps> = ({ onSubmit }) => {
         whileTap={{ scale: 0.98 }}
         type="submit"
         className="w-full mt-6 py-3 text-white font-semibold rounded-[20px] hover:shadow-xl transition-all text-lg"
-        style={{ backgroundColor: "#333333" }}
+        style={{ backgroundColor: "#1a5d47" }}
       >
         Create Retreat
       </motion.button>
