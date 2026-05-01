@@ -97,8 +97,9 @@ const Signup: React.FC = () => {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Registration failed");
+      if (!res.ok) throw new Error(data.message || data.error || "Registration failed");
 
+      alert("Registration Successful ✅ Please login to continue.");
       navigate("/login");
     } catch (err: any) {
       console.error(err);
@@ -155,11 +156,19 @@ const Signup: React.FC = () => {
 
           {/* Social Logins at the Top */}
           <div className="social-signup top">
-            <button className="social-btn google">
+            <button
+              type="button"
+              className="social-btn google"
+              onClick={() => alert("Google login coming soon 🚀")}
+            >
               <Chrome size={18} color="#4285F4" />
               Continue with Google
             </button>
-            <button className="social-btn github">
+            <button
+              type="button"
+              className="social-btn github"
+              onClick={() => alert("GitHub login coming soon 🚀")}
+            >
               <Github size={18} color="#000000" />
               Continue with GitHub
             </button>

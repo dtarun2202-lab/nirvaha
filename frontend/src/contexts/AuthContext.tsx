@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/user`, {
+          const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/auth/user`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -100,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     try {
       const token = localStorage.getItem('token');
-      await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/logout`, { 
+      await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/auth/logout`, { 
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
