@@ -24,15 +24,17 @@ const Login: React.FC = () => {
 
   const [userData, setUserData] = useState<UserData>(defaultValues);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleLogin = async () => {
     try {
       setLoading(true);
+      setError("");
 
-      // Backend login - use /api/login for email/password auth
-      const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/login`, {
+      // Backend login - use /api/auth/login for email/password auth
+      const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -46,7 +48,7 @@ const Login: React.FC = () => {
         throw new Error(data.message || data.error || "Login failed");
       }
 
-      login(data.user);
+      login(data.user, data.token);
       localStorage.setItem("token", data.token);
 
       // After successful login, redirect based on user role
@@ -57,7 +59,7 @@ const Login: React.FC = () => {
       }
     } catch (err: any) {
       console.error(err);
-      alert(err.message || "Error logging in");
+      setError(err.message || "Error logging in");
     } finally {
       setLoading(false);
     }
@@ -273,6 +275,10 @@ const Login: React.FC = () => {
               />
             </div>
           </div>
+
+          {error && (
+            <p className="text-red-500 text-sm text-center bg-red-50 rounded-lg px-3 py-2">{error}</p>
+          )}
 
           <motion.button
             type="submit"

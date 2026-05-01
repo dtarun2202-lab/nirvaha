@@ -132,50 +132,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Simplified Login
-router.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    if (!email) {
-      return res.status(400).json({ error: 'Email is required' });
-    }
-
-    const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
-
-    if (password) {
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid && password !== 'demo123' && password !== 'sathvika123') {
-        return res.status(401).json({ error: 'Invalid password' });
-      }
-    }
-
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      JWT_SECRET,
-      { expiresIn: '365d' }
-    );
-
-    res.status(200).json({
-      message: 'Login successful',
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        profile: user.profile,
-        stats: user.stats
-      },
-    });
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Server error during login' });
-  }
-});
-
 // Logout
 router.post('/logout', (req, res) => {
   res.status(200).json({ message: 'Logged out successfully' });
