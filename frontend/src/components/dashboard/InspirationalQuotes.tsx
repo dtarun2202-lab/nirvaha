@@ -109,6 +109,7 @@ export const InspirationalQuotes = () => {
 
                         </div>
                       </div>
+                    </div>
                     ))}
                 </div>
             </div>
