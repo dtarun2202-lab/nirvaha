@@ -68,12 +68,12 @@ export const InspirationalQuotes = () => {
                         Discover wisdom to guide your journey</p>
                 </div>
 
-                {/* Responsive Grid Layout */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {/* Horizontal Scrolling Layout */}
+                <div className="flex gap-6 overflow-x-auto no-scrollbar pb-4">
                     {quotes.map((item) => (
                       <div
                         key={item.id}
-                        className="group h-[400px] cursor-pointer perspective-1000"
+                        className="group min-w-[280px] h-[400px] cursor-pointer perspective-1000 flex-shrink-0"
                       >
                         <div className="relative w-full h-full duration-700 preserve-3d group-hover:my-rotate-y-180">
 
