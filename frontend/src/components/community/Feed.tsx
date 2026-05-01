@@ -100,8 +100,8 @@ export default function Feed({
   // NOTE: Search query and Popular sorting are now completely handled by the backend API.
 
   // ── Header label ─────────────────────────────────────────
-  let headerLabel = "Recommended for you";
-  let headerRight = "Best";
+  let headerLabel = "Latest Posts";
+  let headerRight = `${visible.length} posts`;
 
   if (filter === "Games") {
     return <MemoryMatch currentUser={currentUser} />;
@@ -115,7 +115,10 @@ export default function Feed({
     headerRight = `${visible.length} found`;
   } else if (filter === "Popular") {
     headerLabel = "Most Popular";
-    headerRight = "Top";
+    headerRight = "Top liked";
+  } else if (filter === "All") {
+    headerLabel = "All Posts";
+    headerRight = `${visible.length} total`;
   }
 
   return (
@@ -128,7 +131,9 @@ export default function Feed({
       <div className="space-y-4">
         {visible.length === 0 && (
           <div className="text-center py-12 text-[#6b7280]">
-            {searchQuery.trim()
+            {filter === "Popular"
+              ? <><p className="text-base font-medium text-[#0f172a]">No popular posts yet 🌱</p><p className="text-sm mt-1">Posts with 50+ likes will appear here.</p></>
+              : searchQuery.trim()
               ? <><p className="text-base font-medium text-[#0f172a]">No posts found for "{searchQuery.trim()}" 🙏</p><p className="text-sm mt-1">Try a different keyword or browse all posts.</p></>
               : <p className="text-sm">No posts here yet.</p>
             }
@@ -137,7 +142,7 @@ export default function Feed({
         <AnimatePresence mode="popLayout">
           {visible.map(post => (
             <motion.div
-              key={post.id}
+              key={(post as any)._id || post.id}
               layout
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

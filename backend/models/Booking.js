@@ -9,7 +9,13 @@ const bookingSchema = new mongoose.Schema(
     email: String,
     type: String,
     price: Number,
-    status: { type: String, default: 'pending' }
+    status: { type: String, default: 'pending' },
+    date: String,
+    time: String,
+    platform: String,
+    companionName: String,
+    itemName: String,
+    duration: Number,
   },
   { timestamps: true }
 );

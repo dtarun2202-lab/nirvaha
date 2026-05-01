@@ -47,44 +47,33 @@ const quotes = [
 
 export const InspirationalQuotes = () => {
     return (
-       <section className="min-h-screen flex flex-col justify-start pt-32 pb-8 bg-[#EEF7F1] relative overflow-hidden">
-            <div className="max-w-[1440px] mx-auto px-6 md:px-8 mb-12 flex flex-col md:flex-row justify-between items-end gap-6">
-                <div className="text-left">
-                    <div className="flex items-center gap-2 mb-3">
+       <section className="min-h-screen flex flex-col justify-start py-16 md:py-24 bg-[#EEF7F1] relative overflow-hidden">
+            {/* Container Wrapper */}
+            <div className="max-w-7xl mx-auto px-6 w-full">
+                {/* Centered Header Section */}
+                <div className="text-center mb-12 md:mb-16 space-y-4">
+                    <div className="flex items-center justify-center gap-2 mb-4">
                         <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1a5d47]/10 text-[#1a5d47]">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" /></svg>
                         </span>
                         <span className="text-[#1a5d47] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">Wisdom Daily</span>
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-[#0F131A] tracking-wide mb-2"
+                    <h2 className="text-3xl md:text-4xl font-bold text-[#0F131A] tracking-wide"
                         style={{ fontFamily: "'Cinzel', serif" }}
                     >
                         Daily Inspiration</h2>
-                    <p className="text-[#5f6f65] text-sm md:text-base"
+                    <p className="text-[#5f6f65] text-sm md:text-base max-w-2xl mx-auto break-words"
                        style={{ fontFamily: "'Poppins', sans-serif" }}
                     >
                         Discover wisdom to guide your journey</p>
                 </div>
-                <button className="group flex items-center gap-2 text-[#1a5d47] font-semibold hover:text-[#113d2f] transition-colors duration-300 pb-1">
-                    <span className="border-b-2 border-transparent group-hover:border-[#1a5d47] transition-all duration-300">View More</span>
-                    <svg
-                        className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                </button>
-            </div>
 
-            <div className="relative overflow-hidden w-full">
-                {/* Horizontal Scrolling Container */}
-                <div className="flex gap-6 animate-scroll whitespace-nowrap">
-                    {quotes.map((item, i) => (
+                {/* Horizontal Scrolling Layout */}
+                <div className="flex gap-6 overflow-x-auto no-scrollbar pb-4">
+                    {quotes.map((item) => (
                       <div
                         key={item.id}
-                        className="group shrink-0 w-[320px] h-[480px] cursor-pointer perspective-1000 snap-center"
+                        className="group min-w-[280px] h-[400px] cursor-pointer perspective-1000 flex-shrink-0"
                       >
                         <div className="relative w-full h-full duration-700 preserve-3d group-hover:my-rotate-y-180">
 
@@ -104,30 +93,25 @@ export const InspirationalQuotes = () => {
                           </div>
                          </div>
 
-                         <div className="absolute inset-0 backface-hidden my-rotate-y-180 bg-[#1a5d47] rounded-3xl p-10 flex flex-col items-center justify-center text-center shadow-2xl overflow-hidden">
+                         <div className="absolute inset-0 backface-hidden my-rotate-y-180 bg-[#1a5d47] rounded-3xl p-8 flex flex-col items-center justify-center text-center shadow-2xl overflow-hidden">
 
-                           <span className="text-7xl text-white/10">“</span>
+                           <span className="text-7xl text-white/10">"</span>
 
-                            <p className="text-xl text-white italic">
+                            <p className="text-lg md:text-xl text-white italic break-words">
                               {item.quote}
                            </p>
 
                            <div className="w-16 h-[1px] bg-white/20 my-4"></div>
 
-                           <span className="text-[11px] text-emerald-200 uppercase tracking-[0.3em] font-bold">
+                           <span className="text-[11px] text-emerald-200 uppercase tracking-[0.3em] font-bold break-words">
                              {item.author}
                           </span>
 
                         </div>
                       </div>
                     </div>
-                  ))}
+                    ))}
                 </div>
-
-
-                {/* Fade Indicators */}
-                <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent pointer-events-none z-10 opacity-0 group-hover/carousel:opacity-100 transition-opacity"></div>
-                <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white to-transparent pointer-events-none z-10 opacity-0 group-hover/carousel:opacity-100 transition-opacity"></div>
             </div>
 
             <style>{`
