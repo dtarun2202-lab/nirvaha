@@ -1,15 +1,19 @@
 import { motion } from "motion/react";
 import { X, Send } from "lucide-react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
+import { useSocket } from "../../contexts/SocketContext";
 import LeftSidebar from "../community/LeftSidebar";
 import SearchBar from "../community/SearchBar";
 import Feed from "../community/Feed";
 import RightSidebar from "../community/RightSidebar";
 import type { Post } from "../community/communityData";
 
+const API = "http://localhost:5001";
+
 export function CommunityPage() {
   const { user } = useAuth();
+  const { socket } = useSocket();
   const [showPostModal, setShowPostModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
@@ -19,6 +23,12 @@ export function CommunityPage() {
   const [hashtagFilter, setHashtagFilter] = useState("");
   const [toast, setToast] = useState("");
   const [posts, setPosts] = useState<Post[]>([]);
+  const [trending, setTrending] = useState<{ title: string; count: string }[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Dedup by MongoDB _id (guaranteed unique) with id as fallback
+  const dedup = (arr: Post[]): Post[] =>
+    Array.from(new Map(arr.map(p => [(p as any)._id || p.id, p])).values());
 
   const SUGGESTED_TAGS = ["#happiness", "#habits", "#healing", "#meditation", "#soundhealing", "#wellness"];
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
@@ -29,35 +39,95 @@ export function CommunityPage() {
     avatarColor: "#2D6A4F",
   };
 
-  // Fetch posts from backend
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const params = new URLSearchParams();
-        if (filter === "Popular") params.set("sort", "popular");
-        if (searchQuery.trim()) params.set("q", searchQuery.trim());
-        const res = await fetch(`http://localhost:5001/api/posts?${params}`);
-        if (res.ok) {
-          const data = await res.json();
-          setPosts(data);
-        }
-      } catch (e) {
-        console.error("Failed to fetch posts", e);
+  // ── Fetch posts ──────────────────────────────────────────────────────────
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (filter === "Popular") params.set("sort", "popular");
+      else if (filter === "All") params.set("sort", "all");
+      else params.set("sort", "recent");
+      if (searchQuery.trim()) params.set("q", searchQuery.trim());
+      const res = await fetch(`${API}/api/posts?${params}`);
+      if (res.ok) {
+        const data: Post[] = await res.json();
+        // Always replace — never append
+        setPosts(dedup(data));
       }
+    } catch (e) {
+      console.error("Failed to fetch posts", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Fetch trending ───────────────────────────────────────────────────────
+  const fetchTrending = async () => {
+    try {
+      const res = await fetch(`${API}/api/posts/trending`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.length > 0) setTrending(data);
+      }
+    } catch (e) {
+      console.error("Failed to fetch trending", e);
+    }
+  };
+
+  useEffect(() => { fetchPosts(); }, [filter, searchQuery]);
+  useEffect(() => { fetchTrending(); }, []);
+
+  // ── Real-time socket events ──────────────────────────────────────────────
+  useEffect(() => {
+    if (!socket) return;
+
+    const onPostCreated = (post: Post) => {
+      setPosts(prev => dedup([post, ...prev]));
+      fetchTrending();
     };
-    fetchPosts();
-  }, [filter, searchQuery]);
+
+    const onPostLiked = ({ id, likes, liked }: { id: string; likes: number; liked: boolean }) => {
+      setPosts(prev => prev.map(p => p.id === id ? { ...p, likes, liked } : p));
+    };
+
+    const onCommentAdded = ({ postId, comment }: { postId: string; comment: any }) => {
+      setPosts(prev => prev.map(p => {
+        if (p.id !== postId) return p;
+        // Dedup comments by comment id
+        const exists = p.comments.some((c: any) => c.id === comment.id);
+        if (exists) return p;
+        return { ...p, comments: [...p.comments, comment] };
+      }));
+    };
+
+    const onPostDeleted = ({ id }: { id: string }) => {
+      setPosts(prev => prev.filter(p => p.id !== id));
+    };
+
+    socket.on("postCreated", onPostCreated);
+    socket.on("postLiked", onPostLiked);
+    socket.on("commentAdded", onCommentAdded);
+    socket.on("postDeleted", onPostDeleted);
+
+    return () => {
+      socket.off("postCreated", onPostCreated);
+      socket.off("postLiked", onPostLiked);
+      socket.off("commentAdded", onCommentAdded);
+      socket.off("postDeleted", onPostDeleted);
+    };
+  }, [socket, filter]);
 
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(""), 3000);
   };
 
+  // ── Create post ──────────────────────────────────────────────────────────
   const handleCreatePost = async () => {
     if (!postContent.trim()) return;
     const hashtags = (postContent.match(/#[a-zA-Z0-9_]+/g) || []).map(t => t.toLowerCase());
-    const newPost = {
-      userId: "current",
+    const payload = {
+      userId: user?.id || "anonymous",
       userName: currentUser.name,
       userRole: (user as any)?.role || "Wellness Seeker",
       userInitial: currentUser.initial,
@@ -70,30 +140,37 @@ export function CommunityPage() {
       isOnline: true,
     };
     try {
-      const res = await fetch("http://localhost:5001/api/posts", {
+      const res = await fetch(`${API}/api/posts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPost),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
-        const saved = await res.json();
-        setPosts(prev => [saved, ...prev]);
-        showToast("Post shared!");
+        // Do NOT manually add to state here.
+        // The socket 'postCreated' event will add it for everyone including us.
+        // This prevents the double-add (HTTP response + socket event).
+        showToast("Post shared! 🌿");
+        fetchTrending();
+      } else {
+        throw new Error("Server error");
       }
     } catch {
-      // Optimistic fallback
+      // Offline fallback only — socket won't fire so we add manually
       const fallback: Post = {
         id: `local-${Date.now()}`,
-        ...newPost,
+        ...payload,
         timestampValue: Date.now(),
         likes: 0,
         liked: false,
         comments: [],
+        isCertified: false,
+        isOnline: true,
       };
-      setPosts(prev => [fallback, ...prev]);
-      showToast("Post shared (offline)");
+      setPosts(prev => dedup([fallback, ...prev]));
+      showToast("Post shared (offline) 🌿");
     }
     setPostContent("");
+    setTagSuggestions([]);
     setShowPostModal(false);
   };
 
@@ -126,6 +203,15 @@ export function CommunityPage() {
     },
   ]);
 
+  // Fallback trending if backend returns empty
+  const displayTrending = trending.length > 0 ? trending : [
+    { title: "#meditation", count: "1.2k" },
+    { title: "#soundhealing", count: "890" },
+    { title: "#wellness", count: "743" },
+    { title: "#healing", count: "612" },
+    { title: "#mindfulness", count: "534" },
+  ];
+
   return (
     <div className="community-theme bg-white text-black min-h-screen pt-24 pb-16">
       {/* Toast */}
@@ -154,29 +240,29 @@ export function CommunityPage() {
                 className="h-[calc(100vh-6rem)] overflow-y-scroll hide-scrollbar"
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}
               >
-                <Feed
-                  posts={posts}
-                  filter={filter}
-                  searchQuery={searchQuery}
-                  hashtagFilter={hashtagFilter}
-                  currentUser={currentUser}
-                  onPostsChange={setPosts}
-                  onToast={showToast}
-                  onProfileClick={handleProfileClick}
-                />
+                {loading ? (
+                  <div className="flex items-center justify-center py-20">
+                    <div className="w-6 h-6 border-2 border-[#16a34a] border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : (
+                  <Feed
+                    posts={posts}
+                    filter={filter}
+                    searchQuery={searchQuery}
+                    hashtagFilter={hashtagFilter}
+                    currentUser={currentUser}
+                    onPostsChange={setPosts}
+                    onToast={showToast}
+                    onProfileClick={handleProfileClick}
+                  />
+                )}
               </div>
             </div>
           </main>
 
           <aside className="hidden lg:block sticky top-24 self-start px-4">
             <RightSidebar
-              trending={[
-                { title: "#meditation", count: "1.2k" },
-                { title: "#soundhealing", count: "890" },
-                { title: "#wellness", count: "743" },
-                { title: "#healing", count: "612" },
-                { title: "#mindfulness", count: "534" },
-              ]}
+              trending={displayTrending}
               mentors={topMentors}
               activeHashtag={hashtagFilter}
               onCreate={() => setShowPostModal(true)}
@@ -185,6 +271,7 @@ export function CommunityPage() {
               onStar={(id) => setTopMentors(prev => prev.map(m => m.id === id ? { ...m, starred: !m.starred } : m))}
               onViewProfile={(p) => {
                 setSelectedProfile({
+                  mentorId: p.id,
                   userName: p.name, userRole: p.specialty,
                   avatarUrl: p.avatar, timestampValue: Date.now(),
                   body: p.bio, likes: p.followers, comments: [],
@@ -270,55 +357,58 @@ export function CommunityPage() {
           </motion.div>
         )}
 
-        {/* Profile Modal */}
+        {/* Profile Modal — compact */}
         {showProfileModal && selectedProfile && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setShowProfileModal(false)}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.92 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative max-w-3xl w-full bg-gradient-to-br from-white via-emerald-100 to-teal-200 rounded-[32px] p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-sm bg-white rounded-2xl shadow-xl overflow-hidden"
             >
-              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
-                onClick={() => setShowProfileModal(false)}
-                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center text-teal-600 z-10">
-                <X className="w-6 h-6" />
-              </motion.button>
+              {/* Close */}
+              <button onClick={() => setShowProfileModal(false)}
+                className="absolute top-3 right-3 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 text-xs z-10">
+                ✕
+              </button>
 
-              <div className="text-center">
-                <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-emerald-400 mx-auto mb-6 flex items-center justify-center"
+              {/* Header strip */}
+              <div className="h-16 bg-gradient-to-r from-emerald-400 to-teal-500" />
+
+              {/* Avatar */}
+              <div className="flex flex-col items-center -mt-8 px-5 pb-5">
+                <div className="w-16 h-16 rounded-full border-4 border-white shadow overflow-hidden flex items-center justify-center text-white font-bold text-xl"
                   style={{ background: selectedProfile.avatarColor || "#2D6A4F" }}>
                   {selectedProfile.avatarUrl
                     ? <img src={selectedProfile.avatarUrl} alt={selectedProfile.userName} className="w-full h-full object-cover" />
-                    : <span className="text-white text-4xl font-bold">{selectedProfile.userInitial || selectedProfile.userName?.[0]}</span>
-                  }
+                    : (selectedProfile.userInitial || selectedProfile.userName?.[0] || "?")}
                 </div>
-                <h3 className="text-2xl text-emerald-800 font-bold mb-2">{selectedProfile.userName}</h3>
-                <p className="text-teal-700 font-semibold mb-4">{selectedProfile.userRole}</p>
+                <h3 className="mt-2 text-base font-bold text-gray-900">{selectedProfile.userName}</h3>
+                <p className="text-xs text-[#16a34a] font-medium">{selectedProfile.userRole}</p>
 
-                <div className="flex justify-around gap-4 mb-6 bg-white/70 backdrop-blur-sm rounded-2xl p-4">
-                  <div className="text-center">
-                    <p className="text-2xl text-emerald-600 font-bold">{selectedProfile.likes || 0}</p>
-                    <p className="text-xs text-teal-600">Likes</p>
-                  </div>
-                  <div className="w-px bg-emerald-300/30" />
-                  <div className="text-center">
-                    <p className="text-2xl text-emerald-600 font-bold">{selectedProfile.comments?.length || 0}</p>
-                    <p className="text-xs text-teal-600">Comments</p>
-                  </div>
-                </div>
+                {selectedProfile.body && (
+                  <p className="mt-3 text-xs text-gray-500 text-center line-clamp-3 leading-relaxed">{selectedProfile.body}</p>
+                )}
 
-                <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-4 mb-6 text-left">
-                  <p className="text-xs text-teal-600 font-semibold mb-2">Latest Post</p>
-                  <p className="text-teal-800 text-sm leading-relaxed">{selectedProfile.body}</p>
-                </div>
-
-                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                  className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full font-semibold hover:shadow-lg transition-all">
-                  Follow
+                <motion.button whileTap={{ scale: 0.96 }}
+                  onClick={() => {
+                    if (selectedProfile.mentorId) {
+                      setTopMentors(prev => prev.map(m =>
+                        m.id === selectedProfile.mentorId ? { ...m, followed: !m.followed } : m
+                      ));
+                      const isNowFollowed = !topMentors.find(m => m.id === selectedProfile.mentorId)?.followed;
+                      showToast(isNowFollowed ? `Following ${selectedProfile.userName} 🌿` : `Unfollowed ${selectedProfile.userName}`);
+                    }
+                  }}
+                  className={`mt-4 w-full py-2 text-sm font-semibold rounded-full transition-colors ${
+                    topMentors.find(m => m.id === selectedProfile.mentorId)?.followed
+                      ? "bg-[#f0fdf4] text-[#16a34a] border border-[#86efac] hover:bg-[#dcfce7]"
+                      : "bg-[#16a34a] hover:bg-[#15803d] text-white"
+                  }`}>
+                  {topMentors.find(m => m.id === selectedProfile.mentorId)?.followed ? "✓ Following" : "Follow"}
                 </motion.button>
               </div>
             </motion.div>
