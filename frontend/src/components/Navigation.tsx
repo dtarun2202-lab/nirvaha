@@ -127,12 +127,12 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
         animate={{ y: (isVisible || isHoveredAtTop || featuresMenuOpen || profileMenuOpen) ? 0 : -100 }}
         transition={{ duration: 0.3 }}
         className="absolute top-0 left-0 right-0 z-50 backdrop-blur-md border-b shadow-sm transition-all duration-300"
-       style={{
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        borderColor: 'rgba(229, 231, 235, 0.8)'
-}}
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          borderColor: 'rgba(229, 231, 235, 0.8)'
+        }}
       >
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <motion.div
@@ -143,15 +143,12 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
               <img
                 src="/logo.png"
                 alt="Nirvaha Logo"
-                className="w-13 h-12 rounded-lg object-contain drop-shadow-lg"
+                className="h-10 w-auto rounded-md object-contain drop-shadow-sm"
               />
               <div>
-                <h3 className="text-2xl bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent font-bold">
+                <h3 className="text-2xl font-black text-emerald-950 tracking-tight drop-shadow-sm">
                   NIRVAHA
                 </h3>
-                <p className="text-sm font-medium text-emerald-700 tracking-wide">
-                  Harmony of Mind
-                </p>
               </div>
             </motion.div>
 
@@ -162,13 +159,12 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleNavigate("home")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-2xl transition-all ${currentPage === "home"
-                  ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg"
-                  : "text-teal-700 hover:bg-emerald-50"
+                className={`flex items-center gap-2 px-4 py-2 transition-all ${currentPage === "home"
+                  ? "text-black"
+                  : "text-black/70 hover:text-black"
                   }`}
               >
-
-                <span className="text-xl font-semibold">Home</span>
+                <span className="text-sm font-bold uppercase tracking-wider">Home</span>
               </motion.button>
 
               {/* Features Dropdown */}
@@ -178,13 +174,12 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setFeaturesMenuOpen(!featuresMenuOpen)}
                   onMouseEnter={() => setFeaturesMenuOpen(true)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-2xl transition-all ${["meditation", "sound", "chatbot", "community"].includes(currentPage)
-                    ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg"
-                    : "text-teal-700 hover:bg-emerald-50"
+                  className={`flex items-center gap-2 px-4 py-2 transition-all ${["meditation", "sound", "chatbot", "community"].includes(currentPage)
+                    ? "text-black"
+                    : "text-black/70 hover:text-black"
                     }`}
                 >
-
-                  <span className="text-xl font-semibold">Features</span>
+                  <span className="text-sm font-bold uppercase tracking-wider">Features</span>
                   <ChevronDown className="w-4 h-4" />
                 </motion.button>
 
@@ -225,13 +220,12 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleNavigate("marketplace")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-2xl transition-all ${currentPage === "marketplace"
-                  ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg"
-                  : "text-teal-700 hover:bg-emerald-50"
+                className={`flex items-center gap-2 px-4 py-2 transition-all ${currentPage === "marketplace"
+                  ? "text-black"
+                  : "text-black/70 hover:text-black"
                   }`}
               >
-
-                <span className="text-xl font-semibold">Marketplace</span>
+                <span className="text-sm font-bold uppercase tracking-wider">Marketplace</span>
               </motion.button>
 
               {/* Companion */}
@@ -239,13 +233,12 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleNavigate("companion")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-2xl transition-all ${currentPage === "companion"
-                  ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg"
-                  : "text-teal-700 hover:bg-emerald-50"
+                className={`flex items-center gap-2 px-4 py-2 transition-all ${currentPage === "companion"
+                  ? "text-black"
+                  : "text-black/70 hover:text-black"
                   }`}
               >
-
-                <span className="text-xl font-semibold">Companion</span>
+                <span className="text-sm font-bold uppercase tracking-wider">Companion</span>
               </motion.button>
             </div>
 

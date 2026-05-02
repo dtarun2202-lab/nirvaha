@@ -86,7 +86,7 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
                 <img
                   src={logoSrc}
                   alt={logoAlt}
-                  className="h-10 w-10 sm:h-12 sm:w-12 object-contain rounded-lg drop-shadow-lg"
+                  className="h-14 w-auto sm:h-16 sm:w-auto object-contain rounded-lg drop-shadow-lg"
                 />
                 <div ref={nirvahaRef}>
                   <h3 className="text-3xl font-black text-emerald-950 tracking-tight drop-shadow-sm">
