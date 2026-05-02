@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { X, Send } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -83,6 +83,7 @@ export function CommunityPage() {
     if (!socket) return;
 
     const onPostCreated = (post: Post) => {
+      console.log('📥 Socket: Post created', post);
       setPosts(prev => dedup([post, ...prev]));
       fetchTrending();
     };
@@ -147,9 +148,10 @@ export function CommunityPage() {
         body: JSON.stringify(payload),
       });
       if (res.ok) {
-        // Do NOT manually add to state here.
-        // The socket 'postCreated' event will add it for everyone including us.
-        // This prevents the double-add (HTTP response + socket event).
+        const newPost = await res.json();
+        // Fallback: If socket doesn't fire for us immediately, add manually.
+        // The dedup logic will prevent duplicates if the socket event also arrives.
+        setPosts(prev => dedup([newPost, ...prev]));
         showToast("Post shared! 🌿");
         fetchTrending();
       } else {
