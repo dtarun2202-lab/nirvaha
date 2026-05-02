@@ -193,14 +193,18 @@ export function ProfilePage() {
     };
     loadProfile();
 
-    const socket = io(BACKEND_CONFIG.SOCKET_BASE_URL);
+    if (!socket) return;
+    
     socket.on("profile_updated", (data: any) => {
       if (data.userId === user?.id) {
         setProfileData((prev: any) => prev ? { ...prev, stats: data.stats } : prev);
       }
     });
-    return () => { socket.disconnect(); };
-  }, [user?.id]);
+
+    return () => {
+      socket.off("profile_updated");
+    };
+  }, [user?.id, socket]);
 
   const handleStartSession = (session: any) => {
     setActiveSession(session);
@@ -231,6 +235,7 @@ export function ProfilePage() {
       setIsSeeding(false);
     }
   };
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
