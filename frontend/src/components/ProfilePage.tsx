@@ -29,7 +29,7 @@ import { useState, useEffect, useRef } from "react";
 import { ShareProfileCard } from "./ShareProfileCard";
 import { MeditationSessionModal } from "./MeditationSessionModal";
 import { useAuth } from "../contexts/AuthContext";
-import { io } from "socket.io-client";
+import { useSocket } from "../contexts/SocketContext";
 import BACKEND_CONFIG from "../config/backend";
 import html2canvas from "html2canvas";
 import {
