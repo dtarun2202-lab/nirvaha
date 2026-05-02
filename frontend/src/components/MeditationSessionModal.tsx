@@ -184,7 +184,7 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
               ) : (
                 <>
                   {/* CENTRAL ANIMATION AREA */}
-                  <div className="relative w-[280px] h-[280px] sm:w-[360px] sm:h-[360px] md:w-[450px] md:h-[450px] flex items-center justify-center mb-10 md:mb-16">
+                  <div className="relative w-[220px] h-[220px] sm:w-[280px] sm:h-[280px] md:w-[350px] md:h-[350px] flex items-center justify-center mb-8 md:mb-12">
                     {/* Progress Ring */}
                     <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 500 500">
                       <circle
@@ -311,9 +311,8 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
                     )}
                   </div>
 
-                  {/* Timer & Controls */}
                   <div className="text-center z-20">
-                    <div className="text-7xl sm:text-8xl font-black text-white tabular-nums mb-6 tracking-tighter drop-shadow-lg">
+                    <div className="text-5xl sm:text-6xl font-black text-white tabular-nums mb-4 tracking-tighter drop-shadow-lg">
                       {formatTime(timeLeft)}
                     </div>
                     <div className="bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20 shadow-xl mb-10 inline-block">
