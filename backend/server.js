@@ -21,6 +21,7 @@ const marketplaceRoutes = require('./routes/marketplaceRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const utilityRoutes = require('./routes/utilityRoutes');
 const postRoutes = require('./routes/postRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 // Import models for seeding
 const User = require('./models/User');
@@ -379,6 +380,7 @@ app.use('/api/content', contentRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api', utilityRoutes);
 
 // Legacy route compatibility (for existing frontend code)
