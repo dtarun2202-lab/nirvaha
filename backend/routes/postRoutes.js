@@ -21,6 +21,15 @@ const SEED_POSTS = [
   { userName: 'Sunita Pillai', userRole: 'Wellness Blogger', avatarColor: '#be185d', hashtags: ['#wellness', '#happiness', '#habits'], likes: 567, body: 'I tracked my mood for 90 days. The #1 predictor of a good day? Morning sunlight within 30 minutes of waking. Not coffee. Not exercise. Sunlight. ☀️ #wellness #habits', title: '90-Day Mood Experiment — What I Discovered' },
   { userName: 'Kiran Bose', userRole: 'Sound Therapist', avatarColor: '#b45309', hashtags: ['#soundhealing', '#binaural', '#sleep'], likes: 223, body: 'Binaural beats at 40 Hz (gamma waves) for 20 minutes before deep work sessions. My focus has never been sharper. Science + sound = magic 🎵 #soundhealing #binaural', title: 'Binaural Beats — The Science of Sound Focus' },
   { userName: 'Pooja Reddy', userRole: 'Mindfulness Coach', avatarColor: '#047857', hashtags: ['#mindfulness', '#anxiety', '#healing'], likes: 389, body: 'Anxiety is not your enemy — it\'s your body\'s alarm system misfiring. Instead of fighting it, try saying "I notice I\'m feeling anxious" and watch it lose its power 🌿 #mindfulness #anxiety', title: 'Reframe Anxiety — From Enemy to Messenger' },
+  { userName: 'Dr. James Wilson', userRole: 'Sleep Specialist', avatarColor: '#1e293b', hashtags: ['#sleep', '#health', '#science'], likes: 856, body: 'The 10-3-2-1-0 rule for better sleep: 10 hours before bed no caffeine, 3 hours before no food/alcohol, 2 hours before no work, 1 hour before no screens, 0 times hitting snooze. 😴 #sleep #health', title: 'The 10-3-2-1-0 Rule for Perfect Sleep' },
+  { userName: 'Maya Zen', userRole: 'Spiritual Guide', avatarColor: '#f59e0b', hashtags: ['#spirituality', '#zen', '#peace'], likes: 1205, body: 'Letting go doesn\'t mean you don\'t care. It means you stop trying to force things to be what they aren\'t. Peace comes when you accept the present moment as it is. ✨ #zen #peace', title: 'The Art of Letting Go' },
+  { userName: 'Coach Sarah', userRole: 'Fitness & Mindset', avatarColor: '#ef4444', hashtags: ['#fitness', '#mindset', '#growth'], likes: 432, body: 'Motivation gets you started, but discipline keeps you going. Don\'t wait for the "feeling" to hit you. Just show up for yourself today, even if it\'s just for 5 minutes. 💪 #mindset', title: 'Discipline Over Motivation' },
+  { userName: 'Leo H.', userRole: 'Nature Therapist', avatarColor: '#065f46', hashtags: ['#nature', '#forestbathing', '#calm'], likes: 211, body: '20 minutes of "Forest Bathing" (Shinrin-yoku) reduces cortisol levels by 12%. If you\'re feeling stressed, go find a tree. It sounds simple because it is. 🌳 #nature #calm', title: 'Nature\'s Prescription for Stress' },
+  { userName: 'Nina Rose', userRole: 'Art Therapist', avatarColor: '#db2777', hashtags: ['#art', '#expression', '#healing'], likes: 345, body: 'Art therapy isn\'t about being an artist. It\'s about externalizing the feelings that are too big for words. Draw your stress, paint your joy. Let it out. 🎨 #healing #art', title: 'Healing Through Creative Expression' },
+  { userName: 'Sam Rivers', userRole: 'Hydration Expert', avatarColor: '#3b82f6', hashtags: ['#water', '#health', '#energy'], likes: 189, body: 'Fatigue is often just dehydration in disguise. Try drinking a full glass of water before you reach for that third cup of coffee. Your cells will thank you! 💧 #health', title: 'Drink More Water, Feel More Life' },
+  { userName: 'Tara Singh', userRole: 'Grateful Living', avatarColor: '#8b5cf6', hashtags: ['#gratitude', '#happiness', '#journaling'], likes: 721, body: 'Naming three things you\'re grateful for every morning re-wires your brain to look for the good instead of the problems. It\'s a 30-second habit that changes your year. 🙏 #gratitude', title: 'The 30-Second Gratitude Shift' },
+  { userName: 'Oliver K.', userRole: 'Biohacker', avatarColor: '#0f172a', hashtags: ['#biohacking', '#longevity', '#health'], likes: 534, body: 'Cold showers for 2 minutes boost dopamine levels for hours. It\'s uncomfortable, it\'s shocking, and it\'s the best natural energy boost I\'ve found. 🧊 #biohacking', title: 'The Power of the Cold Plunge' },
+  { userName: 'Elena P.', userRole: 'Nutritionist', avatarColor: '#10b981', hashtags: ['#nutrition', '#guthealth', '#wellness'], likes: 467, body: 'Your gut is your second brain. 95% of your serotonin is produced in your gut. Eat your fermented foods and watch your mood stabilize. 🥗 #guthealth', title: 'Gut-Brain Connection: Eat for Happiness' },
 ];
 
 let seedRunning = false;
@@ -30,7 +39,7 @@ async function seedIfEmpty() {
   seedRunning = true;
   try {
     const count = await Post.countDocuments();
-    if (count > 0) return;  // Posts exist — never reseed
+    if (count > 5) return;  // Only reseed if very few posts exist
 
     const now = Date.now();
     const docs = SEED_POSTS.map((p, i) => ({
@@ -49,7 +58,7 @@ async function seedIfEmpty() {
       comments: [],
       isCertified: i % 3 === 0,
       isOnline: Math.random() > 0.4,
-      timestampValue: now - (i * 72 * 60 * 1000),
+      timestampValue: now - (i * 30 * 60 * 1000), // More frequent posts (every 30 mins)
       expiresAt: new Date(now + 24 * 60 * 60 * 1000),
     }));
 
@@ -155,7 +164,10 @@ router.post('/', async (req, res) => {
 
     await post.save();
     const io = req.app.get('io');
-    if (io) io.emit('postCreated', post);
+    if (io) {
+      console.log('📡 Emitting postCreated:', post.id);
+      io.emit('postCreated', post.toObject());
+    }
     res.status(201).json(post);
   } catch (err) {
     console.error('POST /api/posts error:', err);
@@ -175,7 +187,10 @@ router.post('/:id/like', async (req, res) => {
     await post.save();
 
     const io = req.app.get('io');
-    if (io) io.emit('postLiked', { id: post.id, likes: post.likes, liked: post.liked });
+    if (io) {
+      console.log('📡 Emitting postLiked:', post.id);
+      io.emit('postLiked', { id: post.id, likes: post.likes, liked: post.liked });
+    }
     res.json({ id: post.id, likes: post.likes, liked: post.liked });
   } catch (err) {
     res.status(500).json({ error: 'Failed to update like' });
@@ -205,7 +220,10 @@ router.post('/:id/comment', async (req, res) => {
     await post.save();
 
     const io = req.app.get('io');
-    if (io) io.emit('commentAdded', { postId: post.id, comment });
+    if (io) {
+      console.log('📡 Emitting commentAdded:', post.id);
+      io.emit('commentAdded', { postId: post.id, comment });
+    }
     res.status(201).json(comment);
   } catch (err) {
     res.status(500).json({ error: 'Failed to add comment' });
