@@ -1459,11 +1459,6 @@ export function SoundHealingPage() {
               </AnimatePresence>
             </div>
 
-
-
-          </div>
-        </div>
-
         {/* RIGHT SIDEBAR - Now Playing */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
@@ -1604,7 +1599,10 @@ export function SoundHealingPage() {
               </div>
             </div>
           </div>
-        </motion.div>
+           </div>
+         </motion.div>
+       </div>
+       </div>
 
       {/* MODAL PLAYER */}
       <AnimatePresence>
