@@ -518,8 +518,17 @@ export function SoundHealingPage() {
     }
   };
 
-  const handleCardClick = (track: any) => {
+  const handleCardClick = (track: any, source: string = "global") => {
     if (!track) return;
+
+    // If source is 'all-sounds', we handle playback differently (e.g., local only)
+    // and skip updating the global "Now Playing" panel as requested.
+    if (source === "all-sounds") {
+      console.log('[SoundHealing] Local playback triggered for:', track.title);
+      // Logic for local playback could be added here if needed.
+      // For now, we skip updating global state.
+      return;
+    }
 
     setSelectedTrack(track);
     setActiveCard(track);
@@ -534,7 +543,7 @@ export function SoundHealingPage() {
     });
 
     const audioSrc = track.audioUrl;
-    console.log('[SoundHealing] Playing:', track.title, '→', audioSrc);
+    console.log('[SoundHealing] Playing (Global):', track.title, '→', audioSrc);
 
     if (audioRef.current && audioSrc) {
       audioRef.current.src = audioSrc;
@@ -1374,7 +1383,7 @@ export function SoundHealingPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.05 }}
                       whileHover={{ y: -6 }}
-                      onClick={() => handleCardClick(track)}
+                      onClick={() => handleCardClick(track, "global")}
                       className="group bg-white rounded-2xl border border-gray-200/80 overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300 relative"
                       style={{ boxShadow: '0 8px 20px rgba(34, 139, 34, 0.08)' }}
                     >
@@ -2008,9 +2017,11 @@ export function SoundHealingPage() {
   );
 }
 
-function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPlay: (track: any) => void, isTrackSaved: (track: any) => boolean, handleSaveToggle: (track: any) => void }) {
+function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPlay: (track: any, source: string) => void, isTrackSaved: (track: any) => boolean, handleSaveToggle: (track: any) => void }) {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [localPlayingId, setLocalPlayingId] = useState<string | null>(null);
+  const localAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     fetch(`${BACKEND_CONFIG.API_BASE_URL || 'http://localhost:5001'}/api/sounds`)
@@ -2025,12 +2036,44 @@ function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPl
       });
   }, []);
 
+  const handleLocalPlay = (track: any) => {
+    const trackId = track.id || track._id;
+    
+    if (localPlayingId === trackId) {
+      // Toggle pause if clicking same track
+      if (localAudioRef.current?.paused) {
+        localAudioRef.current.play();
+      } else {
+        localAudioRef.current?.pause();
+        setLocalPlayingId(null);
+      }
+    } else {
+      // Play new track locally
+      setLocalPlayingId(trackId);
+      if (localAudioRef.current) {
+        localAudioRef.current.src = track.audioUrl;
+        localAudioRef.current.play().catch(err => console.error("Local play error:", err));
+      }
+    }
+    
+    // Still notify parent but with 'all-sounds' source
+    onPlay(track, "all-sounds");
+  };
+
   if (loading) return <p className="col-span-full text-center text-gray-500 font-medium py-10">Loading sessions...</p>;
   if (!sessions.length) return <p className="col-span-full text-center text-gray-500 font-medium py-10">No sound healing sessions found in the database.</p>;
 
   return (
     <>
+      <audio 
+        ref={localAudioRef} 
+        onEnded={() => setLocalPlayingId(null)} 
+        onPause={() => {
+           // We only clear localPlayingId if it's not just a transient pause
+        }}
+      />
       {sessions.map((sound: any, idx: number) => {
+        const trackId = sound.id || sound._id;
         const track = {
           ...sound,
           duration: sound.duration ? `${sound.duration}:00` : '15:00',
@@ -2044,20 +2087,21 @@ function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPl
         
         const icons = [Music, Volume2, Hash, Play, Music, Volume2];
         const IconComponent = icons[idx % icons.length];
+        const isCurrentLocal = localPlayingId === trackId;
 
         return (
           <motion.div
-            key={sound.id || sound._id}
+            key={trackId}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="med-card-theme"
+            className={`med-card-theme ${isCurrentLocal ? 'border-green-500 bg-green-50/30' : ''}`}
           >
             <div className="med-card-theme-inner">
               {/* Top Section */}
               <div className="flex justify-between items-start">
                 <div className="med-card-theme-icon">
-                  <IconComponent className="w-5 h-5" />
+                  <IconComponent className={`w-5 h-5 ${isCurrentLocal ? 'animate-pulse text-green-600' : ''}`} />
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.2 }}
@@ -2101,10 +2145,14 @@ function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPl
                   {track.duration} session
                 </p>
                 <button 
-                  className="med-card-theme-btn"
-                  onClick={() => onPlay(track)}
+                  className={`med-card-theme-btn ${isCurrentLocal ? 'bg-green-700' : ''}`}
+                  onClick={() => handleLocalPlay(track)}
                 >
-                  Listen Now
+                  {isCurrentLocal ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Pause className="w-4 h-4 fill-current" /> Playing Locally
+                    </span>
+                  ) : 'Listen Now'}
                 </button>
               </div>
             </div>
