@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "motion/react";
 import {
   Activity,
   TrendingUp,
@@ -29,7 +29,7 @@ import { useState, useEffect, useRef } from "react";
 import { ShareProfileCard } from "./ShareProfileCard";
 import { MeditationSessionModal } from "./MeditationSessionModal";
 import { useAuth } from "../contexts/AuthContext";
-import { useSocket } from "../contexts/SocketContext";
+import { io } from "socket.io-client";
 import BACKEND_CONFIG from "../config/backend";
 import html2canvas from "html2canvas";
 import {
@@ -47,7 +47,7 @@ export function ProfilePage() {
   const { user, refreshProfile } = useAuth();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
+  
   const StatCounter = ({ value }: { value: number }) => {
     const [count, setCount] = useState(0);
     useEffect(() => {
@@ -56,18 +56,18 @@ export function ProfilePage() {
       const duration = 1500;
       const stepTime = Math.abs(Math.floor(duration / end));
       if (end === 0) return setCount(0);
-
+      
       const timer = setInterval(() => {
         start += 1;
         setCount(start);
         if (start >= end) clearInterval(timer);
       }, stepTime > 0 ? stepTime : 10);
-
+      
       return () => clearInterval(timer);
     }, [value]);
     return <>{count}</>;
   };
-
+  
   const [profileData, setProfileData] = useState<any>(null);
   const [prefs, setPrefs] = useState({
     theme: "system" as "light" | "dark" | "system",
@@ -96,27 +96,10 @@ export function ProfilePage() {
     { icon: Zap, label: "Energized", color: "from-[#95D5B2] to-[#52B788]" },
   ];
 
-  // Provide fallback stats for a "ready-to-use" feel
-  const defaultStats = {
-    meditationMinutes: 45,
-    soundMinutes: 30,
-    sessions: 12,
-    streak: 5,
-    todayPracticeTime: 15,
-    todaySessions: 2,
-    wellnessScore: 78,
-    posts: 4,
-    followers: 128,
-    following: 84,
-    weeklyMinutes: [10, 20, 15, 30, 25, 40, 15],
-    activityLog: [new Date().toISOString().split('T')[0]]
-  };
-
   const [selectedMood, setSelectedMood] = useState(availableMoods[0]);
   const [isGoodDay, setIsGoodDay] = useState(false);
   const [activeSession, setActiveSession] = useState<any>(null);
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
-  const [isSeeding, setIsSeeding] = useState(false);
 
   const moodHistory = [
     { day: "M", level: 80 },
@@ -128,10 +111,10 @@ export function ProfilePage() {
     { day: "S", level: 88 },
   ];
 
-  // Merge API data with auth user data, fallback to defaults if no data exists
-  const stats = profileData?.stats || (user?.stats && Object.keys(user.stats).length > 0 ? user.stats : defaultStats);
+  // Merge API data with auth user data
+  const stats = profileData?.stats || user?.stats || {};
   const displayBio = profileData?.bio || user?.bio || "🌿 You're building consistency — keep going.";
-  const displayLocation = (profileData?.location || user?.location || "Hyderabad, India").replace(/Mumbai/gi, "Hyderabad");
+  const displayLocation = (profileData?.location || user?.location || "Hyderabad, India");
   const weeklyData = [
     { day: "Mon", minutes: stats.weeklyMinutes?.[0] || 12 },
     { day: "Tue", minutes: stats.weeklyMinutes?.[1] || 18 },
@@ -183,67 +166,45 @@ export function ProfilePage() {
       if (!user?.id) return;
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile?userId=${user.id}`, {
+        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/users/profile?userId=${user.id}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
-        if (res.ok) setProfileData(await res.json());
+        if (res.ok) {
+          const data = await res.json();
+          setProfileData(data);
+          // If the fetched user has a bio/location, we can use them
+          if (data.bio) setProfileData(prev => ({ ...prev, bio: data.bio }));
+          if (data.location) setProfileData(prev => ({ ...prev, location: data.location }));
+        }
       } catch (e) { console.error(e); }
     };
     loadProfile();
 
-    if (!socket) return;
-    
+    const socket = io(BACKEND_CONFIG.SOCKET_BASE_URL);
     socket.on("profile_updated", (data: any) => {
       if (data.userId === user?.id) {
         setProfileData((prev: any) => prev ? { ...prev, stats: data.stats } : prev);
       }
     });
-
-    return () => {
-      socket.off("profile_updated");
-    };
-  }, [user?.id, socket]);
+    return () => { socket.disconnect(); };
+  }, [user?.id]);
 
   const handleStartSession = (session: any) => {
     setActiveSession(session);
     setIsSessionModalOpen(true);
   };
 
-  const handleSeedStats = async () => {
-    if (!user?.id) return;
-    setIsSeeding(true);
-    try {
-      const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/update`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          userId: user.id, 
-          stats: defaultStats,
-          bio: "Spiritual Seeker • On a 5-day meditation streak 🌿",
-          location: "Hyderabad, India"
-        })
-      });
-      if (res.ok) {
-        setSaveMessage("Stats updated successfully!");
-        setTimeout(() => setSaveMessage(null), 3000);
-      }
-    } catch (err) {
-      console.error("Seeding failed:", err);
-    } finally {
-      setIsSeeding(false);
-    }
-  };
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
+    
     const reader = new FileReader();
     reader.onloadend = async () => {
       const base64 = reader.result as string;
       try {
-        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/update`, {
+        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/users/profile/update`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: user?.id, avatar: base64 })
@@ -261,7 +222,7 @@ export function ProfilePage() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <motion.div
+        <motion.div 
           initial={{ opacity: 0, y: 10, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           className="bg-white/90 backdrop-blur-md p-4 rounded-3xl shadow-2xl border border-green-100 flex flex-col gap-1"
@@ -324,7 +285,7 @@ export function ProfilePage() {
           <div className="bg-gradient-to-br from-[#E8F5E9] to-[#C8E6C9] rounded-[40px] p-10 shadow-2xl border border-white/40 backdrop-blur-xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full blur-3xl -mr-32 -mt-32" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#2D6A4F]/5 rounded-full blur-2xl -ml-24 -mb-24" />
-
+            
             <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-10">
               {/* Profile Avatar */}
               <div className="relative group">
@@ -364,7 +325,7 @@ export function ProfilePage() {
               <div className="flex-1">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h1 className="text-[#1B4332] mb-2 font-black tracking-tight">{user?.name || "Gayar Sathvika"}</h1>
+                    <h1 className="text-[#1B4332] mb-2 font-black tracking-tight">{user?.name || profileData?.name || "Gayar Sathvika"}</h1>
                     <p className="text-[#2D6A4F] font-medium mb-4 italic">🌿 “You’re building consistency — keep going.”</p>
                     <div className="flex flex-wrap gap-4">
                       <div className="flex items-center gap-2 text-sm text-[#1B4332]/70 font-semibold bg-white/40 px-3 py-1.5 rounded-full border border-white/50">
@@ -378,16 +339,6 @@ export function ProfilePage() {
                     </div>
                   </div>
                   <div className="flex gap-4">
-                    <motion.button
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={handleSeedStats}
-                      disabled={isSeeding}
-                      className="px-6 py-3 bg-emerald-50 text-[#1B4332] rounded-2xl shadow-sm flex items-center gap-2 font-bold border border-emerald-100 hover:bg-emerald-100 transition-all"
-                    >
-                      <Activity className={`w-5 h-5 ${isSeeding ? "animate-spin" : ""}`} />
-                      {isSeeding ? "Syncing..." : "Sync Stats"}
-                    </motion.button>
                     <motion.button
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
@@ -411,15 +362,15 @@ export function ProfilePage() {
 
                 <div className="grid grid-cols-3 gap-6 mt-6">
                   <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 border border-white/60 shadow-sm text-center">
-                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.meditationMinutes ?? 0}</div>
-                    <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Meditation Minutes</div>
+                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.totalMinutes ?? 0}</div>
+                    <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Total Minutes</div>
                   </div>
                   <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 border border-white/60 shadow-sm text-center">
-                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.soundMinutes ?? 0}</div>
-                    <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Sound Minutes</div>
+                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.streak ?? 0}</div>
+                    <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Day Streak</div>
                   </div>
                   <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 border border-white/60 shadow-sm text-center">
-                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.sessions ?? 0}</div>
+                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.sessionsPlayed ?? 0}</div>
                     <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Total Sessions</div>
                   </div>
                 </div>
@@ -564,7 +515,7 @@ export function ProfilePage() {
               <div className="flex flex-col items-center">
                 <motion.div
                   key={selectedMood.label}
-                  animate={{
+                  animate={{ 
                     scale: [1, 1.05, 1],
                     boxShadow: [
                       "0 20px 50px rgba(45, 106, 79, 0.2)",
@@ -585,12 +536,12 @@ export function ProfilePage() {
                   </div>
                   <div className="absolute inset-0 rounded-full bg-[#52B788]/20 blur-3xl -z-10 animate-pulse" />
                 </motion.div>
-
+                
                 {/* Mood History Dots */}
                 <div className="mt-16 flex items-end gap-3">
                   {moodHistory.map((item, i) => (
                     <div key={i} className="flex flex-col items-center gap-2">
-                      <motion.div
+                      <motion.div 
                         initial={{ height: 0 }}
                         whileHover={{ scale: 1.4, backgroundColor: "#1B4332" }}
                         animate={{ height: item.level / 2.5 }}
@@ -612,22 +563,22 @@ export function ProfilePage() {
                   </div>
                   <div className="space-y-5">
                     <p className="text-xs text-gray-600 leading-relaxed font-medium">
-                      You've been feeling <span className="font-bold text-[#2D6A4F]">{selectedMood.label.toLowerCase()}</span> lately.
-                      Your practice is most consistent on <span className="font-bold text-[#2D6A4F]">{mostActiveDay}</span>.
+                      You've been feeling <span className="font-bold text-[#2D6A4F]">{selectedMood.label.toLowerCase()}</span> lately. 
+                      Your practice is most consistent on <span className="font-bold text-[#2D6A4F]">{mostActiveDay}</span>. 
                       Keep nurturing your inner space!
                     </p>
-
+                    
                     <div className="pt-2 border-t border-gray-100">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-[10px] text-gray-500 font-bold uppercase">Consistency Index</span>
                         <span className="text-xs font-bold text-[#2D6A4F]">94%</span>
                       </div>
                       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden shadow-inner">
-                        <motion.div
+                        <motion.div 
                           initial={{ width: 0 }}
                           animate={{ width: "94%" }}
                           transition={{ duration: 1, delay: 1 }}
-                          className="h-full bg-gradient-to-r from-[#52B788] to-[#2D6A4F]"
+                          className="h-full bg-gradient-to-r from-[#52B788] to-[#2D6A4F]" 
                         />
                       </div>
                     </div>
@@ -643,10 +594,11 @@ export function ProfilePage() {
                         whileHover={{ scale: 1.1, y: -2 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => setSelectedMood(mood)}
-                        className={`aspect-square flex flex-col items-center justify-center rounded-2xl transition-all border-2 ${selectedMood.label === mood.label
-                            ? "bg-[#2D6A4F] text-white shadow-xl border-[#1B4332]"
-                            : "bg-white border-gray-100 text-gray-500 hover:border-[#52B788] hover:text-[#2D6A4F] hover:shadow-md"
-                          }`}
+                        className={`aspect-square flex flex-col items-center justify-center rounded-2xl transition-all border-2 ${
+                          selectedMood.label === mood.label 
+                          ? "bg-[#2D6A4F] text-white shadow-xl border-[#1B4332]" 
+                          : "bg-white border-gray-100 text-gray-500 hover:border-[#52B788] hover:text-[#2D6A4F] hover:shadow-md"
+                        }`}
                       >
                         <mood.icon className={`w-6 h-6 ${selectedMood.label === mood.label ? "text-white" : "text-[#2D6A4F]/60"}`} />
                         <span className="text-[7px] mt-1.5 font-bold uppercase tracking-tight">{mood.label}</span>
@@ -684,20 +636,21 @@ export function ProfilePage() {
                 const currentMonth = today.getMonth();
                 const currentYear = today.getFullYear();
                 const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
-
+                
                 const hasSession = stats.activityLog?.includes(dateStr);
                 const isToday = today.getDate() === dayNum;
-
+                
                 return (
                   <motion.div
                     key={i}
                     whileHover={{ scale: 1.2 }}
-                    className={`aspect-square flex items-center justify-center text-sm rounded-xl cursor-pointer transition-all ${isToday
+                    className={`aspect-square flex items-center justify-center text-sm rounded-xl cursor-pointer transition-all ${
+                      isToday
                         ? "bg-[#2D6A4F] text-white shadow-lg font-bold"
                         : hasSession
-                          ? "bg-[#f0fdf4] text-[#16a34a] border border-[#dcfce7] font-semibold"
-                          : "text-gray-400 hover:bg-gray-50"
-                      }`}
+                        ? "bg-[#f0fdf4] text-[#16a34a] border border-[#dcfce7] font-semibold"
+                        : "text-gray-400 hover:bg-gray-50"
+                    }`}
                   >
                     {dayNum}
                   </motion.div>
@@ -728,7 +681,7 @@ export function ProfilePage() {
         >
           {/* Decorative Background Pattern */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-green-50 rounded-full blur-3xl -z-10 opacity-60" />
-
+          
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12 relative z-10">
             <div>
               <h3 className="text-[#1B4332] font-black tracking-tight text-2xl mb-2">Weekly Practice Flow</h3>
@@ -743,7 +696,7 @@ export function ProfilePage() {
                 </div>
               </div>
             </div>
-
+            
             <div className="flex items-center gap-4">
               <div className="text-right hidden md:block">
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Today's Effort</p>
@@ -778,24 +731,24 @@ export function ProfilePage() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="6 6" vertical={false} stroke="rgba(45, 106, 79, 0.1)" />
-                  <XAxis
-                    dataKey="day"
-                    axisLine={false}
-                    tickLine={false}
+                  <XAxis 
+                    dataKey="day" 
+                    axisLine={false} 
+                    tickLine={false} 
                     tick={{ fill: '#2D6A4F', fontSize: 11, fontWeight: 900, opacity: 0.6 }}
                     dy={15}
                   />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#2D6A4F', fontSize: 10, fontWeight: 700, opacity: 0.4 }}
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: '#2D6A4F', fontSize: 10, fontWeight: 700, opacity: 0.4 }} 
                   />
-                  <Tooltip
-                    content={<CustomTooltip />}
+                  <Tooltip 
+                    content={<CustomTooltip />} 
                     cursor={{ fill: 'rgba(45, 106, 79, 0.05)', radius: 16 }}
                   />
-                  <Bar
-                    dataKey="minutes"
+                  <Bar 
+                    dataKey="minutes" 
                     radius={[16, 16, 16, 16]}
                     barSize={44}
                     animationDuration={2000}
@@ -804,8 +757,8 @@ export function ProfilePage() {
                     {weeklyData.map((_, index) => {
                       const isToday = index === (new Date().getDay() + 6) % 7;
                       return (
-                        <Cell
-                          key={`cell-${index}`}
+                        <Cell 
+                          key={`cell-${index}`} 
                           fill={isToday ? 'url(#activeBarGradient)' : 'url(#barGradient)'}
                           className="transition-all duration-500 hover:opacity-80"
                           style={{
@@ -876,10 +829,11 @@ export function ProfilePage() {
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleStartSession(rec)}
                 disabled={isSessionModalOpen}
-                className={`w-full py-2.5 rounded-2xl font-semibold text-sm transition-all shadow-sm flex items-center justify-center gap-2 ${isSessionModalOpen && activeSession?.title === rec.title
-                    ? "bg-gray-100 text-[#2D6A4F] cursor-default"
-                    : "bg-[#2D6A4F] text-white hover:bg-[#1B4332]"
-                  }`}
+                className={`w-full py-2.5 rounded-2xl font-semibold text-sm transition-all shadow-sm flex items-center justify-center gap-2 ${
+                  isSessionModalOpen && activeSession?.title === rec.title
+                  ? "bg-gray-100 text-[#2D6A4F] cursor-default" 
+                  : "bg-[#2D6A4F] text-white hover:bg-[#1B4332]"
+                }`}
               >
                 {isSessionModalOpen && activeSession?.title === rec.title ? (
                   <>
