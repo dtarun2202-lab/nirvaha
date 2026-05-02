@@ -1459,13 +1459,16 @@ export function SoundHealingPage() {
         </div>
 
         {/* RIGHT SIDEBAR - Now Playing */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          className={`hidden xl:flex xl:flex-col w-[300px] flex-shrink-0 sticky top-20 h-fit max-h-[calc(100vh-6rem)] ${scrollHideClass}`}
-          style={{ zIndex: 35 }}
-        >
+        <AnimatePresence>
+          {!currentTrack?.isSoundHealing && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.5 }}
+              className={`hidden xl:flex xl:flex-col w-[300px] flex-shrink-0 sticky top-20 h-fit max-h-[calc(100vh-6rem)] ${scrollHideClass}`}
+              style={{ zIndex: 35 }}
+            >
           <div className="flex-1 bg-white/95 backdrop-blur-xl rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
             {/* Header */}
             <div className="p-5 border-b border-green-200/60" style={{ background: 'linear-gradient(to bottom, rgba(230, 244, 234, 0.95), rgba(245, 251, 247, 1))' }}>
@@ -1599,6 +1602,8 @@ export function SoundHealingPage() {
             </div>
           </div>
         </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       </div>
 
