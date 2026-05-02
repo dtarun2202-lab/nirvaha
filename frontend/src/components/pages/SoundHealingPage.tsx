@@ -518,18 +518,21 @@ export function SoundHealingPage() {
     }
   };
 
-  const handleCardClick = (track: any) => {
+  const handleCardClick = (track: any, source: string = "global") => {
     if (!track) return;
 
-    // Only update the global "Now Playing" states if it's NOT a dynamic sound healing track
-    // This keeps the Sidebar static when playing from the "All Sessions" section
-    if (!track.isSoundHealing) {
-      setSelectedTrack(track);
-      setNowPlaying(track);
+    // If source is 'all-sounds', we handle playback differently (e.g., local only)
+    // and skip updating the global "Now Playing" panel as requested.
+    if (source === "all-sounds") {
+      console.log('[SoundHealing] Local playback triggered for:', track.title);
+      // Logic for local playback could be added here if needed.
+      // For now, we skip updating global state.
+      return;
     }
 
-    // Always set activeCard to show the modal player for the current track
+    setSelectedTrack(track);
     setActiveCard(track);
+    setNowPlaying(track);
     setPlayProgress(0);
     setCurrentTime(0);
 
@@ -540,7 +543,7 @@ export function SoundHealingPage() {
     });
 
     const audioSrc = track.audioUrl;
-    console.log('[SoundHealing] Playing:', track.title, '→', audioSrc);
+    console.log('[SoundHealing] Playing (Global):', track.title, '→', audioSrc);
 
     if (audioRef.current && audioSrc) {
       audioRef.current.src = audioSrc;
@@ -1380,7 +1383,7 @@ export function SoundHealingPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.05 }}
                       whileHover={{ y: -6 }}
-                      onClick={() => handleCardClick(track)}
+                      onClick={() => handleCardClick(track, "global")}
                       className="group bg-white rounded-2xl border border-gray-200/80 overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300 relative"
                       style={{ boxShadow: '0 8px 20px rgba(34, 139, 34, 0.08)' }}
                     >
@@ -1458,6 +1461,11 @@ export function SoundHealingPage() {
                 )}
               </AnimatePresence>
             </div>
+
+
+
+          </div>
+        </div>
 
         {/* RIGHT SIDEBAR - Now Playing */}
         <motion.div
@@ -1601,7 +1609,7 @@ export function SoundHealingPage() {
           </div>
         </motion.div>
       </div>
-    </div>
+      </div>
 
       {/* MODAL PLAYER */}
       <AnimatePresence>
@@ -2009,7 +2017,7 @@ export function SoundHealingPage() {
   );
 }
 
-function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPlay: (track: any) => void, isTrackSaved: (track: any) => boolean, handleSaveToggle: (track: any) => void }) {
+function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPlay: (track: any, source: string) => void, isTrackSaved: (track: any) => boolean, handleSaveToggle: (track: any) => void }) {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -2103,7 +2111,7 @@ function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPl
                 </p>
                 <button 
                   className="med-card-theme-btn"
-                  onClick={() => onPlay(track)}
+                  onClick={() => onPlay(track, "all-sounds")}
                 >
                   Listen Now
                 </button>
