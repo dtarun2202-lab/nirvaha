@@ -403,6 +403,27 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
   }
 });
 
+// Multi-file upload for meditation/sound content
+app.post('/api/upload/media', upload.fields([
+  { name: 'thumbnail', maxCount: 1 },
+  { name: 'banner',    maxCount: 1 },
+  { name: 'audio',     maxCount: 1 },
+]), (req, res) => {
+  try {
+    const BASE = process.env.BASE_URL || `http://localhost:${PORT}`;
+    const result = {};
+    ['thumbnail', 'banner', 'audio'].forEach(field => {
+      if (req.files && req.files[field] && req.files[field][0]) {
+        result[`${field}Url`] = `${BASE}/uploads/${req.files[field][0].filename}`;
+      }
+    });
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('Media upload error:', error);
+    res.status(500).json({ error: 'Media upload failed', message: error.message });
+  }
+});
+
 // Start server
 async function startServer() {
   await connectMongo();

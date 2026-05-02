@@ -6,7 +6,28 @@ const router = express.Router();
 // Get all meditations
 router.get('/', async (req, res) => {
   try {
-    const meditations = await Meditation.find().sort({ createdAt: -1 }).lean();
+    const { search } = req.query;
+    let query = {};
+    if (search && search.trim()) {
+      const term = search.trim();
+      query = {
+        $or: [
+          { title: { $regex: term, $options: 'i' } },
+          { category: { $regex: term, $options: 'i' } },
+          { description: { $regex: term, $options: 'i' } },
+        ],
+      };
+    }
+    const meditations = await Meditation.find(query).sort({ createdAt: -1 }).lean();
+
+    // Normalize relative URLs to absolute so frontend can play audio directly
+    const BASE = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5001}`;
+    const toAbsolute = (url) => {
+      if (!url) return '';
+      if (url.startsWith('http')) return url;       // already absolute
+      return `${BASE}${url.startsWith('/') ? '' : '/'}${url}`;
+    };
+
     res.json(
       meditations.map((item) => ({
         id: item.id,
@@ -16,9 +37,9 @@ router.get('/', async (req, res) => {
         category: item.category || '',
         description: item.description || '',
         status: item.status || 'Draft',
-        thumbnailUrl: item.thumbnailUrl || '',
-        bannerUrl: item.bannerUrl || '',
-        audioUrl: item.audioUrl || '',
+        thumbnailUrl: toAbsolute(item.thumbnailUrl),
+        bannerUrl:    toAbsolute(item.bannerUrl),
+        audioUrl:     toAbsolute(item.audioUrl),
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
       }))
@@ -42,14 +63,17 @@ router.post('/', async (req, res) => {
     bannerUrl,
   } = req.body || {};
 
-  if (!title || typeof duration !== 'number') {
-    return res.status(400).json({ error: 'title and duration are required' });
+  // Coerce duration — may arrive as string from FormData
+  const durationNum = typeof duration === 'number' ? duration : Number(duration);
+
+  if (!title || !Number.isFinite(durationNum) || durationNum <= 0) {
+    return res.status(400).json({ error: 'title and duration (> 0) are required' });
   }
 
   try {
     const created = await Meditation.create({
       title,
-      duration,
+      duration: durationNum,
       level: level || '',
       category: category || '',
       description: description || '',
@@ -98,7 +122,7 @@ router.put('/:id', async (req, res) => {
       { id },
       {
         ...(title !== undefined ? { title } : {}),
-        ...(typeof duration === 'number' ? { duration } : {}),
+      ...(duration !== undefined ? { duration: Number(duration) } : {}),
         ...(level !== undefined ? { level } : {}),
         ...(category !== undefined ? { category } : {}),
         ...(description !== undefined ? { description } : {}),
