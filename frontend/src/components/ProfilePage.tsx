@@ -24,12 +24,15 @@ import {
   Edit2,
   Download,
   Share2,
+  Users,
+  FileText,
+  Heart as HeartIcon,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { ShareProfileCard } from "./ShareProfileCard";
 import { MeditationSessionModal } from "./MeditationSessionModal";
 import { useAuth } from "../contexts/AuthContext";
-import { io } from "socket.io-client";
+import { useSocket } from "../contexts/SocketContext";
 import BACKEND_CONFIG from "../config/backend";
 import html2canvas from "html2canvas";
 import {
@@ -45,6 +48,7 @@ import {
 
 export function ProfilePage() {
   const { user, refreshProfile } = useAuth();
+  const { socket } = useSocket();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
@@ -176,14 +180,18 @@ export function ProfilePage() {
     };
     loadProfile();
 
-    const socket = io(BACKEND_CONFIG.SOCKET_BASE_URL);
+    if (!socket) return;
+    
     socket.on("profile_updated", (data: any) => {
       if (data.userId === user?.id) {
         setProfileData((prev: any) => prev ? { ...prev, stats: data.stats } : prev);
       }
     });
-    return () => { socket.disconnect(); };
-  }, [user?.id]);
+
+    return () => {
+      socket.off("profile_updated");
+    };
+  }, [user?.id, socket]);
 
   const handleStartSession = (session: any) => {
     setActiveSession(session);
@@ -354,18 +362,30 @@ export function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-6 mt-6">
-                  <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 border border-white/60 shadow-sm text-center">
-                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.meditationMinutes ?? 0}</div>
-                    <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Meditation Minutes</div>
+                <div className="grid grid-cols-4 gap-4 mt-6">
+                  <div className="bg-white/60 backdrop-blur-md rounded-3xl p-4 border border-white/60 shadow-sm text-center">
+                    <div className="text-2xl font-black text-[#1B4332] mb-0.5 tracking-tighter">
+                      <StatCounter value={stats.meditationMinutes ?? 0} />
+                    </div>
+                    <div className="text-[9px] text-[#2D6A4F] font-black uppercase tracking-widest">Meditation</div>
                   </div>
-                  <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 border border-white/60 shadow-sm text-center">
-                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.soundMinutes ?? 0}</div>
-                    <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Sound Minutes</div>
+                  <div className="bg-white/60 backdrop-blur-md rounded-3xl p-4 border border-white/60 shadow-sm text-center">
+                    <div className="text-2xl font-black text-[#1B4332] mb-0.5 tracking-tighter">
+                      <StatCounter value={stats.posts ?? 0} />
+                    </div>
+                    <div className="text-[9px] text-[#2D6A4F] font-black uppercase tracking-widest">Posts</div>
                   </div>
-                  <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 border border-white/60 shadow-sm text-center">
-                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.sessions ?? 0}</div>
-                    <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Total Sessions</div>
+                  <div className="bg-white/60 backdrop-blur-md rounded-3xl p-4 border border-white/60 shadow-sm text-center">
+                    <div className="text-2xl font-black text-[#1B4332] mb-0.5 tracking-tighter">
+                      <StatCounter value={stats.followers ?? 0} />
+                    </div>
+                    <div className="text-[9px] text-[#2D6A4F] font-black uppercase tracking-widest">Followers</div>
+                  </div>
+                  <div className="bg-white/60 backdrop-blur-md rounded-3xl p-4 border border-white/60 shadow-sm text-center">
+                    <div className="text-2xl font-black text-[#1B4332] mb-0.5 tracking-tighter">
+                      <StatCounter value={stats.wellnessScore ?? 50} />
+                    </div>
+                    <div className="text-[9px] text-[#2D6A4F] font-black uppercase tracking-widest">Wellness</div>
                   </div>
                 </div>
               </div>
