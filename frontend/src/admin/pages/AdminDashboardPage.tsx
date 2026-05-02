@@ -87,10 +87,29 @@ export function AdminDashboardPage() {
         if (bookingsResponse.ok) {
           const bookingsData = await bookingsResponse.json();
           const normalizedBookings = Array.isArray(bookingsData)
-            ? bookingsData.map((booking: any) => ({
-                ...booking,
-                id: booking.id || booking._id || booking._doc?.id || booking._doc?._id,
-              }))
+            ? bookingsData.map((booking: any) => {
+                let parsedDate = String(booking.date || booking.createdAt || "");
+                let parsedTime = String(booking.time || "");
+                const platformLower = String(booking.platform || "").toLowerCase();
+                if (platformLower.includes("ist") || platformLower.includes("am") || platformLower.includes("pm") || platformLower.includes("tomorrow") || platformLower.includes("today")) {
+                  parsedTime = booking.platform;
+                }
+                if (parsedDate.includes("T") && parsedDate.endsWith("Z")) {
+                  const d = new Date(parsedDate);
+                  if (!isNaN(d.getTime())) {
+                    parsedDate = d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+                    if (!parsedTime || parsedTime.includes("Online")) {
+                      parsedTime = d.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' });
+                    }
+                  }
+                }
+                return {
+                  ...booking,
+                  id: booking.id || booking._id || booking._doc?.id || booking._doc?._id,
+                  date: parsedDate,
+                  time: parsedTime,
+                };
+              })
             : [];
           setRecentBookings(normalizedBookings.slice(0, 5));
           
@@ -187,10 +206,29 @@ export function AdminDashboardPage() {
           if (bookingsResponse.ok) {
             const bookingsData = await bookingsResponse.json();
             const normalizedBookings = Array.isArray(bookingsData)
-              ? bookingsData.map((booking: any) => ({
-                  ...booking,
-                  id: booking.id || booking._id || booking._doc?.id || booking._doc?._id,
-                }))
+              ? bookingsData.map((booking: any) => {
+                  let parsedDate = String(booking.date || booking.createdAt || "");
+                  let parsedTime = String(booking.time || "");
+                  const platformLower = String(booking.platform || "").toLowerCase();
+                  if (platformLower.includes("ist") || platformLower.includes("am") || platformLower.includes("pm") || platformLower.includes("tomorrow") || platformLower.includes("today")) {
+                    parsedTime = booking.platform;
+                  }
+                  if (parsedDate.includes("T") && parsedDate.endsWith("Z")) {
+                    const d = new Date(parsedDate);
+                    if (!isNaN(d.getTime())) {
+                      parsedDate = d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+                      if (!parsedTime || parsedTime.includes("Online")) {
+                        parsedTime = d.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' });
+                      }
+                    }
+                  }
+                  return {
+                    ...booking,
+                    id: booking.id || booking._id || booking._doc?.id || booking._doc?._id,
+                    date: parsedDate,
+                    time: parsedTime,
+                  };
+                })
               : [];
             setRecentBookings(normalizedBookings.slice(0, 5));
             
@@ -284,221 +322,220 @@ export function AdminDashboardPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-black mb-2">Dashboard Overview</h1>
-        <p className="text-gray-700">Welcome back, {user?.name || "Admin"}</p>
-      </div>
+    <div className="p-6 bg-[#F4FAF6] min-h-screen -m-6 rounded-tl-3xl">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between bg-white border border-[#D5EEDD] rounded-2xl p-6 shadow-sm mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-[#1F4131] mb-1">Dashboard Overview</h1>
+            <p className="text-[#64C08E] font-medium">Welcome back, {user?.name || "Admin"}</p>
+          </div>
+        </div>
 
-      {/* Stats Grid - Clickable */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card
-              key={index}
-              onClick={() => navigate(stat.path)}
-              className="bg-white border-emerald-200 hover:border-emerald-400 hover:shadow-lg cursor-pointer transition-all group"
-            >
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-gray-700 text-sm font-medium">{stat.title}</h3>
-                  <div
-                    className={`w-10 h-10 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center group-hover:scale-110 transition-transform`}
-                  >
-                    <Icon className="w-5 h-5 text-white" />
+        {/* Stats Grid - Clickable */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat, index) => {
+            const Icon = stat.icon;
+            // Map the colors to softer greens/teals to match the theme instead of the old colors
+            let colorClass = "from-[#B9EBD1] to-[#D5F2D9] text-[#1A4F35]";
+            if (stat.title === "Total Users") colorClass = "from-[#B9EBD1] to-[#D5F2D9] text-[#1A4F35]";
+            else if (stat.title === "Active Sessions") colorClass = "from-[#D5F2D9] to-[#E6F5EB] text-[#295641]";
+            else if (stat.title === "Revenue") colorClass = "from-[#A7E2C3] to-[#BEE4CD] text-[#1F4131]";
+            else colorClass = "from-[#86CDA6] to-[#A7E2C3] text-[#1F4131]";
+
+            return (
+              <Card
+                key={index}
+                onClick={() => navigate(stat.path)}
+                className="bg-white border-[#D5EEDD] hover:border-[#5ABF88] hover:shadow-md cursor-pointer transition-all group rounded-2xl"
+              >
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-[#2A4939] text-sm font-bold">{stat.title}</h3>
+                    <div
+                      className={`w-10 h-10 rounded-xl bg-gradient-to-br ${colorClass} flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm`}
+                    >
+                      <Icon className="w-5 h-5 opacity-90" />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-3xl font-bold text-[#1F4131]">{stat.value}</span>
+                    <span className="text-[#40B075] text-sm font-bold bg-[#EAFBF0] px-2 py-1 rounded-md">{stat.change}</span>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-3xl font-bold text-black">{stat.value}</span>
-                  <span className="text-emerald-600 text-sm font-semibold">{stat.change}</span>
-                </div>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
+              </Card>
+            );
+          })}
+        </div>
 
-      {/* Alerts / Pending Approvals */}
-      {pendingApprovals > 0 && (
-        <Card className="bg-yellow-50 border-yellow-300">
-          <div className="p-6">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-yellow-600" />
+        {/* Alerts / Pending Approvals */}
+        {pendingApprovals > 0 && (
+          <Card className="bg-[#FFFDF0] border-[#FCE181] rounded-2xl shadow-sm">
+            <div className="p-6 flex items-center gap-4">
+              <div className="bg-[#FFF5CC] p-3 rounded-xl text-[#B38D19]">
+                 <AlertCircle className="w-6 h-6" />
+              </div>
               <div className="flex-1">
-                <h3 className="text-black font-semibold mb-1">
+                <h3 className="text-[#66500F] font-bold text-lg mb-1">
                   {pendingApprovals} Companion Application{pendingApprovals > 1 ? "s" : ""} Pending Approval
                 </h3>
-                <p className="text-gray-700 text-sm">
+                <p className="text-[#997917] text-sm font-medium">
                   Review and approve companion applications to expand your network
                 </p>
               </div>
               <Button
                 onClick={() => navigate("/admin/companions?filter=pending")}
-                className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white"
+                className="bg-[#D9AC26] hover:bg-[#B38D19] text-white rounded-xl px-6 font-bold shadow-sm border-none"
               >
                 Review Now
               </Button>
             </div>
-          </div>
-        </Card>
-      )}
+          </Card>
+        )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Companion Applications */}
-        <Card className="bg-white border-emerald-200 shadow-md">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-black">Recent Companion Applications</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Companion Applications */}
+          <Card className="bg-white border-[#D5EEDD] rounded-2xl shadow-sm overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-[#EAFBF0] flex items-center justify-between bg-white">
+              <h2 className="text-xl font-bold text-[#1F4131]">Recent Companions</h2>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("/admin/companions")}
-                className="text-emerald-700 hover:text-black hover:bg-emerald-50"
+                className="text-[#34A46B] hover:text-[#1F4131] hover:bg-[#EAFBF0] font-bold rounded-lg"
               >
-                View All
-                <ArrowRight className="ml-2 w-4 h-4" />
+                View All <ArrowRight className="ml-1 w-4 h-4" />
               </Button>
             </div>
-            <AdminTable
-              data={recentCompanions}
-              columns={[
-                {
-                  key: "name",
-                  header: "Name",
-                },
-                {
-                  key: "expertise",
-                  header: "Expertise",
-                },
-                {
-                  key: "status",
-                  header: "Status",
-                  render: (item) => <StatusBadge status={item.status} variant="companion" />,
-                },
-                {
-                  key: "appliedDate",
-                  header: "Applied",
-                },
-              ]}
-            />
-          </div>
-        </Card>
+            <div className="overflow-x-auto flex-1">
+               <div className="grid grid-cols-12 gap-2 bg-gradient-to-r from-[#B9EBD1] to-[#D5F2D9] p-3 text-[10px] font-bold text-[#1A4F35] tracking-widest uppercase">
+                  <div className="col-span-4 pl-2">Name</div>
+                  <div className="col-span-3">Expertise</div>
+                  <div className="col-span-3">Status</div>
+                  <div className="col-span-2">Applied</div>
+               </div>
+               <div className="divide-y divide-[#E6F5EB]">
+                  {recentCompanions.map((item) => (
+                     <div key={item.id} className="grid grid-cols-12 gap-2 p-3 items-center hover:bg-[#F6FDF8] transition-colors">
+                        <div className="col-span-4 pl-2 font-medium text-[#2A4939] text-sm truncate pr-2" title={item.name}>{item.name}</div>
+                        <div className="col-span-3 text-xs text-[#64C08E] font-medium truncate pr-2">{item.expertise}</div>
+                        <div className="col-span-3">
+                           <StatusBadge status={item.status} variant="companion" />
+                        </div>
+                        <div className="col-span-2 text-xs text-gray-500 font-semibold">{item.appliedDate}</div>
+                     </div>
+                  ))}
+                  {recentCompanions.length === 0 && (
+                     <div className="p-8 text-center text-[#64C08E] font-bold text-sm">No recent applications</div>
+                  )}
+               </div>
+            </div>
+          </Card>
 
-        {/* Recent Bookings */}
-        <Card className="bg-white border-emerald-200 shadow-md">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-black">Recent Bookings</h2>
+          {/* Recent Bookings */}
+          <Card className="bg-white border-[#D5EEDD] rounded-2xl shadow-sm overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-[#EAFBF0] flex items-center justify-between bg-white">
+              <h2 className="text-xl font-bold text-[#1F4131]">Recent Bookings</h2>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("/admin/bookings")}
-                className="text-emerald-700 hover:text-black hover:bg-emerald-50"
+                className="text-[#34A46B] hover:text-[#1F4131] hover:bg-[#EAFBF0] font-bold rounded-lg"
               >
-                View All
-                <ArrowRight className="ml-2 w-4 h-4" />
+                View All <ArrowRight className="ml-1 w-4 h-4" />
               </Button>
             </div>
-            <AdminTable
-              data={recentBookings}
-              columns={[
-                {
-                  key: "id",
-                  header: "ID",
-                },
-                {
-                  key: "userName",
-                  header: "User",
-                },
-                {
-                  key: "companionName",
-                  header: "Companion",
-                  render: (item) => item.companionName || item.itemName || item.type,
-                },
-                {
-                  key: "status",
-                  header: "Status",
-                  render: (item) => <StatusBadge status={item.status} variant="booking" />,
-                },
-                {
-                  key: "date",
-                  header: "Date",
-                  render: (item) => (
-                    <span className="text-gray-700 text-sm">
-                      {item.date} {item.time}
-                    </span>
-                  ),
-                },
-              ]}
-              emptyMessage="No recent bookings"
-            />
-          </div>
-        </Card>
+            <div className="overflow-x-auto flex-1">
+               <div className="grid grid-cols-12 gap-2 bg-gradient-to-r from-[#B9EBD1] to-[#D5F2D9] p-3 text-[10px] font-bold text-[#1A4F35] tracking-widest uppercase">
+                  <div className="col-span-2 pl-2">ID</div>
+                  <div className="col-span-3">User</div>
+                  <div className="col-span-3">Target</div>
+                  <div className="col-span-2">Status</div>
+                  <div className="col-span-2">Date</div>
+               </div>
+               <div className="divide-y divide-[#E6F5EB]">
+                  {recentBookings.map((item) => (
+                     <div key={item.id} className="grid grid-cols-12 gap-2 p-3 items-center hover:bg-[#F6FDF8] transition-colors">
+                        <div className="col-span-2 pl-2">
+                           <span className="font-mono text-[10px] font-medium text-[#295641] bg-[#EAFBF0] px-1.5 py-0.5 rounded border border-[#BDE8CE] truncate block" title={item.id}>{item.id.substring(0, 6)}</span>
+                        </div>
+                        <div className="col-span-3 font-medium text-[#2A4939] text-sm truncate pr-2" title={item.userName}>{item.userName}</div>
+                        <div className="col-span-3 text-xs text-[#64C08E] font-medium truncate pr-2">{item.companionName || item.itemName || item.type}</div>
+                        <div className="col-span-2">
+                           <StatusBadge status={item.status} variant="booking" />
+                        </div>
+                        <div className="col-span-2">
+                           <div className="font-medium text-[#2A4939] text-xs truncate">{item.date}</div>
+                           <div className="text-[10px] text-gray-500 font-semibold truncate">{item.time}</div>
+                        </div>
+                     </div>
+                  ))}
+                  {recentBookings.length === 0 && (
+                     <div className="p-8 text-center text-[#64C08E] font-bold text-sm">No recent bookings</div>
+                  )}
+               </div>
+            </div>
+          </Card>
 
-        <Card className="bg-white border-emerald-200 shadow-md">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-black">Recent Registrations</h2>
+          {/* Recent Registrations */}
+          <Card className="bg-white border-[#D5EEDD] rounded-2xl shadow-sm overflow-hidden flex flex-col md:col-span-2 lg:col-span-1">
+            <div className="p-6 border-b border-[#EAFBF0] flex items-center justify-between bg-white">
+              <h2 className="text-xl font-bold text-[#1F4131]">Recent Registrations</h2>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("/admin/users")}
-                className="text-emerald-700 hover:text-black hover:bg-emerald-50"
+                className="text-[#34A46B] hover:text-[#1F4131] hover:bg-[#EAFBF0] font-bold rounded-lg"
               >
-                View All
-                <ArrowRight className="ml-2 w-4 h-4" />
+                View All <ArrowRight className="ml-1 w-4 h-4" />
               </Button>
             </div>
-            <AdminTable
-              data={recentRegistrations}
-              columns={[
-                {
-                  key: "name",
-                  header: "Name",
-                },
-                {
-                  key: "email",
-                  header: "Email",
-                },
-                {
-                  key: "createdAt",
-                  header: "Registered",
-                  render: (item) => (
-                    <span className="text-gray-700 text-sm">
-                      {new Date(item.createdAt).toLocaleDateString()} 
-                      {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  ),
-                },
-              ]}
-              emptyMessage="No recent registrations"
-            />
-          </div>
-        </Card>
-      </div>
-
-      {/* Landing Page Updates Section */}
-      <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-300 shadow-md">
-        <div className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-black mb-2">Landing Page Updates</h2>
-              <p className="text-gray-700 text-sm">
-                Easily update images and information for "What is Nirvaha" and "Explore Our Learning" sections
-              </p>
+            <div className="overflow-x-auto flex-1">
+               <div className="grid grid-cols-12 gap-4 bg-gradient-to-r from-[#B9EBD1] to-[#D5F2D9] p-3 text-[10px] font-bold text-[#1A4F35] tracking-widest uppercase">
+                  <div className="col-span-5 pl-4">Name</div>
+                  <div className="col-span-4">Email</div>
+                  <div className="col-span-3">Registered</div>
+               </div>
+               <div className="divide-y divide-[#E6F5EB]">
+                  {recentRegistrations.map((item) => (
+                     <div key={item.id} className="grid grid-cols-12 gap-4 p-3 items-center hover:bg-[#F6FDF8] transition-colors">
+                        <div className="col-span-5 pl-4 font-medium text-[#2A4939] text-sm truncate pr-2" title={item.name}>{item.name}</div>
+                        <div className="col-span-4 text-xs text-[#64C08E] font-medium truncate pr-2" title={item.email}>{item.email}</div>
+                        <div className="col-span-3">
+                           <div className="font-medium text-[#2A4939] text-xs">{new Date(item.createdAt).toLocaleDateString()}</div>
+                           <div className="text-[10px] text-gray-500 font-semibold">{new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                     </div>
+                  ))}
+                  {recentRegistrations.length === 0 && (
+                     <div className="p-8 text-center text-[#64C08E] font-bold text-sm">No recent registrations</div>
+                  )}
+               </div>
             </div>
-            <Button
-              onClick={() => navigate("/admin/content-update")}
-              className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white"
-            >
-              Manage Content
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
-          </div>
+          </Card>
+          
+          {/* Landing Page Updates Section */}
+          <Card className="bg-gradient-to-r from-[#EAFBF0] to-[#D5F2D9] border-[#BDE8CE] shadow-sm rounded-2xl flex items-center h-full">
+            <div className="p-6 w-full">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-[#1F4131] mb-2">Landing Page Updates</h2>
+                  <p className="text-[#329D66] text-sm font-medium">
+                    Easily update images and information for "What is Nirvaha" and "Explore Our Learning" sections
+                  </p>
+                </div>
+                <Button
+                  onClick={() => navigate("/admin/content-update")}
+                  className="bg-[#4EAA77] hover:bg-[#3C9162] text-white rounded-xl px-6 py-2.5 h-auto font-bold shadow-md shrink-0 ml-4"
+                >
+                  Manage Content
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </Card>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
