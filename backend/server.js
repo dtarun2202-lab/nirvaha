@@ -379,7 +379,6 @@ app.use('/api/companion', companionRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/bookings', bookingRoutes);
-app.use('/api/posts', postRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/profile', userRoutes);
 app.use('/api', utilityRoutes);
@@ -409,8 +408,8 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
 // Multi-file upload for meditation/sound content
 app.post('/api/upload/media', upload.fields([
   { name: 'thumbnail', maxCount: 1 },
-  { name: 'banner',    maxCount: 1 },
-  { name: 'audio',     maxCount: 1 },
+  { name: 'banner', maxCount: 1 },
+  { name: 'audio', maxCount: 1 },
 ]), (req, res) => {
   try {
     const BASE = process.env.BASE_URL || `http://localhost:${PORT}`;
