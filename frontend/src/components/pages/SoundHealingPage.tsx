@@ -1599,10 +1599,9 @@ export function SoundHealingPage() {
               </div>
             </div>
           </div>
-           </div>
-         </motion.div>
-       </div>
-       </div>
+        </motion.div>
+      </div>
+    </div>
 
       {/* MODAL PLAYER */}
       <AnimatePresence>
