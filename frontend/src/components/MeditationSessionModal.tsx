@@ -133,9 +133,14 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed top-0 left-0 w-[100vw] h-[100vh] z-[9999] flex flex-col items-center justify-center overflow-hidden"
+          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
           style={{ background: "radial-gradient(circle at center, #064E3B 0%, #022C22 100%)" }}
         >
+          {/* Decorative background glow */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/10 rounded-full blur-[120px]" />
+          </div>
+
           {/* Close Button Top Right */}
           <motion.button
             whileHover={{ scale: 1.1, rotate: 90 }}
@@ -157,7 +162,7 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
             </div>
           </div>
 
-          <div className="flex flex-col items-center w-full max-w-4xl px-4">
+          <div className="flex flex-col items-center w-full max-w-4xl px-6 relative z-10">
               {isCompleted ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.5 }}
@@ -179,7 +184,7 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
               ) : (
                 <>
                   {/* CENTRAL ANIMATION AREA */}
-                  <div className="relative w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] flex items-center justify-center mb-16">
+                  <div className="relative w-[220px] h-[220px] sm:w-[280px] sm:h-[280px] md:w-[350px] md:h-[350px] flex items-center justify-center mb-8 md:mb-12">
                     {/* Progress Ring */}
                     <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 500 500">
                       <circle
@@ -306,9 +311,8 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
                     )}
                   </div>
 
-                  {/* Timer & Controls */}
                   <div className="text-center z-20">
-                    <div className="text-7xl sm:text-8xl font-black text-white tabular-nums mb-6 tracking-tighter drop-shadow-lg">
+                    <div className="text-5xl sm:text-6xl font-black text-white tabular-nums mb-4 tracking-tighter drop-shadow-lg">
                       {formatTime(timeLeft)}
                     </div>
                     <div className="bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20 shadow-xl mb-10 inline-block">
