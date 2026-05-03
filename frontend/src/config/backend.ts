@@ -1,12 +1,12 @@
 // Backend configuration
 export const BACKEND_CONFIG = {
   // Production backend URL
-  API_URL: 'https://nirvaha-backend.onrender.com',
-  SOCKET_URL: 'https://nirvaha-backend.onrender.com',
+  API_URL: 'https://nirvaha-5cqj.onrender.com',
+  SOCKET_URL: 'https://nirvaha-5cqj.onrender.com',
 
   // Local development URL (prioritized for development)
-  LOCAL_API_URL: 'http://localhost:5000',
-  LOCAL_SOCKET_URL: 'http://localhost:5000',
+  LOCAL_API_URL: 'http://localhost:5001',
+  LOCAL_SOCKET_URL: 'http://localhost:5001',
 
   // Check if we're in development mode
   IS_DEVELOPMENT: import.meta.env.DEV ||
@@ -14,7 +14,7 @@ export const BACKEND_CONFIG = {
     window.location.hostname === '127.0.0.1',
 
   // Force local development (set to true for local development)
-  FORCE_LOCAL: true,
+  FORCE_LOCAL: false,
 
   // Get the appropriate URL based on environment
   get API_BASE_URL() {
