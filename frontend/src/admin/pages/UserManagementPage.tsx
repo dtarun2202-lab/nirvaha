@@ -205,61 +205,115 @@ export function UserManagementPage() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-black mb-2">User Management</h1>
-          <p className="text-gray-700">Monitor and manage user accounts and roles</p>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <Card className="bg-white border-gray-200 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="relative md:col-span-2">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Search by name or email..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-400"
-            />
+    <div className="p-6 bg-[#F4FAF6] min-h-screen -m-6 rounded-tl-3xl">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-[#1F4131] mb-2">User Management</h1>
+            <p className="text-[#64C08E] font-medium">Monitor and manage user accounts and roles</p>
           </div>
-          <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-full bg-white border-gray-200 text-black">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value="all">All Roles</SelectItem>
-              <SelectItem value="user">User</SelectItem>
-              <SelectItem value="companion">Companion</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-full bg-white border-gray-200 text-black">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="suspended">Suspended</SelectItem>
-              <SelectItem value="banned">Banned</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
-      </Card>
 
-      {/* Table */}
-      <Card className="bg-white border-gray-200">
-        <AdminTable
-          data={filteredUsers}
-          columns={columns}
-          emptyMessage="No users found"
-        />
-      </Card>
+        {/* Filters */}
+        <Card className="bg-white border-[#D5EEDD] p-6 rounded-3xl shadow-sm">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="relative md:col-span-2">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#86CDA6]" />
+              <Input
+                placeholder="Search by name or email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 bg-[#F8FCF9] border-[#BDE8CE] text-[#1F4131] placeholder:text-[#86CDA6] rounded-xl h-12 focus-visible:ring-[#5ABF88] font-medium transition-all hover:bg-white"
+              />
+            </div>
+            <Select value={roleFilter} onValueChange={setRoleFilter}>
+              <SelectTrigger className="w-full bg-[#F8FCF9] border-[#BDE8CE] text-[#1F4131] font-medium rounded-xl h-12 hover:bg-white transition-all">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-[#D5EEDD] rounded-xl shadow-lg">
+                <SelectItem value="all" className="focus:bg-[#EAFBF0] focus:text-[#1A4F35] font-medium cursor-pointer">All Roles</SelectItem>
+                <SelectItem value="user" className="focus:bg-[#EAFBF0] focus:text-[#1A4F35] font-medium cursor-pointer">User</SelectItem>
+                <SelectItem value="companion" className="focus:bg-[#EAFBF0] focus:text-[#1A4F35] font-medium cursor-pointer">Companion</SelectItem>
+                <SelectItem value="admin" className="focus:bg-[#EAFBF0] focus:text-[#1A4F35] font-medium cursor-pointer">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filter} onValueChange={setFilter}>
+              <SelectTrigger className="w-full bg-[#F8FCF9] border-[#BDE8CE] text-[#1F4131] font-medium rounded-xl h-12 hover:bg-white transition-all">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-[#D5EEDD] rounded-xl shadow-lg">
+                <SelectItem value="all" className="focus:bg-[#EAFBF0] focus:text-[#1A4F35] font-medium cursor-pointer">All Status</SelectItem>
+                <SelectItem value="active" className="focus:bg-[#EAFBF0] focus:text-[#1A4F35] font-medium cursor-pointer">Active</SelectItem>
+                <SelectItem value="suspended" className="focus:bg-[#EAFBF0] focus:text-[#1A4F35] font-medium cursor-pointer">Suspended</SelectItem>
+                <SelectItem value="banned" className="focus:bg-[#EAFBF0] focus:text-[#1A4F35] font-medium cursor-pointer">Banned</SelectItem>
+                <SelectItem value="pending" className="focus:bg-[#EAFBF0] focus:text-[#1A4F35] font-medium cursor-pointer">Pending</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </Card>
+
+        {/* Users List */}
+        <div className="space-y-4">
+          {/* Header Row */}
+          <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-white border border-[#D5EEDD] rounded-2xl shadow-sm text-sm font-bold text-[#1A4F35] uppercase tracking-wider hidden md:grid">
+            <div className="col-span-4">Name</div>
+            <div className="col-span-2">Role</div>
+            <div className="col-span-2">Status</div>
+            <div className="col-span-2">Join Date</div>
+            <div className="col-span-1 text-center">Active</div>
+            <div className="col-span-1 text-center">Actions</div>
+          </div>
+
+          {/* Data Rows */}
+          {filteredUsers.length === 0 ? (
+            <Card className="bg-white border-[#D5EEDD] p-12 text-center rounded-3xl shadow-sm">
+              <p className="text-[#64C08E] font-medium text-lg">No users found.</p>
+            </Card>
+          ) : (
+            filteredUsers.map((user) => (
+              <Card key={user.id} className="bg-white border-[#D5EEDD] p-4 md:p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow hover:border-[#BDE8CE] group">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                  <div className="col-span-1 md:col-span-4">
+                    <div className="font-bold text-[#1F4131] text-lg">{user.name}</div>
+                    <div className="text-sm font-medium text-[#64C08E]">{user.email}</div>
+                  </div>
+                  
+                  <div className="col-span-1 md:col-span-2 flex items-center">
+                    <span className="md:hidden text-[#1A4F35] font-bold text-sm uppercase tracking-wider w-24">Role:</span>
+                    {getRoleBadge(user.role)}
+                  </div>
+
+                  <div className="col-span-1 md:col-span-2 flex items-center">
+                    <span className="md:hidden text-[#1A4F35] font-bold text-sm uppercase tracking-wider w-24">Status:</span>
+                    <StatusBadge status={user.status} variant="user" />
+                  </div>
+
+                  <div className="col-span-1 md:col-span-2 flex items-center">
+                    <span className="md:hidden text-[#1A4F35] font-bold text-sm uppercase tracking-wider w-24">Joined:</span>
+                    <span className="text-[#3C9162] font-medium">{user.joinDate}</span>
+                  </div>
+
+                  <div className="col-span-1 md:col-span-1 flex md:justify-center items-center">
+                    <span className="md:hidden text-[#1A4F35] font-bold text-sm uppercase tracking-wider w-24">Active:</span>
+                    <span className="text-[#3C9162] font-medium">{user.lastActive.split("-").slice(1).join("/")}</span>
+                  </div>
+
+                  <div className="col-span-1 md:col-span-1 flex justify-end md:justify-center">
+                    <div className="opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                      <ActionMenu
+                        variant="user"
+                        onView={() => handleView(user)}
+                        onSuspend={() => handleAction("suspend", user)}
+                        onEdit={() => handleAction("change-role", user)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))
+          )}
+        </div>
 
       {/* View User Modal */}
       <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
@@ -374,6 +428,7 @@ export function UserManagementPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

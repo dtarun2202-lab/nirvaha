@@ -4,6 +4,7 @@ import { Toaster as Sonner } from './components/ui/sonner';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { SocketProvider } from './contexts/SocketContext';
+import BreathingPage from "./pages/BreathingPage";
 import LandingPage from './pages/LandingPage';
 import NirvahaAcademyPage from './pages/NirvahaAcademyPage';
 import Login from './pages/auth/Login';
@@ -76,6 +77,7 @@ function AppInner() {
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/breathing" element={<BreathingPage />} />
 
         {/* Dashboard Routes - Protected */}
         <Route

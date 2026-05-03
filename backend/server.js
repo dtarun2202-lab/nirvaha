@@ -24,6 +24,7 @@ const postRoutes = require('./routes/postRoutes');
 const landingRoutes = require('./modules/landing/landing.routes');
 const contactRoutes = require('./modules/contact/contact.routes');
 
+const userRoutes = require('./routes/userRoutes');
 
 // Import models for seeding
 const User = require('./models/User');
@@ -387,6 +388,7 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/landing', landingRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api', utilityRoutes);
 
 // Legacy route compatibility (for existing frontend code)
@@ -408,6 +410,27 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ error: 'File upload failed', message: error.message });
+  }
+});
+
+// Multi-file upload for meditation/sound content
+app.post('/api/upload/media', upload.fields([
+  { name: 'thumbnail', maxCount: 1 },
+  { name: 'banner',    maxCount: 1 },
+  { name: 'audio',     maxCount: 1 },
+]), (req, res) => {
+  try {
+    const BASE = process.env.BASE_URL || `http://localhost:${PORT}`;
+    const result = {};
+    ['thumbnail', 'banner', 'audio'].forEach(field => {
+      if (req.files && req.files[field] && req.files[field][0]) {
+        result[`${field}Url`] = `${BASE}/uploads/${req.files[field][0].filename}`;
+      }
+    });
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('Media upload error:', error);
+    res.status(500).json({ error: 'Media upload failed', message: error.message });
   }
 });
 

@@ -28,16 +28,26 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
   // Initialize session
   useEffect(() => {
     if (isOpen && session) {
+      document.body.style.overflow = "hidden";
       const durationSeconds = 60; // 1 minute for demo
       setTimeLeft(durationSeconds);
       setTotalDuration(durationSeconds);
       setIsPaused(false);
       setIsCompleted(false);
       const timer = setTimeout(() => setIsLoaded(true), 100);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        document.body.style.overflow = "unset";
+      };
     } else {
       setIsLoaded(false);
+      document.body.style.overflow = "unset";
     }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [isOpen, session]);
 
   // Breathing Phase Logic
@@ -119,59 +129,54 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
   return (
     <AnimatePresence>
       {isOpen && session && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-[#064E3B]/20 backdrop-blur-xl"
-            onClick={onClose}
-          />
-          
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative bg-white rounded-[32px] shadow-lg max-w-[520px] w-full overflow-hidden border border-white/40"
-            style={{ background: "radial-gradient(circle at center, #F0FDF4 0%, #FFFFFF 100%)" }}
-          >
-            {/* Header Area */}
-            <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-20">
-              <div className="flex items-center gap-3 bg-white/40 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/60 shadow-sm">
-                <div className="w-6 h-6 bg-[#2D6A4F] rounded-lg flex items-center justify-center shadow-sm">
-                  <session.icon className="w-3 h-3 text-white" />
-                </div>
-                <div>
-                  <h4 className="text-[#1B4332] text-xs font-black leading-tight">{session.title}</h4>
-                  <p className="text-[8px] font-bold text-[#2D6A4F] uppercase tracking-widest opacity-60">Step 2 of 5</p>
-                </div>
-              </div>
-              
-              <motion.button
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={onClose}
-                className="w-8 h-8 bg-white/60 backdrop-blur-sm rounded-xl flex items-center justify-center text-gray-500 border border-white/80 shadow-sm transition-all"
-              >
-                <X className="w-4 h-4" />
-              </motion.button>
-            </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
+          style={{ background: "radial-gradient(circle at center, #064E3B 0%, #022C22 100%)" }}
+        >
+          {/* Decorative background glow */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/10 rounded-full blur-[120px]" />
+          </div>
 
-            <div className="p-8 pt-24 flex flex-col items-center">
+          {/* Close Button Top Right */}
+          <motion.button
+            whileHover={{ scale: 1.1, rotate: 90 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={onClose}
+            className="absolute top-6 right-6 w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20 shadow-lg transition-all hover:bg-white/20 z-50"
+          >
+            <X className="w-6 h-6" />
+          </motion.button>
+
+          {/* Header Area */}
+          <div className="absolute top-8 left-8 flex items-center gap-4 z-20">
+            <div className="w-12 h-12 bg-[#2D6A4F]/50 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/10">
+              <session.icon className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h4 className="text-white text-xl font-black leading-tight">{session.title}</h4>
+              <p className="text-xs font-bold text-green-300 uppercase tracking-widest opacity-80">Step 2 of 5</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center w-full max-w-4xl px-6 relative z-10">
               {isCompleted ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="flex flex-col items-center py-6"
+                  className="flex flex-col items-center py-6 text-white"
                 >
-                  <div className="w-20 h-20 bg-[#F0FDF4] rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-green-900/10">
-                    <CheckCircle className="w-10 h-10 text-[#16a34a]" />
+                  <div className="w-24 h-24 bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl flex items-center justify-center mb-6 shadow-2xl">
+                    <CheckCircle className="w-12 h-12 text-green-400" />
                   </div>
-                  <h2 className="text-[#1B4332] text-xl font-black mb-1 tracking-tight">Well Done, {user?.name?.split(" ")[0]}!</h2>
-                  <p className="text-[#2D6A4F] font-bold text-xs opacity-60 mb-6">You've successfully completed your mindfulness practice.</p>
+                  <h2 className="text-white text-3xl font-black mb-2 tracking-tight">Well Done, {user?.name?.split(" ")[0]}!</h2>
+                  <p className="text-green-200 font-bold text-sm opacity-80 mb-8">You've successfully completed your mindfulness practice.</p>
                   <button
                     onClick={onClose}
-                    className="px-8 py-3 bg-[#1B4332] text-white rounded-2xl shadow-lg hover:shadow-xl transition-all font-black text-sm"
+                    className="px-10 py-4 bg-white text-[#064E3B] rounded-2xl shadow-lg hover:shadow-xl transition-all font-black text-lg"
                   >
                     Close Session
                   </button>
@@ -179,23 +184,23 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
               ) : (
                 <>
                   {/* CENTRAL ANIMATION AREA */}
-                  <div className="relative w-52 h-52 flex items-center justify-center mb-10">
+                  <div className="relative w-[220px] h-[220px] sm:w-[280px] sm:h-[280px] md:w-[350px] md:h-[350px] flex items-center justify-center mb-8 md:mb-12">
                     {/* Progress Ring */}
-                    <svg className="absolute inset-0 w-full h-full -rotate-90">
+                    <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 500 500">
                       <circle
-                        cx="104" cy="104" r="96"
-                        className="stroke-[#2D6A4F]/5"
-                        strokeWidth="4"
+                        cx="250" cy="250" r="240"
+                        className="stroke-white/10"
+                        strokeWidth="8"
                         fill="none"
                       />
                       <motion.circle
-                        cx="104" cy="104" r="96"
-                        className="stroke-[#2D6A4F]"
-                        strokeWidth="4"
+                        cx="250" cy="250" r="240"
+                        className="stroke-green-400"
+                        strokeWidth="8"
                         fill="none"
-                        strokeDasharray="603.19"
-                        initial={{ strokeDashoffset: 603.19 }}
-                        animate={{ strokeDashoffset: 603.19 - (603.19 * progress) / 100 }}
+                        strokeDasharray="1507.96"
+                        initial={{ strokeDashoffset: 1507.96 }}
+                        animate={{ strokeDashoffset: 1507.96 - (1507.96 * progress) / 100 }}
                         transition={{ duration: 1 }}
                         strokeLinecap="round"
                       />
@@ -203,21 +208,21 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
 
                     {/* 1. Breathing Guide (Morning Breath Work) */}
                     {(session.sessionType === "breath" || session.title.includes("Breath")) && (
-                      <div className="relative flex flex-col items-center">
+                      <div className="relative flex flex-col items-center justify-center w-full h-full">
                         <motion.div
                           animate={{
-                            scale: isPaused ? 1 : breathPhase === "Inhale" ? 1.3 : breathPhase === "Hold" ? 1.3 : 1,
-                            backgroundColor: breathPhase === "Inhale" ? "#52B788" : breathPhase === "Exhale" ? "#B7E4C7" : "#40916C"
+                            scale: isPaused ? 1 : breathPhase === "Inhale" ? 1.5 : breathPhase === "Hold" ? 1.5 : 1,
+                            backgroundColor: breathPhase === "Inhale" ? "rgba(82, 183, 136, 0.9)" : breathPhase === "Exhale" ? "rgba(183, 228, 199, 0.8)" : "rgba(64, 145, 108, 0.9)"
                           }}
                           transition={{ duration: 4, ease: "easeInOut" }}
-                          className="w-40 h-40 rounded-full shadow-lg flex flex-col items-center justify-center text-white relative z-10"
+                          className="w-56 h-56 sm:w-72 sm:h-72 rounded-full shadow-2xl flex flex-col items-center justify-center text-white relative z-10 backdrop-blur-md border border-white/20"
                         >
-                          <Wind className="w-10 h-10 mb-1 opacity-80" />
-                          <span className="text-sm font-black uppercase tracking-widest">{breathPhase}</span>
+                          <Wind className="w-16 h-16 sm:w-20 sm:h-20 mb-2 opacity-90" />
+                          <span className="text-xl sm:text-2xl font-black uppercase tracking-[0.3em]">{breathPhase}</span>
                           
                           {/* Inner Pulse */}
                           <motion.div 
-                            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                            animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.5, 0.2] }}
                             transition={{ duration: 4, repeat: Infinity }}
                             className="absolute inset-0 rounded-full bg-white/20"
                           />
@@ -225,9 +230,9 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
                         
                         {/* Glow Rings */}
                         <motion.div
-                          animate={{ scale: breathPhase === "Inhale" ? 1.5 : 1.1, opacity: [0.1, 0.2, 0.1] }}
+                          animate={{ scale: breathPhase === "Inhale" ? 2 : 1.2, opacity: [0.1, 0.3, 0.1] }}
                           transition={{ duration: 4 }}
-                          className="absolute w-40 h-40 rounded-full bg-[#52B788]/20 blur-lg"
+                          className="absolute w-56 h-56 sm:w-72 sm:h-72 rounded-full bg-[#52B788]/30 blur-2xl"
                         />
                       </div>
                     )}
@@ -239,30 +244,30 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
                         <motion.div
                           animate={{ rotate: 360 }}
                           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                          className="absolute w-48 h-48 border-2 border-dashed border-[#2D6A4F]/20 rounded-full"
+                          className="absolute w-64 h-64 sm:w-80 sm:h-80 border-2 border-dashed border-white/20 rounded-full"
                         />
                         
                         {/* Chakra Dots */}
-                        <div className="flex flex-col gap-4 relative z-10">
+                        <div className="flex flex-col gap-6 relative z-10">
                           {[0, 1, 2, 3, 4].map((i) => (
                             <motion.div
                               key={i}
                               animate={{
                                 opacity: isPaused ? 0.3 : [0.3, 1, 0.3],
-                                scale: [1, 1.2, 1],
-                                boxShadow: ["0 0 0px rgba(45, 106, 79, 0)", "0 0 20px rgba(45, 106, 79, 0.4)", "0 0 0px rgba(45, 106, 79, 0)"]
+                                scale: [1, 1.5, 1],
+                                boxShadow: ["0 0 0px rgba(255,255,255, 0)", "0 0 30px rgba(255,255,255, 0.6)", "0 0 0px rgba(255,255,255, 0)"]
                               }}
                               transition={{ duration: 3, repeat: Infinity, delay: i * 0.4 }}
-                              className="w-4 h-4 rounded-full bg-[#2D6A4F]"
+                              className="w-6 h-6 rounded-full bg-white"
                             />
                           ))}
                         </div>
                         
                         {/* Rising Energy Effect */}
                         <motion.div
-                          animate={{ y: [-40, -140], opacity: [0, 0.6, 0] }}
+                          animate={{ y: [-40, -200], opacity: [0, 0.8, 0] }}
                           transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                          className="absolute bottom-20 w-1 h-20 bg-gradient-to-t from-transparent via-[#52B788] to-transparent blur-sm"
+                          className="absolute bottom-10 w-2 h-40 bg-gradient-to-t from-transparent via-green-400 to-transparent blur-md"
                         />
                       </div>
                     )}
@@ -271,14 +276,14 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
                     {(session.sessionType === "relax" || session.title.includes("Relaxation")) && (
                       <div className="relative flex items-center justify-center w-full h-full">
                         {/* Particle Stars */}
-                        {[...Array(12)].map((_, i) => (
+                        {[...Array(20)].map((_, i) => (
                           <motion.div
                             key={i}
                             animate={{
-                              y: [0, Math.random() * -100 - 50],
-                              x: [0, (Math.random() - 0.5) * 100],
-                              opacity: [0, 0.8, 0],
-                              scale: [0, 1, 0]
+                              y: [0, Math.random() * -200 - 100],
+                              x: [0, (Math.random() - 0.5) * 200],
+                              opacity: [0, 1, 0],
+                              scale: [0, 1.5, 0]
                             }}
                             transition={{
                               duration: 5 + Math.random() * 3,
@@ -287,32 +292,31 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
                             }}
                             className="absolute"
                           >
-                            <Star className="w-3 h-3 text-[#2D6A4F] fill-[#2D6A4F] opacity-40" />
+                            <Star className="w-4 h-4 text-white fill-white opacity-60" />
                           </motion.div>
                         ))}
                         
                         <motion.div
                           animate={{
-                            scale: [1, 1.05, 1],
-                            boxShadow: ["0 0 20px rgba(45, 106, 79, 0.1)", "0 0 40px rgba(45, 106, 79, 0.2)", "0 0 20px rgba(45, 106, 79, 0.1)"]
+                            scale: [1, 1.1, 1],
+                            boxShadow: ["0 0 30px rgba(255,255,255, 0.1)", "0 0 60px rgba(255,255,255, 0.3)", "0 0 30px rgba(255,255,255, 0.1)"]
                           }}
                           transition={{ duration: 8, repeat: Infinity }}
-                          className="w-36 h-36 bg-white border-2 border-[#2D6A4F]/10 rounded-full flex flex-col items-center justify-center text-[#2D6A4F] shadow-inner"
+                          className="w-48 h-48 sm:w-64 sm:h-64 bg-white/5 backdrop-blur-md border border-white/20 rounded-full flex flex-col items-center justify-center text-white shadow-2xl"
                         >
-                          <Moon className="w-8 h-8 mb-1 opacity-60" />
-                          <span className="text-[9px] font-black uppercase tracking-widest opacity-60 italic">Let go...</span>
+                          <Moon className="w-12 h-12 sm:w-16 sm:h-16 mb-2 opacity-80" />
+                          <span className="text-sm sm:text-base font-black uppercase tracking-widest opacity-80 italic">Let go...</span>
                         </motion.div>
                       </div>
                     )}
                   </div>
 
-                  {/* Timer & Controls */}
-                  <div className="text-center">
-                    <div className="text-6xl font-black text-[#1B4332] tabular-nums mb-4 tracking-tighter">
+                  <div className="text-center z-20">
+                    <div className="text-5xl sm:text-6xl font-black text-white tabular-nums mb-4 tracking-tighter drop-shadow-lg">
                       {formatTime(timeLeft)}
                     </div>
-                    <div className="bg-white/40 backdrop-blur-sm px-5 py-2 rounded-xl border border-white/60 shadow-sm mb-8 inline-block">
-                      <p className="text-xs font-black text-[#2D6A4F] uppercase tracking-[0.2em]">
+                    <div className="bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20 shadow-xl mb-10 inline-block">
+                      <p className="text-sm sm:text-base font-black text-green-100 uppercase tracking-[0.3em]">
                         {isPaused ? "Paused" : 
                           (session.sessionType === "breath" || session.title.includes("Breath")) ? "Focus on your breath" :
                           (session.sessionType === "chakra" || session.title.includes("Chakra")) ? "Align your inner energy" :
@@ -321,23 +325,23 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-3 justify-center">
+                    <div className="flex items-center gap-4 justify-center">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setIsPaused(!isPaused)}
-                        className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/40 transition-all ${
-                          isPaused ? "bg-[#1B4332] text-white" : "bg-white/60 text-[#1B4332]"
+                        className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl backdrop-blur-md border transition-all ${
+                          isPaused ? "bg-white text-[#064E3B] border-white" : "bg-white/10 text-white border-white/20 hover:bg-white/20"
                         }`}
                       >
-                        {isPaused ? <Play className="w-6 h-6 ml-0.5" /> : <Pause className="w-6 h-6" />}
+                        {isPaused ? <Play className="w-8 h-8 ml-1" /> : <Pause className="w-8 h-8" />}
                       </motion.button>
                       
                       <motion.button
-                        whileHover={{ scale: 1.05, backgroundColor: "#dcfce7" }}
+                        whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={onClose}
-                        className="px-8 py-3 bg-green-50 text-green-700 rounded-xl font-black text-sm shadow-lg shadow-green-900/10 border border-green-100 transition-all"
+                        className="px-10 py-5 bg-white/10 text-white rounded-2xl font-black text-lg shadow-2xl backdrop-blur-md border border-white/20 transition-all hover:bg-white/20 hover:text-red-300"
                       >
                         End Session
                       </motion.button>
@@ -347,7 +351,6 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
               )}
             </div>
           </motion.div>
-        </div>
       )}
     </AnimatePresence>
   );

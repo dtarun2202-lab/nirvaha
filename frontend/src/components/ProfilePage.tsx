@@ -112,9 +112,9 @@ export function ProfilePage() {
   ];
 
   // Merge API data with auth user data
-  const stats = profileData?.stats || {};
+  const stats = profileData?.stats || user?.stats || {};
   const displayBio = profileData?.bio || user?.bio || "🌿 You're building consistency — keep going.";
-  const displayLocation = (profileData?.location || user?.location || "Hyderabad, India").replace(/Mumbai/gi, "Hyderabad");
+  const displayLocation = (profileData?.location || user?.location || "Hyderabad, India");
   const weeklyData = [
     { day: "Mon", minutes: stats.weeklyMinutes?.[0] || 12 },
     { day: "Tue", minutes: stats.weeklyMinutes?.[1] || 18 },
@@ -166,12 +166,18 @@ export function ProfilePage() {
       if (!user?.id) return;
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile?userId=${user.id}`, {
+        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/users/profile?userId=${user.id}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
-        if (res.ok) setProfileData(await res.json());
+        if (res.ok) {
+          const data = await res.json();
+          setProfileData(data);
+          // If the fetched user has a bio/location, we can use them
+          if (data.bio) setProfileData(prev => ({ ...prev, bio: data.bio }));
+          if (data.location) setProfileData(prev => ({ ...prev, location: data.location }));
+        }
       } catch (e) { console.error(e); }
     };
     loadProfile();
@@ -198,7 +204,7 @@ export function ProfilePage() {
     reader.onloadend = async () => {
       const base64 = reader.result as string;
       try {
-        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/update`, {
+        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/users/profile/update`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: user?.id, avatar: base64 })
@@ -319,7 +325,7 @@ export function ProfilePage() {
               <div className="flex-1">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h1 className="text-[#1B4332] mb-2 font-black tracking-tight">{user?.name || "Gayar Sathvika"}</h1>
+                    <h1 className="text-[#1B4332] mb-2 font-black tracking-tight">{user?.name || profileData?.name || "Gayar Sathvika"}</h1>
                     <p className="text-[#2D6A4F] font-medium mb-4 italic">🌿 “You’re building consistency — keep going.”</p>
                     <div className="flex flex-wrap gap-4">
                       <div className="flex items-center gap-2 text-sm text-[#1B4332]/70 font-semibold bg-white/40 px-3 py-1.5 rounded-full border border-white/50">
@@ -356,15 +362,15 @@ export function ProfilePage() {
 
                 <div className="grid grid-cols-3 gap-6 mt-6">
                   <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 border border-white/60 shadow-sm text-center">
-                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.meditationMinutes ?? 0}</div>
-                    <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Meditation Minutes</div>
+                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.totalMinutes ?? 0}</div>
+                    <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Total Minutes</div>
                   </div>
                   <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 border border-white/60 shadow-sm text-center">
-                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.soundMinutes ?? 0}</div>
-                    <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Sound Minutes</div>
+                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.streak ?? 0}</div>
+                    <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Day Streak</div>
                   </div>
                   <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 border border-white/60 shadow-sm text-center">
-                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.sessions ?? 0}</div>
+                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.sessionsPlayed ?? 0}</div>
                     <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Total Sessions</div>
                   </div>
                 </div>
