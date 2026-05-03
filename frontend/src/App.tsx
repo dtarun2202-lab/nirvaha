@@ -56,7 +56,7 @@ const DashboardRoutes = () => (
     <Route path="meditation" element={<><MeditationPage /><DashboardFooter /></>} />
     <Route path="sound" element={<><SoundHealingPage /><DashboardFooter /></>} />
     <Route path="community" element={<><CommunityPage /><DashboardFooter /></>} />
-    <Route path="chatbot" element={<><ChatbotPage /><DashboardFooter /></>} />
+    <Route path="chatbot" element={<ChatbotPage />} />
     <Route path="marketplace" element={<><MarketplacePage /><DashboardFooter /></>} />
     <Route path="companion" element={<><CompanionPage /><DashboardFooter /></>} />
     <Route path="profile" element={<><ProfilePage /><DashboardFooter /></>} />

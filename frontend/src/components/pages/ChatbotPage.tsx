@@ -14,11 +14,13 @@ import {
 import { useEffect, useMemo, useState, useRef } from "react";
 import TextType from "../TextType";
 import { BACKEND_CONFIG } from "@/config/backend";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Message = { type: "ai" | "user"; content: string; timestamp: string };
 type Session = { id: string; title: string; messages: Message[]; createdAt: number; updatedAt: number };
 
 export function ChatbotPage() {
+  const { user } = useAuth();
   const initialMessage: Message = useMemo(
     () => ({
       type: "ai",
@@ -86,62 +88,39 @@ export function ChatbotPage() {
 
   const generateAIResponse = (message: string): string => {
     const lower = message.toLowerCase();
-    const trimmed = message.trim();
     
-    // Greeting responses
-    if (lower.includes("hello") || lower.includes("hi") || lower.includes("namaste") || lower.includes("hey")) {
-      return "Namaste 🙏 Welcome back. How are you feeling in this moment? I'm here to guide you.";
+    // Feature-specific responses
+    if (lower.includes("meditat")) {
+      return "Meditation is the heart of Nirvaha. You can explore our curated sessions in the Meditation section to find your inner calm. Would you like me to guide you through a simple breathing technique now? 🧘‍♀️";
+    }
+    if (lower.includes("sound") || lower.includes("music") || lower.includes("healing")) {
+      return "Sound Healing uses vibrational frequencies to restore balance. Check out our All Sound Healing Sessions for a deep immersive experience. 🎵";
+    }
+    if (lower.includes("companion") || lower.includes("mentor") || lower.includes("expert")) {
+      return "Our Nirvaha Companions are here for personalized support. You can browse through our mentors in the Companion section to find a guide that resonates with you. 🤝";
+    }
+    if (lower.includes("marketplace") || lower.includes("buy") || lower.includes("product")) {
+      return "In the Nirvaha Marketplace, you'll find curated wellness products, from crystals to essential oils, all designed to support your spiritual practice. 🛍️";
+    }
+    if (lower.includes("community") || lower.includes("post") || lower.includes("share")) {
+      return "The Nirvaha Community is a safe space to share your journey and connect with others. You can see what others are reflecting on in the Community feed. 🌿";
+    }
+
+    // Emotional responses
+    if (lower.includes("stress") || lower.includes("overwhelm") || lower.includes("anxious")) {
+      return "I hear you. Stress is your body asking for rest. Let's try a simple pause: inhale for 4 counts, hold for 4, exhale for 4. You are safe here. 🌬️";
     }
     
-    // Stress/overwhelm responses
-    if (lower.includes("stress") || lower.includes("stressed") || lower.includes("overwhelm") || lower.includes("overwhelmed")) {
-      return "I hear you. Stress is your body asking for rest. Let's try the 4-7-8 breath: inhale for 4 counts, hold for 7, exhale for 8. Repeat 3 times. How do you feel after? 🌬️";
+    if (lower.includes("sad") || lower.includes("lonely") || lower.includes("depress")) {
+      return "I'm so sorry you're feeling this way. Remember that sadness is a visitor, not a resident. I'm here to listen. What's on your mind? 💙";
     }
-    
-    // Anxiety responses
-    if (lower.includes("anxious") || lower.includes("anxiety") || lower.includes("fear") || lower.includes("scared")) {
-      return "Anxiety often lives in the future. Bring yourself back to this moment. Feel your feet on the floor. Take one slow breath. You are here, and you are okay. 🌸";
+
+    if (lower.includes("hello") || lower.includes("hi") || lower.includes("namaste")) {
+      return "Namaste 🙏 I am your NIRVAHA AI spiritual guide. How are you feeling in this moment? I am here to support your reflection.";
     }
-    
-    // Meditation responses
-    if (lower.includes("meditat") || lower.includes("mindful") || lower.includes("focus")) {
-      return "Meditation begins with one breath. Sit comfortably, close your eyes, and simply observe your breath without changing it. Start with just 5 minutes. 🧘‍♀️";
-    }
-    
-    // Sleep responses
-    if (lower.includes("sleep") || lower.includes("insomnia") || lower.includes("can't sleep")) {
-      return "For better sleep, try yoga nidra — lie down, close your eyes, and slowly scan your body from toes to crown, releasing tension at each point. 🌙";
-    }
-    
-    // Sadness responses
-    if (lower.includes("sad") || lower.includes("sadness") || lower.includes("grief") || lower.includes("lonely")) {
-      return "Sadness is a visitor, not a resident. Allow yourself to feel without judgment. What would comfort you right now? A warm drink? A gentle walk? 💙";
-    }
-    
-    // Question responses
-    if (trimmed.includes("?") || lower.includes("how") || lower.includes("what") || lower.includes("why")) {
-      return "That's a thoughtful question. Let's explore this together. What aspects would you like to understand better? 🌿";
-    }
-    
-    // Feeling/emotion responses
-    if (lower.includes("feel") || lower.includes("feeling") || lower.includes("emotion")) {
-      return "Feelings are our inner guidance system. What emotion are you noticing right now? There's no judgment here — only presence. 💙";
-    }
-    
-    // Help responses
-    if (lower.includes("help") || lower.includes("help me") || lower.includes("support")) {
-      return "I'm here to support you. What would be most helpful right now: breathing exercises, meditation guidance, or just someone to listen? 🌿";
-    }
-    
-    // Default responses
-    const defaults = [
-      "That's a meaningful reflection. Can you tell me more about what you're experiencing? I'm here to listen and guide. 🙏",
-      "I hear you. Sometimes the most powerful thing we can do is simply pause and breathe. What does your body feel right now? 🌿",
-      "Every feeling is valid. Let's explore this together — what would feel most supportive for you right now? 💙",
-      "Thank you for sharing that with me. Your awareness is the first step toward healing. What would you like to explore next? 🕉️"
-    ];
-    
-    return defaults[Math.floor(Math.random() * defaults.length)];
+
+    // Default
+    return "That's a deep reflection. I'm listening with an open heart. Can you tell me more about how that makes you feel? 🌿";
   };
 
   const handleSend = async () => {
@@ -171,12 +150,12 @@ export function ChatbotPage() {
     setInputValue("");
     setIsTyping(true);
 
-    // Try backend first, fallback to frontend AI
+    // Try backend first
     try {
-      const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/chat`, {
+      const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/reflect`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: sentMessage }),
+        body: JSON.stringify({ message: sentMessage, userId: user?.id }),
       });
 
       if (res.ok) {
@@ -197,8 +176,9 @@ export function ChatbotPage() {
       } else {
         throw new Error("Backend not responding");
       }
-    } catch {
-      // Use frontend AI response system
+    } catch (error) {
+      console.error("AI Reflection Error:", error);
+      // Use frontend AI response system as fallback
       const replyText = generateAIResponse(sentMessage);
       
       const aiResponse: Message = {
@@ -259,59 +239,12 @@ export function ChatbotPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden relative">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
-        <div 
-          className="absolute inset-0 opacity-30"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-          }}
-        ></div>
-        
-        {/* Floating Animation Elements */}
-        <motion.div 
-          className="absolute top-20 left-20 w-32 h-32 bg-emerald-200/20 rounded-full blur-3xl"
-          animate={{
-            x: [0, 30, 0],
-            y: [0, -20, 0],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div 
-          className="absolute bottom-20 right-20 w-40 h-40 bg-teal-200/20 rounded-full blur-3xl"
-          animate={{
-            x: [0, -40, 0],
-            y: [0, 30, 0],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2
-          }}
-        />
-        <motion.div 
-          className="absolute top-1/2 left-1/3 w-36 h-36 bg-cyan-200/15 rounded-full blur-3xl"
-          animate={{
-            x: [0, 25, -25, 0],
-            y: [0, -30, 20, 0],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 4
-          }}
-        />
-      </div>
-      
-      {/* Content Container */}
-      <div className="relative z-10 flex h-full w-full text-[#1A2E2A]">
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-white z-50">
+      {/* Navigation Padding Adjustment */}
+      <div className="h-16 shrink-0" /> 
+
+      {/* Main Layout Container */}
+      <div className="flex flex-1 overflow-hidden relative text-[#1A2E2A]">
       {/* ChatGPT Style Sidebar - Minimal & Refined */}
       <AnimatePresence mode="wait">
         {isSidebarOpen && (
@@ -319,7 +252,7 @@ export function ChatbotPage() {
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: 260, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
-            className="h-full flex flex-col border-r border-white/5 relative z-30 shadow-2xl pt-20"
+            className="h-full flex flex-col border-r border-white/5 relative z-30 shadow-2xl"
             style={{ background: 'linear-gradient(180deg, #0C3B2E 0%, #05291F 100%)' }}
           >
             <div className="p-5 flex flex-col h-full">
@@ -397,19 +330,17 @@ export function ChatbotPage() {
           />
         </div>
         
-        {/* Chat Content */}
-        <div className="relative z-10 flex-1 flex flex-col">
         {/* Toggle Sidebar Button */}
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-40 p-1.5 hover:bg-gray-100 rounded-md text-gray-400 transition-colors"
+          className="absolute left-4 top-4 z-40 p-1.5 hover:bg-gray-100 rounded-md text-gray-400 transition-colors"
           title={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
         >
           <ChevronLeft className={`w-4 h-4 transition-transform duration-300 ${!isSidebarOpen ? 'rotate-180' : ''}`} />
         </button>
 
         {/* Top Header - Simple */}
-        <header className="h-14 flex items-center justify-between px-4 border-b border-gray-50 bg-white/80 backdrop-blur-sm sticky top-0 z-20 relative">
+        <header className="h-14 shrink-0 flex items-center justify-between px-4 border-b border-gray-50 bg-white/80 backdrop-blur-sm z-20">
           <div className="flex items-center gap-3">
              <div className="w-6 h-6 rounded-md bg-[#2D6A4F] flex items-center justify-center">
                 <BrainCircuit className="w-4 h-4 text-white" />
@@ -422,7 +353,10 @@ export function ChatbotPage() {
         </header>
 
         {/* Chat / Empty State Container */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center relative z-10">
+        <div 
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center relative z-10 w-full"
+        >
           {messages.length === 0 && !inputValue ? (
             /* EMPTY STATE */
             <div className="flex-1 flex flex-col items-center justify-center w-full max-w-2xl px-6 py-12 text-center">
@@ -552,13 +486,12 @@ export function ChatbotPage() {
                   </div>
                 </div>
               )}
-              <div ref={scrollRef} />
             </div>
           )}
         </div>
 
         {/* Center Bottom Input Area */}
-        <div className="w-full max-w-2xl mx-auto p-4 pb-8 relative z-10">
+        <div className="w-full shrink-0 max-w-2xl mx-auto p-4 pb-8 z-10">
           <div className="relative flex items-center bg-white rounded-full px-4 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.06)] border border-gray-100 focus-within:border-[#2D6A4F]/30 focus-within:ring-6 focus-within:ring-[#2D6A4F]/5 transition-all duration-500">
             <button 
               onClick={startNewChat}
@@ -614,7 +547,6 @@ export function ChatbotPage() {
           <p className="mt-4 text-[11px] text-center text-[#1A2E2A]/70 font-semibold tracking-wide">
              Your safe space for inner reflection • NIRVAHA AI
           </p>
-        </div>
         </div>
       </main>
 
