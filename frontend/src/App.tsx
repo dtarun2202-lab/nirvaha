@@ -43,6 +43,7 @@ import { SoundHealingContent } from "./admin/pages/content/SoundHealingContent";
 import { ProductsContent } from "./admin/pages/content/ProductsContent";
 import { ContentUpdatePage } from "./admin/pages/ContentUpdatePage";
 import { MarketplaceManagementPage } from "./admin/pages/MarketplaceManagementPage";
+import { ContactManagementPage } from "./admin/pages/ContactManagementPage";
 
 /**
  * Dashboard Routes Component
@@ -103,6 +104,7 @@ function AppInner() {
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="bookings" element={<BookingManagementPage />} />
           <Route path="companions" element={<CompanionManagementPage />} />
+          <Route path="inquiries" element={<ContactManagementPage />} />
           <Route path="marketplace" element={<MarketplaceManagementPage />} />
           <Route path="content-update" element={<ContentUpdatePage />} />
           <Route path="content" element={<ContentManagementPage />} />

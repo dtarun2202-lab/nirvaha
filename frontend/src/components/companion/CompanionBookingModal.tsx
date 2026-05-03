@@ -20,6 +20,7 @@ import {
   Leaf
 } from 'lucide-react';
 import { Calendar } from '../ui/calendar';
+import { createBooking } from '@/lib/bookingApi';
 
 interface Companion {
   id: string;
@@ -137,11 +138,33 @@ const CompanionBookingModal: React.FC<CompanionBookingModalProps> = ({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [handleEscape]);
 
-  const nextStep = () => {
-    if (currentStep < totalSteps) setCurrentStep(currentStep + 1);
-    else {
-      alert("Booking confirmed! Redirecting to payment...");
-      onClose();
+  const nextStep = async () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      try {
+        const userRaw = localStorage.getItem('nirvaha_user');
+        const user = userRaw ? JSON.parse(userRaw) : null;
+
+        const payload = {
+          companionId: bookingData.companion.id,
+          companionName: bookingData.companion.name,
+          userName: user?.name || 'Guest User',
+          userEmail: user?.email || 'guest@example.com',
+          type: bookingData.sessionType.title,
+          date: bookingData.date,
+          timeSlot: bookingData.timeSlot.label,
+          price: bookingData.sessionType.price,
+          status: 'upcoming'
+        };
+
+        await createBooking(payload);
+        alert("Booking confirmed! Your session has been scheduled and stored.");
+        onClose();
+      } catch (error: any) {
+        console.error("Booking error:", error);
+        alert(`Failed to complete booking: ${error.message}`);
+      }
     }
   };
 

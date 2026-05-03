@@ -16,6 +16,7 @@ import {
   ChevronDown,
   FileText,
   Palette,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -101,6 +102,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           title: "Landing Page Updates",
           icon: Palette,
           path: "/admin/content-update",
+        },
+        {
+          title: "Inquiries & Leads",
+          icon: MessageSquare,
+          path: "/admin/inquiries",
         },
         {
           title: "Content Management",
