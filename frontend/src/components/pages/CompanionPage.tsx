@@ -228,66 +228,66 @@ export function CompanionPage() {
   const companionsList = [
     {
       id: "c1",
-      name: "Ananya Sharma",
+      name: "Aisha Mehta",
       category: "Meditation",
-      title: "Mindfulness Expert",
+      title: "Meditation Guide",
       bio: "Helping you find calm through guided meditation and mindfulness techniques.",
       rating: 4.8,
       sessions: 120,
       price: "₹800",
-      avatar: "/meditation/wellness1.jpeg",
+      avatar: "/aisha mehta.png",
       energyTags: ["Calm", "Focus", "Balance"],
       color: "from-emerald-400 to-teal-400"
     },
     {
       id: "c2",
-      name: "Rajesh Iyer",
+      name: "Arjun Verma",
       category: "Counseling",
-      title: "Life Counselor",
+      title: "Counseling Expert",
       bio: "Navigating life's complexities with compassion and structured guidance.",
       rating: 4.9,
       sessions: 210,
       price: "₹1200",
-      avatar: "/meditation/wellness2.jpeg",
+      avatar: "/arjun verma.png",
       energyTags: ["Clarity", "Support", "Growth"],
       color: "from-blue-400 to-indigo-400"
     },
     {
       id: "c3",
-      name: "Priya Das",
+      name: "Kavya Nair",
       category: "Healing",
       title: "Energy Healer",
       bio: "Restoring balance to your mind, body, and spirit through ancient healing arts.",
       rating: 4.7,
       sessions: 95,
       price: "₹1500",
-      avatar: "/meditation/wellness3.jpeg",
+      avatar: "/kavya.png",
       energyTags: ["Restoration", "Peace", "Aura"],
       color: "from-amber-400 to-orange-400"
     },
     {
       id: "c4",
-      name: "Swami Viveka",
+      name: "Swami Aarav",
       category: "Spiritual",
       title: "Spiritual Guide",
       bio: "Guiding seekers on the path of self-discovery and spiritual awakening.",
       rating: 5.0,
       sessions: 500,
       price: "₹2000",
-      avatar: "/meditation/wellness4.jpeg",
+      avatar: "/swami.png",
       energyTags: ["Awakening", "Wisdom", "Zen"],
       color: "from-purple-400 to-pink-400"
     },
     {
       id: "c5",
-      name: "Meera Nair",
+      name: "Riya Kapoor",
       category: "Meditation",
-      title: "Zen Practitioner",
+      title: "Mindfulness Coach",
       bio: "Deepening your inner silence through traditional Zen meditation practices.",
       rating: 4.9,
       sessions: 180,
       price: "₹900",
-      avatar: "/meditation/wellness5.jpeg",
+      avatar: "/riya.png",
       energyTags: ["Silence", "Presence", "Flow"],
       color: "from-teal-400 to-cyan-400"
     }
@@ -750,37 +750,46 @@ export function CompanionPage() {
               {/* Modal Content */}
               <div className="p-0">
                 {/* Avatar positioned at left bottom of banner - NO additional cover image */}
-                <div className="relative h-0 overflow-visible px-8 -mt-12 mb-6">
-                  <img
-                    src={selectedCompanion.avatar || selectedCompanion.profileImage || "/meditation/wellness1.jpeg"}
-                    alt={selectedCompanion.name}
-                    className="w-24 h-24 rounded-2xl shadow-xl object-cover border-4 border-white"
-                  />
+                {/* Avatar positioned with proper spacing */}
+                <div className="px-8 -mt-12 mb-4 relative z-20">
+                  <div className="inline-block relative">
+                    <img
+                      src={selectedCompanion.avatar || selectedCompanion.profileImage || "/meditation/wellness1.jpeg"}
+                      alt={selectedCompanion.name}
+                      className="w-28 h-28 rounded-2xl shadow-2xl object-cover border-4 border-white bg-white"
+                    />
+                    <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-emerald-500 border-4 border-white rounded-full shadow-lg" />
+                  </div>
                 </div>
 
                 <div className="px-8 pb-8 max-h-[60vh] overflow-y-auto pr-3 scrollbar-thin scrollbar-thumb-emerald-300 scrollbar-track-emerald-50">
                   {/* Profile Info */}
-                  <div className="mt-8 mb-6">
-                    <h2 className="text-teal-800 mb-1">
+                  <div className="mb-8">
+                    <h2 className="text-3xl font-black text-teal-950 mb-1">
                       {selectedCompanion.name}
                     </h2>
-                    <p className="text-teal-600 mb-3">
+                    <p className="text-teal-600 font-bold mb-4 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4" />
                       {selectedCompanion.title}
                     </p>
-                    <div className="flex items-center gap-4 text-sm mb-3">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-lime-400 text-lime-400" />
-                        <span className="text-teal-800">
+                    
+                    <div className="flex flex-wrap items-center gap-6 text-sm">
+                      <div className="flex items-center gap-1.5 px-3 py-1 bg-lime-50 rounded-lg border border-lime-100">
+                        <Star className="w-4 h-4 fill-lime-500 text-lime-500" />
+                        <span className="text-teal-900 font-black">
                           {selectedCompanion.rating ?? 4.8}
                         </span>
-                        <span className="text-teal-600">
+                        <span className="text-teal-600/70 font-medium">
                           ({selectedCompanion.reviews ?? 0} reviews)
                         </span>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-teal-600 mb-4">
-                      <MapPin className="w-4 h-4" />
-                      {selectedCompanion.location}
+                      
+                      {selectedCompanion.location && (
+                        <div className="flex items-center gap-2 text-teal-700 font-bold">
+                          <MapPin className="w-4 h-4 text-emerald-500" />
+                          {selectedCompanion.location}
+                        </div>
+                      )}
                     </div>
                   </div>
 

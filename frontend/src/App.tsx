@@ -9,6 +9,8 @@ import LandingPage from './pages/LandingPage';
 import NirvahaAcademyPage from './pages/NirvahaAcademyPage';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
+import StoriesPage from './pages/StoriesPage';
+import JourneyPage from './pages/JourneyPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import MeditationPage from "./components/pages/MeditationPage";
 import { SoundHealingPage } from "./components/pages/SoundHealingPage";
@@ -69,6 +71,8 @@ function AppInner() {
         {/* Public Landing Page */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/academy" element={<NirvahaAcademyPage />} />
+        <Route path="/stories" element={<StoriesPage />} />
+        <Route path="/journey/:topicId" element={<JourneyPage />} />
 
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />

@@ -1,35 +1,107 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import DecorativeShapes from './DecorativeShapes';
+import LibraryModal from '../library/LibraryModal';
 
 const defaultLibraryItems = [
-    { title: "Agni", category: "Transformation", image: "/agni.png", duration: "15 min" },
-    { title: "Dharma", category: "Purpose", image: "/dharma.png", duration: "Series" },
-    { title: "Indriya", category: "Senses", image: "/indriya.png", duration: "10 min" },
-    { title: "Manas", category: "Mind", image: "/manas.png", duration: "20 min" },
-    { title: "Nehru", category: "Wisdom", image: "/nehru.png", duration: "Lecture" },
-    { title: "Ramdas", category: "Devotion", image: "/ramdas.png", duration: "Music" },
-    { title: "Sadvritta", category: "Ethics", image: "/sadvritta.png", duration: "Practice" },
-    { title: "Saradhi", category: "Guidance", image: "/saradhi.png", duration: "Journey" },
-    { title: "Vyayama", category: "Discipline", image: "/vyayama.png", duration: "Movement" },
+    { 
+        id: "agni-the-sacred-fire",
+        title: "Agni - The Sacred Fire", 
+        category: "Transformation", 
+        image: "/agni.png", 
+        duration: "15 min",
+        story: "Agni is the element of transformation.\nIt burns away the impurities of the ego.\nIn its light, we find the path to our true self.\nThe fire of awareness illuminates the dark corners of the mind."
+    },
+    { 
+        id: "dharma-the-righteous-path",
+        title: "Dharma - The Righteous Path", 
+        category: "Purpose", 
+        image: "/dharma.png", 
+        duration: "Series",
+        story: "Dharma is the moral order of the universe.\nIt is the duty that aligns us with our highest purpose.\nWhen we follow our dharma, we find effortless peace.\nLiving in harmony with truth is the ultimate goal."
+    },
+    { 
+        id: "indriya-nigraha-sensory-control",
+        title: "Indriya Nigraha - Sensory Control", 
+        category: "Senses", 
+        image: "/indriya.png", 
+        duration: "10 min",
+        story: "Master the senses to master the mind.\nIndriya Nigraha is the art of conscious withdrawal.\nNot through suppression, but through deep understanding.\nWhen the senses turn inward, the soul finds its home."
+    },
+    { 
+        id: "manas-shuddhi-mental-clarity",
+        title: "Manas Shuddhi - Mental Clarity", 
+        category: "Mind", 
+        image: "/manas.png", 
+        duration: "20 min",
+        story: "Purifying the mind is like cleaning a temple.\nRemove the dust of desire and the smoke of anger.\nOnly a pure heart can hold the divine flame,\nradiating peace to every corner of existence."
+    },
+    { 
+        id: "jawaharlal-nehru-visionary-wisdom",
+        title: "Jawaharlal Nehru - Visionary Wisdom", 
+        category: "Wisdom", 
+        image: "/nehru.png", 
+        duration: "Lecture",
+        story: "Wisdom is the ability to see the unity in diversity.\nLeadership is the service of the human spirit.\nThrough education and self-reflection, we build a better world.\nThe mind that is open to truth is the mind that is free."
+    },
+    { 
+        id: "samarth-ramdas-path-of-devotion",
+        title: "Samarth Ramdas - Path of Devotion", 
+        category: "Devotion", 
+        image: "/ramdas.png", 
+        duration: "Music",
+        story: "Devotion to the master is the bridge to the infinite.\nThrough surrender, the disciple becomes one with the light.\nChant the names of the divine to quiet the restless heart.\nIn the service of the master, we find the highest joy."
+    },
+    { 
+        id: "sadvritta-ethical-living",
+        title: "Sadvritta - Ethical Living", 
+        category: "Ethics", 
+        image: "/sadvritta.png", 
+        duration: "Practice",
+        story: "Right conduct is the foundation of a spiritual life.\nTreat all beings with compassion and kindness.\nIntegrity in thought, word, and deed brings lasting harmony.\nYour actions are the seeds of your future destiny."
+    },
+    { 
+        id: "saradhi-the-divine-guide",
+        title: "Saradhi - The Divine Guide", 
+        category: "Guidance", 
+        image: "/saradhi.png", 
+        duration: "Journey",
+        story: "The guide is the lighthouse in the storm of existence.\nFollowing the lead of wisdom brings us to the shore of truth.\nSurrender the reins of your life to the master within.\nEvery step taken in trust is a step closer to liberation."
+    },
+    { 
+        id: "vyayama-sacred-movement",
+        title: "Vyayama - Sacred Movement", 
+        category: "Discipline", 
+        image: "/vyayama.png", 
+        duration: "Movement",
+        story: "The body is the temple of the living soul.\nThrough discipline and movement, we prepare for stillness.\nStrength and flexibility are the tools of the spiritual warrior.\nHonoring the body is honoring the creation itself."
+    },
 ];
 
 
 const LibraryCarousel: React.FC = () => {
     const [libraryItems, setLibraryItems] = useState(defaultLibraryItems);
+    const [selectedItem, setSelectedItem] = useState<any>(null);
 
     // Load library items from localStorage
     useEffect(() => {
         const savedLibrary = localStorage.getItem("nirvaha_library");
         if (savedLibrary) {
             try {
-                setLibraryItems(JSON.parse(savedLibrary));
+                const parsed = JSON.parse(savedLibrary);
+                // Merge with default items to ensure stories are present
+                const merged = defaultLibraryItems.map(def => {
+                    const saved = parsed.find((p: any) => p.title === def.title);
+                    return saved ? { ...def, ...saved } : def;
+                });
+                setLibraryItems(merged);
             } catch (e) {
                 console.error("Failed to load library items from localStorage", e);
                 setLibraryItems(defaultLibraryItems);
             }
         }
     }, []);
+
     return (
         <section className="w-full pt-4 pb-12 bg-[#eaf5ef] overflow-hidden relative">
             <DecorativeShapes variant={4} />
@@ -61,25 +133,37 @@ const LibraryCarousel: React.FC = () => {
                 .carousel-track-2 {
                     animation: scroll 50s linear infinite;
                 }
+                .carousel-track-1:hover, .carousel-track-2:hover {
+                    animation-play-state: paused;
+                }
             `}</style>
 
             {/* Row 1 */}
             <div className="flex gap-6 mb-6 w-full overflow-hidden">
                 <div className="flex gap-6 pl-4 carousel-track-1 w-max">
                     {[...libraryItems, ...libraryItems].map((item, idx) => (
-                        <div
+                        <motion.div
                             key={`r1-${idx}`}
+                            whileHover={{ scale: 1.02, y: -5 }}
+                            transition={{ duration: 0.3 }}
                             className="relative flex-shrink-0 w-[425px] h-[225px] rounded-2xl overflow-hidden shadow-md cursor-pointer group"
+                            onClick={() => setSelectedItem(item)}
                         >
                             <img
                                 src={item.image}
                                 alt={item.title}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x400/e2e8f0/1a5d47?text=Nirvaha' }}
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent p-5 flex flex-col justify-end">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-6 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <h3 className="text-white text-xl font-bold mb-1" style={{ fontFamily: "'Cinzel', serif" }}>{item.title}</h3>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider">{item.category}</span>
+                                    <span className="w-1 h-1 bg-white/40 rounded-full" />
+                                    <span className="text-white/80 text-xs">{item.duration}</span>
+                                </div>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             </div>
@@ -88,24 +172,39 @@ const LibraryCarousel: React.FC = () => {
             <div className="flex gap-6 w-full overflow-hidden">
                 <div className="flex gap-6 pl-4 carousel-track-2 w-max">
                     {[...libraryItems].reverse().concat([...libraryItems].reverse()).map((item, idx) => (
-                        <div
+                        <motion.div
                             key={`r2-${idx}`}
+                            whileHover={{ scale: 1.02, y: -5 }}
+                            transition={{ duration: 0.3 }}
                             className="relative flex-shrink-0 w-[425px] h-[225px] rounded-2xl overflow-hidden shadow-md cursor-pointer group"
+                            onClick={() => setSelectedItem(item)}
                         >
                             <img
                                 src={item.image}
                                 alt={item.title}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x400/e2e8f0/1a5d47?text=Nirvaha' }}
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent p-5 flex flex-col justify-end">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-6 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <h3 className="text-white text-xl font-bold mb-1" style={{ fontFamily: "'Cinzel', serif" }}>{item.title}</h3>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider">{item.category}</span>
+                                    <span className="w-1 h-1 bg-white/40 rounded-full" />
+                                    <span className="text-white/80 text-xs">{item.duration}</span>
+                                </div>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             </div>
 
-
+            <LibraryModal 
+                isOpen={!!selectedItem}
+                onClose={() => setSelectedItem(null)}
+                title={selectedItem?.title || ""}
+                story={selectedItem?.story || ""}
+                journeyId={selectedItem?.id}
+            />
 
         </section>
     );

@@ -21,6 +21,26 @@ const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // External trigger for pre-filling
+  React.useEffect(() => {
+    const handlePrefill = (e: any) => {
+      if (e.detail) {
+        setFormData(prev => ({ 
+          ...prev, 
+          message: e.detail.message || prev.message,
+          company: e.detail.company || prev.company 
+        }));
+        // If we have a message, skip to that step? Or just set it.
+        // For now, let's just set the data and the user can click through or we can skip.
+        if (e.detail.step !== undefined) {
+          setCurrentStep(e.detail.step);
+        }
+      }
+    };
+    window.addEventListener('prefillContact', handlePrefill);
+    return () => window.removeEventListener('prefillContact', handlePrefill);
+  }, []);
+
   const questions: Question[] = [
     {
       id: "name",
@@ -65,7 +85,17 @@ const Contact = () => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+      const response = await fetch(`${API_BASE_URL}/api/contact/submit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error('Submission failed');
+
       setIsSuccess(true);
       setTimeout(() => {
         setIsSuccess(false);
@@ -74,6 +104,7 @@ const Contact = () => {
       }, 3000);
     } catch (error) {
       console.error("Error submitting form:", error);
+      alert("Failed to send message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -91,7 +122,7 @@ const Contact = () => {
   };
 
   return (
-    <section className="relative py-10 px-6 lg:px-12 bg-white overflow-hidden">
+    <section id="contact" className="relative py-10 px-6 lg:px-12 bg-white overflow-hidden">
       {/* Decorative shapes — left & right sides only */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         {/* Left side shapes */}

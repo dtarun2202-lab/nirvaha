@@ -124,13 +124,13 @@ export async function getCompanionApplications(
   status?: "all" | "pending" | "approved" | "rejected"
 ): Promise<CompanionAdminItem[]> {
   const query = status && status !== "all" ? `?status=${status}` : "";
-  return requestJson<CompanionAdminItem[]>(`/api/companion-applications${query}`);
+  return requestJson<CompanionAdminItem[]>(`/api/companion/applications${query}`);
 }
 
 export async function getCompanionApplication(
   id: string
 ): Promise<CompanionApplication> {
-  return requestJson<CompanionApplication>(`/api/companion-applications/${id}`);
+  return requestJson<CompanionApplication>(`/api/companion/applications/${id}`);
 }
 
 export async function createCompanionApplication(
@@ -138,7 +138,7 @@ export async function createCompanionApplication(
 ): Promise<{ id: string; status: string; submittedAt?: string }>
 {
   return requestJson<{ id: string; status: string; submittedAt?: string }>(
-    "/api/companion-applications",
+    "/api/companion/applications",
     {
       method: "POST",
       body: JSON.stringify(payload),
@@ -150,7 +150,7 @@ export async function updateCompanionApplication(
   id: string,
   payload: Record<string, unknown>
 ): Promise<CompanionAdminItem> {
-  return requestJson<CompanionAdminItem>(`/api/companion-applications/${id}`,
+  return requestJson<CompanionAdminItem>(`/api/companion/applications/${id}`,
     {
       method: "PUT",
       body: JSON.stringify(payload),
@@ -162,7 +162,7 @@ export async function updateCompanionStatus(
   id: string,
   status: "pending" | "approved" | "rejected"
 ): Promise<CompanionAdminItem> {
-  return requestJson<CompanionAdminItem>(`/api/companion-applications/${id}/status`,
+  return requestJson<CompanionAdminItem>(`/api/companion/applications/${id}/status`,
     {
       method: "PATCH",
       body: JSON.stringify({ status }),
@@ -171,12 +171,12 @@ export async function updateCompanionStatus(
 }
 
 export async function deleteCompanionApplication(id: string): Promise<void> {
-  await requestJson<void>(`/api/companion-applications/${id}`, { method: "DELETE" });
+  await requestJson<void>(`/api/companion/applications/${id}`, { method: "DELETE" });
 }
 
 export async function getApprovedCompanions(): Promise<CompanionPublicItem[]> {
   const response = await requestJson<{ success: boolean; data: CompanionPublicItem[] }>(
-    "/api/companions"
+    "/api/companion"
   );
   return response.data || [];
 }
