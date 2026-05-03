@@ -1,4 +1,5 @@
-import React ,{ useState } from "react";
+import React ,{ useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 
 const heroImage = "/meditation/first.jpg";
 
@@ -23,6 +24,7 @@ export default function MeditationGuide() {
       <HeroSection />
       <MeditationImages />
       <MeditationPoses />
+      <MeditationSessions />
       <EssentialGuidance />
       <ConsultSection />
       <Footer />
@@ -317,13 +319,7 @@ const MeditationImages: React.FC = () => {
                 </div>
               </div>
 
-              {/* CTA */}
-              <button
-                className="med-modal-btn"
-                onClick={() => { setActiveSession(selectedPose); setSelectedPose(null); }}
-              >
-                ✦ Start Session
-              </button>
+
             </div>
           </div>
         </div>
@@ -1603,6 +1599,369 @@ const EssentialGuidance: React.FC = () => {
             box-shadow: 0 12px 30px rgba(0,0,0,0.4);
           }
         `}</style>
+
+      </div>
+    </section>
+  );
+};
+
+// ── Breathing Modal ────────────────────────────────────────────────────────
+const BreathingModal: React.FC<{ title: string; audioUrl?: string; onClose: () => void }> = ({ title, audioUrl, onClose }) => {
+  type Phase = { label: string; duration: number; scale: number; color: string; hint: string };
+  const PHASES: Phase[] = [
+    { label: 'Inhale',  duration: 4, scale: 1.4,  color: '#52b788', hint: 'Breathe in slowly' },
+    { label: 'Hold',    duration: 4, scale: 1.4,  color: '#40916c', hint: 'Hold gently'        },
+    { label: 'Exhale',  duration: 6, scale: 0.75, color: '#74c69d', hint: 'Release slowly'     },
+    { label: 'Rest',    duration: 2, scale: 0.75, color: '#95d5b2', hint: 'Pause...'            },
+  ];
+  const TOTAL = 5 * 60;
+  const [started, setStarted] = useState(false);
+  const [phaseIdx, setPhaseIdx] = useState(0);
+  const [phaseElapsed, setPhaseElapsed] = useState(0);
+  const [totalElapsed, setTotalElapsed] = useState(0);
+  const [done, setDone] = useState(false);
+  const [cycles, setCycles] = useState(0);
+  const phase = PHASES[phaseIdx];
+  const ringSpeed = phase.label === 'Inhale' ? [8,13,18] : phase.label === 'Exhale' ? [4,7,10] : [6,10,14];
+  const mm = String(Math.floor((TOTAL - totalElapsed) / 60)).padStart(2,'0');
+  const ss = String((TOTAL - totalElapsed) % 60).padStart(2,'0');
+
+  // Audio playback
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    if (audioUrl) {
+      const audio = new Audio(audioUrl);
+      audio.loop = true;
+      audio.volume = 0.5;
+      audioRef.current = audio;
+      audio.play().catch(() => {}); // autoplay may be blocked until user interaction
+    }
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [audioUrl]);
+
+  useEffect(() => {
+    if (!started || done) return;
+    const t = setInterval(() => {
+      setPhaseElapsed(p => {
+        const n = p + 1;
+        if (n >= phase.duration) {
+          setPhaseIdx(pi => { const np = (pi+1)%PHASES.length; if(np===0) setCycles(c=>c+1); return np; });
+          return 0;
+        }
+        return n;
+      });
+      setTotalElapsed(p => { const n=p+1; if(n>=TOTAL){setDone(true);} return n; });
+    }, 1000);
+    return () => clearInterval(t);
+  }, [started, done, phase.duration]);
+
+  const reset = () => { setStarted(false); setPhaseIdx(0); setPhaseElapsed(0); setTotalElapsed(0); setDone(false); setCycles(0); };
+
+  return (
+    <div onClick={onClose} style={{
+      position: 'fixed', inset: 0, zIndex: 9000,
+      background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px',
+      animation: 'bm-fade 0.3s ease',
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background: 'radial-gradient(ellipse at top, #0d2b1a 0%, #071a0f 60%, #030e08 100%)',
+        borderRadius: '24px', width: '100%', maxWidth: '480px',
+        padding: '32px 24px 28px', position: 'relative',
+        animation: 'bm-pop 0.35s cubic-bezier(0.34,1.56,0.64,1)',
+        boxShadow: '0 24px 80px rgba(0,0,0,0.5)',
+        border: '1px solid rgba(82,183,136,0.2)',
+        overflow: 'hidden',
+      }}>
+        <style>{`
+          @keyframes bm-fade { from{opacity:0} to{opacity:1} }
+          @keyframes bm-pop  { from{opacity:0;transform:scale(0.88)} to{opacity:1;transform:scale(1)} }
+          @keyframes bm-spin-cw  { from{transform:translate(-50%,-50%) rotate(0deg)}   to{transform:translate(-50%,-50%) rotate(360deg)} }
+          @keyframes bm-spin-ccw { from{transform:translate(-50%,-50%) rotate(0deg)}   to{transform:translate(-50%,-50%) rotate(-360deg)} }
+          @keyframes bm-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(82,183,136,0.3)} 50%{box-shadow:0 0 0 12px rgba(82,183,136,0.08)} }
+          @keyframes bm-star1 { from{transform:translateY(0) translateX(0)} to{transform:translateY(-400px) translateX(-60px)} }
+          @keyframes bm-star2 { from{transform:translateY(0)} to{transform:translateY(-300px) translateX(80px)} }
+          @keyframes bm-float { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,-25px)} }
+          .bm-stars1 { position:absolute;inset:0;pointer-events:none;
+            background-image:radial-gradient(1.5px 1.5px at 10% 15%,rgba(168,230,207,0.8),transparent),radial-gradient(1px 1px at 30% 40%,rgba(255,255,255,0.6),transparent),radial-gradient(2px 2px at 55% 10%,rgba(149,213,178,0.7),transparent),radial-gradient(1px 1px at 75% 60%,rgba(255,255,255,0.5),transparent),radial-gradient(1.5px 1.5px at 85% 25%,rgba(168,230,207,0.8),transparent),radial-gradient(1px 1px at 20% 80%,rgba(255,255,255,0.6),transparent),radial-gradient(2px 2px at 90% 75%,rgba(116,198,157,0.6),transparent),radial-gradient(1px 1px at 45% 90%,rgba(255,255,255,0.5),transparent);
+            background-size:400px 400px; animation:bm-star1 60s linear infinite; opacity:0.7; }
+          .bm-stars2 { position:absolute;inset:0;pointer-events:none;
+            background-image:radial-gradient(2px 2px at 25% 20%,rgba(168,230,207,0.5),transparent),radial-gradient(2px 2px at 70% 15%,rgba(212,160,23,0.4),transparent),radial-gradient(2px 2px at 50% 70%,rgba(149,213,178,0.4),transparent);
+            background-size:500px 500px; animation:bm-star2 90s linear infinite reverse; opacity:0.5; }
+          .bm-planet1 { position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#6ec6a8,#1b4332 60%,transparent);top:-30px;left:-30px;filter:blur(3px);opacity:0.25;animation:bm-float 20s ease-in-out infinite;pointer-events:none; }
+          .bm-planet2 { position:absolute;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#d4a017,#5a3800 60%,transparent);bottom:-20px;right:-20px;filter:blur(2px);opacity:0.3;animation:bm-float 16s ease-in-out infinite reverse;pointer-events:none; }
+        `}</style>
+
+        {/* Cosmic bg */}
+        <div className="bm-stars1" /><div className="bm-stars2" />
+        <div className="bm-planet1" /><div className="bm-planet2" />
+
+        {/* Close */}
+        <button onClick={onClose} style={{ position:'absolute',top:'14px',right:'14px',zIndex:10,width:'30px',height:'30px',borderRadius:'50%',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(168,230,207,0.2)',color:'#A8E6CF',fontSize:'0.8rem',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center' }}>✕</button>
+
+        {/* Title */}
+        <p style={{ textAlign:'center',fontSize:'0.65rem',letterSpacing:'0.25em',textTransform:'uppercase',color:'#74c69d',marginBottom:'4px',position:'relative',zIndex:1 }}>Guided Breathing</p>
+        <h3 style={{ textAlign:'center',fontFamily:"'Playfair Display',serif",fontWeight:800,fontSize:'clamp(1rem,3vw,1.3rem)',color:'#e8f5e9',margin:'0 0 24px',position:'relative',zIndex:1 }}>{title}</h3>
+
+        {/* Orbital */}
+        <div onClick={() => {
+          if (!started) {
+            setStarted(true);
+            // Start audio on user interaction (satisfies browser autoplay policy)
+            if (audioRef.current && audioRef.current.paused) {
+              audioRef.current.play().catch(() => {});
+            }
+          }
+        }} style={{ position:'relative',width:'clamp(200px,50vw,260px)',height:'clamp(200px,50vw,260px)',margin:'0 auto',cursor:!started?'pointer':'default',zIndex:1 }}>
+          {/* Ring 1 */}
+          <div style={{ position:'absolute',borderRadius:'50%',width:'70%',height:'70%',border:`2px solid ${phase.color}55`,top:'50%',left:'50%',animation:`bm-spin-cw ${ringSpeed[0]}s linear infinite`,transition:'border-color 1.5s' }}>
+            <div style={{ position:'absolute',top:'-5px',left:'50%',width:'10px',height:'10px',borderRadius:'50%',background:'#52b788',boxShadow:'0 0 8px #52b788',transform:'translateX(-50%)' }} />
+          </div>
+          {/* Ring 2 */}
+          <div style={{ position:'absolute',borderRadius:'50%',width:'85%',height:'85%',border:`1.5px solid ${phase.color}33`,top:'50%',left:'50%',animation:`bm-spin-ccw ${ringSpeed[1]}s linear infinite`,transition:'border-color 1.5s' }}>
+            <div style={{ position:'absolute',top:'-6px',left:'50%',width:'12px',height:'12px',borderRadius:'50%',background:'linear-gradient(135deg,#d4a017,#f0c040)',boxShadow:'0 0 10px rgba(212,160,23,0.8)',transform:'translateX(-50%)' }} />
+          </div>
+          {/* Ring 3 */}
+          <div style={{ position:'absolute',borderRadius:'50%',width:'100%',height:'100%',border:`1px solid ${phase.color}22`,top:'50%',left:'50%',animation:`bm-spin-cw ${ringSpeed[2]}s linear infinite`,transition:'border-color 1.5s' }}>
+            <div style={{ position:'absolute',top:'-4px',left:'50%',width:'8px',height:'8px',borderRadius:'50%',background:'#95d5b2',boxShadow:'0 0 6px rgba(149,213,178,0.7)',transform:'translateX(-50%)' }} />
+          </div>
+          {/* Center */}
+          <div style={{ position:'absolute',top:'50%',left:'50%',transform:`translate(-50%,-50%) scale(${started ? phase.scale : 1})`,width:'45%',height:'45%',borderRadius:'50%',background:`linear-gradient(135deg,${phase.color}dd,#40916c)`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',transition:`transform ${phase.duration}s cubic-bezier(0.45,0,0.55,1), background 1.5s`,animation:started?'bm-pulse 4s ease-in-out infinite':'none',zIndex:10 }}>
+            <span style={{ fontSize:'clamp(0.7rem,2vw,0.9rem)',fontWeight:700,color:'#fff',letterSpacing:'0.04em' }}>{done?'✓':started?phase.label:'Tap'}</span>
+            {started && !done && <span style={{ fontSize:'0.6rem',color:'rgba(255,255,255,0.8)',marginTop:'2px' }}>{phase.duration - phaseElapsed}s</span>}
+          </div>
+        </div>
+
+        {/* Hint */}
+        <p style={{ textAlign:'center',fontSize:'0.8rem',color:'#95d5b2',marginTop:'16px',minHeight:'20px',position:'relative',zIndex:1 }}>
+          {done ? 'Session complete 🌿' : started ? phase.hint : 'Tap the circle to begin'}
+        </p>
+
+        {/* Timer + cycles */}
+        {started && !done && (
+          <div style={{ display:'flex',justifyContent:'center',gap:'28px',marginTop:'14px',position:'relative',zIndex:1 }}>
+            <div style={{ textAlign:'center' }}>
+              <p style={{ fontFamily:"'Cinzel',serif",fontSize:'1.5rem',fontWeight:700,color:'#e8f5e9',margin:0 }}>{mm}:{ss}</p>
+              <p style={{ fontSize:'0.6rem',color:'#74c69d',margin:0,letterSpacing:'0.1em',textTransform:'uppercase' }}>Remaining</p>
+            </div>
+            <div style={{ width:'1px',background:'rgba(168,230,207,0.15)' }} />
+            <div style={{ textAlign:'center' }}>
+              <p style={{ fontFamily:"'Cinzel',serif",fontSize:'1.5rem',fontWeight:700,color:'#e8f5e9',margin:0 }}>{cycles}</p>
+              <p style={{ fontSize:'0.6rem',color:'#74c69d',margin:0,letterSpacing:'0.1em',textTransform:'uppercase' }}>Cycles</p>
+            </div>
+          </div>
+        )}
+
+        {/* Progress bar */}
+        {started && (
+          <div style={{ width:'200px',height:'3px',background:'rgba(168,230,207,0.1)',borderRadius:'4px',margin:'14px auto 0',overflow:'hidden',position:'relative',zIndex:1 }}>
+            <div style={{ height:'100%',background:'linear-gradient(90deg,#52b788,#A8E6CF)',width:`${Math.min((totalElapsed/TOTAL)*100,100)}%`,transition:'width 1s linear' }} />
+          </div>
+        )}
+
+        {/* Done buttons */}
+        {done && (
+          <div style={{ display:'flex',gap:'10px',justifyContent:'center',marginTop:'20px',position:'relative',zIndex:1 }}>
+            <button onClick={reset} style={{ background:'linear-gradient(135deg,#52b788,#40916c)',color:'#fff',border:'none',borderRadius:'50px',padding:'9px 22px',fontSize:'0.8rem',fontWeight:600,cursor:'pointer',boxShadow:'0 4px 14px rgba(82,183,136,0.35)' }}>Restart</button>
+            <button onClick={onClose} style={{ background:'rgba(255,255,255,0.08)',color:'#A8E6CF',border:'1px solid rgba(168,230,207,0.2)',borderRadius:'50px',padding:'9px 22px',fontSize:'0.8rem',fontWeight:600,cursor:'pointer' }}>Close</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ── Session Card Component ─────────────────────────────────────────────────
+const SessionCard: React.FC<{ session: any; icon: string }> = ({ session, icon }) => {
+  const [btnState, setBtnState] = useState<'idle' | 'starting'>('idle');
+  const [showModal, setShowModal] = useState(false);
+
+  const handleStart = () => {
+    if (btnState !== 'idle') return;
+    setBtnState('starting');
+    setTimeout(() => { setBtnState('idle'); setShowModal(true); }, 500);
+  };
+
+  return (
+    <>
+      <style>{`
+        .med-card {
+          background: linear-gradient(145deg, #ffffff 0%, #f0fff4 100%);
+          width: 100%; height: 100%; min-height: 240px;
+          position: relative; display: flex; flex-direction: column;
+          border-radius: 16px; box-shadow: 0 4px 20px rgba(82,183,136,0.08);
+          overflow: visible; z-index: 0;
+          transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .med-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(82,183,136,0.14); }
+        .med-card::before {
+          content:""; position:absolute; z-index:-1; inset:-3px;
+          background: linear-gradient(135deg,#d8f3dc,#b7e4c7,#95d5b2);
+          border-radius:18px;
+        }
+        .med-card::after {
+          content:""; position:absolute; z-index:-2; inset:-3px;
+          background: linear-gradient(135deg,#d8f3dc,#b7e4c7,#95d5b2);
+          border-radius:18px; filter:blur(14px); opacity:0; transition:opacity 0.4s;
+        }
+        .med-card:hover::after { animation: cardGlow 2.5s infinite forwards; }
+        @keyframes cardGlow { 0%,100%{opacity:0.5} 50%{opacity:0.08} }
+        .med-card-inner { position:relative; z-index:1; display:flex; flex-direction:column; flex:1; padding:18px; gap:10px; }
+        .med-card-icon { font-size:1.2rem; opacity:0.7; transition:transform 0.2s; cursor:default; }
+        .med-card:hover .med-card-icon { transform:scale(1.1); opacity:1; }
+        .med-card-badge { font-size:0.62rem; font-weight:700; padding:3px 10px; border-radius:50px; font-family:'Poppins',sans-serif; }
+        .med-card-badge.level { background:#DCEDC1; color:#1b4332; border:1px solid #b7e4c7; }
+        .med-card-badge.cat   { background:#d8f3dc; color:#2d6a4f; border:1px solid #95d5b2; }
+        .med-card-title { font-family:'Playfair Display',serif; font-weight:800; font-size:1rem; color:#111827; line-height:1.35; margin:0; }
+        .med-card-desc  { font-family:'Poppins',sans-serif; font-size:0.75rem; color:#1f2937; line-height:1.65; margin:0; flex:1; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .med-card-dur   { font-size:0.7rem; color:#166534; font-family:'Poppins',sans-serif; font-weight:600; margin:0; }
+        .med-card-btn {
+          width:100%; padding:9px; border-radius:50px; border:none;
+          font-size:0.78rem; font-weight:600; font-family:'Poppins',sans-serif;
+          letter-spacing:0.04em; color:#fff; cursor:pointer;
+          background:linear-gradient(135deg,#52b788,#40916c);
+          box-shadow:0 3px 12px rgba(82,183,136,0.35); flex-shrink:0;
+          transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
+        }
+        .med-card-btn:hover  { transform:scale(1.04); box-shadow:0 5px 18px rgba(82,183,136,0.5); }
+        .med-card-btn:active { transform:scale(0.95); }
+        .med-card-btn.starting { transform:scale(0.95); opacity:0.75; cursor:default; }
+        @keyframes sc-pulse { 0%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:scale(1.04)} }
+      `}</style>
+
+      <div className="med-card">
+        <div className="med-card-inner">
+          {/* Top row: badges + icon */}
+          <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between' }}>
+            <div style={{ display:'flex', gap:'5px', flexWrap:'wrap', flex:1, marginRight:'8px' }}>
+              {session.level    && <span className="med-card-badge level">{session.level}</span>}
+              {session.category && <span className="med-card-badge cat">{session.category}</span>}
+            </div>
+            <span className="med-card-icon">{icon}</span>
+          </div>
+          <h3 className="med-card-title">{session.title}</h3>
+          <p className="med-card-desc">{session.description || '\u00A0'}</p>
+          <p className="med-card-dur">⏱ {session.duration} min</p>
+          <button className={`med-card-btn${btnState==='starting'?' starting':''}`} onClick={handleStart}>
+            {btnState === 'starting' ? 'Starting...' : 'Start Session'}
+          </button>
+        </div>
+        {btnState === 'starting' && (
+          <div style={{ position:'absolute',inset:0,borderRadius:'16px',border:'2px solid rgba(168,230,207,0.5)',animation:'sc-pulse 0.5s ease-out forwards',pointerEvents:'none',zIndex:2 }} />
+        )}
+      </div>
+
+      {showModal && <BreathingModal title={session.title} audioUrl={session.audioUrl} onClose={() => setShowModal(false)} />}
+    </>
+  );
+};
+// ── Meditation Sessions (API + Search) ────────────────────────────────────
+const MeditationSessions: React.FC = () => {
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  // Fetch active sessions from backend
+  useEffect(() => {
+    fetch("http://localhost:5001/api/meditations")
+      .then(res => res.json())
+      .then(data => {
+        // Show only Active sessions
+        const active = Array.isArray(data) ? data.filter((s: any) => s.status === "Active") : [];
+        setSessions(active);
+      })
+      .catch(() => setSessions([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Real-time filter on title, category, level (case-insensitive)
+  const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return sessions;
+    return sessions.filter(s =>
+      s.title?.toLowerCase().includes(q) ||
+      s.category?.toLowerCase().includes(q) ||
+      s.level?.toLowerCase().includes(q)
+    );
+  }, [sessions, searchQuery]);
+
+  if (!loading && sessions.length === 0) return null;
+
+  return (
+    <section style={{ background: '#f8fafb', padding: '80px 0', opacity: 0, animation: 'sc-fadein 0.8s ease 0.2s forwards' }}>
+      <style>{`@keyframes sc-fadein { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }`}</style>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px' }}>
+
+        {/* Heading */}
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <p style={{ fontFamily: "'Cinzel', serif", fontSize: '0.7rem', letterSpacing: '0.35em', textTransform: 'uppercase', color: '#2d6a4f', marginBottom: '12px', opacity: 0.8 }}>
+            Guided Library
+          </p>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', color: '#1e293b', margin: 0 }}>
+            Meditation <span style={{ color: '#059669', fontStyle: 'italic' }}>Sessions</span>
+          </h2>
+          <div style={{ width: '60px', height: '1px', background: 'linear-gradient(to right, transparent, #059669, transparent)', margin: '16px auto 0' }} />
+        </div>
+
+        {/* Search bar — only shown when more than 3 sessions */}
+        {sessions.length > 3 && (
+        <div style={{ position: 'relative', maxWidth: '520px', margin: '0 auto 40px' }}>
+          <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#74c69d', fontSize: '1.1rem', pointerEvents: 'none' }}>
+            🔍
+          </span>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Search by title, category or level..."
+            style={{
+              width: '100%',
+              padding: '13px 16px 13px 46px',
+              borderRadius: '50px',
+              border: '2px solid #b7e4c7',
+              fontSize: '0.95rem',
+              color: '#1b4332',
+              background: '#fff',
+              outline: 'none',
+              boxShadow: '0 2px 12px rgba(82,183,136,0.12)',
+              transition: 'border-color 0.2s, box-shadow 0.2s',
+              boxSizing: 'border-box',
+            }}
+            onFocus={e => { e.target.style.borderColor = '#52b788'; e.target.style.boxShadow = '0 0 0 4px rgba(82,183,136,0.15), 0 4px 16px rgba(82,183,136,0.12)'; }}
+            onBlur={e => { e.target.style.borderColor = '#b7e4c7'; e.target.style.boxShadow = '0 2px 12px rgba(82,183,136,0.12)'; }}
+          />
+        </div>
+        )}
+
+        {/* Loading */}
+        {loading && (
+          <p style={{ textAlign: 'center', color: '#74c69d', fontFamily: "'Poppins', sans-serif", fontSize: '0.9rem' }}>
+            Loading sessions...
+          </p>
+        )}
+
+        {/* No results */}
+        {!loading && filtered.length === 0 && (
+          <p style={{ textAlign: 'center', color: '#64748b', fontFamily: "'Poppins', sans-serif", fontSize: '0.9rem', padding: '40px 0' }}>
+            No meditation sessions found
+          </p>
+        )}
+
+        {/* Session cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '32px', alignItems: 'stretch', padding: '8px' }}>
+          {filtered.map((session, idx) => {
+            const icons = ['🧘', '🌿', '🪷', '🌬️', '✨', '🌙'];
+            const icon = icons[idx % icons.length];
+            return (
+              <SessionCard key={session.id} session={session} icon={icon} />
+            );
+          })}
+        </div>
 
       </div>
     </section>

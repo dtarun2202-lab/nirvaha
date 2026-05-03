@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, Share2, Download, ChevronRight, Search, X, ListPlus, Heart, Clock, Plus, Bookmark } from "lucide-react";
+import { Volume2, Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, Share2, Download, ChevronRight, Search, X, ListPlus, Heart, Clock, Plus, Bookmark, Music, Hash } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import BACKEND_CONFIG from "../../config/backend";
@@ -518,8 +518,17 @@ export function SoundHealingPage() {
     }
   };
 
-  const handleCardClick = (track: any) => {
+  const handleCardClick = (track: any, source: string = "global") => {
     if (!track) return;
+
+    // If source is 'all-sounds', we handle playback differently (e.g., local only)
+    // and skip updating the global "Now Playing" panel as requested.
+    if (source === "all-sounds") {
+      console.log('[SoundHealing] Local playback triggered for:', track.title);
+      // Logic for local playback could be added here if needed.
+      // For now, we skip updating global state.
+      return;
+    }
 
     setSelectedTrack(track);
     setActiveCard(track);
@@ -534,7 +543,7 @@ export function SoundHealingPage() {
     });
 
     const audioSrc = track.audioUrl;
-    console.log('[SoundHealing] Playing:', track.title, '→', audioSrc);
+    console.log('[SoundHealing] Playing (Global):', track.title, '→', audioSrc);
 
     if (audioRef.current && audioSrc) {
       audioRef.current.src = audioSrc;
@@ -670,7 +679,7 @@ export function SoundHealingPage() {
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #e6f4ea, #f5fbf7)' }}>
       {/* Neumorphism Button Styles */}
-      <style jsx>{`
+      <style>{`
         .neu-button {
           background: linear-gradient(145deg, #f0f9f0, #e8f5e8);
           border-radius: 50px;
@@ -689,6 +698,130 @@ export function SoundHealingPage() {
         .neu-button:focus {
           outline: none;
           box-shadow: inset 2px 2px 5px #d4edd4, inset -2px -2px 5px #ffffff, 2px 2px 5px #d4edd4, -2px -2px 5px #ffffff;
+        }
+
+        /* Meditation Card Theme */
+        .med-card-theme {
+          position: relative;
+          background: linear-gradient(135deg, rgba(232, 245, 233, 0.7) 0%, rgba(255, 255, 255, 0.9) 100%);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border-radius: 24px;
+          border: 1px solid rgba(82, 183, 136, 0.3);
+          box-shadow: 0 8px 32px rgba(82, 183, 136, 0.1);
+          transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          overflow: visible;
+        }
+        .med-card-theme:hover {
+          transform: translateY(-8px) scale(1.02);
+          border-color: rgba(82, 183, 136, 0.6);
+        }
+        
+        /* Glowing Animation */
+        .med-card-theme::after {
+          content: "";
+          position: absolute;
+          inset: -2px;
+          background: linear-gradient(135deg, #a8e6cf, #dcedc1, #a8e6cf);
+          border-radius: 26px;
+          z-index: -1;
+          opacity: 0;
+          transition: opacity 0.4s ease;
+          filter: blur(15px);
+        }
+        .med-card-theme:hover::after {
+          opacity: 0.6;
+          animation: medGlow 3s infinite alternate;
+        }
+        @keyframes medGlow {
+          0% { filter: blur(15px); opacity: 0.4; }
+          100% { filter: blur(25px); opacity: 0.8; }
+        }
+
+        .med-card-theme-inner {
+          padding: 30px 24px;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+          position: relative;
+          z-index: 1;
+        }
+        .med-card-theme-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 14px;
+          background: linear-gradient(135deg, #d8f3dc, #b7e4c7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #1b4332;
+          box-shadow: 0 4px 12px rgba(82, 183, 136, 0.2);
+        }
+        .med-card-theme-badge {
+          font-size: 0.7rem;
+          font-weight: 700;
+          padding: 5px 14px;
+          border-radius: 50px;
+          font-family: 'Poppins', sans-serif;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .badge-cat { background: #ffffff; color: #2d6a4f; border: 1px solid #d1f2d1; }
+        .badge-freq { background: #2d6a4f; color: #ffffff; border: none; }
+        
+        .med-card-theme-title {
+          font-family: 'Cinzel', serif;
+          font-weight: 800;
+          font-size: 1.25rem;
+          color: #0d2b0d;
+          margin: 0;
+          line-height: 1.3;
+        }
+        .med-card-theme-desc {
+          font-family: 'Poppins', sans-serif;
+          font-size: 0.85rem;
+          color: #2d4a2d;
+          line-height: 1.7;
+          margin: 0;
+          flex: 1;
+          opacity: 0.85;
+        }
+        .med-card-theme-dur {
+          font-size: 0.8rem;
+          font-weight: 600;
+          color: #2d6a4f;
+          font-family: 'Poppins', sans-serif;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .med-card-theme-btn {
+          width: 100%;
+          padding: 14px;
+          border-radius: 50px;
+          border: none;
+          background: linear-gradient(135deg, #40916c, #1b4332);
+          color: white;
+          font-weight: 600;
+          font-size: 0.9rem;
+          font-family: 'Poppins', sans-serif;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 6px 20px rgba(27, 67, 50, 0.3);
+          margin-top: 15px;
+        }
+        .med-card-theme-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(27, 67, 50, 0.4);
+          filter: brightness(1.1);
+        }
+        .med-card-theme-btn:active {
+          transform: scale(0.97);
         }
       `}</style>
 
@@ -1250,7 +1383,7 @@ export function SoundHealingPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.05 }}
                       whileHover={{ y: -6 }}
-                      onClick={() => handleCardClick(track)}
+                      onClick={() => handleCardClick(track, "global")}
                       className="group bg-white rounded-2xl border border-gray-200/80 overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300 relative"
                       style={{ boxShadow: '0 8px 20px rgba(34, 139, 34, 0.08)' }}
                     >
@@ -1516,14 +1649,20 @@ export function SoundHealingPage() {
               <div className="p-8">
                 {/* Album Art & Info */}
                 <div className="flex items-start gap-6 mb-6">
-                  <motion.img
-                    key={activeCard?.id || activeCard?.title}
-                    src={activeCard?.thumbnailUrl || activeCard?.image}
-                    alt={activeCard?.title || 'Track'}
-                    className="w-40 h-40 rounded-2xl object-cover shadow-2xl border-2 border-white/20"
-                    animate={{ scale: isPlaying ? [1, 1.02, 1] : 1 }}
-                    transition={{ duration: 3, repeat: isPlaying ? Infinity : 0 }}
-                  />
+                  {!activeCard?.isSoundHealing ? (
+                    <motion.img
+                      key={activeCard?.id || activeCard?.title}
+                      src={activeCard?.thumbnailUrl || activeCard?.image}
+                      alt={activeCard?.title || 'Track'}
+                      className="w-40 h-40 rounded-2xl object-cover shadow-2xl border-2 border-white/20"
+                      animate={{ scale: isPlaying ? [1, 1.02, 1] : 1 }}
+                      transition={{ duration: 3, repeat: isPlaying ? Infinity : 0 }}
+                    />
+                  ) : (
+                    <div className="w-40 h-40 rounded-2xl bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center shadow-2xl border-2 border-white/20">
+                      <Music className="w-16 h-16 text-green-700" />
+                    </div>
+                  )}
                   <div className="flex-1 pt-2">
                     <p className="text-green-700/70 text-xs uppercase tracking-widest mb-2">Now Playing</p>
                     <h3 className="text-2xl font-bold text-gray-800 mb-1" style={{ fontFamily: "'Cinzel', serif" }}>
@@ -1753,7 +1892,7 @@ export function SoundHealingPage() {
         }}
       >
         {/* Add CSS for 3D flip effect */}
-        <style jsx>{`
+        <style>{`
           .transform-style-preserve-3d {
             transform-style: preserve-3d;
           }
@@ -1857,6 +1996,169 @@ export function SoundHealingPage() {
           </div>
         </div>
       </motion.section>
+
+      {/* NEW SECTION: All Sound Healing Sessions (Dynamic) */}
+      <section className="w-full py-16 px-6 relative z-10" style={{ background: 'linear-gradient(to bottom, rgba(245, 251, 247, 1), #e6f4ea)' }}>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{ fontFamily: "'Cinzel', serif" }}>
+              All Sound Healing Sessions
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto" style={{ fontFamily: "'Poppins', sans-serif" }}>
+              Explore our full, dynamically updated library of sound therapy sessions.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <DynamicSoundSessions onPlay={handleCardClick} isTrackSaved={isTrackSaved} handleSaveToggle={handleSaveToggle} />
+          </div>
+        </div>
+      </section>
     </div>
+  );
+}
+
+function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPlay: (track: any, source: string) => void, isTrackSaved: (track: any) => boolean, handleSaveToggle: (track: any) => void }) {
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [localPlayingId, setLocalPlayingId] = useState<string | null>(null);
+  const localAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    fetch(`${BACKEND_CONFIG.API_BASE_URL || 'http://localhost:5001'}/api/sounds`)
+      .then(res => res.json())
+      .then(data => {
+        setSessions(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to fetch dynamic sounds:", err);
+        setLoading(false);
+      });
+  }, []);
+
+  const handleLocalPlay = (track: any) => {
+    const trackId = track.id || track._id;
+    
+    if (localPlayingId === trackId) {
+      // Toggle pause if clicking same track
+      if (localAudioRef.current?.paused) {
+        localAudioRef.current.play();
+      } else {
+        localAudioRef.current?.pause();
+        setLocalPlayingId(null);
+      }
+    } else {
+      // Play new track locally
+      setLocalPlayingId(trackId);
+      if (localAudioRef.current) {
+        localAudioRef.current.src = track.audioUrl;
+        localAudioRef.current.play().catch(err => console.error("Local play error:", err));
+      }
+    }
+    
+    // Still notify parent but with 'all-sounds' source
+    onPlay(track, "all-sounds");
+  };
+
+  if (loading) return <p className="col-span-full text-center text-gray-500 font-medium py-10">Loading sessions...</p>;
+  if (!sessions.length) return <p className="col-span-full text-center text-gray-500 font-medium py-10">No sound healing sessions found in the database.</p>;
+
+  return (
+    <>
+      <audio 
+        ref={localAudioRef} 
+        onEnded={() => setLocalPlayingId(null)} 
+        onPause={() => {
+           // We only clear localPlayingId if it's not just a transient pause
+        }}
+      />
+      {sessions.map((sound: any, idx: number) => {
+        const trackId = sound.id || sound._id;
+        const track = {
+          ...sound,
+          duration: sound.duration ? `${sound.duration}:00` : '15:00',
+          artist: sound.artist || 'Sacred Sounds',
+          category: sound.category || 'Therapy',
+          frequency: sound.frequency || '432 Hz',
+          mood: sound.mood || [],
+          tags: sound.mood || [],
+          isSoundHealing: true
+        };
+        
+        const icons = [Music, Volume2, Hash, Play, Music, Volume2];
+        const IconComponent = icons[idx % icons.length];
+        const isCurrentLocal = localPlayingId === trackId;
+
+        return (
+          <motion.div
+            key={trackId}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.1 }}
+            className={`med-card-theme ${isCurrentLocal ? 'border-green-500 bg-green-50/30' : ''}`}
+          >
+            <div className="med-card-theme-inner">
+              {/* Top Section */}
+              <div className="flex justify-between items-start">
+                <div className="med-card-theme-icon">
+                  <IconComponent className={`w-5 h-5 ${isCurrentLocal ? 'animate-pulse text-green-600' : ''}`} />
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.2 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSaveToggle(track);
+                  }}
+                  className={`p-2 rounded-full transition-colors ${isTrackSaved(track)
+                    ? 'text-green-600 bg-green-50'
+                    : 'text-gray-400 hover:text-green-500 hover:bg-green-50'
+                    }`}
+                >
+                  <Bookmark className={`w-5 h-5 ${isTrackSaved(track) ? 'fill-current' : ''}`} />
+                </motion.button>
+              </div>
+
+              {/* Title & Artist */}
+              <div>
+                <h3 className="med-card-theme-title">{sound.title}</h3>
+                <p className="text-xs text-green-600 font-medium mt-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                  By {track.artist}
+                </p>
+              </div>
+
+              {/* Badges */}
+              <div className="flex gap-2 mt-1">
+                <span className="med-card-theme-badge badge-cat">{track.category}</span>
+                <span className="med-card-theme-badge badge-freq">{track.frequency}</span>
+              </div>
+
+              {/* Description */}
+              <p className="med-card-theme-desc line-clamp-3">
+                {sound.description || 'Experience the therapeutic power of sound frequencies to balance your mind and spirit.'}
+              </p>
+
+              {/* Footer */}
+              <div className="mt-auto">
+                <p className="med-card-theme-dur">
+                  <Clock className="w-4 h-4" />
+                  {track.duration} session
+                </p>
+                <button 
+                  className={`med-card-theme-btn ${isCurrentLocal ? 'bg-green-700' : ''}`}
+                  onClick={() => handleLocalPlay(track)}
+                >
+                  {isCurrentLocal ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Pause className="w-4 h-4 fill-current" /> Playing Locally
+                    </span>
+                  ) : 'Listen Now'}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        );
+      })}
+    </>
   );
 }

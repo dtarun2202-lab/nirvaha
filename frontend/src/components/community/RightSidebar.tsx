@@ -4,7 +4,10 @@ import { TrendingUp, BadgeCheck, Plus } from "lucide-react";
 interface Mentor {
   id: string;
   name: string;
+  role?: string;
   specialty: string;
+  experience?: string;
+  verified?: boolean;
   bio: string;
   followers: number;
   posts: number;
@@ -60,7 +63,7 @@ export default function RightSidebar({
                   onClick={() => onTrendClick(t.title)}
                   className={`w-full flex items-center justify-between px-2 py-1.5 rounded-xl transition-all text-left group ${
                     isActive ? "bg-[#f0fdf4]" : "hover:bg-gray-50"
-                  }`}
+                   }`}
                 >
                   <div className="flex items-center gap-2.5">
                     <span className={`text-xs font-bold w-4 ${isActive ? "text-[#16a34a]" : "text-gray-400"}`}>
@@ -93,50 +96,64 @@ export default function RightSidebar({
           <h4 className="text-sm font-semibold text-black">Certified Profiles</h4>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          {mentors.map((m, i) => {
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-50">
+          {mentors.map((m) => {
             const avatarSrc = m.avatarUrl || m.avatar;
-            const initials = m.name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
             return (
-              <div key={m.id}
-                className={`flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 transition-colors ${i < mentors.length - 1 ? "border-b border-gray-100" : ""}`}
-              >
-                {/* Avatar */}
-                <div
-                  className="w-8 h-8 rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center text-white text-xs font-bold border border-gray-200"
-                  style={{ background: avatarSrc ? undefined : (m.avatarColor || "#2D6A4F") }}
-                >
-                  {avatarSrc
-                    ? <img src={avatarSrc} alt={m.name} className="w-full h-full object-cover" />
-                    : initials}
-                </div>
-
-                {/* Name + specialty */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs font-semibold text-gray-900 truncate">{m.name}</span>
-                    <BadgeCheck className="w-3 h-3 text-[#16a34a] flex-shrink-0" />
+              <div key={m.id} className="p-4 hover:bg-gray-50/50 transition-colors">
+                <div className="flex items-start gap-3">
+                  {/* Avatar */}
+                  <div className="relative flex-shrink-0">
+                    <div className="w-10 h-10 rounded-xl overflow-hidden border border-emerald-100 bg-emerald-50 flex items-center justify-center">
+                      {avatarSrc ? (
+                        <img src={avatarSrc} alt={m.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-emerald-700 font-bold text-sm">
+                          {m.name.charAt(0)}
+                        </span>
+                      )}
+                    </div>
+                    {m.verified && (
+                      <div className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
+                        <BadgeCheck className="w-3.5 h-3.5 text-[#16a34a] fill-emerald-50" />
+                      </div>
+                    )}
                   </div>
-                  <p className="text-[11px] text-gray-400 truncate">{m.specialty}</p>
+
+                  {/* Details */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <h5 className="text-xs font-bold text-gray-900 truncate">{m.name}</h5>
+                      <span className="text-[10px] font-medium text-[#16a34a] bg-emerald-50 px-1.5 py-0.5 rounded">
+                        {m.experience}
+                      </span>
+                    </div>
+                    <p className="text-[10px] font-semibold text-emerald-700 mt-0.5 uppercase tracking-wider">
+                      {m.role}
+                    </p>
+                    <p className="text-[10px] text-gray-500 mt-0.5 italic truncate">
+                      {m.specialty}
+                    </p>
+                  </div>
                 </div>
 
-                {/* Buttons */}
-                <div className="flex items-center gap-1.5 flex-shrink-0">
+                {/* Footer Actions */}
+                <div className="mt-3 flex items-center gap-2">
                   <button
                     onClick={() => onFollow(m.id)}
-                    className={`text-[11px] px-2.5 py-1 rounded-full font-semibold transition-all active:scale-95 ${
+                    className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-all ${
                       m.followed
-                        ? "bg-[#f0fdf4] text-[#16a34a] border border-[#86efac]"
-                        : "bg-[#16a34a] text-white hover:bg-[#15803d]"
+                        ? "bg-gray-100 text-gray-500"
+                        : "bg-[#16a34a] text-white hover:shadow-md hover:bg-[#15803d]"
                     }`}
                   >
-                    {m.followed ? "✓" : "+"}
+                    {m.followed ? "Following" : "Follow"}
                   </button>
                   <button
                     onClick={() => onViewProfile(m)}
-                    className="text-[11px] px-2.5 py-1 rounded-full border border-gray-200 text-gray-500 hover:border-[#86efac] hover:text-[#16a34a] transition-all active:scale-95"
+                    className="px-3 py-1.5 text-[11px] font-bold text-gray-600 border border-gray-100 rounded-lg hover:bg-gray-50 transition-all"
                   >
-                    View
+                    Profile
                   </button>
                 </div>
               </div>

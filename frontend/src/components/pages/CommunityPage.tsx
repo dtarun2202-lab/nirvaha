@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { X, Send } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -7,6 +7,7 @@ import LeftSidebar from "../community/LeftSidebar";
 import SearchBar from "../community/SearchBar";
 import Feed from "../community/Feed";
 import RightSidebar from "../community/RightSidebar";
+import CreatePost from "../community/CreatePost";
 import type { Post } from "../community/communityData";
 
 const API = "http://localhost:5001";
@@ -82,6 +83,7 @@ export function CommunityPage() {
     if (!socket) return;
 
     const onPostCreated = (post: Post) => {
+      console.log('📥 Socket: Post created', post);
       setPosts(prev => dedup([post, ...prev]));
       fetchTrending();
     };
@@ -146,9 +148,10 @@ export function CommunityPage() {
         body: JSON.stringify(payload),
       });
       if (res.ok) {
-        // Do NOT manually add to state here.
-        // The socket 'postCreated' event will add it for everyone including us.
-        // This prevents the double-add (HTTP response + socket event).
+        const newPost = await res.json();
+        // Fallback: If socket doesn't fire for us immediately, add manually.
+        // The dedup logic will prevent duplicates if the socket event also arrives.
+        setPosts(prev => dedup([newPost, ...prev]));
         showToast("Post shared! 🌿");
         fetchTrending();
       } else {
@@ -181,24 +184,39 @@ export function CommunityPage() {
 
   const [topMentors, setTopMentors] = useState([
     {
-      id: "m1", name: "Dr. Anjali Sharma", specialty: "Vedic Meditation",
-      bio: "Certified Vedic meditation teacher with 15+ years experience.",
-      followers: 2300, posts: 48,
-      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop",
+      id: "m1",
+      name: "Aarav Mehta",
+      role: "Meditation Coach",
+      specialty: "Mindfulness & Stress Relief",
+      experience: "6+ years",
+      verified: true,
+      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+      bio: "Mindfulness & Stress Relief expert with 6+ years experience.",
+      followers: 1200, posts: 24,
       followed: false, starred: false,
     },
     {
-      id: "m2", name: "Master Li Wei", specialty: "Qi Gong & Energy",
-      bio: "Qi Gong master and energy healing practitioner.",
-      followers: 1800, posts: 32,
-      avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop",
+      id: "m2",
+      name: "Meera Iyer",
+      role: "Yoga & Breathwork Expert",
+      specialty: "Pranayama & Relaxation",
+      experience: "8+ years",
+      verified: true,
+      avatar: "https://randomuser.me/api/portraits/women/45.jpg",
+      bio: "Yoga & Breathwork expert with 8+ years experience.",
+      followers: 2100, posts: 42,
       followed: false, starred: false,
     },
     {
-      id: "m3", name: "Elena Costa", specialty: "Sound Therapy",
-      bio: "Sound therapist specializing in crystal bowl healing.",
-      followers: 3100, posts: 61,
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop",
+      id: "m3",
+      name: "Rahul Verma",
+      role: "Sound Healing Practitioner",
+      specialty: "Energy Healing",
+      experience: "5+ years",
+      verified: true,
+      avatar: "https://randomuser.me/api/portraits/men/76.jpg",
+      bio: "Sound Healing practitioner with 5+ years experience.",
+      followers: 1500, posts: 18,
       followed: false, starred: false,
     },
   ]);
@@ -283,79 +301,21 @@ export function CommunityPage() {
         </div>
 
         {/* Create Post Modal */}
-        {showPostModal && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={() => setShowPostModal(false)}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative max-w-2xl w-full bg-white rounded-[32px] p-8 shadow-2xl"
-            >
-              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
-                onClick={() => setShowPostModal(false)}
-                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-emerald-50 hover:bg-emerald-100 flex items-center justify-center text-teal-600"
-              >
-                <X className="w-6 h-6" />
-              </motion.button>
-
-              <h3 className="text-2xl text-emerald-800 mb-6">Share Your Journey</h3>
-
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-emerald-300 flex-shrink-0 flex items-center justify-center text-white font-bold"
-                  style={{ background: currentUser.avatarColor }}>
-                  {currentUser.initial}
-                </div>
-                <div>
-                  <p className="text-teal-800 font-semibold">{currentUser.name}</p>
-                  <p className="text-sm text-teal-600">{(user as any)?.role || "Wellness Seeker"}</p>
-                </div>
-              </div>
-
-              <div className="relative">
-                <textarea
-                  value={postContent}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setPostContent(v);
-                    const m = v.match(/#([a-zA-Z0-9_]*)$/);
-                    if (m) {
-                      const q = m[1].toLowerCase();
-                      setTagSuggestions(SUGGESTED_TAGS.filter(t => t.toLowerCase().includes(q)));
-                    } else {
-                      setTagSuggestions([]);
-                    }
-                  }}
-                  placeholder="What's on your mind? Share your wellness journey, tips, or celebrations..."
-                  className="w-full h-40 p-4 rounded-2xl border border-emerald-200/50 focus:border-emerald-500 focus:outline-none resize-none text-teal-800 placeholder-teal-400"
-                />
-                {tagSuggestions.length > 0 && (
-                  <div className="absolute right-0 left-0 mt-2 max-w-md mx-auto bg-white border border-emerald-200 rounded-md shadow z-20 overflow-hidden">
-                    {tagSuggestions.map(t => (
-                      <button key={t} onClick={() => { setPostContent(postContent.replace(/#([a-zA-Z0-9_]*)$/, t + " ")); setTagSuggestions([]); }}
-                        className="w-full text-left px-3 py-2 hover:bg-emerald-50">{t}</button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex gap-4 mt-6">
-                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                  onClick={() => setShowPostModal(false)}
-                  className="flex-1 px-6 py-3 rounded-full border border-emerald-300 text-teal-800 hover:bg-emerald-50 transition-colors">
-                  Cancel
-                </motion.button>
-                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                  onClick={handleCreatePost} disabled={!postContent.trim()}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                  <Send className="w-4 h-4" /> Post
-                </motion.button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {showPostModal && (
+            <CreatePost
+              postContent={postContent}
+              setPostContent={setPostContent}
+              tagSuggestions={tagSuggestions}
+              setTagSuggestions={setTagSuggestions}
+              SUGGESTED_TAGS={SUGGESTED_TAGS}
+              currentUser={currentUser}
+              user={user}
+              onSubmit={handleCreatePost}
+              onClose={() => setShowPostModal(false)}
+            />
+          )}
+        </AnimatePresence>
 
         {/* Profile Modal — compact */}
         {showProfileModal && selectedProfile && (
