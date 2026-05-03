@@ -1,6 +1,6 @@
 import { BACKEND_CONFIG } from "@/config/backend";
 
-const API_BASE_URL = BACKEND_CONFIG.API_BASE_URL || "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || BACKEND_CONFIG.API_BASE_URL || "http://localhost:5001";
 
 export interface BookingData {
   companionId: string;

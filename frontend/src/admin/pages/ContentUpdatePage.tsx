@@ -273,27 +273,45 @@ export function ContentUpdatePage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-black mb-2">Landing Page Content Management</h1>
-        <p className="text-gray-700">
-          Update images, titles, and descriptions for all landing page sections
-        </p>
-      </div>
+    <div className="min-h-screen -m-6 p-6" style={{ background: "#F0FFF4" }}>
+      <style>{`
+        @keyframes fadeSlideUp { from { opacity:0; transform:translateY(24px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+        .med-card { background:rgba(255,255,255,0.55); backdrop-filter:blur(8px); border-radius:16px; box-shadow:0 2px 16px rgba(82,183,136,0.12); border:1px solid #b7e4c7; }
+        .med-btn-primary { background: linear-gradient(135deg,#52b788,#40916c); color:#fff; border:none; border-radius:10px; padding:9px 20px; font-weight:600; font-size:0.875rem; cursor:pointer; display:flex; align-items:center; gap:6px; transition:transform 0.15s,box-shadow 0.15s; box-shadow:0 2px 8px rgba(82,183,136,0.3); white-space:nowrap; }
+        .med-btn-primary:hover { transform:scale(1.04); box-shadow:0 4px 16px rgba(82,183,136,0.45); }
+        .med-btn-outline { background:rgba(255,255,255,0.6); color:#2d6a4f; border:1.5px solid #b7e4c7; border-radius:10px; padding:8px 18px; font-weight:500; font-size:0.875rem; cursor:pointer; transition:all 0.15s; }
+        .med-btn-outline:hover { background:#d8f3dc; border-color:#74c69d; }
+        .med-input { width:100%; border:1.5px solid #b7e4c7; border-radius:12px; padding:9px 12px; font-size:0.875rem; background:rgba(255,255,255,0.7); color:#1b4332; outline:none; transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s; }
+        .med-input:focus { border-color:#52b788; box-shadow:0 0 0 3px rgba(82,183,136,0.18); transform:scale(1.005); background:#fff; }
+        .med-label { font-size:0.78rem; font-weight:600; color:#2d6a4f; margin-bottom:5px; display:block; letter-spacing:0.02em; }
+        .med-tab-trigger { border-radius:10px !important; transition:all 0.2s; }
+        .med-tab-trigger[data-state='active'] { background:#52b788 !important; color:white !important; box-shadow:0 4px 12px rgba(82,183,136,0.3) !important; }
+      `}</style>
 
-      <Tabs defaultValue="pillars" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="pillars" className="text-base">
-            What is Nirvaha (5 Pillars)
-          </TabsTrigger>
-          <TabsTrigger value="library" className="text-base">
-            Explore Our Learning (Library)
-          </TabsTrigger>
-          <TabsTrigger value="goals" className="text-base">
-            Why Ancient Wisdom (Goals)
-          </TabsTrigger>
-        </TabsList>
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="med-card p-6 mb-8">
+          <div className="flex items-center gap-3">
+            <Plus className="w-8 h-8 text-[#2d6a4f]" />
+            <div>
+              <h1 className="text-2xl font-bold text-[#1b4332]">Landing Page Content Management</h1>
+              <p className="text-sm text-[#74c69d]">Update images, titles, and descriptions for all landing page sections</p>
+            </div>
+          </div>
+        </div>
+
+        <Tabs defaultValue="pillars" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-8 p-1.5 bg-[#d8f3dc] rounded-2xl h-auto">
+            <TabsTrigger value="pillars" className="med-tab-trigger py-3 text-sm font-bold text-[#2d6a4f]">
+              What is Nirvaha (5 Pillars)
+            </TabsTrigger>
+            <TabsTrigger value="library" className="med-tab-trigger py-3 text-sm font-bold text-[#2d6a4f]">
+              Explore Our Learning (Library)
+            </TabsTrigger>
+            <TabsTrigger value="goals" className="med-tab-trigger py-3 text-sm font-bold text-[#2d6a4f]">
+              Why Ancient Wisdom (Goals)
+            </TabsTrigger>
+          </TabsList>
 
         {/* What is Nirvaha Section */}
         <TabsContent value="pillars" className="space-y-6">
@@ -304,27 +322,25 @@ export function ContentUpdatePage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <Card className="bg-white border-emerald-200 p-6 space-y-4">
+                <div className="med-card p-6 space-y-4">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-black">Pillar {pillar.id}</h3>
-                    <Button
-                      variant="ghost"
-                      size="sm"
+                    <h3 className="text-lg font-bold text-[#1b4332]">Pillar {pillar.id}</h3>
+                    <button
                       onClick={() => deletePillar(pillar.id)}
-                      className="text-red-600 hover:bg-red-50"
+                      className="text-red-400 hover:text-red-600 p-2 rounded-full hover:bg-red-50 transition-colors"
                     >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                      <Trash2 className="w-5 h-5" />
+                    </button>
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Image Preview */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Image URL</label>
+                    <div className="space-y-3">
+                      <label className="med-label">Image URL</label>
                       <img
                         src={pillar.image}
                         alt={pillar.title}
-                        className="w-full h-48 object-cover rounded-lg border border-gray-300"
+                        className="w-full h-48 object-cover rounded-xl border border-[#b7e4c7] shadow-sm"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src =
                             "https://placehold.co/600x400/e2e8f0/1a5d47?text=Image";
@@ -334,7 +350,7 @@ export function ContentUpdatePage() {
                         type="text"
                         value={pillar.image}
                         onChange={(e) => updatePillar(pillar.id, "image", e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                        className="med-input"
                         placeholder="Image URL"
                       />
                     </div>
@@ -342,76 +358,74 @@ export function ContentUpdatePage() {
                     {/* Content */}
                     <div className="space-y-4">
                       <div>
-                        <label className="text-sm font-medium text-gray-700 block mb-2">Title</label>
+                        <label className="med-label">Title</label>
                         <input
                           type="text"
                           value={pillar.title}
                           onChange={(e) => updatePillar(pillar.id, "title", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="med-input"
                           placeholder="Pillar title"
                         />
                       </div>
 
                       <div>
-                        <label className="text-sm font-medium text-gray-700 block mb-2">Description</label>
+                        <label className="med-label">Description</label>
                         <textarea
                           value={pillar.desc}
                           onChange={(e) => updatePillar(pillar.id, "desc", e.target.value)}
                           rows={4}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                          className="med-input resize-none"
                           placeholder="Pillar description"
                         />
                       </div>
                     </div>
                   </div>
-                </Card>
+                </div>
               </motion.div>
             ))}
           </div>
 
-          <div className="flex gap-3">
-            <Button
+          <div className="flex gap-4">
+            <button
               onClick={addPillar}
-              className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white"
+              className="med-btn-primary"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add New Pillar
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={savePillars}
-              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white"
+              className="med-btn-outline"
             >
               <Save className="w-4 h-4 mr-2" />
               Save All Changes
-            </Button>
+            </button>
           </div>
         </TabsContent>
 
         {/* Explore Our Learning Section */}
         <TabsContent value="library" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {libraryItems.map((item, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <Card className="bg-white border-emerald-200 p-4 space-y-4 relative">
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                <div className="med-card p-4 space-y-4 relative overflow-hidden group">
+                  <button
                     onClick={() => deleteLibraryItem(index)}
-                    className="absolute top-2 right-2 text-red-600 hover:bg-red-50"
+                    className="absolute top-2 right-2 text-red-400 hover:text-red-600 p-1.5 rounded-full bg-white/50 hover:bg-white transition-all opacity-0 group-hover:opacity-100 shadow-sm"
                   >
                     <Trash2 className="w-4 h-4" />
-                  </Button>
+                  </button>
 
                   {/* Image Preview */}
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <img
                       src={item.image}
                       alt={item.title}
-                      className="w-full h-40 object-cover rounded-lg border border-gray-300"
+                      className="w-full h-40 object-cover rounded-xl border border-[#b7e4c7] shadow-inner"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src =
                           "https://placehold.co/400x300/e2e8f0/1a5d47?text=Item";
@@ -421,99 +435,98 @@ export function ContentUpdatePage() {
                       type="text"
                       value={item.image}
                       onChange={(e) => updateLibraryItem(index, "image", e.target.value)}
-                      className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="med-input text-xs"
                       placeholder="Image URL"
                     />
                   </div>
 
                   {/* Content */}
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <div>
-                      <label className="text-xs font-medium text-gray-700 block mb-1">Title</label>
+                      <label className="med-label">Title</label>
                       <input
                         type="text"
                         value={item.title}
                         onChange={(e) => updateLibraryItem(index, "title", e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        className="med-input"
                         placeholder="Item title"
                       />
                     </div>
 
-                    <div>
-                      <label className="text-xs font-medium text-gray-700 block mb-1">Category</label>
-                      <input
-                        type="text"
-                        value={item.category}
-                        onChange={(e) => updateLibraryItem(index, "category", e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                        placeholder="Category"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-medium text-gray-700 block mb-1">Duration</label>
-                      <input
-                        type="text"
-                        value={item.duration}
-                        onChange={(e) => updateLibraryItem(index, "duration", e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                        placeholder="Duration"
-                      />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="med-label">Category</label>
+                        <input
+                          type="text"
+                          value={item.category}
+                          onChange={(e) => updateLibraryItem(index, "category", e.target.value)}
+                          className="med-input text-xs"
+                          placeholder="Category"
+                        />
+                      </div>
+                      <div>
+                        <label className="med-label">Duration</label>
+                        <input
+                          type="text"
+                          value={item.duration}
+                          onChange={(e) => updateLibraryItem(index, "duration", e.target.value)}
+                          className="med-input text-xs"
+                          placeholder="Duration"
+                        />
+                      </div>
                     </div>
                   </div>
-                </Card>
+                </div>
               </motion.div>
             ))}
           </div>
 
-          <div className="flex gap-3">
-            <Button
+          <div className="flex gap-4">
+            <button
               onClick={addLibraryItem}
-              className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white"
+              className="med-btn-primary"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add New Item
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={saveLibraryItems}
-              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white"
+              className="med-btn-outline"
             >
               <Save className="w-4 h-4 mr-2" />
               Save All Changes
-            </Button>
+            </button>
           </div>
         </TabsContent>
 
         {/* Why Ancient Wisdom Goals Section */}
         <TabsContent value="goals" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             {goals.map((goal) => (
               <motion.div
                 key={goal.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <Card className="bg-white border-emerald-200 p-6 space-y-4">
+                <div className="med-card p-6 space-y-4">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-black">Goal {goal.id}</h3>
-                    <Button
-                      variant="ghost"
-                      size="sm"
+                    <h3 className="text-lg font-bold text-[#1b4332]">Goal {goal.id}</h3>
+                    <button
                       onClick={() => deleteGoal(goal.id)}
-                      className="text-red-600 hover:bg-red-50"
+                      className="text-red-400 hover:text-red-600 p-2 rounded-full hover:bg-red-50 transition-colors"
                     >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                      <Trash2 className="w-5 h-5" />
+                    </button>
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Image Preview */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Image URL</label>
+                    <div className="space-y-3">
+                      <label className="med-label">Image URL</label>
                       <img
                         src={goal.image}
                         alt={goal.title}
-                        className="w-full h-48 object-cover rounded-lg border border-gray-300"
+                        className="w-full h-48 object-cover rounded-xl border border-[#b7e4c7] shadow-sm"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src =
                             "https://placehold.co/600x400/e2e8f0/1a5d47?text=Image";
@@ -523,7 +536,7 @@ export function ContentUpdatePage() {
                         type="text"
                         value={goal.image}
                         onChange={(e) => updateGoal(goal.id, "image", e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                        className="med-input"
                         placeholder="Image URL"
                       />
                     </div>
@@ -531,61 +544,62 @@ export function ContentUpdatePage() {
                     {/* Content */}
                     <div className="space-y-4">
                       <div>
-                        <label className="text-sm font-medium text-gray-700 block mb-2">Title</label>
+                        <label className="med-label">Title</label>
                         <input
                           type="text"
                           value={goal.title}
                           onChange={(e) => updateGoal(goal.id, "title", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="med-input"
                           placeholder="Goal title"
                         />
                       </div>
 
                       <div>
-                        <label className="text-sm font-medium text-gray-700 block mb-2">Subtitle</label>
+                        <label className="med-label">Subtitle</label>
                         <input
                           type="text"
                           value={goal.subtitle}
                           onChange={(e) => updateGoal(goal.id, "subtitle", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="med-input"
                           placeholder="Goal subtitle"
                         />
                       </div>
 
                       <div>
-                        <label className="text-sm font-medium text-gray-700 block mb-2">Description</label>
+                        <label className="med-label">Description</label>
                         <textarea
                           value={goal.desc}
                           onChange={(e) => updateGoal(goal.id, "desc", e.target.value)}
                           rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                          className="med-input resize-none"
                           placeholder="Goal description"
                         />
                       </div>
                     </div>
                   </div>
-                </Card>
+                </div>
               </motion.div>
             ))}
           </div>
 
-          <div className="flex gap-3">
-            <Button
+          <div className="flex gap-4">
+            <button
               onClick={addGoal}
-              className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white"
+              className="med-btn-primary"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add New Goal
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={saveGoals}
-              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white"
+              className="med-btn-outline"
             >
               <Save className="w-4 h-4 mr-2" />
               Save All Changes
-            </Button>
+            </button>
           </div>
         </TabsContent>      </Tabs>
+      </div>
     </div>
   );
 }

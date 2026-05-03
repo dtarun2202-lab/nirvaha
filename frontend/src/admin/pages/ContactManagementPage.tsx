@@ -35,6 +35,13 @@ export function ContactManagementPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<ContactMessage | null>(null);
 
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const fetchMessages = useCallback(async () => {
     try {
       setLoading(true);
@@ -71,9 +78,6 @@ export function ContactManagementPage() {
     if (!deleteConfirm) return;
     try {
       const token = localStorage.getItem('token');
-      // Assuming a delete route exists or adding one if needed
-      // For now, we'll just filter it out of the UI if no backend delete yet
-      // but let's assume it's /api/contact/admin/:id
       const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/contact/admin/${deleteConfirm._id}`, {
         method: 'DELETE',
         headers: {
@@ -96,10 +100,10 @@ export function ContactManagementPage() {
   };
 
   const filteredMessages = messages.filter(m => 
-    m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    m.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    m.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (m.company && m.company.toLowerCase().includes(searchQuery.toLowerCase()))
+    m.name.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+    m.email.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+    m.message.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+    (m.company && m.company.toLowerCase().includes(debouncedQuery.toLowerCase()))
   );
 
   const columns = [
@@ -149,70 +153,105 @@ export function ContactManagementPage() {
       header: "Actions",
       render: (item: ContactMessage) => (
         <div className="flex gap-2">
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="border-emerald-200 hover:bg-emerald-50 text-emerald-700"
+          <button 
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-[#95d5b2] text-[#2d6a4f] hover:bg-[#A8E6CF] transition-all hover:scale-105 flex items-center gap-1"
             onClick={() => {
               setSelectedMessage(item);
               setIsViewModalOpen(true);
             }}
           >
-            <MessageSquare className="w-4 h-4 mr-1" />
+            <MessageSquare className="w-3.5 h-3.5" />
             View
-          </Button>
-          <Button 
-            size="sm" 
-            variant="ghost" 
-            className="text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+          </button>
+          <button 
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-rose-200 text-rose-500 hover:bg-rose-50 transition-all hover:scale-105"
             onClick={() => setDeleteConfirm(item)}
           >
-            <Trash2 className="w-4 h-4" />
-          </Button>
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
         </div>
       )
     }
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-black mb-2">Inquiries & Leads</h1>
-          <p className="text-gray-700">Manage submissions from the landing page and contact forms</p>
-        </div>
-        <Button
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white"
-        >
-          <RotateCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
-      </div>
+    <div className="min-h-screen -m-6 p-6" style={{ background: "#F0FFF4" }}>
+      <style>{`
+        @keyframes fadeSlideUp { from { opacity:0; transform:translateY(24px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+        @keyframes bounce-slow { 0%, 100% { transform:translateY(-50%) scale(1); } 50% { transform:translateY(-65%) scale(1.1); } }
+        .med-card { background:rgba(255,255,255,0.55); backdrop-filter:blur(8px); border-radius:16px; box-shadow:0 2px 16px rgba(82,183,136,0.12); border:1px solid #b7e4c7; }
+        .med-btn-primary { background: linear-gradient(135deg,#52b788,#40916c); color:#fff; border:none; border-radius:10px; padding:9px 20px; font-weight:600; font-size:0.875rem; cursor:pointer; display:flex; align-items:center; gap:6px; transition:transform 0.15s,box-shadow 0.15s; box-shadow:0 2px 8px rgba(82,183,136,0.3); white-space:nowrap; }
+        .med-btn-primary:hover { transform:scale(1.04); box-shadow:0 4px 16px rgba(82,183,136,0.45); }
+        .med-btn-primary:disabled { opacity:0.6; transform:none; cursor:not-allowed; }
+        .med-search-wrap { position:relative; width:100%; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .med-search-wrap:focus-within { transform: scale(1.01); }
+        .med-search-input { width:100%; border:2px solid #95d5b2; border-radius:18px; padding:15px 48px 15px 52px; font-size:1.05rem; background:rgba(255,255,255,0.8); color:#1b4332; outline:none; transition:all 0.3s; box-shadow:0 4px 12px rgba(82,183,136,0.08); }
+        .med-search-input::placeholder { color:#95d5b2; transition: opacity 0.3s; }
+        .med-search-input:focus::placeholder { opacity: 0.5; }
+        .med-search-input:focus { border-color:#52b788; box-shadow:0 0 0 5px rgba(82,183,136,0.15), 0 8px 30px rgba(82,183,136,0.12); background:#fff; }
+        .med-search-icon { position:absolute; left:18px; top:50%; transform:translateY(-50%); color:#52b788; transition: all 0.3s; }
+        .med-search-wrap:focus-within .med-search-icon { animation: bounce-slow 1s infinite ease-in-out; color: #40916c; }
+        .med-clear-btn { position:absolute; right:15px; top:50%; transform:translateY(-50%); color:#95d5b2; cursor:pointer; padding:5px; border-radius:50%; transition:all 0.2s; }
+        .med-clear-btn:hover { background:rgba(82,183,136,0.1); color:#52b788; transform:translateY(-50%) rotate(90deg); }
+        .med-row:hover { background: #d8f3dc !important; }
+        .med-badge-count { background:#52b788; color:white; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:700; }
+      `}</style>
 
-      <Card className="bg-white border-emerald-200 p-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input
-            placeholder="Search inquiries by name, email, or content..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-white border-emerald-200 text-black"
-          />
-        </div>
-      </Card>
-
-      <Card className="bg-white border-emerald-200">
-        {loading ? (
-          <div className="p-12 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-            <p className="text-gray-500">Loading inquiries...</p>
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-emerald-100 rounded-2xl">
+              <Mail className="w-8 h-8 text-[#2d6a4f]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold text-[#1b4332]">Inquiries & Leads</h1>
+                <span className="med-badge-count">{filteredMessages.length} Messages</span>
+              </div>
+              <p className="text-sm text-[#74c69d]">Manage submissions from the landing page and contact forms</p>
+            </div>
           </div>
-        ) : (
-          <AdminTable data={filteredMessages} columns={columns} emptyMessage="No inquiries found" />
-        )}
-      </Card>
+          <button
+            className="med-btn-primary"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+          >
+            <RotateCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
+          </button>
+        </div>
+
+        <div className="med-card p-6">
+          <div className="med-search-wrap">
+            <Search className="med-search-icon w-6 h-6" />
+            <input
+              className="med-search-input"
+              placeholder="Search inquiries by name, email, or content..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button 
+                className="med-clear-btn"
+                onClick={() => setSearchQuery("")}
+                title="Clear search"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="med-card overflow-hidden">
+          {loading ? (
+            <div className="p-12 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#52b788] mx-auto mb-4"></div>
+              <p className="text-[#2d6a4f] font-medium">Synchronizing with server...</p>
+            </div>
+          ) : (
+            <AdminTable data={filteredMessages} columns={columns} emptyMessage="No inquiries found matching your search" />
+          )}
+        </div>
 
       {/* View Message Modal */}
       <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
@@ -261,6 +300,7 @@ export function ContactManagementPage() {
         onConfirm={handleDelete}
         variant="destructive"
       />
+      </div>
     </div>
   );
 }

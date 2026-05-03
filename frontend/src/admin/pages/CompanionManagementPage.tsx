@@ -107,16 +107,23 @@ export function CompanionManagementPage() {
     };
   }, [socket]);
 
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const filteredCompanions = useMemo(
     () =>
       companions.filter((companion) => {
         const matchesFilter = filter === "all" || companion.status === filter;
         const matchesSearch =
-          companion.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          companion.expertise.toLowerCase().includes(searchQuery.toLowerCase());
+          companion.name.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+          companion.expertise.toLowerCase().includes(debouncedQuery.toLowerCase());
         return matchesFilter && matchesSearch;
       }),
-    [companions, filter, searchQuery]
+    [companions, filter, debouncedQuery]
   );
 
   const handleView = (companion: Companion) => {
@@ -205,44 +212,39 @@ export function CompanionManagementPage() {
       header: "Actions",
       render: (item: Companion) => (
         <div className="flex gap-2">
-          <Button
-            size="sm"
-            className="bg-slate-600 hover:bg-slate-700 text-white flex items-center gap-1"
+          <button
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-[#95d5b2] text-[#2d6a4f] hover:bg-[#A8E6CF] transition-all hover:scale-105"
             onClick={() => handleEdit(item)}
             title="Edit companion details"
           >
-            <Pencil className="w-4 h-4" />
             Edit
-          </Button>
-          <Button
-            size="sm"
-            className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1"
+          </button>
+          <button
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-[#b7e4c7] bg-[#d8f3dc] text-[#1b4332] hover:bg-[#b7e4c7] transition-all hover:scale-105 flex items-center gap-1"
             onClick={() => openConfirm("approve", item)}
             disabled={item.status === "approved"}
             title="Approve companion application"
           >
-            <CheckCircle className="w-4 h-4" />
+            <CheckCircle className="w-3.5 h-3.5" />
             Approve
-          </Button>
-          <Button
-            size="sm"
-            className="bg-amber-500 hover:bg-amber-600 text-white flex items-center gap-1"
+          </button>
+          <button
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-amber-200 text-amber-600 hover:bg-amber-50 transition-all hover:scale-105 flex items-center gap-1"
             onClick={() => openConfirm("reject", item)}
             disabled={item.status === "rejected"}
             title="Reject companion application"
           >
-            <XCircle className="w-4 h-4" />
+            <XCircle className="w-3.5 h-3.5" />
             Reject
-          </Button>
-          <Button
-            size="sm"
-            className="bg-rose-500 hover:bg-rose-600 text-white flex items-center gap-1"
+          </button>
+          <button
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-rose-200 text-rose-500 hover:bg-rose-50 transition-all hover:scale-105 flex items-center gap-1"
             onClick={() => openConfirm("delete", item)}
             title="Remove companion"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3.5 h-3.5" />
             Remove
-          </Button>
+          </button>
         </div>
       ),
     },
@@ -256,50 +258,85 @@ export function CompanionManagementPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-black mb-2">Companion Management</h1>
-          <p className="text-gray-700">Approve, reject, and manage companion applications</p>
-        </div>
-        <Button
-          onClick={handleManualRefresh}
-          disabled={isRefreshing}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2"
-        >
-          <RotateCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
-      </div>
+    <div className="min-h-screen -m-6 p-6" style={{ background: "#F0FFF4" }}>
+      <style>{`
+        @keyframes fadeSlideUp { from { opacity:0; transform:translateY(24px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+        @keyframes bounce-slow { 0%, 100% { transform:translateY(-50%) scale(1); } 50% { transform:translateY(-65%) scale(1.1); } }
+        .med-card { background:rgba(255,255,255,0.55); backdrop-filter:blur(8px); border-radius:16px; box-shadow:0 2px 16px rgba(82,183,136,0.12); border:1px solid #b7e4c7; }
+        .med-btn-primary { background: linear-gradient(135deg,#52b788,#40916c); color:#fff; border:none; border-radius:10px; padding:9px 20px; font-weight:600; font-size:0.875rem; cursor:pointer; display:flex; align-items:center; gap:6px; transition:transform 0.15s,box-shadow 0.15s; box-shadow:0 2px 8px rgba(82,183,136,0.3); white-space:nowrap; }
+        .med-btn-primary:hover { transform:scale(1.04); box-shadow:0 4px 16px rgba(82,183,136,0.45); }
+        .med-btn-primary:disabled { opacity:0.6; transform:none; cursor:not-allowed; }
+        .med-search-wrap { position:relative; width:100%; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .med-search-wrap:focus-within { transform: scale(1.01); }
+        .med-search-input { width:100%; border:2px solid #95d5b2; border-radius:18px; padding:15px 48px 15px 52px; font-size:1.05rem; background:rgba(255,255,255,0.8); color:#1b4332; outline:none; transition:all 0.3s; box-shadow:0 4px 12px rgba(82,183,136,0.08); }
+        .med-search-input::placeholder { color:#95d5b2; }
+        .med-search-input:focus { border-color:#52b788; box-shadow:0 0 0 5px rgba(82,183,136,0.15), 0 8px 30px rgba(82,183,136,0.12); background:#fff; }
+        .med-search-icon { position:absolute; left:18px; top:50%; transform:translateY(-50%); color:#52b788; transition: all 0.3s; }
+        .med-search-wrap:focus-within .med-search-icon { animation: bounce-slow 1s infinite ease-in-out; color: #40916c; }
+        .med-clear-btn { position:absolute; right:15px; top:50%; transform:translateY(-50%); color:#95d5b2; cursor:pointer; padding:5px; border-radius:50%; transition:all 0.2s; }
+        .med-clear-btn:hover { background:rgba(82,183,136,0.1); color:#52b788; transform:translateY(-50%) rotate(90deg); }
+        .med-row:hover { background: #d8f3dc !important; }
+        .med-badge-count { background:#52b788; color:white; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:700; }
+      `}</style>
 
-      <Card className="bg-white border-emerald-200 p-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Search by name or expertise..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white border-emerald-200 text-black placeholder:text-gray-400"
-            />
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Star className="w-8 h-8 text-[#2d6a4f]" />
+            <div>
+              <h1 className="text-2xl font-bold text-[#1b4332]">Companion Management</h1>
+              <p className="text-sm text-[#74c69d]">Approve, reject, and manage companion applications</p>
+            </div>
           </div>
-          <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-full md:w-[200px] bg-white border-emerald-200 text-black">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
+          <button
+            className="med-btn-primary"
+            onClick={handleManualRefresh}
+            disabled={isRefreshing}
+          >
+            <RotateCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Refresh Data
+          </button>
         </div>
-      </Card>
 
-      <Card className="bg-white border-emerald-200">
-        <AdminTable data={filteredCompanions} columns={columns} emptyMessage="No companions found" />
-      </Card>
+        <div className="med-card p-6">
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            <div className="med-search-wrap flex-1">
+              <Search className="med-search-icon w-6 h-6" />
+              <input
+                className="med-search-input"
+                placeholder="Search by name or expertise..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button 
+                  className="med-clear-btn"
+                  onClick={() => setSearchQuery("")}
+                  title="Clear search"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            <div className="w-full md:w-[200px]">
+              <Select value={filter} onValueChange={setFilter}>
+                <SelectTrigger className="w-full bg-white/70 border-[#b7e4c7] text-[#1b4332] rounded-xl h-[50px]">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-[#b7e4c7]">
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
+        <div className="med-card overflow-hidden">
+          <AdminTable data={filteredCompanions} columns={columns} emptyMessage="No companions found" />
+        </div>
 
       <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
         <DialogContent className="max-w-2xl bg-white/95 backdrop-blur-sm max-h-[90vh] overflow-y-auto">
@@ -565,6 +602,7 @@ export function CompanionManagementPage() {
         onConfirm={confirmActionHandler}
         variant={confirmAction?.type === "delete" || confirmAction?.type === "reject" ? "destructive" : "default"}
       />
+      </div>
     </div>
   );
 }
