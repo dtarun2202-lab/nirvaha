@@ -10,4 +10,7 @@ router.post('/', contactController.saveContactMessage);
 // Path will be /api/contact/admin (based on server.js mounting)
 router.get('/admin', authenticateJWT, isAdmin, contactController.getContactMessages);
 
+// Protected admin route to delete a message
+router.delete('/admin/:id', authenticateJWT, isAdmin, contactController.deleteContactMessage);
+
 module.exports = router;

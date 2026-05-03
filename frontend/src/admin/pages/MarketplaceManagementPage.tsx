@@ -6,6 +6,7 @@ import { AdminTable } from "@/admin/components/AdminTable";
 import { ConfirmModal } from "@/admin/components/ConfirmModal";
 import { Search, CheckCircle, Trash2, RotateCw } from "lucide-react";
 import io from "socket.io-client";
+import { BACKEND_CONFIG } from "@/config/backend";
 
 const MARKETPLACE_REQUESTS_KEY = "nirvaha_marketplace_requests";
 
@@ -43,7 +44,7 @@ export function MarketplaceManagementPage() {
     try {
       console.log('📥 [ADMIN] Fetching requests from backend API...');
       
-      const response = await fetch("http://localhost:5000/api/marketplace/requests");
+      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/marketplace/requests`);
       if (!response.ok) {
         throw new Error("Failed to fetch requests");
       }
@@ -157,7 +158,7 @@ export function MarketplaceManagementPage() {
     loadRequests();
     
     // Set up Socket.IO connection for real-time updates
-    const socket = io("http://localhost:5000");
+    const socket = io(BACKEND_CONFIG.SOCKET_BASE_URL);
     
     socket.on("marketplace-new-request", () => {
       console.log("📨 [SOCKET] New marketplace request received");
@@ -230,7 +231,7 @@ export function MarketplaceManagementPage() {
       // Attempt backend API call
       try {
         await fetch(
-          `http://localhost:5000/api/marketplace/requests/${request.id}/approve`,
+          `${BACKEND_CONFIG.API_BASE_URL}/api/marketplace/requests/${request.id}/approve`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -261,7 +262,7 @@ export function MarketplaceManagementPage() {
       // Attempt backend API call
       try {
         await fetch(
-          `http://localhost:5000/api/marketplace/requests/${request.id}`,
+          `${BACKEND_CONFIG.API_BASE_URL}/api/marketplace/requests/${request.id}`,
           { method: "DELETE" }
         );
       } catch (err) {

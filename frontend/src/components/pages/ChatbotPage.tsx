@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
 import TextType from "../TextType";
+import { BACKEND_CONFIG } from "@/config/backend";
 
 type Message = { type: "ai" | "user"; content: string; timestamp: string };
 type Session = { id: string; title: string; messages: Message[]; createdAt: number; updatedAt: number };
@@ -172,7 +173,7 @@ export function ChatbotPage() {
 
     // Try backend first, fallback to frontend AI
     try {
-      const res = await fetch("http://localhost:5000/api/chat", {
+      const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: sentMessage }),

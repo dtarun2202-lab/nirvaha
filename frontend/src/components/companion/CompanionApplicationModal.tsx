@@ -53,7 +53,7 @@ export default function CompanionApplicationModal({ isOpen, onClose }: Companion
   const uploadFile = async (file: File) => {
     const data = new FormData();
     data.append("file", file);
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || BACKEND_CONFIG.API_BASE_URL || "http://localhost:5000";
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || BACKEND_CONFIG.API_BASE_URL || "http://localhost:5001";
     const res = await fetch(`${API_BASE_URL}/api/upload`, {
       method: "POST",
       body: data,

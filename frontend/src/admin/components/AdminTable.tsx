@@ -28,14 +28,14 @@ export function AdminTable<T extends Record<string, any>>({
   emptyMessage = "No data available",
 }: AdminTableProps<T>) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
+    <div className="rounded-xl border border-[#b7e4c7] bg-white/50 backdrop-blur-sm overflow-hidden shadow-sm">
       <Table>
         <TableHeader>
-          <TableRow className="hover:bg-gray-50 border-gray-200">
+          <TableRow className="hover:bg-emerald-50/50 border-[#b7e4c7] bg-emerald-50/30">
             {columns.map((column) => (
               <TableHead
                 key={column.key}
-                className={`text-gray-900 font-semibold ${column.className || ""}`}
+                className={`text-[#1b4332] font-bold uppercase text-xs tracking-wider ${column.className || ""}`}
               >
                 {column.header}
               </TableHead>
@@ -47,7 +47,7 @@ export function AdminTable<T extends Record<string, any>>({
             <TableRow>
               <TableCell
                 colSpan={columns.length}
-                className="text-center text-gray-600 py-8"
+                className="text-center text-[#40916c] py-12 font-medium"
               >
                 {emptyMessage}
               </TableCell>
@@ -57,14 +57,14 @@ export function AdminTable<T extends Record<string, any>>({
               <TableRow
                 key={index}
                 onClick={() => onRowClick?.(item)}
-                className={`hover:bg-gray-50 border-gray-200 transition-colors ${
+                className={`hover:bg-[#d8f3dc] border-[#d8f3dc] transition-all duration-200 ${
                   onRowClick ? "cursor-pointer" : ""
                 }`}
               >
                 {columns.map((column) => (
                   <TableCell
                     key={column.key}
-                    className={`text-gray-700 ${column.className || ""}`}
+                    className={`text-[#1b4332] font-medium ${column.className || ""}`}
                   >
                     {column.render
                       ? column.render(item)
