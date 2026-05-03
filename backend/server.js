@@ -10,6 +10,9 @@ const http = require('http');
 const { Server } = require('socket.io');
 const bcrypt = require('bcryptjs');
 
+// Load environment variables immediately
+dotenv.config();
+
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
@@ -25,6 +28,7 @@ const landingRoutes = require('./modules/landing/landing.routes');
 const contactRoutes = require('./modules/contact/contact.routes');
 
 const userRoutes = require('./routes/userRoutes');
+const reflectionRoutes = require('./routes/reflectionRoutes');
 
 // Import models for seeding
 const User = require('./models/User');
@@ -32,8 +36,6 @@ const Meditation = require('./models/Meditation');
 const Sound = require('./models/Sound');
 const Post = require('./models/Post');
 const MentorProfile = require('./models/MentorProfile');
-
-dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
@@ -389,6 +391,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/landing', landingRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/reflect', reflectionRoutes);
 app.use('/api', utilityRoutes);
 
 // Legacy route compatibility (for existing frontend code)
