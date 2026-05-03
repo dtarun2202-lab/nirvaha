@@ -4,10 +4,10 @@ import DecorativeShapes from './DecorativeShapes';
 
 const TrustedStats: React.FC = () => {
     const partners = [
-        { name: "Google", logo: "https://www.vectorlogo.zone/logos/google/google-ar21.svg" },
-        { name: "Microsoft", logo: "https://www.vectorlogo.zone/logos/microsoft/microsoft-ar21.svg" },
-        { name: "Amazon", logo: "https://www.vectorlogo.zone/logos/amazon/amazon-ar21.svg" },
-        { name: "Adobe", logo: "https://www.vectorlogo.zone/logos/adobe/adobe-ar21.svg" }
+        { name: "Google", logo: "https://www.vectorlogo.zone/logos/google/google-ar21.svg", url: "https://www.google.com" },
+        { name: "Microsoft", logo: "https://www.vectorlogo.zone/logos/microsoft/microsoft-ar21.svg", url: "https://www.microsoft.com" },
+        { name: "Amazon", logo: "https://www.vectorlogo.zone/logos/amazon/amazon-ar21.svg", url: "https://www.amazon.com" },
+        { name: "Adobe", logo: "https://www.vectorlogo.zone/logos/adobe/adobe-ar21.svg", url: "https://www.adobe.com" }
     ];
 
     return (
@@ -25,13 +25,16 @@ const TrustedStats: React.FC = () => {
                 {/* Partners Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
                     {partners.map((partner, idx) => (
-                        <motion.div
+                        <motion.a
                             key={idx}
+                            href={partner.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             initial={{ opacity: 0, scale: 0.95 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.5, delay: idx * 0.1 }}
                             viewport={{ once: true }}
-                            className="bg-white/50 backdrop-blur-md rounded-2xl aspect-[2/1] flex items-center justify-center p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(16,185,129,0.15)] border border-emerald-100/60 transition-all duration-500 hover:-translate-y-2 group relative overflow-hidden"
+                            className="bg-white/50 backdrop-blur-md rounded-2xl aspect-[2/1] flex items-center justify-center p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(16,185,129,0.15)] border border-emerald-100/60 transition-all duration-500 hover:-translate-y-2 group relative overflow-hidden cursor-pointer no-underline"
                         >
                             {/* Logo Wrapper */}
                             <div className="relative z-10 w-full h-full flex items-center justify-center transition-all duration-500">
@@ -44,7 +47,7 @@ const TrustedStats: React.FC = () => {
 
                             {/* Subtle Fill Hover Effect */}
                             <div className="absolute inset-x-0 bottom-0 h-0 bg-emerald-100/30 transition-all duration-500 group-hover:h-full" />
-                        </motion.div>
+                        </motion.a>
                     ))}
                 </div>
             </div>

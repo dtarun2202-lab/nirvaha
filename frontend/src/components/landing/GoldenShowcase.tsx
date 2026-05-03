@@ -132,7 +132,7 @@ const GoldenShowcase: React.FC = () => {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              navigate('/community');
+              navigate('/stories');
             }}
             className="group relative px-12 py-5 rounded-full bg-[#1a442f] text-white font-semibold text-xl overflow-hidden border border-[#23583e] transition-all duration-500 shadow-2xl hover:shadow-[0_20px_40px_rgba(26,68,47,0.4)] hover:-translate-y-1"
             style={{ fontFamily: "'Poppins', sans-serif" }}

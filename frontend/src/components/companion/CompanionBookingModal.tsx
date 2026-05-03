@@ -38,53 +38,53 @@ interface Companion {
 const mentors: Companion[] = [
   {
     id: "c1",
-    name: "Ananya Sharma",
+    name: "Aisha Mehta",
     category: "Meditation",
-    title: "Mindfulness Expert",
+    title: "Meditation Guide",
     bio: "Helping you find calm through guided meditation.",
     rating: 4.8,
     sessions: 120,
     price: "₹800",
-    avatar: "/meditation/wellness1.jpeg",
+    avatar: "/aisha mehta.png",
     energyTags: ["Calm", "Focus", "Balance"],
     color: "from-emerald-400 to-teal-400"
   },
   {
     id: "c2",
-    name: "Rajesh Iyer",
+    name: "Arjun Verma",
     category: "Counseling",
-    title: "Life Counselor",
+    title: "Counseling Expert",
     bio: "Navigating life's complexities with compassion.",
     rating: 4.9,
     sessions: 210,
     price: "₹1200",
-    avatar: "/meditation/wellness2.jpeg",
+    avatar: "/arjun verma.png",
     energyTags: ["Clarity", "Support", "Growth"],
     color: "from-blue-400 to-indigo-400"
   },
   {
     id: "c3",
-    name: "Priya Das",
+    name: "Kavya Nair",
     category: "Healing",
     title: "Energy Healer",
     bio: "Restoring balance through ancient healing arts.",
     rating: 4.7,
     sessions: 95,
     price: "₹1500",
-    avatar: "/meditation/wellness3.jpeg",
+    avatar: "/kavya.png",
     energyTags: ["Restoration", "Peace", "Aura"],
     color: "from-amber-400 to-orange-400"
   },
   {
     id: "c4",
-    name: "Swami Viveka",
+    name: "Swami Aarav",
     category: "Spiritual",
     title: "Spiritual Guide",
     bio: "Guiding seekers on the path of awakening.",
     rating: 5.0,
     sessions: 500,
     price: "₹2000",
-    avatar: "/meditation/wellness4.jpeg",
+    avatar: "/swami.png",
     energyTags: ["Awakening", "Wisdom", "Zen"],
     color: "from-purple-400 to-pink-400"
   }
@@ -211,41 +211,44 @@ const CompanionBookingModal: React.FC<CompanionBookingModalProps> = ({
         </div>
 
         {/* Right Side - Booking Area */}
-        <div className="flex-1 bg-white p-8 md:p-12 overflow-y-auto relative flex flex-col min-h-0">
+        <div className="flex-1 bg-white relative flex flex-col min-h-0">
           <button
             onClick={onClose}
-            className="absolute top-8 right-8 w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center hover:bg-emerald-100 transition-all text-emerald-800 z-50"
+            className="absolute top-6 right-6 w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center hover:bg-emerald-100 transition-all text-emerald-800 z-50"
           >
             <X className="w-5 h-5" />
           </button>
 
-          {/* Progress Indicator */}
-          <div className="mb-10 flex-shrink-0">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-xs uppercase tracking-[0.2em] font-bold text-emerald-800/40">Step {currentStep} of {totalSteps}</span>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <div
-                    key={s}
-                    className={`w-2 h-2 rounded-full transition-all duration-500 ${
-                      currentStep === s ? 'w-6 bg-emerald-600' : currentStep > s ? 'bg-emerald-600/40' : 'bg-emerald-50'
-                    }`}
-                  />
-                ))}
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto p-8 md:p-12">
+            {/* Progress Indicator */}
+            <div className="mb-10">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs uppercase tracking-[0.2em] font-bold text-emerald-800/40">Step {currentStep} of {totalSteps}</span>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <div
+                      key={s}
+                      className={`w-2 h-2 rounded-full transition-all duration-500 ${
+                        currentStep === s ? 'w-6 bg-emerald-600' : currentStep > s ? 'bg-emerald-600/40' : 'bg-emerald-50'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="h-1 w-full bg-emerald-50 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={false}
+                  animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
+                  className="h-full bg-emerald-600 shadow-[0_0_10px_rgba(5,150,105,0.5)]"
+                />
               </div>
             </div>
-            <div className="h-1 w-full bg-emerald-50 rounded-full overflow-hidden">
-              <motion.div 
-                initial={false}
-                animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
-                className="h-full bg-emerald-600 shadow-[0_0_10px_rgba(5,150,105,0.5)]"
-              />
-            </div>
-          </div>
 
-          {/* Steps Content */}
-          <div className="flex-1 min-h-0">
+            {/* Steps Content */}
             <AnimatePresence mode="wait">
+              {/* ... existing steps content ... */}
+              {/* (I will keep the steps content as is, just wrapped in the new structure) */}
               {currentStep === 1 && (
                 <motion.div
                   key="step1"
@@ -439,8 +442,8 @@ const CompanionBookingModal: React.FC<CompanionBookingModalProps> = ({
             </AnimatePresence>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center justify-between mt-10 pt-8 border-t border-emerald-50 flex-shrink-0">
+          {/* Fixed Footer Actions */}
+          <div className="p-8 md:px-12 md:pb-12 md:pt-6 border-t border-emerald-50 flex items-center justify-between bg-white flex-shrink-0">
             <button
               onClick={prevStep}
               className={`flex items-center gap-2 font-bold transition-all ${
@@ -456,7 +459,7 @@ const CompanionBookingModal: React.FC<CompanionBookingModalProps> = ({
               onClick={nextStep}
               className={`
                 px-10 py-5 rounded-2xl font-bold shadow-xl transition-all flex items-center gap-3
-                ${currentStep === totalSteps ? 'bg-emerald-900 text-white' : 'bg-emerald-600 text-white shadow-emerald-200'}
+                ${currentStep === totalSteps ? 'bg-emerald-900 text-white' : 'bg-emerald-600 text-white shadow-emerald-200 shadow-lg'}
               `}
             >
               {currentStep === totalSteps ? (

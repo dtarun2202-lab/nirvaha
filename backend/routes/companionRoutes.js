@@ -116,6 +116,7 @@ router.get('/applications/:id', async (req, res) => {
 // Create new companion application
 router.post('/applications', async (req, res) => {
   try {
+    console.log('📥 Incoming Companion Application:', req.body);
     const payload = req.body || {};
     const requiredFields = [
       'fullName',
@@ -127,14 +128,21 @@ router.post('/applications', async (req, res) => {
       'location',
       'languages',
       'specialties',
-      'hourlyRate',
-      'callRate',
       'whyJoin',
     ];
-    const missing = requiredFields.filter((field) => !payload[field]);
+    
+    const missing = requiredFields.filter((field) => {
+      const val = payload[field];
+      return val === undefined || val === null || val === '';
+    });
+
+    // Check rates separately to allow 0
+    if (payload.hourlyRate === undefined || payload.hourlyRate === null || payload.hourlyRate === '') missing.push('hourlyRate');
+    if (payload.callRate === undefined || payload.callRate === null || payload.callRate === '') missing.push('callRate');
+
     if (missing.length > 0) {
       return res.status(400).json({
-        error: 'Missing required fields',
+        error: `Missing required fields: ${missing.join(', ')}`,
         fields: missing,
       });
     }

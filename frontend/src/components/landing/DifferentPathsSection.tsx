@@ -1,29 +1,64 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Sprout, Scale, Zap } from 'lucide-react';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import DecorativeShapes from './DecorativeShapes';
+import PathDetailsModal from './PathDetailsModal';
 
 // --- Content Data ---
 const pathCards = [
     {
+        id: 'schools',
         icon: <Sprout className="w-16 h-16" />,
         title: "Schools & Universities",
         description: "Emotional foundations for young minds."
     },
     {
+        id: 'corporates',
         icon: <Scale className="w-16 h-16" />,
         title: "Corporates",
         description: "Burnout prevention and meaningful focus."
     },
     {
+        id: 'athletes',
         icon: <Zap className="w-16 h-16" />,
         title: "Athletes",
         description: "Mental resilience under pressure."
     }
 ];
 
+const pathContents: Record<string, any> = {
+    schools: {
+        subtitle: "Nurturing Future Clarity",
+        description: "Modern education demands more than academic excellence. We provide the emotional scaffolding students need to thrive in a high-pressure world.",
+        features: ["Focus & Attention Training", "Emotional Literacy Workshops", "Exam Stress Management", "Peer Support Frameworks"],
+        benefits: ["Reduced academic anxiety", "Improved classroom engagement", "Enhanced social harmony", "Stronger mental resilience"],
+        cta: "Partner with Us"
+    },
+    corporates: {
+        subtitle: "Leading with Presence",
+        description: "Productivity isn't about working harder; it's about thinking clearer. We transform workplace culture through mindful leadership and cognitive discipline.",
+        features: ["Executive Focus Coaching", "Burnout Prevention Systems", "Team Synergy Workshops", "Decisional Intelligence"],
+        benefits: ["Lower employee turnover", "Higher creative output", "Reduced sick days", "Emotionally stable leadership"],
+        cta: "Inquire for Teams"
+    },
+    athletes: {
+        subtitle: "The Inner Game of Excellence",
+        description: "Physical strength is only half the battle. We help elite performers master the psychological discipline required to reach and maintain peak performance.",
+        features: ["Flow State Induction", "Visualization Techniques", "Pressure Management", "Recovery-Mindset Training"],
+        benefits: ["Consistent peak performance", "Faster mental recovery", "Unyielding game-day focus", "Sustainable career longevity"],
+        cta: "Start Your Training"
+    }
+};
+
 export function DifferentPathsSection() {
     const { ref: sectionRef, inView } = useScrollAnimation<HTMLDivElement>();
+    const [selectedPath, setSelectedPath] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handlePathClick = (pathId: string) => {
+        setSelectedPath(pathId);
+        setIsModalOpen(true);
+    };
 
     return (
         <section className="relative w-full overflow-hidden" style={{ backgroundColor: '#ffffff' }}>
@@ -83,6 +118,7 @@ export function DifferentPathsSection() {
                                 }}
                             >
                                 <div
+                                    onClick={() => handlePathClick(card.id)}
                                     className="group relative p-10 sm:p-12 rounded-3xl min-h-[420px] flex flex-col overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-2xl bg-[#fafafa]"
                                     style={{
                                         border: '1px solid #e5e7eb',
@@ -168,6 +204,14 @@ export function DifferentPathsSection() {
                 </div>
             </div>
 
+            {selectedPath && (
+                <PathDetailsModal 
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    title={pathCards.find(c => c.id === selectedPath)?.title || ''}
+                    content={pathContents[selectedPath]}
+                />
+            )}
 
         </section >
     );

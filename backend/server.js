@@ -21,6 +21,9 @@ const marketplaceRoutes = require('./routes/marketplaceRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const utilityRoutes = require('./routes/utilityRoutes');
 const postRoutes = require('./routes/postRoutes');
+const landingRoutes = require('./modules/landing/landing.routes');
+const contactRoutes = require('./modules/contact/contact.routes');
+
 
 // Import models for seeding
 const User = require('./models/User');
@@ -80,11 +83,14 @@ const upload = multer({
       'image/png',
       'image/webp',
       'image/gif',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ];
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only audio and image files are allowed.'));
+      cb(new Error('Invalid file type. Only audio, image, and document files (PDF/DOC) are allowed.'));
     }
   },
 });
@@ -379,6 +385,8 @@ app.use('/api/content', contentRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/landing', landingRoutes);
+app.use('/api/contact', contactRoutes);
 app.use('/api', utilityRoutes);
 
 // Legacy route compatibility (for existing frontend code)

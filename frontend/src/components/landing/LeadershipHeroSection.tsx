@@ -1,8 +1,11 @@
+import React, { useState } from 'react';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import DecorativeShapes from './DecorativeShapes';
+import CompanionApplicationModal from '../companion/CompanionApplicationModal';
 
 export function LeadershipHeroSection() {
     const { ref: sectionRef, inView } = useScrollAnimation();
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
         <section
@@ -57,6 +60,7 @@ export function LeadershipHeroSection() {
                                         WebkitBackgroundClip: 'text',
                                         WebkitTextFillColor: 'transparent',
                                         backgroundClip: 'text',
+                                        color: 'transparent'
                                     }}
                                 >
                                     Leads Through Service.
@@ -81,7 +85,8 @@ export function LeadershipHeroSection() {
                             {/* Desktop CTA */}
                             <div className={`mt-10 hidden lg:block transition-all duration-1000 ease-out delay-600 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                                 <button
-                                    className="group relative px-10 py-5 rounded-full font-semibold text-lg text-white overflow-hidden transition-all duration-500 hover:shadow-[0_20px_50px_rgba(26,93,71,0.3)] hover:-translate-y-2"
+                                    onClick={() => setIsModalOpen(true)}
+                                    className="group relative inline-flex px-10 py-5 rounded-full font-semibold text-lg text-white overflow-hidden transition-all duration-500 hover:shadow-[0_20px_50px_rgba(26,93,71,0.3)] hover:-translate-y-2 no-underline"
                                     style={{
                                         background: 'linear-gradient(135deg, #1a5d47 0%, #2d8a6b 100%)',
                                         fontFamily: "'Poppins', sans-serif",
@@ -108,7 +113,8 @@ export function LeadershipHeroSection() {
                             {/* Mobile CTA */}
                             <div className="mt-10 lg:hidden text-left">
                                 <button
-                                    className="px-8 py-4 rounded-full font-semibold text-white bg-[#1a5d47] shadow-lg"
+                                    onClick={() => setIsModalOpen(true)}
+                                    className="inline-block px-8 py-4 rounded-full font-semibold text-white bg-[#1a5d47] shadow-lg no-underline"
                                     style={{ fontFamily: "'Poppins', sans-serif" }}
                                 >
                                     Start Your Coaching Journey
@@ -135,6 +141,11 @@ export function LeadershipHeroSection() {
                     </div>
                 </div>
             </div>
+
+            <CompanionApplicationModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+            />
 
             <style>{`
                 @keyframes shimmer {

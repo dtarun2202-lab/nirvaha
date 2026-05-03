@@ -7,32 +7,36 @@ import { DashboardFooter } from '../components/dashboard/DashboardFooter';
 // --- Programs Data ---
 const programs = [
     {
-        title: 'Entrepreneurial Decision Intelligence',
-        description: 'Decision strategies and judgment frameworks for founders and innovators.',
-        cta: 'Learn More',
-        image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80',
-        feel: 'Strategic & Visionary',
+        title: 'Mindfulness Meditation Certification',
+        description: 'Learn the art and science of mindfulness meditation and become a certified instructor.',
+        cta: 'Begin Your Calm Journey',
+        image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80',
+        feel: 'Calm & Focused',
+        videoUrl: 'https://www.youtube.com/watch?v=inpok4MKVLM', // Mindfulness meditation video
     },
     {
-        title: 'Cognitive & Decision Making in AI Systems',
-        description: 'Human-AI interaction and advanced decision processes.',
-        cta: 'Learn More',
-        image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=600&q=80',
-        feel: 'Analytical & Innovative',
+        title: 'Emotional Intelligence Mastery',
+        description: 'Deep dive into emotional intelligence with practical tools and certification.',
+        cta: 'Unlock Your Inner Strength',
+        image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=600&q=80',
+        feel: 'Empowered & Aware',
+        videoUrl: 'https://www.youtube.com/watch?v=LgUCyWhJf6s', // Emotional Intelligence video
     },
     {
-        title: 'Attention Dynamics & Thinking Discipline',
-        description: 'Focus management and cognitive control techniques.',
-        cta: 'Learn More',
-        image: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=600&q=80',
-        feel: 'Focused & Mindful',
+        title: 'Holistic Wellness Coach',
+        description: 'Comprehensive training to guide others on their holistic wellness journey.',
+        cta: 'Become a Wellness Guide',
+        image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=600&q=80',
+        feel: 'Balanced & Inspired',
+        videoUrl: 'https://www.youtube.com/watch?v=m8v1uC5rV8U', // Holistic Wellness video
     },
     {
-        title: 'Verbal Clarity & Professional Communication',
-        description: 'Effective communication and strategic interaction skills.',
-        cta: 'Learn More',
-        image: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=600&q=80',
-        feel: 'Articulate & Confident',
+        title: 'Spiritual Counseling Program',
+        description: 'Integrate ancient wisdom and modern psychology for spiritual counseling.',
+        cta: 'Start Your Spiritual Path',
+        image: 'https://images.unsplash.com/photo-1528319725582-ddc0b610113c?auto=format&fit=crop&w=600&q=80',
+        feel: 'Connected & Uplifted',
+        videoUrl: 'https://www.youtube.com/watch?v=4p_P7_9p_P8', // Spiritual psychology/counseling
     },
 ];
 
@@ -211,56 +215,59 @@ const NirvahaAcademyPage: React.FC = () => {
                     </motion.h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                         {programs.map((program, idx) => (
-                            <motion.div
-                                key={idx}
-                                initial={{ opacity: 0, y: 40, scale: 0.95 }}
-                                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                                viewport={{ once: false, margin: "-50px" }}
-                                transition={{ duration: 0.6, delay: idx * 0.15, ease: [0.25, 0.1, 0.25, 1] }}
-                                whileHover={{ scale: 1.03, y: -4 }}
-                                className={`relative group rounded-xl border border-[#e2e8f0] flex flex-col sm:flex-row items-stretch overflow-hidden shadow-lg ${programCardStyles[idx % programCardStyles.length]}`}
-                                style={{ minHeight: 200 }}
-                            >
-                                {/* Image holder */}
-                                <div className="sm:w-2/5 w-full h-44 sm:h-auto flex items-center justify-center bg-white/30 overflow-hidden">
-                                    <motion.img
-                                        src={program.image}
-                                        alt={program.title}
-                                        className="object-cover w-full h-full"
-                                        whileHover={{ scale: 1.1 }}
-                                        transition={{ duration: 0.6, ease: "easeOut" }}
-                                        onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                                            (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(program.title)}&background=ffffff&color=1a5d47&bold=true&size=300`;
-                                        }}
-                                    />
-                                </div>
-                                {/* Content */}
-                                <div className="flex-1 p-5 flex flex-col justify-between">
-                                    <div>
-                                        <h3 className="text-xl md:text-2xl font-semibold text-[#333333] mb-2 drop-shadow-sm">
-                                            {program.title}
-                                        </h3>
-                                        <p className="text-gray-700 text-sm leading-relaxed mb-3">
-                                            {program.description}
-                                        </p>
+                                <motion.a
+                                    key={idx}
+                                    href={program.videoUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                                    viewport={{ once: false, margin: "-50px" }}
+                                    transition={{ duration: 0.6, delay: idx * 0.15, ease: [0.25, 0.1, 0.25, 1] }}
+                                    whileHover={{ scale: 1.03, y: -4 }}
+                                    className={`relative group rounded-xl border border-[#e2e8f0] flex flex-col sm:flex-row items-stretch overflow-hidden shadow-lg cursor-pointer no-underline ${programCardStyles[idx % programCardStyles.length]}`}
+                                    style={{ minHeight: 200, display: 'flex' }}
+                                >
+                                    {/* Image holder */}
+                                    <div className="sm:w-2/5 w-full h-44 sm:h-auto flex items-center justify-center bg-white/30 overflow-hidden">
+                                        <motion.img
+                                            src={program.image}
+                                            alt={program.title}
+                                            className="object-cover w-full h-full"
+                                            whileHover={{ scale: 1.1 }}
+                                            transition={{ duration: 0.6, ease: "easeOut" }}
+                                            onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                                                (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(program.title)}&background=ffffff&color=1a5d47&bold=true&size=300`;
+                                            }}
+                                        />
                                     </div>
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-[#f5f5f5] to-[#333333]/20 text-[#333333] border border-[#333333]/30">
-                                            <svg className="w-4 h-4 mr-1 text-[#333333]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l2 2" /></svg>
-                                            <span className="uppercase tracking-wide">Feel:</span>&nbsp;{program.feel}
-                                        </span>
+                                    {/* Content */}
+                                    <div className="flex-1 p-5 flex flex-col justify-between">
+                                        <div>
+                                            <h3 className="text-xl md:text-2xl font-semibold text-[#333333] mb-2 drop-shadow-sm">
+                                                {program.title}
+                                            </h3>
+                                            <p className="text-gray-700 text-sm leading-relaxed mb-3">
+                                                {program.description}
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-[#f5f5f5] to-[#333333]/20 text-[#333333] border border-[#333333]/30">
+                                                <svg className="w-4 h-4 mr-1 text-[#333333]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l2 2" /></svg>
+                                                <span className="uppercase tracking-wide">Feel:</span>&nbsp;{program.feel}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                                {/* Hover CTA overlay */}
-                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                    <div className="opacity-0 group-hover:opacity-100 pointer-events-auto flex items-center justify-center transition-all duration-300 w-full h-full">
-                                        <div className="backdrop-blur-md bg-white/60 rounded-2xl flex items-center justify-center w-full h-full absolute z-0 transition-all duration-300" />
-                                        <button className="relative z-10 px-8 py-3 rounded-full bg-white/80 backdrop-blur-lg text-[#333333] text-lg font-bold shadow-2xl border border-[#333333]/10 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#333333]/50 hover:bg-gradient-to-r hover:from-[#555555] hover:to-[#777777] hover:text-white hover:border-transparent">
-                                            {program.cta} <ArrowRight className="w-4 h-4 inline ml-1" />
-                                        </button>
+                                    {/* Hover CTA overlay */}
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                        <div className="opacity-0 group-hover:opacity-100 pointer-events-auto flex items-center justify-center transition-all duration-300 w-full h-full">
+                                            <div className="backdrop-blur-md bg-white/60 rounded-2xl flex items-center justify-center w-full h-full absolute z-0 transition-all duration-300" />
+                                            <div className="relative z-10 px-8 py-3 rounded-full bg-white/80 backdrop-blur-lg text-[#333333] text-lg font-bold shadow-2xl border border-[#333333]/10 transition-all duration-300">
+                                                {program.cta} <ArrowRight className="w-4 h-4 inline ml-1" />
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </motion.div>
+                                </motion.a>
                         ))}
                     </div>
                 </div>
