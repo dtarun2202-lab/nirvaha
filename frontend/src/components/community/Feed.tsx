@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import BACKEND_CONFIG from "../../config/backend";
 import PostCard from "./PostCard";
 import type { Post, Comment } from "./communityData";
 import { motion, AnimatePresence } from "framer-motion";
@@ -39,7 +40,7 @@ export default function Feed({
     ));
 
     try {
-      await fetch(`http://localhost:5001/api/posts/${id}/like`, {
+      await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/posts/${id}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ liked: isLiking })
@@ -67,7 +68,7 @@ export default function Feed({
     ));
 
     try {
-      await fetch(`http://localhost:5001/api/posts/${id}/comment`, {
+      await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/posts/${id}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

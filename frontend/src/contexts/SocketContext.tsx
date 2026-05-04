@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import io, { Socket } from 'socket.io-client';
 import { toast } from 'react-toastify';
+import BACKEND_CONFIG from '../config/backend';
 
 interface ContentUpdate {
   key: string;
@@ -34,7 +35,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [content, setContent] = useState<Record<string, any>>({});
 
   useEffect(() => {
-    const newSocket = io('http://localhost:5001', {
+    const newSocket = io(BACKEND_CONFIG.SOCKET_BASE_URL, {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000
@@ -112,7 +113,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const fetchContent = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/content');
+      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/content`);
       const data = await response.json();
       setContent(data);
     } catch (error) {

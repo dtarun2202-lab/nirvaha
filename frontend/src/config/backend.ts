@@ -18,15 +18,13 @@ export const BACKEND_CONFIG = {
 
   // Get the appropriate URL based on environment
   get API_BASE_URL() {
-    const url = this.FORCE_LOCAL || this.IS_DEVELOPMENT ? this.LOCAL_API_URL : this.API_URL;
-    console.log('🔗 Using API URL:', url);
-    return url;
+    console.log('🔗 Using API URL:', this.API_URL);
+    return this.API_URL;
   },
 
   get SOCKET_BASE_URL() {
-    const url = this.FORCE_LOCAL || this.IS_DEVELOPMENT ? this.LOCAL_SOCKET_URL : this.SOCKET_URL;
-    console.log('🔌 Using Socket URL:', url);
-    return url;
+    console.log('🔌 Using Socket URL:', this.SOCKET_URL);
+    return this.SOCKET_URL;
   },
 
   // Health check function

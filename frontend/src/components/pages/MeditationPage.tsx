@@ -1,5 +1,6 @@
 import React ,{ useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import BACKEND_CONFIG from "../../config/backend";
 
 const heroImage = "/meditation/first.jpg";
 
@@ -1868,7 +1869,7 @@ const MeditationSessions: React.FC = () => {
 
   // Fetch active sessions from backend
   useEffect(() => {
-    fetch("http://localhost:5001/api/meditations")
+    fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/meditations`)
       .then(res => res.json())
       .then(data => {
         // Show only Active sessions

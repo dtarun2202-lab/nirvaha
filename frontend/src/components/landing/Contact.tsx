@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, CheckCircle } from "lucide-react";
-import { BACKEND_CONFIG } from "@/config/backend";
+import BACKEND_CONFIG from "@/config/backend";
 
 interface Question {
   id: string;
@@ -86,7 +86,7 @@ const Contact = () => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || BACKEND_CONFIG.API_BASE_URL || "http://localhost:5001";
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || BACKEND_CONFIG.API_BASE_URL;
       const response = await fetch(`${API_BASE_URL}/api/contact`, {
         method: 'POST',
         headers: {

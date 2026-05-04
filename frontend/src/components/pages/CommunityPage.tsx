@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+import BACKEND_CONFIG from "../../config/backend";
 import { X, Send } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -10,7 +11,7 @@ import RightSidebar from "../community/RightSidebar";
 import CreatePost from "../community/CreatePost";
 import type { Post } from "../community/communityData";
 
-const API = "http://localhost:5001";
+const API = BACKEND_CONFIG.API_BASE_URL;
 
 export function CommunityPage() {
   const { user } = useAuth();

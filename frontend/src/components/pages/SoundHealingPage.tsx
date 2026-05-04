@@ -2024,7 +2024,7 @@ function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPl
   const localAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    fetch(`${BACKEND_CONFIG.API_BASE_URL || 'http://localhost:5001'}/api/sounds`)
+    fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/sounds`)
       .then(res => res.json())
       .then(data => {
         setSessions(data);

@@ -8,7 +8,7 @@ const dotenv = require('dotenv');
 const { v4: uuidv4 } = require('uuid');
 const http = require('http');
 const { Server } = require('socket.io');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs');``
 
 // Load environment variables immediately
 dotenv.config();
@@ -41,7 +41,11 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'https://nirvaha-wellnessllp.vercel.app'
+    ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     credentials: true,
   },
@@ -366,10 +370,15 @@ io.on('connection', (socket) => {
 // Middleware
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'https://nirvaha-wellnessllp.vercel.app'   
+    ],
     credentials: true,
   })
 );
+
 app.use(express.json({ limit: '2mb' }));
 
 // Make io accessible to routes
