@@ -8,8 +8,8 @@ export const BACKEND_CONFIG = {
   LOCAL_API_URL: 'http://localhost:5001',
   LOCAL_SOCKET_URL: 'http://localhost:5001',
 
-  // Check if we're in development mode
-  IS_DEVELOPMENT: import.meta.env.DEV ||
+  // Check if we're in development mode (localhost or 127.0.0.1)
+  IS_DEVELOPMENT: 
     window.location.hostname === 'localhost' ||
     window.location.hostname === '127.0.0.1',
 
@@ -18,13 +18,15 @@ export const BACKEND_CONFIG = {
 
   // Get the appropriate URL based on environment
   get API_BASE_URL() {
-    console.log('🔗 Using API URL:', this.API_URL);
-    return this.API_URL;
+    const url = (this.IS_DEVELOPMENT || this.FORCE_LOCAL) ? this.LOCAL_API_URL : this.API_URL;
+    console.log('🔗 Using API URL:', url);
+    return url;
   },
 
   get SOCKET_BASE_URL() {
-    console.log('🔌 Using Socket URL:', this.SOCKET_URL);
-    return this.SOCKET_URL;
+    const url = (this.IS_DEVELOPMENT || this.FORCE_LOCAL) ? this.LOCAL_SOCKET_URL : this.SOCKET_URL;
+    console.log('🔌 Using Socket URL:', url);
+    return url;
   },
 
   // Health check function

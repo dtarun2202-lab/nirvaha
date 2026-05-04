@@ -8,7 +8,13 @@ const dotenv = require('dotenv');
 const { v4: uuidv4 } = require('uuid');
 const http = require('http');
 const { Server } = require('socket.io');
-const bcrypt = require('bcryptjs');``
+const bcrypt = require('bcryptjs');
+const allowedOrigins = [
+  'https://nirvaha-wellnessllp.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:5001'
+];
 
 // Load environment variables immediately
 dotenv.config();
@@ -41,10 +47,18 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-  origin: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  credentials: true,
-},
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    credentials: true,
+  },
 });
 
 const PORT = process.env.PORT || 5000;
@@ -366,7 +380,15 @@ io.on('connection', (socket) => {
 // Middleware
 app.use(
   cors({
-    origin: true,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
