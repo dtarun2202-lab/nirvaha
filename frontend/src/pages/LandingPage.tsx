@@ -4,6 +4,7 @@ import TrustedStats from '../components/landing/TrustedStats';
 import LibraryCarousel from '../components/landing/LibraryCarousel';
 import GoldenShowcase from '../components/landing/GoldenShowcase';
 import WhatIsNirvaha from '../components/landing/WhatIsNirvaha';
+import AboutSection from '../components/landing/AboutSection';
 import AncientWisdomSection from '../components/landing/AncientWisdomSection';
 import LeadershipHeroSection from '../components/landing/LeadershipHeroSection';
 import DifferentPathsSection from '../components/landing/DifferentPathsSection';
@@ -54,6 +55,7 @@ const LandingPage: React.FC = () => {
         <TrustedStats />
         <GoldenShowcase />
         <WhatIsNirvaha />
+        <AboutSection />
         <LibraryCarousel />
         <AncientWisdomSection />
         <LeadershipHeroSection />

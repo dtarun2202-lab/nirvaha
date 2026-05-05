@@ -88,11 +88,7 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
                   alt={logoAlt}
                   className="h-14 w-auto sm:h-16 sm:w-auto object-contain rounded-lg drop-shadow-lg"
                 />
-                <div ref={nirvahaRef}>
-                  <h3 className="text-3xl font-black text-emerald-950 tracking-tight drop-shadow-sm">
-                    NIRVAHA
-                  </h3>
-                </div>
+                {/* Text removed as requested */}
               </button>
             </div>
 
@@ -178,7 +174,7 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
                 <>
                   <Link
                     to="/login"
-                    className="px-6 py-2.5 rounded-full text-black/80 font-bold text-base hover:text-black hover:bg-black/5 transition-all duration-300"
+                    className="px-6 py-2.5 rounded-full text-emerald-950 font-bold text-base hover:bg-emerald-50/50 transition-all duration-300 border border-transparent hover:border-emerald-100 backdrop-blur-sm"
                   >
                     Login
                   </Link>

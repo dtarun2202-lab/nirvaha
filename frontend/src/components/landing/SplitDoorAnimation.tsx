@@ -238,15 +238,17 @@ const SplitDoorAnimation: React.FC<SplitDoorAnimationProps> = ({ onDoorOpen, isO
         )}
       </div>
 
-      {/* Click To Reveal Label - Light Mode Style */}
+      {/* Click To Reveal Image */}
       <motion.div
-        className="absolute bottom-12 left-1/2 -translate-x-1/2 text-slate-900 text-center z-50 pointer-events-none"
-        animate={open ? { opacity: 0, scale: 0.8 } : { opacity: [0.8, 1, 0.8] }}
-        transition={{ duration: 1.5, repeat: open ? 0 : Infinity }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none flex items-center justify-center"
+        animate={open ? { opacity: 0, scale: 0.8 } : { opacity: [0.85, 1, 0.85] }}
+        transition={{ duration: 2, repeat: open ? 0 : Infinity, ease: "easeInOut" }}
       >
-        <div className="px-6 py-2 rounded-full border border-slate-200 bg-white/80 backdrop-blur-md shadow-lg">
-          <p className="text-sm font-bold tracking-[0.2em]">CLICK TO REVEAL</p>
-        </div>
+        <img 
+          src="/image copy 2.png" 
+          alt="Click to Reveal" 
+          className="w-32 h-32 sm:w-48 sm:h-48 object-contain drop-shadow-2xl" 
+        />
       </motion.div>
     </motion.div>
   );

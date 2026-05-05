@@ -62,3 +62,4 @@ env/
 # *.mp4
 # *.mov
 # *.avi
+.vercel
