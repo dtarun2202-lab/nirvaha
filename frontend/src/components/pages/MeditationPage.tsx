@@ -4,15 +4,15 @@ import BACKEND_CONFIG from "../../config/backend";
 
 const heroImage = "/meditation/first.jpg";
 
-const balasana = "/meditation/balasana.jpeg";
-const ardha = "/meditation/ArdhaMatsyendrasana.jpeg";
-const butterfly = "/meditation/ButterflyPose.jpeg";
-const savasana = "/corpo.jpg";
-const sukhasana = "/meditation/Sukhasana.jpeg";
-const virkshana = "/tree.jpg";
-const vajrasana = "/thunder.webp";
-const siddhasana = "/meditation/siddhasana.jpeg";
-const paschimottanasana = "/meditation/Paschimottanasana.jpeg";
+const balasana = "/yoga poses/child pose.png";
+const ardha = "/yoga poses/half.png";
+const butterfly = "/yoga poses/butterfly pose.png";
+const savasana = "/poses for medittaion/corpus 5.png";
+const sukhasana = "/poses for medittaion/easy 1.jpg";
+const virkshana = "/poses for medittaion/tree 7.png";
+const vajrasana = "/poses for medittaion/thunder 3.png";
+const siddhasana = "/yoga poses/perfect pose.png";
+const paschimottanasana = "/yoga for meditation/seated 2.png";
 const padmasana = "/lotus.png";
 
 
@@ -1487,7 +1487,7 @@ const MeditationPoses: React.FC = () => {
       glowColor: "#f59e0b",
       image: sukhasana,
       description: "A simple and comfortable seated posture ideal for beginners.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Easy+Pose+Sukhasana+meditation",
+      youtubeUrl: "https://www.youtube.com/results?search_query=Easy+Pose+Sukhasana+beginner+5+minute+meditation+tutorial",
       guidelines: ["Sit cross-legged comfortably", "Spine tall", "Relax shoulders", "Focus on breathing"],
       benefits: ["Reduces stress", "Improves focus", "Relaxes body"],
     },
@@ -1500,7 +1500,7 @@ const MeditationPoses: React.FC = () => {
       glowColor: "#06b6d4",
       image: balasana,
       description: "A deeply calming pose that relaxes the spine and nervous system.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Childs+Pose+Balasana+yoga",
+      youtubeUrl: "https://www.youtube.com/results?search_query=Balasana+Child+Pose+beginner+short+guided+yoga+tutorial",
       guidelines: ["Kneel on mat", "Fold forward", "Rest forehead down", "Arms relaxed"],
       benefits: ["Relieves tension", "Calms mind", "Reduces anxiety"],
     },
@@ -1513,7 +1513,7 @@ const MeditationPoses: React.FC = () => {
       glowColor: "#8b5cf6",
       image: vajrasana,
       description: "A seated kneeling posture that aids digestion and promotes stillness for meditation.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Vajrasana+Thunderbolt+Pose+yoga",
+      youtubeUrl: "https://www.youtube.com/results?search_query=Vajrasana+Thunderbolt+Pose+beginner+10+minute+meditation+practice",
       guidelines: ["Kneel on the mat", "Sit back on heels", "Keep spine straight", "Hands on thighs"],
       benefits: ["Improves digestion", "Enhances focus", "Strengthens posture"],
       precautions: ["Avoid if knee pain", "Use cushion under ankles"],
@@ -1527,7 +1527,7 @@ const MeditationPoses: React.FC = () => {
       glowColor: "#ec4899",
       image: siddhasana,
       description: "A traditional meditation pose believed to awaken inner energy.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Siddhasana+Perfect+Pose+yoga",
+      youtubeUrl: "https://www.youtube.com/results?search_query=Siddhasana+Perfect+Pose+5+minute+meditation+tutorial+beginner",
       guidelines: ["Sit with one heel at perineum", "Other foot placed above", "Spine upright", "Hands resting on knees"],
       benefits: ["Balances energy", "Improves concentration", "Stabilizes mind"],
       precautions: ["Avoid if hip stiffness"],
@@ -1541,7 +1541,7 @@ const MeditationPoses: React.FC = () => {
       glowColor: "#22c55e",
       image: paschimottanasana,
       description: "A calming forward bend that relaxes the nervous system.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Paschimottanasana+yoga",
+      youtubeUrl: "https://www.youtube.com/results?search_query=Paschimottanasana+Seated+Forward+Fold+beginner+short+guided+meditation+yoga",
       guidelines: ["Sit with legs extended", "Fold forward gently", "Relax head and neck", "Breathe deeply"],
       benefits: ["Calms nervous system", "Reduces anxiety", "Relieves fatigue"],
       precautions: ["Avoid deep stretch if back pain"],
@@ -1555,7 +1555,7 @@ const MeditationPoses: React.FC = () => {
       glowColor: "#f97316",
       image: savasana,
       description: "A deeply restorative posture for mindfulness and body awareness.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Shavasana+Corpse+Pose+yoga",
+      youtubeUrl: "https://www.youtube.com/results?search_query=Savasana+Corpse+Pose+10+minute+guided+relaxation+beginner+meditation",
       guidelines: ["Lie flat on back", "Arms relaxed by sides", "Eyes closed", "Observe breath"],
       benefits: ["Deep relaxation", "Reduces stress", "Improves awareness"],
       precautions: ["Use blanket if cold"],
@@ -1569,7 +1569,7 @@ const MeditationPoses: React.FC = () => {
       glowColor: "#e879f9",
       image: butterfly,
       description: "A relaxing seated pose that opens the hips and calms the nervous system, making it ideal before meditation.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Baddha+Konasana+Butterfly+Pose+yoga",
+      youtubeUrl: "https://www.youtube.com/results?search_query=Butterfly+Pose+Baddha+Konasana+beginner+5+minute+guided+yoga+tutorial",
       guidelines: ["Sit with spine straight", "Bring soles of feet together", "Hold feet and gently flap knees", "Breathe deeply and relax"],
       benefits: ["Opens hips", "Reduces stress", "Improves flexibility"],
       precautions: ["Avoid forcing knees down", "Use cushions under thighs if needed"],
@@ -1583,7 +1583,7 @@ const MeditationPoses: React.FC = () => {
       glowColor: "#ef4444",
       image: ardha,
       description: "A seated twisting posture that improves spinal flexibility and energizes the body while keeping the mind alert.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Ardha+Matsyendrasana+yoga",
+      youtubeUrl: "https://www.youtube.com/results?search_query=Ardha+Matsyendrasana+Half+Spinal+Twist+beginner+10+minute+yoga+tutorial",
       guidelines: ["Sit with legs extended", "Bend one knee and place foot outside thigh", "Twist torso gently", "Keep spine upright"],
       benefits: ["Improves digestion", "Enhances spinal mobility", "Improves focus"],
       precautions: ["Avoid if severe back pain", "Twist gently without jerks"],
@@ -1597,7 +1597,7 @@ const MeditationPoses: React.FC = () => {
       glowColor: "#38bdf8",
       image: virkshana,
       description: "A balancing pose that builds focus, stability, and mental clarity — excellent preparation for meditation.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Tree+Pose+Vrikshasana+yoga",
+      youtubeUrl: "https://www.youtube.com/results?search_query=Tree+Pose+Vrikshasana+beginner+5+minute+balance+meditation+practice",
       guidelines: ["Stand straight", "Place one foot on inner thigh or calf", "Hands in prayer position", "Fix gaze on one point"],
       benefits: ["Improves balance", "Builds concentration", "Strengthens legs"],
       precautions: ["Avoid if dizziness", "Use wall support if needed"],
@@ -1718,6 +1718,7 @@ const MeditationPoses: React.FC = () => {
           height: 100%;
           object-fit: cover;
           transition: transform 0.5s;
+          filter: brightness(1.18) contrast(1.05) saturate(1.1);
         }
         .yoga-card::after {
           content: '';
@@ -1725,9 +1726,9 @@ const MeditationPoses: React.FC = () => {
           inset: 0;
           background: linear-gradient(
             to top,
-            rgba(20, 12, 4, 0.88) 0%,
-            rgba(20, 12, 4, 0.2) 40%,
-            transparent 65%
+            rgba(20, 12, 4, 0.62) 0%,
+            rgba(20, 12, 4, 0.08) 35%,
+            transparent 55%
           );
           border-radius: 14px;
           z-index: 0;
