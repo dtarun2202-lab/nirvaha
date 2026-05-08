@@ -5,8 +5,8 @@ export const BACKEND_CONFIG = {
   SOCKET_URL: 'https://nirvaha-5cqj.onrender.com',
 
   // Local development URL (prioritized for development)
-  LOCAL_API_URL: 'http://localhost:5000',
-  LOCAL_SOCKET_URL: 'http://localhost:5000',
+  LOCAL_API_URL: 'http://localhost:5001',
+  LOCAL_SOCKET_URL: 'http://localhost:5001',
 
   // Check if we're in development mode (localhost or 127.0.0.1)
   IS_DEVELOPMENT: 

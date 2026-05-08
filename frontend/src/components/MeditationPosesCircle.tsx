@@ -12,51 +12,51 @@ interface MeditationPose {
 const meditationPoses: MeditationPose[] = [
   {
     id: 1,
-    name: "Lotus Pose",
-    image: "🧘‍♀️",
-    description: "Classic seated meditation position for focus"
-  },
-  {
-    id: 2,
-    name: "Mountain Pose",
-    image: "🏔️", 
-    description: "Standing meditation for grounding and stability"
-  },
-  {
-    id: 3,
-    name: "Child's Pose",
-    image: "🙏",
-    description: "Restorative position for relaxation"
-  },
-  {
-    id: 4,
     name: "Easy Pose",
-    image: "🧘‍♂️",
+    image: "/poses for medittaion/easy 1.jpg",
     description: "Comfortable seated position for beginners"
   },
   {
+    id: 2,
+    name: "Cosmic Stillness",
+    image: "/poses for medittaion/cosmic 2.png",
+    description: "A transcendent posture connecting body and cosmos"
+  },
+  {
+    id: 3,
+    name: "Thunderbolt Pose",
+    image: "/poses for medittaion/thunder 3.png",
+    description: "Upright kneeling posture for stillness and focus"
+  },
+  {
+    id: 4,
+    name: "Lotus Pose",
+    image: "/poses for medittaion/lotus 4.png",
+    description: "Classic seated meditation position for deep focus"
+  },
+  {
     id: 5,
-    name: "Kneeling Pose",
-    image: "⚡",
-    description: "Upright kneeling for better posture"
+    name: "Corpse Pose",
+    image: "/poses for medittaion/corpus 5.png",
+    description: "Deeply restorative lying posture for full relaxation"
   },
   {
     id: 6,
-    name: "Relaxation Pose",
-    image: "😌",
-    description: "Lying position for deep relaxation"
+    name: "Zen Awareness",
+    image: "/poses for medittaion/zen 6.png",
+    description: "Mindful seated posture cultivating pure awareness"
   },
   {
     id: 7,
-    name: "Half Lotus",
-    image: "🪷",
-    description: "Modified lotus for comfort"
+    name: "Tree Pose",
+    image: "/poses for medittaion/tree 7.png",
+    description: "Balancing posture for grounding and mental clarity"
   },
   {
     id: 8,
-    name: "Sitting Pose",
-    image: "🕯️",
-    description: "Simple sitting meditation position"
+    name: "Deep Dhyana",
+    image: "/poses for medittaion/deep 8.png",
+    description: "Advanced meditative posture for profound inner stillness"
   }
 ];
 
@@ -187,8 +187,8 @@ const MeditationPosesCircle: React.FC = () => {
               </motion.div>
             </div>
             
-            {/* Center Glow Effect */}
-            <div className="absolute inset-0 bg-gradient-radial from-green-400/40 via-emerald-300/30 to-transparent rounded-full blur-2xl" />
+              {/* Center Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-radial from-green-400/40 via-emerald-300/30 to-transparent rounded-full blur-2xl" />
           </motion.div>
 
           {/* Rotating Pose Cards */}
@@ -247,12 +247,15 @@ const MeditationPosesCircle: React.FC = () => {
                       }}
                     >
                       {/* Card */}
-                      <div className="w-28 h-28 md:w-36 md:h-36 bg-green-100/80 backdrop-blur-md rounded-full meditation-card border-2 border-green-300/70 flex flex-col items-center justify-center p-3 shadow-xl">
-                        {/* Pose Icon */}
-                        <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-green-50 via-green-100 to-green-200 rounded-full flex items-center justify-center mb-1 shadow-inner">
-                          <span className="text-3xl md:text-5xl">
-                            {pose.image}
-                          </span>
+                      <div className="w-28 h-28 md:w-36 md:h-36 bg-green-100/80 backdrop-blur-md rounded-full meditation-card border-2 border-green-300/70 flex flex-col items-center justify-center p-1.5 shadow-xl overflow-hidden">
+                        {/* Pose Image */}
+                        <div className="w-full h-full rounded-full overflow-hidden">
+                          <img
+                            src={pose.image}
+                            alt={pose.name}
+                            className="w-full h-full object-cover object-center"
+                            style={{ display: 'block' }}
+                          />
                         </div>
                       </div>
                       
@@ -310,7 +313,13 @@ const MeditationPosesCircle: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center">
-              <div className="text-6xl mb-4">{selectedPose.image}</div>
+              <div className="w-28 h-28 rounded-full overflow-hidden mx-auto mb-4 border-2 border-green-300/70 shadow-lg">
+                <img
+                  src={selectedPose.image}
+                  alt={selectedPose.name}
+                  className="w-full h-full object-cover object-center"
+                />
+              </div>
               <h3 className="text-2xl font-light text-green-800 mb-2">
                 {selectedPose.name}
               </h3>
