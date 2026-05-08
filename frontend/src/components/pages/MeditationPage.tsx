@@ -2721,7 +2721,7 @@ const BreathingModal: React.FC<{ title: string; audioUrl?: string; onClose: () =
 };
 
 // -- Session Card Component -------------------------------------------------
-const SessionCard: React.FC<{ session: any; icon: string }> = ({ session, icon }) => {
+const SessionCard: React.FC<{ session: any }> = ({ session }) => {
   const [btnState, setBtnState] = useState<'idle' | 'starting'>('idle');
   const [showModal, setShowModal] = useState(false);
 
@@ -2736,7 +2736,7 @@ const SessionCard: React.FC<{ session: any; icon: string }> = ({ session, icon }
       <style>{`
         .med-card {
           background: linear-gradient(145deg, #ffffff 0%, #f0fff4 100%);
-          width: 100%; height: 100%; min-height: 240px;
+          width: 100%; height: 100%; min-height: 280px;
           position: relative; display: flex; flex-direction: column;
           border-radius: 16px; box-shadow: 0 4px 20px rgba(82,183,136,0.08);
           overflow: visible; z-index: 0;
@@ -2756,13 +2756,11 @@ const SessionCard: React.FC<{ session: any; icon: string }> = ({ session, icon }
         .med-card:hover::after { animation: cardGlow 2.5s infinite forwards; }
         @keyframes cardGlow { 0%,100%{opacity:0.5} 50%{opacity:0.08} }
         .med-card-inner { position:relative; z-index:1; display:flex; flex-direction:column; flex:1; padding:18px; gap:10px; }
-        .med-card-icon { font-size:1.2rem; opacity:0.7; transition:transform 0.2s; cursor:default; }
-        .med-card:hover .med-card-icon { transform:scale(1.1); opacity:1; }
         .med-card-badge { font-size:0.62rem; font-weight:700; padding:3px 10px; border-radius:50px; font-family:'Poppins',sans-serif; }
         .med-card-badge.level { background:#DCEDC1; color:#1b4332; border:1px solid #b7e4c7; }
         .med-card-badge.cat   { background:#d8f3dc; color:#2d6a4f; border:1px solid #95d5b2; }
         .med-card-title { font-family:'Playfair Display',serif; font-weight:800; font-size:1rem; color:#111827; line-height:1.35; margin:0; }
-        .med-card-desc  { font-family:'Poppins',sans-serif; font-size:0.75rem; color:#1f2937; line-height:1.65; margin:0; flex:1; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .med-card-desc  { font-family:'Poppins',sans-serif; font-size:0.75rem; color:#1f2937; line-height:1.65; margin:0; flex:1; }
         .med-card-dur   { font-size:0.7rem; color:#166534; font-family:'Poppins',sans-serif; font-weight:600; margin:0; }
         .med-card-btn {
           width:100%; padding:9px; border-radius:50px; border:none;
@@ -2780,13 +2778,12 @@ const SessionCard: React.FC<{ session: any; icon: string }> = ({ session, icon }
 
       <div className="med-card">
         <div className="med-card-inner">
-          {/* Top row: badges + icon */}
-          <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between' }}>
-            <div style={{ display:'flex', gap:'5px', flexWrap:'wrap', flex:1, marginRight:'8px' }}>
+          {/* Top row: badges */}
+          <div style={{ display:'flex', alignItems:'flex-start' }}>
+            <div style={{ display:'flex', gap:'5px', flexWrap:'wrap' }}>
               {session.level    && <span className="med-card-badge level">{session.level}</span>}
               {session.category && <span className="med-card-badge cat">{session.category}</span>}
             </div>
-            <span className="med-card-icon">{icon}</span>
           </div>
           <h3 className="med-card-title">{session.title}</h3>
           <p className="med-card-desc">{session.description || '\u00A0'}</p>
@@ -2898,11 +2895,9 @@ const MeditationSessions: React.FC = () => {
 
         {/* Session cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '32px', alignItems: 'stretch', padding: '8px' }}>
-          {filtered.map((session, idx) => {
-            const icons = ['*', '*', '*', '*', '*', '*'];
-            const icon = icons[idx % icons.length];
+          {filtered.map((session) => {
             return (
-              <SessionCard key={session.id} session={session} icon={icon} />
+              <SessionCard key={session.id} session={session} />
             );
           })}
         </div>
