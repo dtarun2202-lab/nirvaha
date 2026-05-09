@@ -2084,6 +2084,16 @@ function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPl
   const [loading, setLoading] = useState(true);
   const [localPlayingId, setLocalPlayingId] = useState<string | null>(null);
   const localAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [toast, setToast] = useState<{ message: string; visible: boolean }>({ message: '', visible: false });
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showToast = (trackTitle: string) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ message: `Now Playing: ${trackTitle}`, visible: true });
+    toastTimerRef.current = setTimeout(() => {
+      setToast(prev => ({ ...prev, visible: false }));
+    }, 2500);
+  };
 
   useEffect(() => {
     fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/sounds`)
@@ -2112,6 +2122,7 @@ function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPl
     } else {
       // Play new track locally
       setLocalPlayingId(trackId);
+      showToast(track.title);
       if (localAudioRef.current) {
         localAudioRef.current.src = track.audioUrl;
         localAudioRef.current.play().catch(err => console.error("Local play error:", err));
@@ -2127,6 +2138,30 @@ function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPl
 
   return (
     <>
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast.visible && (
+          <motion.div
+            initial={{ opacity: 0, x: 60, y: 0 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            exit={{ opacity: 0, x: 60 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="fixed top-6 right-6 z-[9999] flex items-center gap-3 px-5 py-3 rounded-2xl shadow-xl border border-green-200"
+            style={{
+              background: 'linear-gradient(135deg, #d8f3dc, #b7e4c7)',
+              fontFamily: "'Poppins', sans-serif",
+              minWidth: '260px',
+              maxWidth: '340px',
+            }}
+          >
+            <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <Music className="w-4 h-4 text-white" />
+            </div>
+            <p className="text-green-900 font-semibold text-sm leading-tight">{toast.message}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <audio 
         ref={localAudioRef} 
         onEnded={() => setLocalPlayingId(null)} 
