@@ -401,6 +401,11 @@ app.set('io', io);
 // Static files
 app.use('/uploads', express.static(UPLOADS_DIR));
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', mongo: mongoConnected, timestamp: new Date().toISOString() });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);

@@ -66,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem('token');
+      const cachedUser = localStorage.getItem('user');
       if (token) {
         try {
           const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/auth/user`, {
@@ -77,12 +78,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const data = await res.json();
             setUser(data.user);
           } else {
-            // Token might be invalid or expired
+            // Token is invalid or expired — clear storage
             localStorage.removeItem('token');
             localStorage.removeItem('user');
           }
         } catch (error) {
-          console.error('Error fetching current user:', error);
+          // Network failure — keep user from cache so they aren't logged out
+          console.error('Error fetching current user (network issue):', error);
+          if (cachedUser) {
+            try {
+              setUser(JSON.parse(cachedUser));
+            } catch {
+              localStorage.removeItem('user');
+            }
+          }
         }
       }
       setLoading(false);
