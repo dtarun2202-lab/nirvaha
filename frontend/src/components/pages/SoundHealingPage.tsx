@@ -15,8 +15,12 @@ const fallbackLibrary = [
     category: "Meditation",
     description: "Begin your day with peaceful sunrise meditation sounds.",
     tags: ["meditation", "morning", "peace"],
-    thumbnailUrl: "/images/Meditation at Sunrise.jpg",
-    audioUrl: "/audio/meditation/Meditation-at-Sunrise.mp3"
+    thumbnailUrl: "/Meditation at Sunrise.png",
+    audioUrl: "/audio/meditation/Meditation-at-Sunrise.mp3",
+    additionalTracks: [
+      { audioUrl: "/audio/additional-audios/Calm Field.mpeg", loop: false },
+      { audioUrl: "/audio/additional-audios/Mind Reset.mpeg", loop: false }
+    ]
   },
   {
     title: "Indoor Calm Meditation",
@@ -26,8 +30,12 @@ const fallbackLibrary = [
     category: "Meditation",
     description: "Find tranquility in your indoor meditation practice.",
     tags: ["meditation", "calm", "mindful"],
-    thumbnailUrl: "/images/Indoor Calm Meditation.jpg",
-    audioUrl: "/audio/meditation/Indoor-Calm-Meditation.mp3"
+    thumbnailUrl: "/Indoor Calm Meditation.png",
+    audioUrl: "/audio/meditation/Indoor-Calm-Meditation.mp3",
+    additionalTracks: [
+      { audioUrl: "/audio/additional-audios/Calm Drift.mpeg", loop: true },
+      { audioUrl: "/audio/additional-audios/Calm Within.mpeg", loop: false }
+    ]
   },
   {
     title: "Nature Meditation",
@@ -37,8 +45,11 @@ const fallbackLibrary = [
     category: "Meditation",
     description: "Connect with nature through guided meditation sounds.",
     tags: ["meditation", "nature", "peace"],
-    thumbnailUrl: "/images/Nature Meditation.jpg",
-    audioUrl: "/audio/meditation/Nature-Meditation.mp3"
+    thumbnailUrl: "/nature meditation.png",
+    audioUrl: "/audio/meditation/Nature-Meditation.mp3",
+    additionalTracks: [
+      { audioUrl: "/audio/additional-audios/Calm Current.mpeg", loop: false }
+    ]
   },
   // Sleep Therapy Collection
   {
@@ -49,7 +60,7 @@ const fallbackLibrary = [
     category: "Sleep",
     description: "Drift into peaceful sleep in your cozy sanctuary.",
     tags: ["sleep", "night", "deep"],
-    thumbnailUrl: "/images/Cozy Bed.jpg",
+    thumbnailUrl: "/cozy Bed.webp",
     audioUrl: "/audio/sleep/Moonlight-Lullaby.mp3"
   },
   {
@@ -61,7 +72,10 @@ const fallbackLibrary = [
     description: "Gaze at the stars through your window as you drift to sleep.",
     tags: ["sleep", "night", "deep"],
     thumbnailUrl: "/images/Window Night Sky View.jpg",
-    audioUrl: "/audio/sleep/Night-Ocean-Waves.mp3"
+    audioUrl: "/audio/sleep/Night-Ocean-Waves.mp3",
+    additionalTracks: [
+      { audioUrl: "/audio/additional-audios/Deep Horizon.mpeg", loop: true }
+    ]
   },
   {
     title: "Peaceful Sleeping Scene",
@@ -71,8 +85,11 @@ const fallbackLibrary = [
     category: "Sleep",
     description: "Create the perfect atmosphere for restful sleep.",
     tags: ["sleep", "night", "deep"],
-    thumbnailUrl: "/images/Peaceful Sleeping Scene.jpeg",
-    audioUrl: "/audio/sleep/Starlit-Delta-Waves.mp3"
+    thumbnailUrl: "/peaceful sleeping .png",
+    audioUrl: "/audio/sleep/Starlit-Delta-Waves.mp3",
+    additionalTracks: [
+      { audioUrl: "/audio/additional-audios/Still Waters.mpeg", loop: true }
+    ]
   }
 ];
 
@@ -146,6 +163,7 @@ export function SoundHealingPage() {
   const [activeCard, setActiveCard] = useState<any | null>(null);
   const [volume, setVolume] = useState(75);
   const [savedTracks, setSavedTracks] = useState<any[]>([]);
+  const [additionalTrackIndex, setAdditionalTrackIndex] = useState<number>(-1); // -1 = playing main track
   const [recentTracks, setRecentTracks] = useState<any[]>([]);
   const [soundLibrary, setSoundLibrary] = useState(fallbackLibrary);
   const [libraryLoading, setLibraryLoading] = useState(true);
@@ -177,9 +195,9 @@ export function SoundHealingPage() {
         { id: 9, title: "Moonlight Lullaby", description: "Soft tones for deep rest", category: "Ambient", frequency: "432 Hz", duration: "40:00", image: "/moon.jpeg", audioUrl: "/audio/sleep/Moonlight-Lullaby.mp3", index: 0 }
       ],
       focus: [
-        { id: 10, title: "Clear Mind Frequencies", description: "Pure tones for concentration", category: "Binaural", frequency: "8-12 Hz", duration: "25:00", image: "/clear.jpg", audioUrl: "/audio/focus/Clear-Mind-Frequencies.mp3", index: 2 },
+        { id: 10, title: "Clear Mind Frequencies", description: "Pure tones for concentration", category: "Binaural", frequency: "8-12 Hz", duration: "25:00", image: "/Clear Mind Frequencies.jpg", audioUrl: "/audio/focus/Clear-Mind-Frequencies.mp3", index: 2 },
         { id: 11, title: "Minimal Nature Sounds", description: "Clean audio for mental clarity", category: "Ambient", frequency: "528 Hz", duration: "20:00", image: "/nature.jpg", audioUrl: "/audio/focus/Minimal-Nature-Sounds.mp3", index: 3 },
-        { id: 12, title: "Productivity Flow", description: "Subtle background for deep work", category: "Focus", frequency: "40 Hz", duration: "30:00", image: "/work.jpg", audioUrl: "/audio/focus/Productivity-Flow.mp3", index: 4 }
+        { id: 12, title: "Productivity Flow", description: "Subtle background for deep work", category: "Focus", frequency: "40 Hz", duration: "30:00", image: "/Productivity Flow.jpg", audioUrl: "/audio/focus/Productivity-Flow.mp3", index: 4 }
       ],
       balance: [
         { id: 13, title: "Chakra Harmony", description: "Balance all energy centers", category: "Chakra Healing", frequency: "852 Hz", duration: "22:30", image: "/sound/chakra_tuning.png", audioUrl: "/audio/emotional/Chakra-Harmony.mp3", index: 5 },
@@ -201,7 +219,7 @@ export function SoundHealingPage() {
       category: "Sleep",
       description: "Drift into peaceful sleep in your cozy sanctuary.",
       tags: ["sleep", "night", "deep"],
-      thumbnailUrl: "/assets/sleep/cozy-bed.jpg",
+      thumbnailUrl: "/cozy Bed.webp",
       audioUrl: "/audio/sleep/Moonlight-Lullaby.mp3"
     },
     {
@@ -225,7 +243,7 @@ export function SoundHealingPage() {
       category: "Sleep",
       description: "Create the perfect atmosphere for restful sleep.",
       tags: ["sleep", "night", "deep"],
-      thumbnailUrl: "/assets/sleep/peaceful-sleep.jpg",
+      thumbnailUrl: "/peaceful sleeping .png",
       audioUrl: "/audio/sleep/Starlit-Delta-Waves.mp3"
     }
   ];
@@ -240,7 +258,7 @@ export function SoundHealingPage() {
       category: "Focus",
       description: "Enhance your productivity with focused work sounds.",
       tags: ["focus", "work", "study"],
-      thumbnailUrl: "/images/Productivity Flow.jpg",
+      thumbnailUrl: "/Productivity Flow.jpg",
       audioUrl: "/audio/focus/Productivity-Flow.mp3"
     },
     {
@@ -252,7 +270,7 @@ export function SoundHealingPage() {
       category: "Focus",
       description: "Clear your mind with pure concentration frequencies.",
       tags: ["focus", "clarity", "brain"],
-      thumbnailUrl: "/images/Clear Mind Frequencies.jpg",
+      thumbnailUrl: "/Clear Mind Frequencies.jpg",
       audioUrl: "/audio/focus/Clear-Mind-Frequencies.mp3"
     },
     {
@@ -535,6 +553,7 @@ export function SoundHealingPage() {
     setNowPlaying(track);
     setPlayProgress(0);
     setCurrentTime(0);
+    setAdditionalTrackIndex(-1); // reset to main track
 
     // Add to recently played — no duplicates, latest first, max 10
     setRecentTracks(prev => {
@@ -610,6 +629,26 @@ export function SoundHealingPage() {
     const handleEnded = async () => {
       setIsPlaying(false);
       setPlayProgress(0);
+
+      // Check if current track has additional tracks to autoplay
+      const currentNowPlaying = nowPlaying || selectedTrack;
+      const additionals = currentNowPlaying?.additionalTracks;
+
+      if (additionals && additionals.length > 0) {
+        const nextIndex = additionalTrackIndex + 1;
+        if (nextIndex < additionals.length) {
+          const nextAdditional = additionals[nextIndex];
+          setAdditionalTrackIndex(nextIndex);
+          if (audio) {
+            audio.src = nextAdditional.audioUrl;
+            audio.loop = nextAdditional.loop ?? false;
+            audio.currentTime = 0;
+            audio.play().catch(err => console.error('[SoundHealing] Additional track play error:', err));
+            setIsPlaying(true);
+          }
+          return;
+        }
+      }
       
       // Log sound session if it was played for at least 1 minute
       if (duration >= 1 && user?.id) {
@@ -645,7 +684,7 @@ export function SoundHealingPage() {
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, []);
+  }, [nowPlaying, selectedTrack, additionalTrackIndex, duration, user]);
 
   // Handle play/pause
   useEffect(() => {
@@ -1036,10 +1075,6 @@ export function SoundHealingPage() {
                         <Play className="w-5 h-5 text-gray-700 ml-0.5" fill="currentColor" />
                       </motion.button>
 
-                      {/* Duration Badge */}
-                      <div className="absolute top-4 right-4 px-3 py-1 bg-black/40 backdrop-blur-sm rounded-full">
-                        <span className="text-white text-sm font-medium">{sound.duration}</span>
-                      </div>
                     </div>
 
                     <div className="p-6">
@@ -1405,10 +1440,6 @@ export function SoundHealingPage() {
                         <Play className="w-5 h-5 text-white ml-0.5" fill="white" />
                       </motion.button>
 
-                      {/* Duration Badge */}
-                      <div className="absolute top-4 right-4 px-2 py-1 bg-black/40 backdrop-blur-sm rounded-md">
-                        <span className="text-white text-xs font-medium">{track.duration}</span>
-                      </div>
                     </div>
 
                     {/* Card Content - Classical Style */}
@@ -1547,10 +1578,29 @@ export function SoundHealingPage() {
 
               {/* Controls */}
               <div className="flex items-center justify-center gap-3 mb-5">
-                <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                <button
+                  className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                  onClick={() => {
+                    const tracks = getFilteredTracks();
+                    if (!tracks.length) return;
+                    const random = tracks[Math.floor(Math.random() * tracks.length)];
+                    handleCardClick(random, "global");
+                  }}
+                  title="Shuffle"
+                >
                   <Shuffle className="w-5 h-5" />
                 </button>
-                <button className="p-2 text-gray-600 hover:text-gray-600 transition-colors">
+                <button
+                  className="p-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  onClick={() => {
+                    const tracks = getFilteredTracks();
+                    if (!tracks.length) return;
+                    const currentIdx = tracks.findIndex(t => t.title === currentTrack?.title);
+                    const prevIdx = currentIdx <= 0 ? tracks.length - 1 : currentIdx - 1;
+                    handleCardClick(tracks[prevIdx], "global");
+                  }}
+                  title="Previous"
+                >
                   <SkipBack className="w-5 h-5" fill="currentColor" />
                 </button>
                 <motion.button
@@ -1565,10 +1615,28 @@ export function SoundHealingPage() {
                     <Play className="w-6 h-6 text-white ml-0.5" fill="white" />
                   )}
                 </motion.button>
-                <button className="p-2 text-gray-600 hover:text-gray-600 transition-colors">
+                <button
+                  className="p-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  onClick={() => {
+                    const tracks = getFilteredTracks();
+                    if (!tracks.length) return;
+                    const currentIdx = tracks.findIndex(t => t.title === currentTrack?.title);
+                    const nextIdx = currentIdx >= tracks.length - 1 ? 0 : currentIdx + 1;
+                    handleCardClick(tracks[nextIdx], "global");
+                  }}
+                  title="Next"
+                >
                   <SkipForward className="w-5 h-5" fill="currentColor" />
                 </button>
-                <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                <button
+                  className={`p-2 transition-colors ${audioRef.current?.loop ? 'text-green-600' : 'text-gray-400 hover:text-gray-600'}`}
+                  onClick={() => {
+                    if (audioRef.current) {
+                      audioRef.current.loop = !audioRef.current.loop;
+                    }
+                  }}
+                  title="Repeat"
+                >
                   <Repeat className="w-5 h-5" />
                 </button>
               </div>
@@ -1779,7 +1847,6 @@ export function SoundHealingPage() {
                 </motion.button>
 
                 <div className="flex items-center gap-6">
-                  <div className="text-6xl">{selectedInstrument.icon}</div>
                   <div>
                     <h2 className="text-3xl font-bold text-gray-800 mb-2" style={{ fontFamily: "'Cinzel', serif" }}>
                       {selectedInstrument.name}
@@ -1802,7 +1869,7 @@ export function SoundHealingPage() {
                   >
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                        <span className="text-green-600 text-sm">📜</span>
+                        <span className="text-green-600 text-sm font-bold">—</span>
                       </div>
                       <h3 className="text-xl font-semibold text-gray-800" style={{ fontFamily: "'Cinzel', serif" }}>
                         History
@@ -1816,7 +1883,6 @@ export function SoundHealingPage() {
                   {/* Divider */}
                   <div className="flex items-center gap-4">
                     <div className="flex-1 h-px bg-gradient-to-r from-transparent via-green-200 to-transparent" />
-                    <span className="text-green-400 text-sm">✦</span>
                     <div className="flex-1 h-px bg-gradient-to-r from-transparent via-green-200 to-transparent" />
                   </div>
 
@@ -1828,7 +1894,7 @@ export function SoundHealingPage() {
                   >
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                        <span className="text-green-600 text-sm">🔬</span>
+                        <span className="text-green-600 text-sm font-bold">—</span>
                       </div>
                       <h3 className="text-xl font-semibold text-gray-800" style={{ fontFamily: "'Cinzel', serif" }}>
                         Science
@@ -1842,7 +1908,6 @@ export function SoundHealingPage() {
                   {/* Divider */}
                   <div className="flex items-center gap-4">
                     <div className="flex-1 h-px bg-gradient-to-r from-transparent via-green-200 to-transparent" />
-                    <span className="text-green-400 text-sm">✦</span>
                     <div className="flex-1 h-px bg-gradient-to-r from-transparent via-green-200 to-transparent" />
                   </div>
 
@@ -1854,7 +1919,7 @@ export function SoundHealingPage() {
                   >
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                        <span className="text-green-600 text-sm">✨</span>
+                        <span className="text-green-600 text-sm font-bold">—</span>
                       </div>
                       <h3 className="text-xl font-semibold text-gray-800" style={{ fontFamily: "'Cinzel', serif" }}>
                         Benefits
@@ -1968,9 +2033,6 @@ export function SoundHealingPage() {
                   <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-gradient-to-br from-gray-50 to-white rounded-2xl overflow-hidden shadow-lg border border-gray-200/60 p-6 flex flex-col justify-center">
                     {/* Icon */}
                     <div className="text-center mb-4">
-                      <div className="text-5xl mb-3 animate-pulse">
-                        {instrument.icon}
-                      </div>
                     </div>
                     
                     {/* Title */}
@@ -2140,10 +2202,6 @@ function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPl
 
               {/* Footer */}
               <div className="mt-auto">
-                <p className="med-card-theme-dur">
-                  <Clock className="w-4 h-4" />
-                  {track.duration} session
-                </p>
                 <button 
                   className={`med-card-theme-btn ${isCurrentLocal ? 'bg-green-700' : ''}`}
                   onClick={() => handleLocalPlay(track)}

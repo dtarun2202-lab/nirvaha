@@ -50,9 +50,7 @@ const HeroSection: React.FC = () => (
     <p className="mb-10 max-w-xl text-base text-white leading-relaxed tracking-wide" style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 300 }}>
       Ancient wisdom. Modern stillness. A path inward.
     </p>
-    <a href="#consult" className="inline-block bg-white/10 backdrop-blur-sm border border-white/30 rounded-full px-8 py-3 text-white font-medium tracking-wide transition-all duration-300 hover:bg-white/20 hover:border-white/50 hover:scale-105" style={{ fontFamily: "'Poppins', sans-serif" }}>
-      Begin
-    </a>
+  
   </div>
   <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
     <div className="h-10 w-6 rounded-full border border-white/30 p-1">
