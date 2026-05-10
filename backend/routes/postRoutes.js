@@ -70,14 +70,21 @@ async function seedIfEmpty() {
 }
 
 // ── GET /api/posts ─────────────────────────────────────────────────────────
-// Query params: sort=popular|recent|all, q=searchTerm
+// Query params: sort=popular|recent|all, q=searchTerm, hashtag=#tag, page=1, limit=20
 router.get('/', async (req, res) => {
   try {
     await seedIfEmpty();
 
-    const { sort, q } = req.query;
+    const { sort, q, hashtag, page = 1, limit = 20 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
     const now = new Date();
     let query = { expiresAt: { $gt: now } };
+
+    // Hashtag filter — exact match in hashtags array
+    if (hashtag && hashtag.trim()) {
+      const tag = hashtag.trim().toLowerCase();
+      query.hashtags = tag;
+    }
 
     if (q && q.trim()) {
       const term = q.trim();
@@ -92,19 +99,20 @@ router.get('/', async (req, res) => {
 
     let sortOrder;
     if (sort === 'popular') {
-      // Popular: only posts with 50+ likes, sorted by likes desc
       query.likes = { $gte: 50 };
       sortOrder = { likes: -1 };
     } else if (sort === 'all') {
-      // All: everything, no sort bias
       sortOrder = { _id: -1 };
     } else {
-      // Recent (default): newest first
       sortOrder = { timestampValue: -1 };
     }
 
-    const posts = await Post.find(query).sort(sortOrder).limit(50);
-    res.json(posts);
+    const [posts, total] = await Promise.all([
+      Post.find(query).sort(sortOrder).skip(skip).limit(parseInt(limit)),
+      Post.countDocuments(query),
+    ]);
+
+    res.json({ posts, total, page: parseInt(page), limit: parseInt(limit) });
   } catch (err) {
     console.error('GET /api/posts error:', err);
     res.status(500).json({ error: 'Failed to fetch posts' });
@@ -116,20 +124,22 @@ router.get('/trending', async (req, res) => {
   try {
     await seedIfEmpty();
     const now = new Date();
-    const posts = await Post.find({ expiresAt: { $gt: now } }, 'hashtags likes');
-    const counts = {};
-    posts.forEach(p => {
-      (p.hashtags || []).forEach(tag => {
-        counts[tag] = (counts[tag] || 0) + 1 + Math.floor(p.likes / 20);
-      });
-    });
-    const trending = Object.entries(counts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 8)
-      .map(([title, count]) => ({
-        title,
-        count: count > 999 ? `${(count / 1000).toFixed(1)}k` : String(count),
-      }));
+
+    // Use MongoDB aggregation for real post counts per hashtag
+    const result = await Post.aggregate([
+      { $match: { expiresAt: { $gt: now } } },
+      { $unwind: '$hashtags' },
+      { $group: { _id: '$hashtags', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 },
+    ]);
+
+    const trending = result.map(({ _id, count }) => ({
+      title: _id,
+      count: count > 999 ? `${(count / 1000).toFixed(1)}k` : String(count),
+      rawCount: count,
+    }));
+
     res.json(trending);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch trending' });

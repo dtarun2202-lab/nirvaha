@@ -30,7 +30,17 @@ export function CommunityPage() {
 
   // Dedup by MongoDB _id (guaranteed unique) with id as fallback
   const dedup = (arr: Post[]): Post[] =>
-    Array.from(new Map(arr.map(p => [(p as any)._id || p.id, p])).values());
+    Array.from(new Map(arr.map(p => [(p as any)._id?.toString() || p.id, p])).values());
+
+  // Normalize post — ensure id field is always set from _id or id
+  const normalizePost = (p: any): Post => ({
+    ...p,
+    id: p.id || p._id?.toString(),
+  });
+
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [hashtagTotal, setHashtagTotal] = useState<number | null>(null);
 
   const SUGGESTED_TAGS = ["#happiness", "#habits", "#healing", "#meditation", "#soundhealing", "#wellness"];
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
@@ -42,19 +52,34 @@ export function CommunityPage() {
   };
 
   // ── Fetch posts ──────────────────────────────────────────────────────────
-  const fetchPosts = async () => {
+  const fetchPosts = async (pageNum = 1, append = false) => {
     try {
-      setLoading(true);
+      if (pageNum === 1) setLoading(true);
       const params = new URLSearchParams();
       if (filter === "Popular") params.set("sort", "popular");
       else if (filter === "All") params.set("sort", "all");
       else params.set("sort", "recent");
       if (searchQuery.trim()) params.set("q", searchQuery.trim());
+      if (hashtagFilter.trim()) params.set("hashtag", hashtagFilter.trim());
+      params.set("page", String(pageNum));
+      params.set("limit", "20");
+
       const res = await fetch(`${API}/api/posts?${params}`);
       if (res.ok) {
-        const data: Post[] = await res.json();
-        // Always replace — never append
-        setPosts(dedup(data));
+        const data = await res.json();
+        // Handle both old array response and new {posts, total} shape
+        const incoming: Post[] = Array.isArray(data) ? data : (data.posts || []);
+        const total: number = Array.isArray(data) ? incoming.length : (data.total || 0);
+
+        const normalized = incoming.map(normalizePost);
+        if (append) {
+          setPosts(prev => dedup([...prev, ...normalized]));
+        } else {
+          setPosts(dedup(normalized));
+        }
+        setHasMore(incoming.length === 20);
+        if (hashtagFilter) setHashtagTotal(total);
+        else setHashtagTotal(null);
       }
     } catch (e) {
       console.error("Failed to fetch posts", e);
@@ -76,27 +101,30 @@ export function CommunityPage() {
     }
   };
 
-  useEffect(() => { fetchPosts(); }, [filter, searchQuery]);
+  useEffect(() => { setPage(1); fetchPosts(1, false); }, [filter, searchQuery, hashtagFilter]);
   useEffect(() => { fetchTrending(); }, []);
 
   // ── Real-time socket events ──────────────────────────────────────────────
   useEffect(() => {
     if (!socket) return;
 
-    const onPostCreated = (post: Post) => {
-      console.log('📥 Socket: Post created', post);
+    const matchId = (p: Post, id: string) =>
+      p.id === id || (p as any)._id?.toString() === id;
+
+    const onPostCreated = (raw: any) => {
+      const post = normalizePost(raw);
+      console.log('📥 Socket: Post created', post.id);
       setPosts(prev => dedup([post, ...prev]));
       fetchTrending();
     };
 
     const onPostLiked = ({ id, likes, liked }: { id: string; likes: number; liked: boolean }) => {
-      setPosts(prev => prev.map(p => p.id === id ? { ...p, likes, liked } : p));
+      setPosts(prev => prev.map(p => matchId(p, id) ? { ...p, likes, liked } : p));
     };
 
     const onCommentAdded = ({ postId, comment }: { postId: string; comment: any }) => {
       setPosts(prev => prev.map(p => {
-        if (p.id !== postId) return p;
-        // Dedup comments by comment id
+        if (!matchId(p, postId)) return p;
         const exists = p.comments.some((c: any) => c.id === comment.id);
         if (exists) return p;
         return { ...p, comments: [...p.comments, comment] };
@@ -104,7 +132,7 @@ export function CommunityPage() {
     };
 
     const onPostDeleted = ({ id }: { id: string }) => {
-      setPosts(prev => prev.filter(p => p.id !== id));
+      setPosts(prev => prev.filter(p => !matchId(p, id)));
     };
 
     socket.on("postCreated", onPostCreated);
@@ -120,14 +148,41 @@ export function CommunityPage() {
     };
   }, [socket, filter]);
 
+  // ── Polling fallback — re-fetch every 15s in case socket misses events ──
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchPosts(1, false);
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [filter, searchQuery, hashtagFilter]);
+
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(""), 3000);
   };
 
+  // ── Banned words filter ─────────────────────────────────────────────────
+  const BANNED_WORDS = [
+    "fuck", "shit", "bitch", "asshole", "bastard", "cunt", "dick", "pussy",
+    "nigger", "nigga", "faggot", "retard", "whore", "slut", "motherfucker",
+    "damn", "hell", "ass", "crap", "piss", "cock", "bollocks", "wanker",
+  ];
+  const containsBannedWord = (text: string): boolean => {
+    const lower = text.toLowerCase();
+    return BANNED_WORDS.some(word => {
+      const regex = new RegExp(`\\b${word}\\b`, 'i');
+      return regex.test(lower);
+    });
+  };
+
   // ── Create post ──────────────────────────────────────────────────────────
   const handleCreatePost = async () => {
     if (!postContent.trim()) return;
+
+    if (containsBannedWord(postContent)) {
+      showToast("Your post contains inappropriate language. Please revise it.");
+      return;
+    }
     const hashtags = (postContent.match(/#[a-zA-Z0-9_]+/g) || []).map(t => t.toLowerCase());
     const payload = {
       userId: user?.id || "anonymous",
@@ -222,14 +277,8 @@ export function CommunityPage() {
     },
   ]);
 
-  // Fallback trending if backend returns empty
-  const displayTrending = trending.length > 0 ? trending : [
-    { title: "#meditation", count: "1.2k" },
-    { title: "#soundhealing", count: "890" },
-    { title: "#wellness", count: "743" },
-    { title: "#healing", count: "612" },
-    { title: "#mindfulness", count: "534" },
-  ];
+  // Use real trending from backend only — no hardcoded fallback
+  const displayTrending = trending;
 
   return (
     <div className="community-theme bg-white text-black min-h-screen pt-24 pb-16">
@@ -255,6 +304,30 @@ export function CommunityPage() {
             </div>
 
             <div className="w-full max-w-[760px] mx-auto">
+              {/* Hashtag filter header */}
+              {hashtagFilter && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center justify-between mb-3 px-1"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-[#16a34a]">{hashtagFilter}</span>
+                    {hashtagTotal !== null && (
+                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                        {hashtagTotal} post{hashtagTotal !== 1 ? 's' : ''}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setHashtagFilter("")}
+                    className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    Clear ✕
+                  </button>
+                </motion.div>
+              )}
+
               <div
                 className="h-[calc(100vh-6rem)] overflow-y-scroll hide-scrollbar"
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}
@@ -264,16 +337,34 @@ export function CommunityPage() {
                     <div className="w-6 h-6 border-2 border-[#16a34a] border-t-transparent rounded-full animate-spin" />
                   </div>
                 ) : (
-                  <Feed
-                    posts={posts}
-                    filter={filter}
-                    searchQuery={searchQuery}
-                    hashtagFilter={hashtagFilter}
-                    currentUser={currentUser}
-                    onPostsChange={setPosts}
-                    onToast={showToast}
-                    onProfileClick={handleProfileClick}
-                  />
+                  <>
+                    <Feed
+                      posts={posts}
+                      filter={filter}
+                      searchQuery={searchQuery}
+                      hashtagFilter={hashtagFilter}
+                      hashtagTotal={hashtagTotal}
+                      currentUser={currentUser}
+                      onPostsChange={setPosts}
+                      onToast={showToast}
+                      onProfileClick={handleProfileClick}
+                    />
+                    {/* Load More */}
+                    {hasMore && posts.length > 0 && (
+                      <div className="flex justify-center py-6">
+                        <button
+                          onClick={() => {
+                            const next = page + 1;
+                            setPage(next);
+                            fetchPosts(next, true);
+                          }}
+                          className="px-6 py-2 text-sm font-medium text-[#16a34a] border border-[#16a34a] rounded-full hover:bg-[#f0fdf4] transition-all"
+                        >
+                          Load more
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
