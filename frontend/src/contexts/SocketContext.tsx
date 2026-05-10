@@ -37,8 +37,10 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     const newSocket = io(BACKEND_CONFIG.SOCKET_BASE_URL, {
       reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+      transports: ['polling', 'websocket'],
+      upgrade: true,
     });
 
     newSocket.on('connect', () => {

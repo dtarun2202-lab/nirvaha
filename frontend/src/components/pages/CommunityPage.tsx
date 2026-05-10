@@ -148,11 +148,11 @@ export function CommunityPage() {
     };
   }, [socket, filter]);
 
-  // ── Polling fallback — re-fetch every 15s in case socket misses events ──
+  // ── Polling fallback — re-fetch every 10s in case socket misses events ──
   useEffect(() => {
     const interval = setInterval(() => {
       fetchPosts(1, false);
-    }, 15000);
+    }, 10000);
     return () => clearInterval(interval);
   }, [filter, searchQuery, hashtagFilter]);
 
