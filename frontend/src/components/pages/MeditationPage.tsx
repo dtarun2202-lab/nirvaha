@@ -1470,137 +1470,152 @@ const MeditationSession: React.FC<{ pose: any; onExit: () => void }> = ({ pose, 
 // =====================
 // Meditation Poses
 // =====================
+// =====================
+// Yoga Tutorial Cards Data
+// Add new cards here — no component changes needed
+// =====================
+const yogaTutorialCards = [
+  {
+    id: 1,
+    name: "Easy Pose (Sukhasana)",
+    category: "Meditation",
+    practiceLevel: "Beginner",
+    intensity: "Gentle",
+    duration: "5-20 minutes",
+    glowColor: "#f59e0b",
+    image: sukhasana,
+    description: "A simple and comfortable seated posture ideal for beginners.",
+    youtubeUrl: "https://www.youtube.com/results?search_query=Easy+Pose+Sukhasana+beginner+5+minute+meditation+tutorial",
+    guidelines: ["Sit cross-legged comfortably", "Spine tall", "Relax shoulders", "Focus on breathing"],
+    benefits: ["Reduces stress", "Improves focus", "Relaxes body"],
+  },
+  {
+    id: 2,
+    name: "Child's Pose (Balasana)",
+    category: "Relaxation",
+    practiceLevel: "Beginner",
+    intensity: "Gentle",
+    duration: "1-5 minutes",
+    glowColor: "#06b6d4",
+    image: balasana,
+    description: "A deeply calming pose that relaxes the spine and nervous system.",
+    youtubeUrl: "https://www.youtube.com/results?search_query=Balasana+Child+Pose+beginner+short+guided+yoga+tutorial",
+    guidelines: ["Kneel on mat", "Fold forward", "Rest forehead down", "Arms relaxed"],
+    benefits: ["Relieves tension", "Calms mind", "Reduces anxiety"],
+  },
+  {
+    id: 3,
+    name: "Thunderbolt Pose (Vajrasana)",
+    category: "Grounding",
+    practiceLevel: "Beginner",
+    intensity: "Gentle",
+    duration: "5-15 minutes",
+    glowColor: "#8b5cf6",
+    image: vajrasana,
+    description: "A seated kneeling posture that aids digestion and promotes stillness for meditation.",
+    youtubeUrl: "https://www.youtube.com/results?search_query=Vajrasana+Thunderbolt+Pose+beginner+10+minute+meditation+practice",
+    guidelines: ["Kneel on the mat", "Sit back on heels", "Keep spine straight", "Hands on thighs"],
+    benefits: ["Improves digestion", "Enhances focus", "Strengthens posture"],
+    precautions: ["Avoid if knee pain", "Use cushion under ankles"],
+  },
+  {
+    id: 4,
+    name: "Perfect Pose (Siddhasana)",
+    category: "Meditation",
+    practiceLevel: "Intermediate",
+    intensity: "Gentle",
+    duration: "10-30 minutes",
+    glowColor: "#ec4899",
+    image: siddhasana,
+    description: "A traditional meditation pose believed to awaken inner energy.",
+    youtubeUrl: "https://www.youtube.com/results?search_query=Siddhasana+Perfect+Pose+5+minute+meditation+tutorial+beginner",
+    guidelines: ["Sit with one heel at perineum", "Other foot placed above", "Spine upright", "Hands resting on knees"],
+    benefits: ["Balances energy", "Improves concentration", "Stabilizes mind"],
+    precautions: ["Avoid if hip stiffness"],
+  },
+  {
+    id: 5,
+    name: "Seated Forward Fold (Paschimottanasana)",
+    category: "Flexibility",
+    practiceLevel: "Beginner",
+    intensity: "Gentle",
+    duration: "2-5 minutes",
+    glowColor: "#22c55e",
+    image: paschimottanasana,
+    description: "A calming forward bend that relaxes the nervous system.",
+    youtubeUrl: "https://www.youtube.com/results?search_query=Paschimottanasana+Seated+Forward+Fold+beginner+short+guided+meditation+yoga",
+    guidelines: ["Sit with legs extended", "Fold forward gently", "Relax head and neck", "Breathe deeply"],
+    benefits: ["Calms nervous system", "Reduces anxiety", "Relieves fatigue"],
+    precautions: ["Avoid deep stretch if back pain"],
+  },
+  {
+    id: 6,
+    name: "Corpse Pose (Shavasana)",
+    category: "Restoration",
+    practiceLevel: "Beginner",
+    intensity: "Very Gentle",
+    duration: "5-20 minutes",
+    glowColor: "#f97316",
+    image: savasana,
+    description: "A deeply restorative posture for mindfulness and body awareness.",
+    youtubeUrl: "https://www.youtube.com/results?search_query=Savasana+Corpse+Pose+10+minute+guided+relaxation+beginner+meditation",
+    guidelines: ["Lie flat on back", "Arms relaxed by sides", "Eyes closed", "Observe breath"],
+    benefits: ["Deep relaxation", "Reduces stress", "Improves awareness"],
+    precautions: ["Use blanket if cold"],
+  },
+  {
+    id: 7,
+    name: "Butterfly Pose (Baddha Konasana)",
+    category: "Hip Opening",
+    practiceLevel: "Beginner",
+    intensity: "Gentle",
+    duration: "5-15 minutes",
+    glowColor: "#e879f9",
+    image: butterfly,
+    description: "A relaxing seated pose that opens the hips and calms the nervous system, making it ideal before meditation.",
+    youtubeUrl: "https://www.youtube.com/results?search_query=Butterfly+Pose+Baddha+Konasana+beginner+5+minute+guided+yoga+tutorial",
+    guidelines: ["Sit with spine straight", "Bring soles of feet together", "Hold feet and gently flap knees", "Breathe deeply and relax"],
+    benefits: ["Opens hips", "Reduces stress", "Improves flexibility"],
+    precautions: ["Avoid forcing knees down", "Use cushions under thighs if needed"],
+  },
+  {
+    id: 8,
+    name: "Half Spinal Twist (Ardha Matsyendrasana)",
+    category: "Spinal Health",
+    practiceLevel: "Intermediate",
+    intensity: "Moderate",
+    duration: "3-8 minutes",
+    glowColor: "#ef4444",
+    image: ardha,
+    description: "A seated twisting posture that improves spinal flexibility and energizes the body while keeping the mind alert.",
+    youtubeUrl: "https://www.youtube.com/results?search_query=Ardha+Matsyendrasana+Half+Spinal+Twist+beginner+10+minute+yoga+tutorial",
+    guidelines: ["Sit with legs extended", "Bend one knee and place foot outside thigh", "Twist torso gently", "Keep spine upright"],
+    benefits: ["Improves digestion", "Enhances spinal mobility", "Improves focus"],
+    precautions: ["Avoid if severe back pain", "Twist gently without jerks"],
+  },
+  {
+    id: 9,
+    name: "Tree Pose (Vrikshasana)",
+    category: "Balance",
+    practiceLevel: "Beginner",
+    intensity: "Moderate",
+    duration: "1-5 minutes",
+    glowColor: "#38bdf8",
+    image: virkshana,
+    description: "A balancing pose that builds focus, stability, and mental clarity - excellent preparation for meditation.",
+    youtubeUrl: "https://www.youtube.com/results?search_query=Tree+Pose+Vrikshasana+beginner+5+minute+balance+meditation+practice",
+    guidelines: ["Stand straight", "Place one foot on inner thigh or calf", "Hands in prayer position", "Fix gaze on one point"],
+    benefits: ["Improves balance", "Builds concentration", "Strengthens legs"],
+    precautions: ["Avoid if dizziness", "Use wall support if needed"],
+  },
+];
+
 const MeditationPoses: React.FC = () => {
   const [activePose, setActivePose] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const poses = [
-    {
-      id: 1,
-      name: "Easy Pose (Sukhasana)",
-      practiceLevel: "Beginner",
-      intensity: "Gentle",
-      duration: "5-20 minutes",
-      glowColor: "#f59e0b",
-      image: sukhasana,
-      description: "A simple and comfortable seated posture ideal for beginners.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Easy+Pose+Sukhasana+beginner+5+minute+meditation+tutorial",
-      guidelines: ["Sit cross-legged comfortably", "Spine tall", "Relax shoulders", "Focus on breathing"],
-      benefits: ["Reduces stress", "Improves focus", "Relaxes body"],
-    },
-    {
-      id: 2,
-      name: "Child's Pose (Balasana)",
-      practiceLevel: "Beginner",
-      intensity: "Gentle",
-      duration: "1-5 minutes",
-      glowColor: "#06b6d4",
-      image: balasana,
-      description: "A deeply calming pose that relaxes the spine and nervous system.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Balasana+Child+Pose+beginner+short+guided+yoga+tutorial",
-      guidelines: ["Kneel on mat", "Fold forward", "Rest forehead down", "Arms relaxed"],
-      benefits: ["Relieves tension", "Calms mind", "Reduces anxiety"],
-    },
-    {
-      id: 3,
-      name: "Thunderbolt Pose (Vajrasana)",
-      practiceLevel: "Beginner",
-      intensity: "Gentle",
-      duration: "5-15 minutes",
-      glowColor: "#8b5cf6",
-      image: vajrasana,
-      description: "A seated kneeling posture that aids digestion and promotes stillness for meditation.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Vajrasana+Thunderbolt+Pose+beginner+10+minute+meditation+practice",
-      guidelines: ["Kneel on the mat", "Sit back on heels", "Keep spine straight", "Hands on thighs"],
-      benefits: ["Improves digestion", "Enhances focus", "Strengthens posture"],
-      precautions: ["Avoid if knee pain", "Use cushion under ankles"],
-    },
-    {
-      id: 4,
-      name: "Perfect Pose (Siddhasana)",
-      practiceLevel: "Intermediate",
-      intensity: "Gentle",
-      duration: "10-30 minutes",
-      glowColor: "#ec4899",
-      image: siddhasana,
-      description: "A traditional meditation pose believed to awaken inner energy.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Siddhasana+Perfect+Pose+5+minute+meditation+tutorial+beginner",
-      guidelines: ["Sit with one heel at perineum", "Other foot placed above", "Spine upright", "Hands resting on knees"],
-      benefits: ["Balances energy", "Improves concentration", "Stabilizes mind"],
-      precautions: ["Avoid if hip stiffness"],
-    },
-    {
-      id: 5,
-      name: "Seated Forward Fold (Paschimottanasana)",
-      practiceLevel: "Beginner",
-      intensity: "Gentle",
-      duration: "2-5 minutes",
-      glowColor: "#22c55e",
-      image: paschimottanasana,
-      description: "A calming forward bend that relaxes the nervous system.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Paschimottanasana+Seated+Forward+Fold+beginner+short+guided+meditation+yoga",
-      guidelines: ["Sit with legs extended", "Fold forward gently", "Relax head and neck", "Breathe deeply"],
-      benefits: ["Calms nervous system", "Reduces anxiety", "Relieves fatigue"],
-      precautions: ["Avoid deep stretch if back pain"],
-    },
-    {
-      id: 6,
-      name: "Corpse Pose (Shavasana)",
-      practiceLevel: "Beginner",
-      intensity: "Very Gentle",
-      duration: "5-20 minutes",
-      glowColor: "#f97316",
-      image: savasana,
-      description: "A deeply restorative posture for mindfulness and body awareness.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Savasana+Corpse+Pose+10+minute+guided+relaxation+beginner+meditation",
-      guidelines: ["Lie flat on back", "Arms relaxed by sides", "Eyes closed", "Observe breath"],
-      benefits: ["Deep relaxation", "Reduces stress", "Improves awareness"],
-      precautions: ["Use blanket if cold"],
-    },
-    {
-      id: 7,
-      name: "Butterfly Pose (Baddha Konasana)",
-      practiceLevel: "Beginner",
-      intensity: "Gentle",
-      duration: "5-15 minutes",
-      glowColor: "#e879f9",
-      image: butterfly,
-      description: "A relaxing seated pose that opens the hips and calms the nervous system, making it ideal before meditation.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Butterfly+Pose+Baddha+Konasana+beginner+5+minute+guided+yoga+tutorial",
-      guidelines: ["Sit with spine straight", "Bring soles of feet together", "Hold feet and gently flap knees", "Breathe deeply and relax"],
-      benefits: ["Opens hips", "Reduces stress", "Improves flexibility"],
-      precautions: ["Avoid forcing knees down", "Use cushions under thighs if needed"],
-    },
-    {
-      id: 8,
-      name: "Half Spinal Twist (Ardha Matsyendrasana)",
-      practiceLevel: "Intermediate",
-      intensity: "Moderate",
-      duration: "3-8 minutes",
-      glowColor: "#ef4444",
-      image: ardha,
-      description: "A seated twisting posture that improves spinal flexibility and energizes the body while keeping the mind alert.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Ardha+Matsyendrasana+Half+Spinal+Twist+beginner+10+minute+yoga+tutorial",
-      guidelines: ["Sit with legs extended", "Bend one knee and place foot outside thigh", "Twist torso gently", "Keep spine upright"],
-      benefits: ["Improves digestion", "Enhances spinal mobility", "Improves focus"],
-      precautions: ["Avoid if severe back pain", "Twist gently without jerks"],
-    },
-    {
-      id: 9,
-      name: "Tree Pose (Vrikshasana)",
-      practiceLevel: "Beginner",
-      intensity: "Moderate",
-      duration: "1-5 minutes",
-      glowColor: "#38bdf8",
-      image: virkshana,
-      description: "A balancing pose that builds focus, stability, and mental clarity - excellent preparation for meditation.",
-      youtubeUrl: "https://www.youtube.com/results?search_query=Tree+Pose+Vrikshasana+beginner+5+minute+balance+meditation+practice",
-      guidelines: ["Stand straight", "Place one foot on inner thigh or calf", "Hands in prayer position", "Fix gaze on one point"],
-      benefits: ["Improves balance", "Builds concentration", "Strengthens legs"],
-      precautions: ["Avoid if dizziness", "Use wall support if needed"],
-    },
-  ];
+  const poses = yogaTutorialCards;
 
   return (
     <>
@@ -1617,7 +1632,7 @@ const MeditationPoses: React.FC = () => {
             </p>
           </div>
 
-          <div className="slider" style={{ '--width': '280px', '--height': '400px', '--quantity': '9' } as React.CSSProperties}>
+          <div className="slider" style={{ '--width': '280px', '--height': '400px', '--quantity': String(poses.length) } as React.CSSProperties}>
             <div className="list">
               {poses.map((pose) => {
                 return (
@@ -1634,7 +1649,7 @@ const MeditationPoses: React.FC = () => {
                       <img src={pose.image} alt={pose.name} style={{ objectPosition: pose.id === 6 ? 'right center' : 'center center' }} />
                       <div className="yoga-card-text">
                         <p className="tip">{pose.name}</p>
-                        <p className="second-text">{pose.intensity} - {pose.duration}</p>
+                        <p className="second-text">{pose.intensity} · {pose.duration}</p>
                       </div>
                       {/* YouTube play icon - bottom right */}
                       <div className="yoga-yt-icon">
@@ -1753,12 +1768,12 @@ const MeditationPoses: React.FC = () => {
           margin: 0;
         }
         .yoga-card .second-text {
-          font-size: 0.58em;
-          font-weight: 400;
-          letter-spacing: 0.1em;
-          color: rgba(210,180,120,0.85);
+          font-size: 0.72em;
+          font-weight: 600;
+          letter-spacing: 0.08em;
+          color: rgba(255, 220, 150, 1);
           font-family: 'Cinzel', serif;
-          text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+          text-shadow: 0 1px 6px rgba(0,0,0,1);
           text-transform: uppercase;
           margin: 0;
         }
@@ -1879,8 +1894,9 @@ const EssentialGuidance: React.FC = () => {
   const [activeCard, setActiveCard] = useState<string | null>(null);
   const [displayCard, setDisplayCard] = useState<string | null>(null);
   const [animating, setAnimating] = useState(false);
+  const [typedSteps, setTypedSteps] = useState<number>(0);
 
-  const journeyData: Record<string, { steps: string[]; quote: string; breathNote: string; color: string; shadowColor: string; bgLight: string; textColor: string; mutedText: string; cardBg: string; }> = {
+  const journeyData: Record<string, { steps: string[]; quote: string; breathNote: string; color: string; shadowColor: string; bgLight: string; textColor: string; mutedText: string; cardBg: string; cardShade: string; }> = {
     "Start Small": {
       steps: [
         "Choose a consistent time - even 5 minutes at dawn",
@@ -1897,6 +1913,7 @@ const EssentialGuidance: React.FC = () => {
       textColor: "#163d28",
       mutedText: "#2d6644",
       cardBg: "linear-gradient(160deg, #eaf6f0 0%, #ceeadb 100%)",
+      cardShade: "rgba(232,245,238,0.92)",
     },
     "Morning Practice": {
       steps: [
@@ -1914,6 +1931,7 @@ const EssentialGuidance: React.FC = () => {
       textColor: "#1a3d2a",
       mutedText: "#336648",
       cardBg: "linear-gradient(160deg, #e4f4ec 0%, #c4e6d0 100%)",
+      cardShade: "rgba(228,244,236,0.92)",
     },
     "Create Sacred Space": {
       steps: [
@@ -1930,7 +1948,8 @@ const EssentialGuidance: React.FC = () => {
       bgLight: "linear-gradient(135deg, #e0f2ea 0%, #c0e6d2 100%)",
       textColor: "#1c3d2c",
       mutedText: "#3a7050",
-      cardBg: "linear-gradient(160deg, #e0f2ea 0%, #bce4ce 100%)",
+      cardBg: "linear-gradient(160deg, #dff5ea 0%, #bce4ce 100%)",
+      cardShade: "rgba(224,242,234,0.92)",
     },
     "Disconnect to Connect": {
       steps: [
@@ -1947,7 +1966,8 @@ const EssentialGuidance: React.FC = () => {
       bgLight: "linear-gradient(135deg, #e6f5ee 0%, #c6e8d6 100%)",
       textColor: "#163828",
       mutedText: "#286040",
-      cardBg: "linear-gradient(160deg, #e6f5ee 0%, #c2e6d2 100%)",
+      cardBg: "linear-gradient(160deg, #e8f7f0 0%, #c2e6d2 100%)",
+      cardShade: "rgba(230,245,238,0.92)",
     },
     "Breathe First": {
       steps: [
@@ -1964,7 +1984,8 @@ const EssentialGuidance: React.FC = () => {
       bgLight: "linear-gradient(135deg, #e2f4ec 0%, #bce6d0 100%)",
       textColor: "#123624",
       mutedText: "#245c3c",
-      cardBg: "linear-gradient(160deg, #e2f4ec 0%, #b8e4cc 100%)",
+      cardBg: "linear-gradient(160deg, #e5f6ee 0%, #b8e4cc 100%)",
+      cardShade: "rgba(226,244,236,0.92)",
     },
     "Be Patient": {
       steps: [
@@ -1981,7 +2002,8 @@ const EssentialGuidance: React.FC = () => {
       bgLight: "linear-gradient(135deg, #e6f5ed 0%, #c4e8d4 100%)",
       textColor: "#1a3d2a",
       mutedText: "#306648",
-      cardBg: "linear-gradient(160deg, #e6f5ed 0%, #c0e6d0 100%)",
+      cardBg: "linear-gradient(160deg, #eaf7f1 0%, #c0e6d0 100%)",
+      cardShade: "rgba(234,247,241,0.92)",
     },
   };
 
@@ -1996,20 +2018,26 @@ const EssentialGuidance: React.FC = () => {
 
   const handleCardClick = (title: string) => {
     if (title === activeCard) {
-      // toggle off
       setAnimating(true);
       setTimeout(() => {
         setActiveCard(null);
         setDisplayCard(null);
         setAnimating(false);
+        setTypedSteps(0);
       }, 280);
       return;
     }
     setAnimating(true);
+    setTypedSteps(0);
     setTimeout(() => {
       setDisplayCard(title);
       setActiveCard(title);
       setAnimating(false);
+      // Reveal steps one by one
+      const steps = journeyData[title].steps.length;
+      for (let i = 1; i <= steps; i++) {
+        setTimeout(() => setTypedSteps(i), i * 120);
+      }
     }, 280);
   };
 
@@ -2045,8 +2073,8 @@ const EssentialGuidance: React.FC = () => {
                 style={{
                   '--card-color': jd.color,
                   '--card-shadow': jd.shadowColor,
-                  background: jd.cardBg,
-                  border: isActive ? `1.5px solid ${jd.color}` : '1.5px solid rgba(0,0,0,0.08)',
+                  background: isActive ? jd.cardBg : jd.cardShade,
+                  border: isActive ? `1.5px solid ${jd.color}` : '1.5px solid rgba(45,106,79,0.15)',
                   boxShadow: isActive ? `0 0 0 2px ${jd.color}40, 0 20px 48px ${jd.shadowColor}` : '0 4px 18px rgba(0,0,0,0.10)',
                 } as React.CSSProperties}
                 onClick={() => handleCardClick(item.title)}
@@ -2104,7 +2132,15 @@ const EssentialGuidance: React.FC = () => {
 
                 <div className="ej-steps">
                   {journey.steps.map((step, i) => (
-                    <div key={i} className="ej-step" style={{ animationDelay: `${0.08 + i * 0.08}s` }}>
+                    <div
+                      key={i}
+                      className="ej-step"
+                      style={{
+                        opacity: i < typedSteps ? 1 : 0,
+                        transform: i < typedSteps ? 'translateX(0)' : 'translateX(-14px)',
+                        transition: `opacity 0.4s ease ${i * 0.08}s, transform 0.4s ease ${i * 0.08}s`,
+                      }}
+                    >
                       <div className="ej-step-num" style={{ color: journey.color, borderColor: `${journey.color}70`, background: `${journey.color}15` }}>{i + 1}</div>
                       <p className="ej-step-text" style={{ color: journey.textColor }}>{step}</p>
                     </div>
@@ -2133,7 +2169,7 @@ const EssentialGuidance: React.FC = () => {
         /* ── Section shell ── */
         .ej-section {
           background: linear-gradient(160deg, #0c1e13 0%, #091710 50%, #060f09 100%);
-          padding: 100px 0 90px;
+          padding: 80px 0 70px;
           position: relative;
           overflow: hidden;
         }
@@ -2213,24 +2249,27 @@ const EssentialGuidance: React.FC = () => {
           min-width: 148px;
           max-width: 192px;
           border-radius: 24px;
-          padding: 28px 16px 22px;
+          padding: 24px 14px 18px;
           cursor: pointer;
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 14px;
+          gap: 12px;
           transition:
-            transform 0.38s cubic-bezier(0.22,1,0.36,1),
-            box-shadow 0.38s ease;
+            transform 0.42s cubic-bezier(0.22,1,0.36,1),
+            box-shadow 0.42s ease,
+            background 0.35s ease,
+            border-color 0.35s ease;
           overflow: hidden;
           outline: none;
+          will-change: transform;
         }
         .ej-card:hover {
-          transform: translateY(-7px);
-          box-shadow: 0 18px 44px rgba(0,0,0,0.15) !important;
+          transform: translateY(-9px) scale(1.025);
+          box-shadow: 0 22px 50px rgba(0,0,0,0.18) !important;
         }
         .ej-card-active {
-          transform: translateY(-10px) !important;
+          transform: translateY(-11px) scale(1.03) !important;
         }
 
         /* Ambient glow fill */
@@ -2400,15 +2439,15 @@ const EssentialGuidance: React.FC = () => {
         .ej-panel-inner {
           position: relative;
           z-index: 1;
-          padding: 40px 48px 36px;
+          padding: 30px 40px 28px;
         }
 
         /* Panel header */
         .ej-panel-header {
           display: flex;
           align-items: center;
-          gap: 16px;
-          margin-bottom: 32px;
+          gap: 14px;
+          margin-bottom: 22px;
         }
         .ej-panel-pulse {
           width: 13px; height: 13px;
@@ -2430,19 +2469,13 @@ const EssentialGuidance: React.FC = () => {
         .ej-steps {
           display: flex;
           flex-direction: column;
-          gap: 16px;
-          margin-bottom: 32px;
+          gap: 12px;
+          margin-bottom: 24px;
         }
         .ej-step {
           display: flex;
           align-items: flex-start;
-          gap: 18px;
-          opacity: 0;
-          animation: ej-step-in 0.5s ease forwards;
-        }
-        @keyframes ej-step-in {
-          from { opacity: 0; transform: translateX(-14px); }
-          to   { opacity: 1; transform: translateX(0); }
+          gap: 16px;
         }
         .ej-step-num {
           font-family: 'Cinzel', serif;
@@ -2460,9 +2493,9 @@ const EssentialGuidance: React.FC = () => {
         }
         .ej-step-text {
           font-family: 'Poppins', sans-serif;
-          font-size: 0.875rem;
+          font-size: 0.84rem;
           font-weight: 400;
-          line-height: 1.8;
+          line-height: 1.7;
           margin: 0;
           color: #1a3d28 !important;
         }

@@ -34,11 +34,8 @@ export const DashboardFooter = () => {
 
                     {/* Brand */}
                     <div>
-                        <Link to="/dashboard/overview" className="flex items-center gap-4 mb-8 no-underline">
-                            <img src="/logo.png" alt="Nirvaha" className="w-16 h-16 object-contain" />
-                            <span className="text-2xl font-bold text-white tracking-widest" style={{ fontFamily: "'Cinzel', serif" }}>
-                                NIRVAHA
-                            </span>
+                        <Link to="/dashboard/overview" className="flex items-center mb-8 no-underline">
+                            <img src="/logo.png" alt="Nirvaha" className="w-36 h-auto object-contain" />
                         </Link>
                         <p className="text-emerald-100/60 text-sm leading-relaxed mb-8 max-w-xs">
                             Bridging ancient wisdom and modern science to create a digital sanctuary for the modern mind.
@@ -100,8 +97,8 @@ export const DashboardFooter = () => {
                         © 2026 Nirvaha Inc. Crafted with Peace.
                     </p>
                     <div className="flex gap-8 text-[10px] font-bold tracking-[0.2em] text-emerald-100/30 uppercase">
-                        <Link to="/privacy" className="hover:text-white transition-colors no-underline">Privacy Policy</Link>
-                        <Link to="/terms"   className="hover:text-white transition-colors no-underline">Terms of Service</Link>
+                        <Link to="/" className="hover:text-white transition-colors no-underline">Privacy Policy</Link>
+                        <Link to="/"   className="hover:text-white transition-colors no-underline">Terms of Service</Link>
                         <span className="hover:text-white transition-colors cursor-pointer">Cookie Settings</span>
                     </div>
                 </div>
