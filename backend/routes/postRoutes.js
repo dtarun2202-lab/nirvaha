@@ -39,7 +39,7 @@ async function seedIfEmpty() {
   seedRunning = true;
   try {
     const count = await Post.countDocuments();
-    if (count > 5) return;  // Only reseed if very few posts exist
+    if (count > 0) return;  // Never reseed if ANY posts exist
 
     const now = Date.now();
     const docs = SEED_POSTS.map((p, i) => ({
