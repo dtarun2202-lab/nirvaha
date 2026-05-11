@@ -1,19 +1,16 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import {
-  Activity,
   TrendingUp,
   Award,
   Clock,
   Heart,
   Zap,
   Target,
-  Calendar,
   BarChart3,
   Brain,
   Wind,
   Sun,
   Moon,
-  Flame,
   Settings,
   Bell,
   Shield,
@@ -24,11 +21,6 @@ import {
   Edit2,
   Download,
   Share2,
-  Sparkles,
-  History,
-  Smile,
-  ChevronRight,
-  Play,
 } from "lucide-react";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { ShareProfileCard } from "./ShareProfileCard";
@@ -47,6 +39,259 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+
+const DAILY_QUOTES = [
+  "Peace begins with a slow breath and a quiet mind.",
+  "Small mindful moments create lasting inner peace.",
+  "Stillness is not empty—it is full of answers.",
+  "Return to your breath; it always knows the way home.",
+  "Gentle awareness is enough for today.",
+  "What you practice grows—choose calm, often.",
+  "Let the mind soften; you do not have to fix everything at once.",
+  "Each exhale is permission to release what you no longer need.",
+  "Presence is the simplest form of self-care.",
+  "You are allowed to move slowly and still be progressing.",
+  "Quiet the noise; listen for what feels true beneath it.",
+  "Compassion toward yourself is a skill—keep training it.",
+  "The body relaxes when the mind stops rushing ahead.",
+  "One mindful minute can reshape the tone of your whole day.",
+  "Healing is rarely loud; it often arrives in gentle layers.",
+  "Notice without judgment—that is where freedom starts.",
+  "Rest is not a reward; it is part of the path.",
+  "Return again and again; consistency is kindness.",
+  "You do not need a perfect practice—only a sincere one.",
+  "Let today be enough, exactly as it is.",
+  "Soft attention is stronger than harsh discipline.",
+  "The breath you take now is already a fresh beginning.",
+  "Walk gently through your thoughts—they are visitors, not verdicts.",
+  "Ease is not laziness; it is intelligent pacing.",
+  "When the world feels loud, anchor in one quiet sensation.",
+  "Progress in mindfulness is measured in return, not perfection.",
+  "Let kindness toward yourself be the background music of your day.",
+  "A calm heart listens better than a hurried mind.",
+  "You can begin again in every breath—no permission slip required.",
+  "Still water reflects clearly; give your mind a moment to settle.",
+  "Honor small wins; they stack into steady transformation.",
+  "What you repeat shapes you—repeat peace when you can.",
+  "There is wisdom in pausing before you answer—inside or out.",
+  "Your nervous system learns safety through patient repetition.",
+  "Let go of the scoreboard; stay with the practice.",
+  "Breathing slower is sometimes the bravest thing you can do.",
+];
+
+function getLocalDateKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/** Mood labels aligned with Emotional Landscape UI (order matters for display). */
+const EMOTIONAL_MOOD_LABELS = ["Peaceful", "Calm", "Focused", "Relaxed", "Energized"] as const;
+type EmotionalMoodLabel = (typeof EMOTIONAL_MOOD_LABELS)[number];
+
+function parseSessionTime(entry: Record<string, unknown>): number {
+  const raw = entry.completedAt ?? entry.date ?? entry.createdAt ?? entry.timestamp;
+  if (raw == null) return Date.now();
+  const t = new Date(String(raw)).getTime();
+  return Number.isFinite(t) ? t : Date.now();
+}
+
+function sessionWeightMinutes(entry: Record<string, unknown>): number {
+  const d = Number(entry.duration);
+  if (Number.isFinite(d) && d > 0) return Math.min(d, 240);
+  return 1;
+}
+
+/** Monday = 0 … Sunday = 6 (same indexing as backend `stats.weeklyMinutes`). */
+function mondayIndexFromDate(d: Date): number {
+  return (d.getDay() + 6) % 7;
+}
+
+/** Practice minutes per weekday for the current calendar week, from session history (local). */
+function buildWeeklyPracticeFromHistory(history: Record<string, unknown>[]): number[] {
+  const week = [0, 0, 0, 0, 0, 0, 0];
+  const now = new Date();
+  const start = new Date(now);
+  const dow = start.getDay();
+  const mondayOffset = dow === 0 ? -6 : 1 - dow;
+  start.setDate(start.getDate() + mondayOffset);
+  start.setHours(0, 0, 0, 0);
+  const endMs = start.getTime() + 7 * 86400000;
+
+  for (const e of history) {
+    const t = parseSessionTime(e);
+    if (t < start.getTime() || t >= endMs) continue;
+    const idx = mondayIndexFromDate(new Date(t));
+    week[idx] += sessionWeightMinutes(e);
+  }
+  return week;
+}
+
+/**
+ * One mood bucket per session — uses sessionType, stored `type` (sound category or meditation tag),
+ * and title keywords so percentages track real behavior (breath → Calm, sleep → Relaxed/Peaceful, etc.).
+ */
+function classifySessionToMood(entry: Record<string, unknown>): EmotionalMoodLabel {
+  const title = String(entry.title ?? "").toLowerCase();
+  const sessionType = String(entry.sessionType ?? "").toLowerCase();
+  const type = String(entry.type ?? "").toLowerCase();
+  const blob = `${title} ${sessionType} ${type}`;
+
+  if (
+    sessionType === "breath" ||
+    /\b(pranayama|breathwork|breathing exercise|breath work|box breath|ujjayi|nadi|4-7-8|equal breath|calm breath)\b/.test(blob)
+  ) {
+    return "Calm";
+  }
+  if (/\bbreathing\b/.test(title) && !/\b(sleep|night|bedtime|insomnia)\b/.test(blob)) {
+    return "Calm";
+  }
+
+  if (sessionType === "sound") {
+    const sleepish =
+      /\bsleep\b/.test(type) ||
+      /\b(sleep|insomnia|bedtime|night rest|delta wave|yoga nidra|deep rest)\b/.test(title) ||
+      (/\bbinaural\b/.test(type) && /\b(sleep|delta|rest|insomnia)\b/.test(title));
+    if (sleepish) {
+      return /\b(lullaby|peaceful sleep|gentle dream|soft sleep|calm night|serene night)\b/.test(title) ? "Peaceful" : "Relaxed";
+    }
+
+    const focusish =
+      /\b(focus|productivity|work|study|concentration)\b/.test(type) ||
+      (/\bbinaural\b/.test(type) && /\b(focus|alpha|beta|work|study|concentrat)\b/.test(title)) ||
+      /\b(focus|study|work mode|deep work|concentrat)\b/.test(title);
+    if (focusish) return "Focused";
+
+    const energyish =
+      /\b(chakra|crystal|energy|power|boost|vitality)\b/.test(type) ||
+      /\b(energ|morning boost|active|power up|528 hz|wake up|kundalini)\b/.test(title);
+    if (energyish) return "Energized";
+
+    if (/\b(stress|anxiety|tension|overwhelm)\b/.test(type) || /\b(stress|anxiety|relief|reset)\b/.test(title)) {
+      return "Calm";
+    }
+    if (/\b(nature|ambient|ocean|rain|forest|bowl|healing|relaxation)\b/.test(type)) {
+      return "Peaceful";
+    }
+    if (/\b(meditation)\b/.test(type) && !/\b(sleep|focus)\b/.test(title)) return "Peaceful";
+
+    if (/\b(focus|study|work)\b/.test(title)) return "Focused";
+    if (/\b(sleep|night|bedtime|delta)\b/.test(title)) return "Relaxed";
+    if (/\b(energ|chakra|crystal)\b/.test(title)) return "Energized";
+    return "Peaceful";
+  }
+
+  if (/\bsleep\b/.test(type) || /\b(sleep|body scan|yoga nidra|bedtime|night meditation)\b/.test(blob)) {
+    return "Relaxed";
+  }
+  if (/\bfocus\b/.test(type) || /\b(focus|concentrat|vipassana|attention|study)\b/.test(blob)) {
+    return "Focused";
+  }
+  if (/\b(energ|power|active|kundalini)\b/.test(type) || /\b(energ|morning flow|power)\b/.test(blob)) {
+    return "Energized";
+  }
+  if (/\bcalm\b/.test(type) || /\b(calm|stillness|gentle|soft)\b/.test(blob)) return "Calm";
+  if (/\b(mindful|meditat|peace|serene|loving.kindness)\b/.test(blob)) return "Peaceful";
+
+  return "Peaceful";
+}
+
+function buildEmotionalLandscapeAnalytics(
+  history: Record<string, unknown>[],
+  weeklyMinutes: number[],
+  streak: number
+) {
+  const now = Date.now();
+  const windowMs = 90 * 86400000;
+  const inWindow = history.filter((e) => now - parseSessionTime(e) <= windowMs);
+
+  const scores: Record<EmotionalMoodLabel, number> = {
+    Peaceful: 0,
+    Calm: 0,
+    Focused: 0,
+    Relaxed: 0,
+    Energized: 0,
+  };
+  for (const entry of inWindow) {
+    const label = classifySessionToMood(entry);
+    scores[label] += sessionWeightMinutes(entry);
+  }
+
+  const total = EMOTIONAL_MOOD_LABELS.reduce((s, k) => s + scores[k], 0);
+  const rawPct: Record<EmotionalMoodLabel, number> = { Peaceful: 0, Calm: 0, Focused: 0, Relaxed: 0, Energized: 0 };
+  if (total > 0) {
+    let allocated = 0;
+    EMOTIONAL_MOOD_LABELS.forEach((k) => {
+      const v = Math.round((100 * scores[k]) / total);
+      rawPct[k] = v;
+      allocated += v;
+    });
+    const drift = 100 - allocated;
+    if (drift !== 0) {
+      const richest = EMOTIONAL_MOOD_LABELS.reduce((a, b) => (scores[b] > scores[a] ? b : a));
+      rawPct[richest] = Math.max(0, rawPct[richest] + drift);
+    }
+  }
+
+  let dominant: EmotionalMoodLabel = "Peaceful";
+  let maxScore = -1;
+  for (const k of EMOTIONAL_MOOD_LABELS) {
+    if (scores[k] > maxScore) {
+      maxScore = scores[k];
+      dominant = k;
+    }
+  }
+
+  const daysActive = weeklyMinutes.filter((m) => m > 0).length;
+  const totalWeekly = weeklyMinutes.reduce((a, b) => a + b, 0);
+  const sessionsLast14 = inWindow.filter((e) => now - parseSessionTime(e) <= 14 * 86400000).length;
+  const windowSessions = inWindow.length;
+  // Blend weekly spread, streak, volume, and recent session count so the index moves with real activity
+  // (avoids a “stuck” low % when you already have many sessions but uneven weekly bars).
+  const emotionalConsistencyScore = Math.round(
+    Math.min(
+      100,
+      (daysActive / 7) * 22 +
+        Math.min(streak / 14, 1) * 24 +
+        Math.min(totalWeekly / 100, 1) * 18 +
+        Math.min(sessionsLast14 / 20, 1) * 18 +
+        Math.min(windowSessions / 30, 1) * 18
+    )
+  );
+
+  const moodsTouched = EMOTIONAL_MOOD_LABELS.filter((k) => scores[k] > 0).length;
+
+  const moodMixFingerprint = `${inWindow.length}-${Math.round(total)}-${dominant}-${EMOTIONAL_MOOD_LABELS.map((k) => rawPct[k]).join(".")}`;
+
+  return {
+    scores,
+    percentages: rawPct,
+    dominantLabel: dominant,
+    sessionsInWindow: inWindow.length,
+    emotionalConsistencyScore,
+    moodsTouched,
+    moodMixFingerprint,
+  };
+}
+
+/** Prefer the source with more sessions (then fresher totals) so UI updates after refreshProfile(). */
+function pickSessionHistory(profileHist: unknown, userHist: unknown): Record<string, unknown>[] {
+  const p = Array.isArray(profileHist) ? (profileHist as Record<string, unknown>[]) : [];
+  const u = Array.isArray(userHist) ? (userHist as Record<string, unknown>[]) : [];
+  if (u.length > p.length) return u;
+  if (p.length > u.length) return p;
+  return u.length > 0 ? u : p;
+}
+
+function mergeStatsForDisplay(profileStats: unknown, userStats: unknown): Record<string, unknown> {
+  const p = (profileStats && typeof profileStats === "object" ? profileStats : {}) as Record<string, unknown>;
+  const u = (userStats && typeof userStats === "object" ? userStats : {}) as Record<string, unknown>;
+  const pS = Number(p.sessionsPlayed ?? 0);
+  const uS = Number(u.sessionsPlayed ?? 0);
+  const pM = Number(p.totalMinutes ?? 0);
+  const uM = Number(u.totalMinutes ?? 0);
+  if (uS > pS || (uS === pS && uM >= pM)) return { ...p, ...u };
+  return { ...u, ...p };
+}
 
 export function ProfilePage() {
   const { user, refreshProfile } = useAuth();
@@ -107,25 +352,47 @@ export function ProfilePage() {
 
   const [selectedMood, setSelectedMood] = useState(availableMoods[0]);
   const [isGoodDay, setIsGoodDay] = useState(false);
-  const [activeSession, setActiveSession] = useState<any>(null);
+  const [activeSession] = useState<any>(null);
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
-  const [recommendations, setRecommendations] = useState<any>(null);
-  const [loadingRecs, setLoadingRecs] = useState(true);
+  const [quoteDayKey, setQuoteDayKey] = useState(() => getLocalDateKey());
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const next = getLocalDateKey();
+      setQuoteDayKey((prev) => (prev !== next ? next : prev));
+    }, 60_000);
+    return () => window.clearInterval(id);
+  }, []);
 
+  const dailyQuote = useMemo(() => {
+    const [y, mon, day] = quoteDayKey.split("-").map(Number);
+    const utcNoon = Date.UTC(y, mon - 1, day, 12, 0, 0);
+    const dayOrdinal = Math.floor(utcNoon / 86400000);
+    const idx = dayOrdinal % DAILY_QUOTES.length;
+    return { quote: DAILY_QUOTES[idx], key: quoteDayKey };
+  }, [quoteDayKey]);
 
-  // Merge API data with auth user data — must be before moodHistory
-  const stats = profileData?.stats || user?.stats || {};
-  const weeklyMinutes = stats.weeklyMinutes || [0,0,0,0,0,0,0];
+  const stats = useMemo(
+    () => mergeStatsForDisplay(profileData?.stats, user?.stats) as Record<string, unknown> & {
+      weeklyMinutes?: number[];
+      sessionsPlayed?: number;
+      streak?: number;
+      totalMinutes?: number;
+      wellnessScore?: number;
+    },
+    [profileData?.stats, user?.stats]
+  );
+  const weeklyMinutes = useMemo(() => {
+    const w = stats.weeklyMinutes;
+    if (Array.isArray(w) && w.length >= 7) {
+      return w.slice(0, 7).map((x) => (Number(x) > 0 ? Number(x) : 0));
+    }
+    return [0, 0, 0, 0, 0, 0, 0];
+  }, [
+    Array.isArray(stats.weeklyMinutes) && stats.weeklyMinutes.length >= 7
+      ? stats.weeklyMinutes.slice(0, 7).join(",")
+      : "__empty__",
+  ]);
 
-  const moodHistory = [
-    { day: "M", level: weeklyMinutes[0] },
-    { day: "T", level: weeklyMinutes[1] },
-    { day: "W", level: weeklyMinutes[2] },
-    { day: "T", level: weeklyMinutes[3] },
-    { day: "F", level: weeklyMinutes[4] },
-    { day: "S", level: weeklyMinutes[5] },
-    { day: "S", level: weeklyMinutes[6] },
-  ];
   const displayBio = profileData?.bio || user?.bio || "🌿 You're building consistency — keep going.";
   const displayLocation = (profileData?.location || user?.location || "Hyderabad, India");
   const weeklyData = [
@@ -144,33 +411,158 @@ export function ProfilePage() {
   const mostActiveDayIndex = weeklyData.reduce((maxIdx, curr, idx, arr) => curr.minutes > arr[maxIdx].minutes ? idx : maxIdx, 0);
   const mostActiveDay = totalWeeklyMinutes > 0 ? weeklyData[mostActiveDayIndex].day : "No activity yet";
 
+  /** Y-axis ceiling with headroom so bars are not glued to the top; ticks stay readable */
+  const maxDayMinutes = weeklyData.reduce((acc, d) => Math.max(acc, d.minutes), 0);
+  const weeklyChartYMax =
+    maxDayMinutes <= 0 ? 30 : Math.max(15, Math.ceil((maxDayMinutes * 1.22) / 5) * 5);
+
+  const sessionHistoryList = useMemo(
+    () =>
+      pickSessionHistory(
+        profileData?.sessionHistory,
+        (user as { sessionHistory?: Record<string, unknown>[] } | null)?.sessionHistory
+      ),
+    [profileData?.sessionHistory, user]
+  );
+
+  const weeklyPracticeFromHistory = useMemo(
+    () => buildWeeklyPracticeFromHistory(sessionHistoryList),
+    [sessionHistoryList]
+  );
+
+  const moodHistory = useMemo(() => {
+    const sumFromHist = weeklyPracticeFromHistory.reduce((a, b) => a + b, 0);
+    const levels = sumFromHist > 0 ? weeklyPracticeFromHistory : weeklyMinutes;
+    return [
+      { day: "M", level: levels[0] },
+      { day: "T", level: levels[1] },
+      { day: "W", level: levels[2] },
+      { day: "T", level: levels[3] },
+      { day: "F", level: levels[4] },
+      { day: "S", level: levels[5] },
+      { day: "S", level: levels[6] },
+    ];
+  }, [weeklyPracticeFromHistory, weeklyMinutes]);
+
+  const mostActiveEmotionalDay = useMemo(() => {
+    if (!moodHistory.some((m) => m.level > 0)) return "No activity yet";
+    const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const bestIdx = moodHistory.reduce(
+      (bestI, m, i, arr) => (m.level > arr[bestI].level ? i : bestI),
+      0
+    );
+    return dayNames[bestIdx];
+  }, [moodHistory]);
+
+  const { profileMeditationMinutes, profileSoundMinutes } = useMemo(() => {
+    let medMins = 0;
+    let soundMins = 0;
+    for (const e of sessionHistoryList) {
+      const st = String(e.sessionType ?? "").toLowerCase();
+      const typ = String(e.type ?? "").toLowerCase();
+      const mins = Math.max(0, Number(e.duration) || 0);
+      const isSound =
+        st === "sound" ||
+        typ.includes("sound healing") ||
+        typ.includes("sound_healing");
+      if (isSound) soundMins += mins;
+      else medMins += mins;
+    }
+    const totalCat = medMins + soundMins;
+    const totalMinutesAgg = Number(stats.totalMinutes) || 0;
+    return {
+      profileMeditationMinutes: totalCat <= 0 ? totalMinutesAgg : medMins,
+      profileSoundMinutes: soundMins,
+    };
+  }, [sessionHistoryList, stats.totalMinutes]);
+
+  const emotionalLandscape = useMemo(
+    () => buildEmotionalLandscapeAnalytics(sessionHistoryList, weeklyMinutes, stats.streak ?? 0),
+    [sessionHistoryList, weeklyMinutes, stats.streak]
+  );
+
+  const sessionHistoryLenRef = useRef(0);
+  useEffect(() => {
+    const len = sessionHistoryList.length;
+    const win = emotionalLandscape.sessionsInWindow;
+    if (win === 0) {
+      sessionHistoryLenRef.current = len;
+      return;
+    }
+    const mood = availableMoods.find((m) => m.label === emotionalLandscape.dominantLabel);
+    if (!mood) return;
+    const prevLen = sessionHistoryLenRef.current;
+    if (prevLen === 0 || len > prevLen) {
+      setSelectedMood(mood);
+    }
+    sessionHistoryLenRef.current = len;
+  }, [
+    sessionHistoryList.length,
+    emotionalLandscape.dominantLabel,
+    emotionalLandscape.sessionsInWindow,
+  ]);
+
+  const triggerPngDownload = (canvas: HTMLCanvasElement, filename: string) => {
+    canvas.toBlob(
+      (blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+          return;
+        }
+        try {
+          const link = document.createElement("a");
+          link.download = filename;
+          link.href = canvas.toDataURL("image/png");
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+        } catch {
+          /* ignore */
+        }
+      },
+      "image/png",
+      1
+    );
+  };
+
   const handleDownload = async () => {
     const element = chartRef.current || profileRef.current;
-    if (element) {
-      try {
-        const canvas = await html2canvas(element, {
-          scale: 3,
-          useCORS: true,
-          backgroundColor: "#F0FDF4",
-          logging: false,
-          onclone: (clonedDoc) => {
-            // Optional: Modify cloned DOM for better export look
-            const el = clonedDoc.querySelector('[ref="chartRef"]') as HTMLElement;
-            if (el) el.style.padding = "40px";
-          }
-        });
-        const link = document.createElement("a");
-        link.download = `nirvaha-practice-report-${new Date().toISOString().slice(0, 10)}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      } catch (err) {
-        console.error("Download failed:", err);
+    if (!element) return;
+    try {
+      if ("fonts" in document) {
+        await (document as Document & { fonts: FontFaceSet }).fonts.ready;
       }
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#F0FDF4",
+        logging: false,
+        scrollX: 0,
+        scrollY: -window.scrollY,
+      });
+      triggerPngDownload(canvas, `nirvaha-practice-report-${new Date().toISOString().slice(0, 10)}.png`);
+    } catch (err) {
+      console.error("Download failed:", err);
     }
   };
 
+  const shareBtnRef = useRef<HTMLButtonElement>(null);
+  const [shareBurst, setShareBurst] = useState(false);
+
   const handleShare = () => {
-    setIsShareModalOpen(true);
+    setShareBurst(true);
+    setTimeout(() => {
+      setShareBurst(false);
+      setIsShareModalOpen(true);
+    }, 600);
   };
 
   useEffect(() => {
@@ -178,29 +570,20 @@ export function ProfilePage() {
       if (!user?.id) return;
       const token = localStorage.getItem('token');
       try {
-        const [profRes, recRes] = await Promise.all([
-          fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/users/profile?userId=${user.id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          }),
-          fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/recommendations?userId=${user.id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          })
-        ]);
-        
+        const profRes = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/users/profile?userId=${user.id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
         if (profRes.ok) {
           const data = await profRes.json();
           setProfileData(data);
-          if (data.currentMood) {
-            const mood = availableMoods.find(m => m.label === data.currentMood);
+          const histLen = Array.isArray(data.sessionHistory) ? data.sessionHistory.length : 0;
+          if (histLen === 0 && data.currentMood) {
+            const mood = availableMoods.find((m) => m.label === data.currentMood);
             if (mood) setSelectedMood(mood);
           }
         }
-        if (recRes.ok) {
-          const data = await recRes.json();
-          setRecommendations(data);
-        }
       } catch (e) { console.error('👤 Profile: Load failed', e); }
-      finally { setLoadingRecs(false); }
     };
     loadProfile();
   }, [user?.id]);
@@ -209,17 +592,14 @@ export function ProfilePage() {
   const handleMoodSelect = async (mood: any) => {
     setSelectedMood(mood);
     const token = localStorage.getItem('token');
+    const uid = user?.id;
+    if (!uid) return;
     try {
       await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/mood`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-        body: JSON.stringify({ userId: user?.id, mood: mood.label })
+        body: JSON.stringify({ userId: uid, mood: mood.label })
       });
-      // Refresh recommendations after mood change
-      const recRes = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/recommendations?userId=${user.id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (recRes.ok) setRecommendations(await recRes.json());
     } catch (err) { console.error("Mood update failed:", err); }
   };
 
@@ -234,24 +614,13 @@ export function ProfilePage() {
           stats: data.stats,
           sessionHistory: data.sessionHistory
         }));
-        // Refresh recommendations on history update
-        const token = localStorage.getItem('token');
-        const recRes = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/recommendations?userId=${user.id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (recRes.ok) setRecommendations(await recRes.json());
+        void refreshProfile();
       }
     };
 
     socket.on("profile_updated", handleUpdate);
     return () => { socket.off("profile_updated", handleUpdate); };
-  }, [socket, user?.id]);
-
-
-  const handleStartSession = (session: any) => {
-    setActiveSession(session);
-    setIsSessionModalOpen(true);
-  };
+  }, [socket, user?.id, refreshProfile]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -284,33 +653,17 @@ export function ProfilePage() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           className="bg-white/90 backdrop-blur-md p-4 rounded-3xl shadow-2xl border border-green-100 flex flex-col gap-1"
         >
-          <p className="text-[10px] font-black text-green-600 uppercase tracking-[0.2em]">{label}</p>
+          <p className="text-xs font-black text-green-600 uppercase tracking-[0.15em]">{label}</p>
           <div className="flex items-baseline gap-1">
-            <span className="text-xl font-black text-[#1B4332]">{payload[0].value}</span>
-            <span className="text-xs font-bold text-gray-500">mins</span>
+            <span className="text-2xl font-black text-[#1B4332]">{payload[0].value}</span>
+            <span className="text-sm font-bold text-gray-500">mins</span>
           </div>
-          <p className="text-[10px] text-gray-400 font-medium">Mindfulness Flow</p>
+          <p className="text-xs text-gray-500 font-medium">Minutes this day</p>
         </motion.div>
       );
     }
     return null;
   };
-
-  // ── Curated Recommendations (Dynamic) ─────────────────────
-  const recentSessions = useMemo(() => {
-    const history = (profileData?.sessionHistory ?? (user as any)?.sessionHistory ?? []) as any[];
-    // Get unique sessions by title, limit to 3
-    const unique = [];
-    const seen = new Set();
-    for (const s of [...history].reverse()) {
-      if (!seen.has(s.title)) {
-        seen.add(s.title);
-        unique.push(s);
-      }
-      if (unique.length >= 3) break;
-    }
-    return unique;
-  }, [profileData, user]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50/20 to-gray-50/20 pt-24 pb-16">
@@ -379,31 +732,57 @@ export function ProfilePage() {
                     </div>
                   </div>
                   <div className="flex gap-4">
-                    <motion.button
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={handleShare}
-                      className="px-6 py-3 bg-[#1B4332] text-white rounded-2xl shadow-lg flex items-center gap-2 font-bold hover:shadow-[#1B4332]/20 transition-all"
-                    >
-                      <Share2 className="w-5 h-5" />
-                      Share
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={handleDownload}
-                      className="px-6 py-3 bg-white text-[#1B4332] rounded-2xl shadow-lg flex items-center gap-2 font-bold border border-white/50 hover:bg-[#f0fdf4] transition-all"
-                    >
-                      <Download className="w-5 h-5" />
-                      Export
-                    </motion.button>
-                  </div>
+                    <div className="relative">
+                      {/* Burst rings on click */}
+                      <AnimatePresence>
+                        {shareBurst && [0,1,2].map(i => (
+                          <motion.div key={i}
+                            initial={{ scale: 0.5, opacity: 0.8 }}
+                            animate={{ scale: 3 + i, opacity: 0 }}
+                            exit={{}}
+                            transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
+                            className="absolute inset-0 rounded-2xl border-2 border-[#52B788] pointer-events-none"
+                          />
+                        ))}
+                        {shareBurst && Array.from({length: 16}).map((_, i) => (
+                          <motion.div key={`sp-${i}`}
+                            initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+                            animate={{
+                              x: Math.cos((i/16)*Math.PI*2) * (50 + Math.random()*30),
+                              y: Math.sin((i/16)*Math.PI*2) * (50 + Math.random()*30),
+                              opacity: 0, scale: 0
+                            }}
+                            transition={{ duration: 0.55, delay: i*0.02, ease: "easeOut" }}
+                            className="absolute top-1/2 left-1/2 w-2 h-2 rounded-full pointer-events-none"
+                            style={{ background: ["#52B788","#2D6A4F","#74C69D","#95D5B2"][i%4] }}
+                          />
+                        ))}
+                      </AnimatePresence>
+                      <motion.button
+                        ref={shareBtnRef}
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.92 }}
+                        onClick={handleShare}
+                        disabled={shareBurst}
+                        className="relative px-6 py-3 bg-[#1B4332] text-white rounded-2xl shadow-lg flex items-center gap-2 font-bold transition-all"
+                      >
+                        <motion.div animate={shareBurst ? { rotate: 360, scale: 1.3 } : { rotate: 0, scale: 1 }} transition={{ duration: 0.5 }}>
+                          <Share2 className="w-5 h-5" />
+                        </motion.div>
+                        Share
+                      </motion.button>
+                    </div>
+                                      </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-6 mt-6">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6 mt-6">
                   <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 border border-white/60 shadow-sm text-center">
-                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.totalMinutes ?? 0}</div>
-                    <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Total Minutes</div>
+                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{profileMeditationMinutes}</div>
+                    <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Meditation mins</div>
+                  </div>
+                  <div className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-[#95D5B2]/50 shadow-sm text-center ring-1 ring-[#52B788]/15">
+                    <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{profileSoundMinutes}</div>
+                    <div className="text-[10px] text-[#2D6A4F] font-black uppercase tracking-widest">Sound healing mins</div>
                   </div>
                   <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 border border-white/60 shadow-sm text-center">
                     <div className="text-3xl font-black text-[#1B4332] mb-0.5 tracking-tighter">{stats.streak ?? 0}</div>
@@ -468,7 +847,7 @@ export function ProfilePage() {
             </div>
             <h5 className="text-gray-800 mb-1">Practice Time (today)</h5>
             <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-5xl font-bold text-[#1B4332]"><StatCounter value={stats.todayPracticeTime || 0} /></span>
+              <span className="text-5xl font-bold text-[#1B4332]"><StatCounter value={Number(stats.todayPracticeTime) || 0} /></span>
               <span className="text-xl text-[#6b7280]">mins</span>
             </div>
             <p className="text-sm text-[#6b7280]">Today's mindfulness journey</p>
@@ -487,15 +866,15 @@ export function ProfilePage() {
                 <BarChart3 className="w-6 h-6 text-[#16a34a]" />
               </div>
               <div className="px-3 py-1 bg-green-100 rounded-full text-xs text-green-700 font-bold">
-                +{stats.todaySessions || 0}
+                +{stats.sessionsPlayed || 0}
               </div>
             </div>
-            <h5 className="text-gray-800 mb-1">Today's Sessions</h5>
+            <h5 className="text-gray-800 mb-1">Total Sessions</h5>
             <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-5xl font-bold text-[#1B4332]"><StatCounter value={stats.todaySessions || 0} /></span>
+              <span className="text-5xl font-bold text-[#1B4332]"><StatCounter value={stats.sessionsPlayed || 0} /></span>
               <span className="text-xl text-[#6b7280]">completed</span>
             </div>
-            <p className="text-sm text-[#6b7280]">Today's mental gym results</p>
+            <p className="text-sm text-[#6b7280]">All-time wellness sessions</p>
           </motion.div>
 
           {/* Wellness Score Card */}
@@ -522,52 +901,89 @@ export function ProfilePage() {
           </motion.div>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-8">
+        {/* Main Content Grid — natural heights; chart has fixed vertical space */}
+        <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
           {/* Mood Sphere - Takes 2 columns */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            whileHover={{ y: -8 }}
-            className="bg-white/80 backdrop-blur-xl rounded-[32px] p-6 shadow-xl border border-gray-200/30"
+            whileHover={{ y: -2 }}
+            className="relative flex flex-col gap-3 rounded-2xl border border-emerald-100/70 bg-gradient-to-b from-white via-[#fbfffc] to-[#f4fbf7] p-4 sm:p-5 shadow-[0_12px_36px_-20px_rgba(15,81,50,0.14)] overflow-hidden"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-gray-800 mb-1 text-base font-bold">Emotional Landscape</h3>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-[#16a34a] bg-[#f0fdf4] px-2 py-0.5 rounded-full">
-                    {stats.streak > 0 ? `${stats.streak} day streak` : 'No streak yet'}
+            <div className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-emerald-200/20 blur-2xl" />
+            <div className="pointer-events-none absolute -bottom-14 -left-8 h-32 w-32 rounded-full bg-teal-100/25 blur-2xl" />
+
+            {/* Header */}
+            <div className="relative z-10 flex items-start justify-between gap-3">
+              <div className="min-w-0 space-y-1">
+                <h3 className="text-[#0f2f22] text-base sm:text-lg font-bold tracking-tight">Emotional Landscape</h3>
+                <p className="text-[11px] sm:text-xs text-slate-500 leading-snug max-w-[24rem]">
+                  {emotionalLandscape.sessionsInWindow > 0
+                    ? `Your last ${emotionalLandscape.sessionsInWindow} session${emotionalLandscape.sessionsInWindow === 1 ? "" : "s"} (90 days), weighted by time.`
+                    : "Log meditations or sound sessions to see your mood mix here."}
+                </p>
+                <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-100 bg-white/80 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-800 shadow-sm">
+                    {(Number(stats.streak) || 0) > 0 ? `🔥 ${Number(stats.streak) || 0} day streak` : "Start a streak"}
                   </span>
                 </div>
               </div>
               <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.06 }}
+                whileTap={{ scale: 0.94 }}
                 onClick={() => setIsGoodDay(!isGoodDay)}
-                className={`p-2 rounded-xl transition-all ${isGoodDay ? "bg-[#2D6A4F] text-white shadow-lg" : "bg-[#f0fdf4] text-[#16a34a]"}`}
+                className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all ${
+                  isGoodDay
+                    ? "border-emerald-600 bg-emerald-700 text-white shadow-md"
+                    : "border-emerald-100 bg-white text-emerald-600 shadow-sm hover:bg-emerald-50"
+                }`}
+                aria-label="Mark a good day"
               >
-                <Heart className={`w-5 h-5 ${isGoodDay ? "fill-current" : ""}`} />
+                <Heart className={`h-4 w-4 ${isGoodDay ? "fill-current" : ""}`} />
               </motion.button>
             </div>
 
-            <div className="flex flex-col items-center gap-4">
-              {/* Mood Sphere — compact */}
+            {/* Hero: preview + leading tone */}
+            <div className="relative z-10 flex flex-col items-center gap-2.5 sm:flex-row sm:items-center sm:justify-center sm:gap-4 py-0">
               <motion.div
                 key={selectedMood.label}
-                animate={{ scale: [1, 1.04, 1] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className={`relative w-28 h-28 rounded-full bg-gradient-to-br ${selectedMood.color} flex flex-col items-center justify-center shadow-xl border-2 border-white/20`}
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: "spring", stiffness: 280, damping: 22 }}
+                className={`relative flex h-[5.5rem] w-[5.5rem] sm:h-24 sm:w-24 flex-col items-center justify-center rounded-full bg-gradient-to-br ${selectedMood.color} text-white shadow-[0_8px_28px_-6px_rgba(27,67,50,0.4)] ring-2 ring-white/90 ${
+                  emotionalLandscape.sessionsInWindow > 0 && emotionalLandscape.dominantLabel === selectedMood.label
+                    ? "ring-offset-1 ring-offset-[#f4fbf7] ring-emerald-300/80"
+                    : ""
+                }`}
               >
-                <selectedMood.icon className="w-9 h-9 text-white opacity-90" />
-                <div className="text-white font-bold text-sm mt-1">{selectedMood.label}</div>
-                <div className="absolute inset-0 rounded-full bg-[#52B788]/20 blur-2xl -z-10 animate-pulse" />
+                <selectedMood.icon className="h-7 w-7 opacity-95 drop-shadow-sm" />
+                <span className="mt-0.5 text-[10px] font-bold tracking-wide text-white/95">{selectedMood.label}</span>
               </motion.div>
+              {emotionalLandscape.sessionsInWindow > 0 ? (
+                <div className="flex flex-col items-center text-center sm:items-start sm:text-left gap-0.5">
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.18em] text-emerald-600/80">Leading tone</span>
+                  <p className="text-lg sm:text-xl font-bold tracking-tight text-[#143d32]">
+                    {emotionalLandscape.dominantLabel}
+                    <span className="ml-1.5 text-base font-semibold text-emerald-700">
+                      {emotionalLandscape.percentages[emotionalLandscape.dominantLabel]}%
+                    </span>
+                  </p>
+                  <p className="max-w-[13rem] text-[10px] leading-snug text-slate-500">
+                    Tap a mood below. Check-in saves to your profile.
+                  </p>
+                </div>
+              ) : (
+                <p className="max-w-xs text-center text-xs text-slate-500 sm:text-left">Practice once to unlock your landscape.</p>
+              )}
+            </div>
 
-              {/* Mood bars */}
-              <div className="flex items-end gap-2">
+            {/* Week rhythm */}
+            <div className="relative z-10 rounded-xl border border-emerald-100/60 bg-white/70 px-3 py-2 backdrop-blur-sm">
+              <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-wider text-slate-400">This week</p>
+              <div className="flex h-10 items-end justify-center gap-1 sm:gap-1.5">
                 {(() => {
-                  const maxLevel = Math.max(...moodHistory.map(m => m.level), 1);
+                  const maxLevel = Math.max(...moodHistory.map((m) => m.level), 1);
                   return moodHistory.map((item, i) => {
                     const barHeight = Math.max(4, (item.level / maxLevel) * 32);
                     return (
@@ -575,55 +991,101 @@ export function ProfilePage() {
                         <motion.div
                           initial={{ height: 0 }}
                           animate={{ height: barHeight }}
-                          className="w-2 bg-[#2D6A4F] rounded-full"
+                          transition={{ duration: 0.65, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                          className="w-2 sm:w-2.5 rounded-full bg-gradient-to-t from-emerald-800 to-emerald-400 opacity-90"
                           style={{ height: barHeight }}
                         />
-                        <span className="text-[9px] font-bold text-gray-400">{item.day}</span>
+                        <span className="text-[9px] font-semibold text-slate-400">{item.day}</span>
                       </div>
                     );
                   });
                 })()}
               </div>
+            </div>
 
-              {/* Consistency */}
-              <div className="w-full bg-white/60 rounded-2xl p-4 border border-gray-100">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-[10px] text-gray-500 font-bold uppercase">Consistency Index</span>
-                  <span className="text-xs font-bold text-[#2D6A4F]">{stats.wellnessScore ?? 0}%</span>
-                </div>
-                <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${stats.wellnessScore ?? 0}%` }}
-                    transition={{ duration: 1, delay: 0.5 }}
-                    className="h-full bg-gradient-to-r from-[#52B788] to-[#2D6A4F]"
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  Feeling <span className="font-bold text-[#2D6A4F]">{selectedMood.label.toLowerCase()}</span> · Best day: <span className="font-bold text-[#2D6A4F]">{mostActiveDay}</span>
-                </p>
+            {/* Consistency */}
+            <div className="relative z-10 rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+              <div className="mb-1.5 flex items-baseline justify-between gap-2">
+                <span className="text-xs font-semibold text-slate-700">Consistency</span>
+                <motion.span
+                  key={emotionalLandscape.emotionalConsistencyScore}
+                  initial={{ opacity: 0.6 }}
+                  animate={{ opacity: 1 }}
+                  className="text-xs font-bold tabular-nums text-emerald-800"
+                >
+                  {emotionalLandscape.emotionalConsistencyScore}%
+                </motion.span>
               </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200/80">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${emotionalLandscape.emotionalConsistencyScore}%` }}
+                  transition={{ duration: 1.1, delay: 0.2, ease: "easeOut" }}
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-700"
+                />
+              </div>
+              <p className="mt-1.5 text-[10px] leading-snug text-slate-500">
+                <span className="font-semibold text-slate-600">Mix:</span>{" "}
+                {emotionalLandscape.dominantLabel} ({emotionalLandscape.percentages[emotionalLandscape.dominantLabel]}%)
+                {selectedMood.label !== emotionalLandscape.dominantLabel && (
+                  <>
+                    {" "}
+                    <span className="text-slate-300">·</span> viewing {selectedMood.label} (
+                    {emotionalLandscape.percentages[selectedMood.label as EmotionalMoodLabel]}%)
+                  </>
+                )}
+                <span className="text-slate-300"> · </span>
+                <span className="font-semibold text-slate-600">Best day:</span> {mostActiveEmotionalDay}
+              </p>
+            </div>
 
-              {/* Mood selector */}
-              <div className="grid grid-cols-5 gap-2 w-full">
-                {availableMoods.map((mood) => (
+            {/* Mood chips */}
+            <div className="relative z-10 grid grid-cols-5 gap-1 sm:gap-1.5">
+              {availableMoods.map((mood, i) => {
+                const pct = emotionalLandscape.percentages[mood.label as EmotionalMoodLabel];
+                const isDominant = emotionalLandscape.dominantLabel === mood.label;
+                const isSelected = selectedMood.label === mood.label;
+                return (
                   <motion.button
                     key={mood.label}
-                    whileHover={{ scale: 1.08 }}
-                    whileTap={{ scale: 0.92 }}
+                    type="button"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.12 + i * 0.04 }}
+                    whileHover={{ y: -1 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => handleMoodSelect(mood)}
-                    className={`aspect-square flex flex-col items-center justify-center rounded-xl border-2 transition-all ${
-                      selectedMood.label === mood.label
-                        ? "bg-[#2D6A4F] text-white border-[#1B4332]"
-                        : "bg-white border-gray-100 hover:border-[#52B788]"
-                    }`}
+                    title={`${mood.label}: ${pct}% of recent practice`}
+                    className={`relative flex min-h-[4.25rem] flex-col items-center justify-center gap-0.5 rounded-xl border px-1 py-1.5 text-center transition-all ${
+                      isSelected
+                        ? "border-transparent bg-gradient-to-br from-[#1B4332] to-[#2d6a4f] text-white shadow-md shadow-emerald-900/12"
+                        : isDominant
+                          ? "border-emerald-200/90 bg-emerald-50/90 text-[#143d32] shadow-sm"
+                          : "border-slate-100 bg-white/90 text-slate-700 shadow-sm hover:border-emerald-200 hover:bg-emerald-50/40"
+                    } ${isDominant && !isSelected ? "pl-2 before:absolute before:left-1 before:top-2 before:bottom-2 before:w-0.5 before:rounded-full before:bg-emerald-500 before:content-['']" : ""}`}
                   >
-                    <mood.icon className={`w-5 h-5 ${selectedMood.label === mood.label ? "text-white" : "text-[#2D6A4F]/60"}`} />
-                    <span className="text-[7px] mt-1 font-bold uppercase">{mood.label}</span>
+                    {isDominant && emotionalLandscape.sessionsInWindow > 0 && !isSelected && (
+                      <span className="absolute right-1.5 top-1.5 h-1 w-1 rounded-full bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,0.25)]" aria-hidden />
+                    )}
+                    <mood.icon
+                      className={`h-4 w-4 ${isSelected ? "text-white" : isDominant ? "text-emerald-700" : "text-emerald-600/70"}`}
+                    />
+                    <span
+                      className={`text-[9px] font-bold uppercase tracking-wide leading-tight ${isSelected ? "text-white/95" : "text-slate-700"}`}
+                    >
+                      {mood.label}
+                    </span>
+                    <motion.span
+                      key={`${emotionalLandscape.moodMixFingerprint}-${mood.label}-${pct}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className={`text-[10px] font-bold tabular-nums ${isSelected ? "text-emerald-100" : "text-emerald-800/90"}`}
+                    >
+                      {pct}%
+                    </motion.span>
                   </motion.button>
-                ))}
-              </div>
-
+                );
+              })}
             </div>
           </motion.div>
 
@@ -633,57 +1095,21 @@ export function ProfilePage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.7 }}
-          className="bg-white/80 backdrop-blur-xl rounded-[32px] p-6 shadow-2xl border border-gray-200/30 relative overflow-hidden"
+          whileHover={{ y: -2 }}
+          className="relative flex flex-col gap-2 overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-lg"
         >
-          {/* Decorative Background Pattern */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-green-50 rounded-full blur-3xl -z-10 opacity-60" />
-          
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-8 relative z-10">
-            <div>
-              <h3 className="text-[#1B4332] font-black tracking-tight text-2xl mb-2">Weekly Practice Flow</h3>
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-2xl border border-green-100">
-                  <Clock className="w-4 h-4 text-[#2D6A4F]" />
-                  <span className="text-sm font-bold text-[#2D6A4F]">{totalWeeklyMinutes} mins total</span>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-2xl border border-green-100">
-                  <TrendingUp className="w-4 h-4 text-[#2D6A4F]" />
-                  <span className="text-sm font-bold text-[#2D6A4F]">{averageDailyMinutes}m/day avg</span>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-2xl border border-green-100">
-                  <Activity className="w-4 h-4 text-[#2D6A4F]" />
-                  <span className="text-sm font-bold text-[#2D6A4F]">{stats.sessionsPlayed ?? 0} sessions</span>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-2xl border border-green-100">
-                  <Award className="w-4 h-4 text-[#2D6A4F]" />
-                  <span className="text-sm font-bold text-[#2D6A4F]">{stats.streak ?? 0} day streak</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="text-right hidden md:block">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Today's Effort</p>
-                <div className="flex items-center justify-end gap-2 text-xl font-black text-[#1B4332]">
-                  {weeklyData[(new Date().getDay() + 6) % 7].minutes} <span className="text-xs font-bold text-gray-400 uppercase">mins</span>
-                </div>
-              </div>
-              <motion.button
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleDownload}
-                className="px-6 py-3 bg-[#1B4332] text-white rounded-2xl shadow-xl shadow-green-900/20 flex items-center gap-2 font-bold transition-all"
-              >
-                <Download className="w-5 h-5" />
-                Export Report
-              </motion.button>
-            </div>
+          <div className="absolute top-0 right-0 w-40 h-40 bg-green-50 rounded-full blur-2xl opacity-35 pointer-events-none" />
+
+          {/* Header */}
+          <div className="relative z-10 shrink-0">
+            <h3 className="text-base font-black tracking-tight text-[#1B4332] sm:text-lg">Weekly Practice Flow</h3>
+            <p className="mt-0.5 text-xs font-medium leading-snug text-[#2D6A4F]/80">Minutes per day. Left numbers are minutes (0–{weeklyChartYMax}).</p>
           </div>
 
-          {/* Chart */}
-          <div className="h-72 w-full bg-white/40 rounded-[32px] p-6 border border-white/60 shadow-inner overflow-hidden mb-6">
+          {/* Fixed chart height: bars are not overstretched; Y ticks stay in view */}
+          <div className="relative z-10 h-72 w-full rounded-xl border border-gray-50 bg-white/60 px-2 pb-1 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weeklyData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
+              <BarChart data={weeklyData} margin={{ top: 8, right: 8, left: 4, bottom: 6 }}>
                 <defs>
                   <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#52B788" />
@@ -698,18 +1124,22 @@ export function ProfilePage() {
                     <stop offset="100%" stopColor="#a7f3d0" />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="6 6" vertical={false} stroke="rgba(45, 106, 79, 0.08)" />
+                <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="rgba(45,106,79,0.06)" />
                 <XAxis
                   dataKey="day"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: '#2D6A4F', fontSize: 11, fontWeight: 900, opacity: 0.6 }}
-                  dy={15}
+                  tick={{ fill: "#1B4332", fontSize: 12, fontWeight: 700 }}
+                  dy={8}
                 />
                 <YAxis
+                  domain={[0, weeklyChartYMax]}
+                  allowDecimals={false}
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: '#2D6A4F', fontSize: 10, fontWeight: 700, opacity: 0.4 }}
+                  width={46}
+                  tick={{ fill: "#2D6A4F", fontSize: 12, fontWeight: 600 }}
+                  tickMargin={8}
                 />
                 <Tooltip
                   content={<CustomTooltip />}
@@ -717,11 +1147,12 @@ export function ProfilePage() {
                 />
                 <Bar
                   dataKey="minutes"
-                  radius={[16, 16, 16, 16]}
-                  barSize={44}
-                  animationDuration={2000}
-                  animationBegin={300}
-                  minPointSize={4}
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={48}
+                  barSize={18}
+                  animationDuration={900}
+                  animationBegin={120}
+                  minPointSize={2}
                 >
                   {weeklyData.map((entry, index) => {
                     const isToday = index === (new Date().getDay() + 6) % 7;
@@ -730,7 +1161,7 @@ export function ProfilePage() {
                       <Cell
                         key={`cell-${index}`}
                         fill={isEmpty ? 'url(#emptyBarGradient)' : isToday ? 'url(#activeBarGradient)' : 'url(#barGradient)'}
-                        style={{ filter: isToday && !isEmpty ? 'drop-shadow(0 0 12px rgba(45,106,79,0.3))' : 'none', cursor: 'pointer', opacity: isEmpty ? 0.4 : 1 }}
+                        style={{ filter: isToday && !isEmpty ? 'drop-shadow(0 0 8px rgba(45,106,79,0.35))' : 'none', opacity: isEmpty ? 0.35 : 1 }}
                       />
                     );
                   })}
@@ -739,42 +1170,61 @@ export function ProfilePage() {
             </ResponsiveContainer>
           </div>
 
-          {/* AI Wellness Insights */}
-          <div className="bg-gradient-to-r from-[#f0fdf4] to-[#dcfce7] rounded-[24px] p-5 border border-green-100">
-            <div className="flex items-center gap-2 mb-3">
-              <Brain className="w-4 h-4 text-[#2D6A4F]" />
-              <span className="text-xs font-black text-[#2D6A4F] uppercase tracking-widest">Wellness Insights</span>
+          {/* Wellness Insights */}
+          <div className="relative z-10 shrink-0 rounded-xl border border-green-100 bg-gradient-to-r from-[#f0fdf4] to-[#dcfce7] p-3">
+            <div className="flex items-center gap-2">
+              <Brain className="h-4 w-4 text-[#2D6A4F]" />
+              <span className="text-xs font-black uppercase tracking-wide text-[#2D6A4F]">Insights</span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-1">
               {totalWeeklyMinutes === 0 ? (
-                <p className="text-sm text-[#2D6A4F]/70 col-span-3 font-medium">
-                  Start your first mindfulness session to see your weekly wellness journey.
-                </p>
+                <p className="col-span-3 text-xs font-medium leading-snug text-[#2D6A4F]/80">Start a session to see insights.</p>
               ) : (
-                <>
-                  <div className="bg-white/70 rounded-2xl px-4 py-3 text-sm text-[#1B4332] font-medium">
-                    {totalWeeklyMinutes >= 60
-                      ? `You practiced ${totalWeeklyMinutes} mins this week — great consistency!`
-                      : `You've logged ${totalWeeklyMinutes} mins this week. Keep building the habit!`}
-                  </div>
-                  <div className="bg-white/70 rounded-2xl px-4 py-3 text-sm text-[#1B4332] font-medium">
-                    {mostActiveDay !== 'No activity yet'
-                      ? `Your best focus day was ${mostActiveDay}`
-                      : 'Complete sessions to find your best day'}
-                  </div>
-                  <div className="bg-white/70 rounded-2xl px-4 py-3 text-sm text-[#1B4332] font-medium">
-                    {(stats.streak ?? 0) >= 3
-                      ? `${stats.streak} day streak — you're on a roll!`
-                      : averageDailyMinutes >= 10
-                      ? `Averaging ${averageDailyMinutes} mins/day — solid foundation`
-                      : 'Practice daily to build your streak'}
-                  </div>
-                </>
+                [
+                  totalWeeklyMinutes >= 60 ? `${totalWeeklyMinutes} mins — great!` : `${totalWeeklyMinutes} mins this week`,
+                  mostActiveDay !== 'No activity yet' ? `Best: ${mostActiveDay}` : 'Log time for best day',
+                  (stats.streak ?? 0) >= 3 ? `${stats.streak}d streak 🔥` : averageDailyMinutes >= 10 ? `~${averageDailyMinutes}m/day` : 'Daily = streak',
+                ].map((text, i) => (
+                  <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 + i * 0.08 }}
+                    className="rounded-lg bg-white/90 px-2 py-2 text-xs font-semibold leading-snug text-[#1B4332]">
+                    {text}
+                  </motion.div>
+                ))
               )}
             </div>
           </div>
         </motion.div>
         </div>
+
+        {/* Quote of the Day — above Account Settings / Subscription */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 1.15, ease: "easeOut" }}
+          className="mt-8 mb-8 rounded-[28px] border border-emerald-100/90 bg-gradient-to-br from-[#f9fdfb] via-[#f0fdf4] to-[#ecfdf5] px-6 py-6 md:px-8 md:py-7 shadow-[0_14px_44px_rgba(27,67,50,0.07)]"
+        >
+          <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] text-[#2D6A4F]/65 mb-2">
+            Daily mindfulness reflection
+          </p>
+          <h3 className="text-[#1B4332] font-black text-lg md:text-xl tracking-tight mb-4">
+            Quote of the Day
+          </h3>
+          <AnimatePresence mode="wait">
+            <motion.blockquote
+              key={dailyQuote.key}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="m-0 pl-4 border-l-2 border-[#52B788]/45 text-[#234e3c] text-base md:text-lg font-medium leading-relaxed"
+            >
+              <span className="italic">&ldquo;{dailyQuote.quote}&rdquo;</span>
+            </motion.blockquote>
+          </AnimatePresence>
+          <p className="mt-4 text-xs text-[#2D6A4F]/55 font-medium">
+            Today&apos;s calm thought
+          </p>
+        </motion.section>
 
         {/* Recommended For You Section */}
         {/* Settings Sections */}
@@ -1077,12 +1527,12 @@ export function ProfilePage() {
         userEmail={user?.email || ""}
         userLocation={displayLocation}
         stats={{
-          sessions: stats.sessions || 0,
+          sessions: stats.sessionsPlayed || 0,
           streak: stats.streak || 0,
           totalTime: `${Math.round((stats.totalMinutes || 0) / 60)}hrs`,
           wellnessScore: stats.wellnessScore || 50,
-          meditationMinutes: stats.meditationMinutes || 0,
-          soundMinutes: stats.soundMinutes || 0,
+          meditationMinutes: profileMeditationMinutes,
+          soundMinutes: profileSoundMinutes,
         }}
       />
       <MeditationSessionModal

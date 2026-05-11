@@ -1,6 +1,7 @@
-﻿import React ,{ useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import BACKEND_CONFIG from "../../config/backend";
+import { useAuth } from "../../contexts/AuthContext";
 
 const heroImage = "/meditation/first.jpg";
 
@@ -2581,7 +2582,15 @@ const EssentialGuidance: React.FC = () => {
 };
 
 // -- Breathing Modal --------------------------------------------------------
-const BreathingModal: React.FC<{ title: string; audioUrl?: string; onClose: () => void }> = ({ title, audioUrl, onClose }) => {
+const BreathingModal: React.FC<{
+  title: string;
+  audioUrl?: string;
+  /** Session length in minutes from admin / API (drives total timer). */
+  durationMinutes?: number;
+  onClose: () => void;
+  /** Called once when the guided timer finishes (profile / stats logging). */
+  onSessionCompleted?: (payload: { title: string; durationMinutes: number }) => void;
+}> = ({ title, audioUrl, durationMinutes = 5, onClose, onSessionCompleted }) => {
   type Phase = { label: string; duration: number; scale: number; color: string; hint: string };
   const PHASES: Phase[] = [
     { label: 'Inhale',  duration: 4, scale: 1.4,  color: '#52b788', hint: 'Breathe in slowly' },
@@ -2589,7 +2598,7 @@ const BreathingModal: React.FC<{ title: string; audioUrl?: string; onClose: () =
     { label: 'Exhale',  duration: 6, scale: 0.75, color: '#74c69d', hint: 'Release slowly'     },
     { label: 'Rest',    duration: 2, scale: 0.75, color: '#95d5b2', hint: 'Pause...'            },
   ];
-  const TOTAL = 5 * 60;
+  const TOTAL = Math.max(60, Math.round(durationMinutes * 60));
   const [started, setStarted] = useState(false);
   const [phaseIdx, setPhaseIdx] = useState(0);
   const [phaseElapsed, setPhaseElapsed] = useState(0);
@@ -2633,7 +2642,15 @@ const BreathingModal: React.FC<{ title: string; audioUrl?: string; onClose: () =
       setTotalElapsed(p => { const n=p+1; if(n>=TOTAL){setDone(true);} return n; });
     }, 1000);
     return () => clearInterval(t);
-  }, [started, done, phase.duration]);
+  }, [started, done, phase.duration, TOTAL]);
+
+  const sessionLoggedRef = React.useRef(false);
+  React.useEffect(() => {
+    if (!done || sessionLoggedRef.current) return;
+    sessionLoggedRef.current = true;
+    const mins = Math.max(1, Math.round(durationMinutes));
+    onSessionCompleted?.({ title, durationMinutes: mins });
+  }, [done, title, durationMinutes, onSessionCompleted]);
 
   const reset = () => { setStarted(false); setPhaseIdx(0); setPhaseElapsed(0); setTotalElapsed(0); setDone(false); setCycles(0); };
 
@@ -2751,10 +2768,60 @@ const BreathingModal: React.FC<{ title: string; audioUrl?: string; onClose: () =
   );
 };
 
+// -- Session duration (admin stores minutes as number, or "MM:SS" string) ---
+function parseDurationMinutes(raw: unknown): number {
+  if (typeof raw === "number" && Number.isFinite(raw) && raw > 0) {
+    return Math.min(240, Math.round(raw));
+  }
+  const s = String(raw ?? "").trim();
+  if (!s) return 5;
+  if (/^\d{1,3}:\d{2}$/.test(s)) {
+    const [a, b] = s.split(":").map((x) => Number(x));
+    if (Number.isFinite(a) && Number.isFinite(b)) {
+      return Math.min(240, Math.max(1, a + (b >= 30 ? 1 : 0)));
+    }
+  }
+  const n = parseInt(s, 10);
+  if (Number.isFinite(n) && n > 0) return Math.min(240, n);
+  return 5;
+}
+
+function formatDurationLabel(raw: unknown): string {
+  return `${parseDurationMinutes(raw)} min`;
+}
+
 // -- Session Card Component -------------------------------------------------
 const SessionCard: React.FC<{ session: any }> = ({ session }) => {
+  const { user, refreshProfile } = useAuth();
   const [btnState, setBtnState] = useState<'idle' | 'starting'>('idle');
   const [showModal, setShowModal] = useState(false);
+
+  const logCompletedSession = useCallback(
+    async ({ title, durationMinutes }: { title: string; durationMinutes: number }) => {
+      if (!user?.id) return;
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-session`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            userId: user.id,
+            duration: durationMinutes,
+            sessionType: "meditation",
+            title,
+            ...(session.category ? { category: String(session.category) } : {}),
+          }),
+        });
+        if (res.ok) await refreshProfile();
+      } catch (e) {
+        console.error("[MeditationPage] log-session failed", e);
+      }
+    },
+    [user?.id, refreshProfile, session.category]
+  );
 
   const handleStart = () => {
     if (btnState !== 'idle') return;
@@ -2818,7 +2885,7 @@ const SessionCard: React.FC<{ session: any }> = ({ session }) => {
           </div>
           <h3 className="med-card-title">{session.title}</h3>
           <p className="med-card-desc">{session.description || '\u00A0'}</p>
-          <p className="med-card-dur"> {session.duration} min</p>
+          <p className="med-card-dur">{formatDurationLabel(session.duration)}</p>
           <button className={`med-card-btn${btnState==='starting'?' starting':''}`} onClick={handleStart}>
             {btnState === 'starting' ? 'Starting...' : 'Start Session'}
           </button>
@@ -2828,15 +2895,25 @@ const SessionCard: React.FC<{ session: any }> = ({ session }) => {
         )}
       </div>
 
-      {showModal && <BreathingModal title={session.title} audioUrl={session.audioUrl} onClose={() => setShowModal(false)} />}
+      {showModal && (
+        <BreathingModal
+          title={session.title}
+          audioUrl={session.audioUrl}
+          durationMinutes={parseDurationMinutes(session.duration)}
+          onClose={() => setShowModal(false)}
+          onSessionCompleted={logCompletedSession}
+        />
+      )}
     </>
   );
 };
 // -- Meditation Sessions (API + Search) ------------------------------------
+const MEDITATION_LIBRARY_CARD_LIMIT = 6;
+
 const MeditationSessions: React.FC = () => {
   const [sessions, setSessions] = useState<any[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [libraryExpanded, setLibraryExpanded] = useState(false);
 
   // Fetch active sessions from backend
   useEffect(() => {
@@ -2850,17 +2927,6 @@ const MeditationSessions: React.FC = () => {
       .catch(() => setSessions([]))
       .finally(() => setLoading(false));
   }, []);
-
-  // Real-time filter on title, category, level (case-insensitive)
-  const filtered = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return sessions;
-    return sessions.filter(s =>
-      s.title?.toLowerCase().includes(q) ||
-      s.category?.toLowerCase().includes(q) ||
-      s.level?.toLowerCase().includes(q)
-    );
-  }, [sessions, searchQuery]);
 
   if (!loading && sessions.length === 0) return null;
 
@@ -2880,36 +2946,6 @@ const MeditationSessions: React.FC = () => {
           <div style={{ width: '60px', height: '1px', background: 'linear-gradient(to right, transparent, #059669, transparent)', margin: '16px auto 0' }} />
         </div>
 
-        {/* Search bar - only shown when more than 3 sessions */}
-        {sessions.length > 3 && (
-        <div style={{ position: 'relative', maxWidth: '520px', margin: '0 auto 40px' }}>
-          <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#74c69d', fontSize: '1.1rem', pointerEvents: 'none' }}>
-            
-          </span>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Search by title, category or level..."
-            style={{
-              width: '100%',
-              padding: '13px 16px 13px 46px',
-              borderRadius: '50px',
-              border: '2px solid #b7e4c7',
-              fontSize: '0.95rem',
-              color: '#1b4332',
-              background: '#fff',
-              outline: 'none',
-              boxShadow: '0 2px 12px rgba(82,183,136,0.12)',
-              transition: 'border-color 0.2s, box-shadow 0.2s',
-              boxSizing: 'border-box',
-            }}
-            onFocus={e => { e.target.style.borderColor = '#52b788'; e.target.style.boxShadow = '0 0 0 4px rgba(82,183,136,0.15), 0 4px 16px rgba(82,183,136,0.12)'; }}
-            onBlur={e => { e.target.style.borderColor = '#b7e4c7'; e.target.style.boxShadow = '0 2px 12px rgba(82,183,136,0.12)'; }}
-          />
-        </div>
-        )}
-
         {/* Loading */}
         {loading && (
           <p style={{ textAlign: 'center', color: '#74c69d', fontFamily: "'Poppins', sans-serif", fontSize: '0.9rem' }}>
@@ -2917,21 +2953,52 @@ const MeditationSessions: React.FC = () => {
           </p>
         )}
 
-        {/* No results */}
-        {!loading && filtered.length === 0 && (
-          <p style={{ textAlign: 'center', color: '#64748b', fontFamily: "'Poppins', sans-serif", fontSize: '0.9rem', padding: '40px 0' }}>
-            No meditation sessions found
-          </p>
-        )}
-
-        {/* Session cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '32px', alignItems: 'stretch', padding: '8px' }}>
-          {filtered.map((session) => {
-            return (
-              <SessionCard key={session.id} session={session} />
-            );
-          })}
+        {/* Session cards — first 6; "View more" reveals the rest in a scrollable area */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gap: '32px',
+            alignItems: 'stretch',
+            padding: '8px',
+            ...(libraryExpanded && sessions.length > MEDITATION_LIBRARY_CARD_LIMIT
+              ? {
+                  maxHeight: 'min(1700px, 85vh)',
+                  overflowY: 'auto',
+                  paddingRight: '4px',
+                }
+              : {}),
+          }}
+        >
+          {(libraryExpanded ? sessions : sessions.slice(0, MEDITATION_LIBRARY_CARD_LIMIT)).map((session) => (
+            <SessionCard key={session.id} session={session} />
+          ))}
         </div>
+
+        {!loading && sessions.length > MEDITATION_LIBRARY_CARD_LIMIT && (
+          <div style={{ textAlign: 'center', marginTop: '28px' }}>
+            <button
+              type="button"
+              onClick={() => setLibraryExpanded((v) => !v)}
+              style={{
+                padding: '12px 28px',
+                borderRadius: '999px',
+                border: '2px solid #52b788',
+                background: libraryExpanded ? '#fff' : 'linear-gradient(135deg,#52b788,#40916c)',
+                color: libraryExpanded ? '#1b4332' : '#fff',
+                fontFamily: "'Poppins', sans-serif",
+                fontSize: '0.9rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(82,183,136,0.25)',
+              }}
+            >
+              {libraryExpanded
+                ? 'Show less'
+                : `View more (${sessions.length - MEDITATION_LIBRARY_CARD_LIMIT} more)`}
+            </button>
+          </div>
+        )}
 
       </div>
     </section>

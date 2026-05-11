@@ -34,6 +34,7 @@ const landingRoutes = require('./modules/landing/landing.routes');
 const contactRoutes = require('./modules/contact/contact.routes');
 
 const userRoutes = require('./routes/userRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 const reflectionRoutes = require('./routes/reflectionRoutes');
 
 // Import models for seeding
@@ -419,6 +420,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/landing', landingRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/profile', profileRoutes);
 app.use('/api/reflect', reflectionRoutes);
 app.use('/api', utilityRoutes);
 
