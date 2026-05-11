@@ -35,6 +35,7 @@ interface User {
   posts?: number;
   profile?: UserProfile;
   stats?: UserStats;
+  sessionHistory?: Array<Record<string, unknown>>;
 }
 
 interface AuthContextType {
@@ -143,7 +144,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       if (res.ok) {
         const data = await res.json();
-        const updated = { ...user, bio: data.bio, location: data.location, stats: data.stats };
+        const payload = data as { bio?: string; location?: string; stats?: UserStats; sessionHistory?: User["sessionHistory"] };
+        const updated: User = {
+          ...user,
+          bio: payload.bio,
+          location: payload.location,
+          stats: payload.stats,
+          ...(Array.isArray(payload.sessionHistory) ? { sessionHistory: payload.sessionHistory } : {}),
+        };
         setUser(updated);
         localStorage.setItem('user', JSON.stringify(updated));
       }

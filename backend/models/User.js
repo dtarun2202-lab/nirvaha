@@ -32,6 +32,19 @@ const userSchema = new mongoose.Schema(
     bio: { type: String, default: 'Spiritual Seeker • Meditation Enthusiast' },
     location: { type: String, default: 'Hyderabad, India' },
     avatar: { type: String, default: '' },
+    currentMood: { type: String, default: '' },
+    sessionHistory: {
+      type: [
+        {
+          title: { type: String, default: '' },
+          duration: { type: Number, default: 1 },
+          sessionType: { type: String, default: 'meditation' },
+          type: { type: String, default: '' },
+          completedAt: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
   },
   { timestamps: true }
 );

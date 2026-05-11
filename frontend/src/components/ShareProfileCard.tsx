@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
-import { X, Download, Link, Award, Clock, Brain, Check } from "lucide-react";
-import { useRef, useState, useEffect } from "react";
-import html2canvas from "html2canvas";
+import { X, Check, Linkedin, Instagram } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface ShareProfileCardProps {
   isOpen: boolean;
@@ -20,239 +19,310 @@ interface ShareProfileCardProps {
   };
 }
 
+// ── Animated counter ──────────────────────────────────────────────────────
+const StatCounter = ({ value, duration = 1600 }: { value: number; duration?: number }) => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!value || value <= 0) { setCount(0); return; }
+    let start = 0;
+    const stepTime = Math.max(8, Math.floor(duration / value));
+    const timer = setInterval(() => {
+      start += 1;
+      setCount(start);
+      if (start >= value) clearInterval(timer);
+    }, stepTime);
+    return () => clearInterval(timer);
+  }, [value]);
+  return <>{count}</>;
+};
+
+// ── Particle config ───────────────────────────────────────────────────────
+const PARTICLES = Array.from({ length: 24 }, (_, i) => ({
+  id: i,
+  angle: (i / 24) * 360,
+  dist: 70 + Math.random() * 50,
+  size: 3 + Math.random() * 4,
+  color: ["#52B788", "#2D6A4F", "#74C69D", "#1B4332", "#95D5B2", "#B7E4C7"][i % 6],
+  delay: Math.random() * 0.12,
+}));
+
+const SYMBOLS = ["✦", "◆", "✧", "✦", "◆", "✧", "✦"];
+
 export function ShareProfileCard({
-  isOpen,
-  onClose,
-  userName,
-  userTitle,
-  userEmail,
-  userLocation,
-  stats,
+  isOpen, onClose, userName, userTitle, userEmail, userLocation, stats,
 }: ShareProfileCardProps) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [copyFeedback, setCopyFeedback] = useState(false);
+  const [shareFeedback, setShareFeedback] = useState<"none" | "linkedin" | "instagram">("none");
+  const [burstDone, setBurstDone] = useState(false);
 
-  const downloadCard = async () => {
-    if (cardRef.current) {
-      try {
-        // Hide buttons temporarily for cleaner capture
-        const buttons = cardRef.current.querySelector('.action-buttons') as HTMLElement;
-        const closeBtn = cardRef.current.querySelector('.close-btn') as HTMLElement;
-        if (buttons) buttons.style.display = 'none';
-        if (closeBtn) closeBtn.style.display = 'none';
-
-        const canvas = await html2canvas(cardRef.current, {
-          backgroundColor: "#F0FDF4",
-          scale: 4,
-          useCORS: true,
-          logging: false,
-        });
-
-        if (buttons) buttons.style.display = 'flex';
-        if (closeBtn) closeBtn.style.display = 'flex';
-
-        const link = document.createElement("a");
-        link.download = `nirvaha-profile-${userName.replace(/\s+/g, "-")}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      } catch (error) {
-        console.error("Error generating image:", error);
-      }
+  useEffect(() => {
+    if (isOpen) {
+      setBurstDone(false);
+      const t = setTimeout(() => setBurstDone(true), 800);
+      return () => clearTimeout(t);
     }
+  }, [isOpen]);
+
+  const shareOnLinkedIn = async () => {
+    const shareUrl = window.location.href;
+    const text = `${userName}'s Nirvaha wellness profile`;
+    window.open(
+      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+    await navigator.clipboard.writeText(`${text} - ${shareUrl}`);
+    setShareFeedback("linkedin");
+    setTimeout(() => setShareFeedback("none"), 2000);
   };
 
-  const copyProfileLink = () => {
-    const profileUrl = window.location.href;
-    navigator.clipboard.writeText(profileUrl);
-    setCopyFeedback(true);
-    setTimeout(() => setCopyFeedback(false), 2000);
+  const shareOnInstagram = async () => {
+    const shareText = `${userName}'s Nirvaha wellness profile: ${window.location.href}`;
+    await navigator.clipboard.writeText(shareText);
+    window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
+    setShareFeedback("instagram");
+    setTimeout(() => setShareFeedback("none"), 2000);
   };
 
-  const StatCounter = ({ value }: { value: number }) => {
-    const [count, setCount] = useState(0);
-    useEffect(() => {
-      let start = 0;
-      const end = value;
-      const duration = 2000;
-      const stepTime = Math.abs(Math.floor(duration / end));
-      
-      const timer = setInterval(() => {
-        start += 1;
-        setCount(start);
-        if (start >= end) clearInterval(timer);
-      }, stepTime > 0 ? stepTime : 20);
-      
-      return () => clearInterval(timer);
-    }, [value]);
-
-    return <>{count}</>;
-  };
+  const initials = userName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+  const score = Math.min(100, stats.wellnessScore);
+  const statItems = [
+    { label: "Streak", value: stats.streak, unit: "days" },
+    { label: "Sessions", value: stats.sessions, unit: "total" },
+    { label: "Meditation", value: stats.meditationMinutes, unit: "mins" },
+    { label: "Sound healing", value: stats.soundMinutes, unit: "mins" },
+  ];
 
   return (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+
+          {/* Backdrop */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-[#064E3B]/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-lg"
           />
-          
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="relative max-w-[460px] w-full z-10"
-          >
-            {/* Profile Card Container (The one that gets captured) */}
-            <div 
-              ref={cardRef}
-              className="bg-white rounded-[24px] shadow-[0_12px_40px_rgba(0,0,0,0.08)] overflow-hidden border border-green-50 relative transition-all duration-500"
-            >
-              <div className="bg-gradient-to-br from-[#F4FBF7] via-white to-[#E8F5EE] px-6 py-7 relative overflow-hidden">
-                {/* Decorative Background Elements */}
-                <div className="absolute top-0 right-0 w-80 h-80 bg-green-100/30 rounded-full blur-3xl -mr-32 -mt-32 opacity-60 pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-green-50/50 rounded-full blur-2xl -ml-24 -mb-24 opacity-40 pointer-events-none" />
-                
-                {/* Close Button Inside */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={onClose}
-                  className="close-btn absolute top-5 right-5 w-8 h-8 bg-black/5 hover:bg-black/10 rounded-full flex items-center justify-center text-gray-500 transition-colors z-20"
+
+          {/* ── Burst effects (centered) ── */}
+          {!burstDone && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+              {/* Ripple rings */}
+              {[0, 1, 2].map(i => (
+                <motion.div key={`ring-${i}`}
+                  initial={{ scale: 0.2, opacity: 0.9 }}
+                  animate={{ scale: 4 + i, opacity: 0 }}
+                  transition={{ duration: 0.65, delay: i * 0.13, ease: "easeOut" }}
+                  className="absolute w-20 h-20 rounded-full border-2 border-[#52B788]"
+                />
+              ))}
+              {/* Particles */}
+              {PARTICLES.map(p => (
+                <motion.div key={`p-${p.id}`}
+                  initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+                  animate={{
+                    x: Math.cos((p.angle * Math.PI) / 180) * p.dist,
+                    y: Math.sin((p.angle * Math.PI) / 180) * p.dist,
+                    scale: 0, opacity: 0,
+                  }}
+                  transition={{ duration: 0.6, delay: p.delay, ease: "easeOut" }}
+                  style={{ width: p.size, height: p.size, background: p.color, borderRadius: "50%", position: "absolute" }}
+                />
+              ))}
+              {/* Floating symbols */}
+              {SYMBOLS.map((sym, i) => (
+                <motion.span key={`sym-${i}`}
+                  initial={{ y: 0, x: (i - 3) * 32, opacity: 1, scale: 1.2 }}
+                  animate={{ y: -130 - i * 12, opacity: 0, scale: 0.4 }}
+                  transition={{ duration: 0.85, delay: 0.04 + i * 0.07, ease: "easeOut" }}
+                  className="absolute text-[#52B788] font-black text-xl select-none"
                 >
+                  {sym}
+                </motion.span>
+              ))}
+            </div>
+          )}
+
+          {/* ── Card ── */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.65, y: 50, rotateX: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
+            exit={{ opacity: 0, scale: 0.85, y: 30 }}
+            transition={{ type: "spring", stiffness: 280, damping: 22, mass: 0.85 }}
+            className="relative max-w-[640px] w-full z-30"
+            style={{ perspective: 1000 }}
+          >
+            <div className="rounded-[32px] overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.4)]">
+
+              {/* ── Top hero band ── */}
+              <div className="relative bg-gradient-to-br from-[#E7F9EF] via-[#D0F2DF] to-[#BFEACF] px-8 pt-8 pb-8 overflow-hidden">
+                {/* Decorative orbs */}
+                <motion.div
+                  animate={{ x: [0, 14, 0], y: [0, -10, 0], opacity: [0.25, 0.45, 0.25] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -top-10 -right-10 w-48 h-48 bg-emerald-300/35 rounded-full blur-3xl"
+                />
+                <motion.div
+                  animate={{ x: [0, -12, 0], y: [0, 8, 0], opacity: [0.2, 0.35, 0.2] }}
+                  transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -bottom-8 -left-8 w-36 h-36 bg-lime-200/35 rounded-full blur-2xl"
+                />
+                <motion.div
+                  animate={{ opacity: [0.15, 0.32, 0.15] }}
+                  transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.22),transparent_45%)]"
+                />
+
+                {/* Close */}
+                <motion.button whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }}
+                  onClick={onClose}
+                  className="close-btn absolute top-5 right-5 w-9 h-9 bg-[#0F5132]/85 hover:bg-[#0B3D2E] rounded-full flex items-center justify-center text-white z-20 transition-colors border border-white/30 shadow-md">
                   <X className="w-4 h-4" />
                 </motion.button>
 
-                {/* Branding */}
-                <div className="flex items-center justify-between mb-8 relative z-10">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-[#2D6A4F] rounded-full flex items-center justify-center shadow-sm">
-                      <Brain className="w-4 h-4 text-white" />
+                {/* Avatar + name */}
+                <div className="flex items-start gap-4 relative z-10 mt-4 bg-white/38 backdrop-blur-[2px] rounded-[22px] p-4 border border-white/55 shadow-[0_8px_26px_rgba(22,101,52,0.12)]">
+                  <motion.div
+                    initial={{ scale: 0, rotate: -30 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.25, type: "spring", stiffness: 320, damping: 18 }}
+                    className="relative"
+                  >
+                    <div className="w-20 h-20 rounded-[24px] bg-gradient-to-br from-[#22C55E] via-[#16A34A] to-[#0F766E] flex items-center justify-center text-white text-2xl font-black shadow-xl border-2 border-white/70">
+                      {initials}
                     </div>
-                    <span className="text-[#1B4332] font-semibold tracking-wide text-base uppercase">Nirvaha</span>
-                  </div>
-                  <div className="text-[10px] font-medium text-[#2D6A4F]/50 uppercase tracking-[0.15em] pr-10">Identity • Flow</div>
+                    {/* Online dot */}
+                    <motion.div animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 2, repeat: Infinity }}
+                      className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#22C55E] rounded-full border-2 border-[#0F766E]" />
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3, type: "spring" }}
+                    className="min-w-0 flex-1"
+                  >
+                    <h2 className="text-[#0B3D2E] font-black text-[34px] sm:text-[38px] tracking-[-0.02em] leading-[1.15] mb-1 break-words">{userName}</h2>
+                    <p className="text-[#145A43] text-[15px] leading-6 font-semibold mb-3 break-words">{userTitle}</p>
+                    <div className="flex flex-wrap gap-2 pr-2">
+                      <span className="text-[11px] text-[#1B5E48] bg-white/60 px-2.5 py-1 rounded-full border border-emerald-200/80">📍 {userLocation}</span>
+                      <span className="text-[11px] text-[#1B5E48] bg-white/60 px-2.5 py-1 rounded-full truncate max-w-[220px] border border-emerald-200/80">✉️ {userEmail}</span>
+                    </div>
+                  </motion.div>
                 </div>
+              </div>
 
-                {/* Profile Identity */}
-                <div className="mb-8 relative z-10">
-                  <div className="flex items-center gap-4 mb-5">
-                    <div className="w-[64px] h-[64px] rounded-full shrink-0 bg-gradient-to-br from-[#52B788] to-[#2D6A4F] flex items-center justify-center text-white text-[20px] font-bold shadow-md">
-                      {userName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
-                    </div>
-                    <div>
-                      <h2 className="text-[#1B4332] text-xl font-bold tracking-tight mb-0.5">{userName}</h2>
-                      <p className="text-[#2D6A4F] font-medium opacity-70 text-[13px]">{userTitle}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-2">
-                    <div className="px-3 py-1.5 bg-white/80 backdrop-blur-sm border border-gray-100 rounded-full text-[#2D6A4F] text-[12px] font-medium shadow-sm flex items-center gap-1.5">
-                      <span className="opacity-60 text-xs">📍</span> {userLocation}
-                    </div>
-                    <div className="px-3 py-1.5 bg-white/80 backdrop-blur-sm border border-gray-100 rounded-full text-[#2D6A4F] text-[12px] font-medium shadow-sm flex items-center gap-1.5 truncate max-w-[200px]">
-                      <span className="opacity-60 text-xs">✉️</span> {userEmail}
-                    </div>
-                  </div>
-                </div>
+              {/* ── Stats section ── */}
+              <div className="bg-gradient-to-b from-[#F6FFFA] to-[#EAF8F0] px-8 py-7">
 
-                {/* Stats Bento Grid */}
-                <div className="grid grid-cols-2 gap-3 mb-6 relative z-10">
-                  <div className="bg-white/70 border border-white rounded-[16px] p-4 shadow-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-7 h-7 rounded-full bg-green-50 flex items-center justify-center">
-                        <Award className="w-3.5 h-3.5 text-[#2D6A4F]" />
-                      </div>
-                      <span className="text-[11px] font-semibold text-[#2D6A4F]/60 uppercase tracking-widest">Streak</span>
-                    </div>
-                    <div className="text-xl font-semibold text-[#1B4332] tabular-nums">{stats.streak} <span className="text-[12px] font-medium opacity-50 capitalize tracking-normal">Days</span></div>
-                  </div>
-                  
-                  <div className="bg-white/70 border border-white rounded-[16px] p-4 shadow-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-7 h-7 rounded-full bg-green-50 flex items-center justify-center">
-                        <Clock className="w-3.5 h-3.5 text-[#2D6A4F]" />
-                      </div>
-                      <span className="text-[11px] font-semibold text-[#2D6A4F]/60 uppercase tracking-widest">Sessions</span>
-                    </div>
-                    <div className="text-xl font-semibold text-[#1B4332] tabular-nums">{stats.sessions} <span className="text-[12px] font-medium opacity-50 capitalize tracking-normal">Total</span></div>
-                  </div>
-
-                  <div className="bg-white/70 border border-white rounded-[16px] p-4 shadow-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center">
-                        <Brain className="w-3.5 h-3.5 text-[#2D6A4F]" />
-                      </div>
-                      <span className="text-[11px] font-semibold text-[#2D6A4F]/60 uppercase tracking-widest">Meditation</span>
-                    </div>
-                    <div className="text-xl font-semibold text-[#1B4332] tabular-nums">{stats.meditationMinutes} <span className="text-[12px] font-medium opacity-50 capitalize tracking-normal">Mins</span></div>
-                  </div>
-
-                  <div className="bg-white/70 border border-white rounded-[16px] p-4 shadow-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-7 h-7 rounded-full bg-purple-50 flex items-center justify-center">
-                        <Brain className="w-3.5 h-3.5 text-[#2D6A4F]" />
-                      </div>
-                      <span className="text-[11px] font-semibold text-[#2D6A4F]/60 uppercase tracking-widest">Sound</span>
-                    </div>
-                    <div className="text-xl font-semibold text-[#1B4332] tabular-nums">{stats.soundMinutes} <span className="text-[12px] font-medium opacity-50 capitalize tracking-normal">Mins</span></div>
-                  </div>
-                </div>
-
-                <div className="bg-[#F0FDF4] border border-green-100 rounded-[16px] p-5 shadow-sm text-[#1B4332] relative overflow-hidden mb-8">
-                  <div className="flex justify-between items-center relative z-10">
-                    <div>
-                      <div className="text-[12px] font-semibold text-[#2D6A4F]/60 uppercase tracking-widest mb-1">Wellness Score</div>
-                      <div className="text-3xl font-semibold tracking-tight">
-                        <StatCounter value={stats.wellnessScore} />
-                        <span className="text-sm font-medium opacity-40 ml-1">/100</span>
-                      </div>
-                    </div>
-                    <motion.div 
-                      animate={{ scale: [1, 1.05, 1] }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                      className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm"
+                {/* 4 stat tiles */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mb-6">
+                  {statItems.map(({ label, value, unit }, i) => (
+                    <motion.div
+                      key={label}
+                      initial={{ opacity: 0, y: 20, scale: 0.88 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ delay: 0.35 + i * 0.08, type: "spring", stiffness: 260, damping: 20 }}
+                      whileHover={{ y: -4, scale: 1.02 }}
+                      className="bg-white rounded-[20px] p-4 shadow-[0_8px_24px_rgba(22,101,52,0.08)] border border-emerald-100/70 text-center"
                     >
-                      <Brain className="w-5 h-5 text-[#2D6A4F]" />
+                      <div className="text-[#0E3D2D] font-black text-3xl leading-none tabular-nums mt-1">
+                        <StatCounter value={value} />
+                      </div>
+                      <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-2">{unit}</div>
+                      <div className="text-[11px] text-gray-600 font-semibold mt-1">{label}</div>
                     </motion.div>
-                  </div>
+                  ))}
                 </div>
 
-                {/* Card Action Buttons */}
-                <div className="action-buttons flex gap-3 relative z-10 pt-2">
-                  <motion.button
-                    whileHover={{ scale: 1.01, backgroundColor: "#f9fafb" }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={downloadCard}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-white text-[#2D6A4F] rounded-[14px] font-medium text-[14px] shadow-sm border border-gray-100 transition-all"
-                  >
-                    <Download className="w-4 h-4" />
-                    Download
+                {/* Wellness score — hero row */}
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.65, type: "spring" }}
+                  className="bg-gradient-to-r from-[#166534] via-[#15803D] to-[#0F766E] rounded-[24px] p-6 mb-6 relative overflow-hidden shadow-[0_14px_34px_rgba(21,128,61,0.32)]"
+                >
+                  <div className="relative z-10 flex items-center justify-between">
+                    <div>
+                      <p className="text-emerald-100 text-[10px] font-black uppercase tracking-widest mb-1">Wellness Score</p>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-white font-black text-4xl tabular-nums">
+                          <StatCounter value={score} duration={2000} />
+                        </span>
+                        <span className="text-white/40 text-sm font-bold">/100</span>
+                      </div>
+                    </div>
+                    {/* Circular progress */}
+                    <div className="relative w-16 h-16">
+                      <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
+                        <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="6" />
+                        <motion.circle cx="32" cy="32" r="26" fill="none" stroke="#A7F3D0" strokeWidth="6"
+                          strokeLinecap="round"
+                          strokeDasharray={`${2 * Math.PI * 26}`}
+                          initial={{ strokeDashoffset: 2 * Math.PI * 26 }}
+                          animate={{ strokeDashoffset: 2 * Math.PI * 26 * (1 - score / 100) }}
+                          transition={{ delay: 0.8, duration: 1.4, ease: "easeOut" }}
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center text-[10px] font-extrabold text-emerald-100">
+                        {score}%
+                      </div>
+                    </div>
+                  </div>
+                  {/* Progress bar */}
+                  <div className="mt-3 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${score}%` }}
+                      transition={{ delay: 0.85, duration: 1.3, ease: "easeOut" }}
+                      className="h-full bg-gradient-to-r from-emerald-200 to-lime-200 rounded-full"
+                    />
+                  </div>
+                  <motion.div
+                    className="absolute inset-y-0 -left-20 w-20 bg-white/20 blur-md"
+                    animate={{ x: [0, 560] }}
+                    transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 1.2, ease: "easeInOut" }}
+                  />
+                </motion.div>
+
+                {/* Action buttons */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.75 }}
+                  className="action-buttons grid grid-cols-1 sm:grid-cols-2 gap-3"
+                >
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+                    onClick={shareOnLinkedIn}
+                    className="flex items-center justify-center gap-2 py-3.5 bg-[#0A66C2] text-white rounded-[16px] font-bold text-sm shadow-sm transition-all">
+                    <AnimatePresence mode="wait">
+                      {shareFeedback === "linkedin" ? (
+                        <motion.span key="ln-ok" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2">
+                          <Check className="w-4 h-4" /> Copied + Opened
+                        </motion.span>
+                      ) : (
+                        <motion.span key="ln" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2">
+                          <Linkedin className="w-4 h-4" /> LinkedIn
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
                   </motion.button>
-                  
-                  <motion.button
-                    whileHover={{ scale: 1.01, backgroundColor: "#1B4332" }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={copyProfileLink}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#2D6A4F] text-white rounded-[14px] font-medium text-[14px] shadow-sm transition-all"
-                  >
-                    {copyFeedback ? (
-                      <>
-                        <Check className="w-4 h-4" />
-                        Copied!
-                      </>
-                    ) : (
-                      <>
-                        <Link className="w-4 h-4" />
-                        Copy Link
-                      </>
-                    )}
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+                    onClick={shareOnInstagram}
+                    className="flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-[#833AB4] via-[#E1306C] to-[#F77737] text-white rounded-[16px] font-bold text-sm shadow-sm transition-all">
+                    <AnimatePresence mode="wait">
+                      {shareFeedback === "instagram" ? (
+                        <motion.span key="ig-ok" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2">
+                          <Check className="w-4 h-4" /> Copied + Opened
+                        </motion.span>
+                      ) : (
+                        <motion.span key="ig" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2">
+                          <Instagram className="w-4 h-4" /> Instagram
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
                   </motion.button>
-                </div>
+                </motion.div>
               </div>
             </div>
           </motion.div>
