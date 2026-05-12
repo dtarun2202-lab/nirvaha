@@ -569,6 +569,12 @@ const MeditationImages: React.FC = () => {
 
             {/* -- HEADER -- */}
             <div className="med-modal-header">
+              {/* Floating sparkles */}
+              <span className="med-modal-header-sparkle" />
+              <span className="med-modal-header-sparkle" />
+              <span className="med-modal-header-sparkle" />
+              <span className="med-modal-header-sparkle" />
+              <span className="med-modal-header-sparkle" />
               <div className="med-modal-badge">
                 <span className="med-modal-num-label">{(selected as any).num}</span>
                 <span className="med-badge-dot" />
@@ -845,8 +851,6 @@ const MeditationImages: React.FC = () => {
         }
 
         /* ======================================
-           LIGHT GLASSMORPHISM MODAL
-        /* ======================================
            POSE DETAIL MODAL — LIGHT PREMIUM
         ====================================== */
 
@@ -865,7 +869,7 @@ const MeditationImages: React.FC = () => {
           to   { opacity: 1; backdrop-filter: blur(20px); }
         }
 
-        /* Modal container — bright white glass */
+        /* Modal container — bright white */
         .med-modal {
           position: relative;
           width: 100%;
@@ -874,19 +878,12 @@ const MeditationImages: React.FC = () => {
           overflow-y: auto;
           overflow-x: hidden;
           border-radius: 28px;
-          background: linear-gradient(160deg,
-            rgba(255, 255, 255, 0.97) 0%,
-            rgba(245, 253, 249, 0.96) 50%,
-            rgba(240, 252, 246, 0.97) 100%
-          );
-          backdrop-filter: blur(40px);
-          -webkit-backdrop-filter: blur(40px);
+          background: #ffffff;
           border: 1px solid rgba(134, 210, 166, 0.35);
           box-shadow:
             0 0 0 1px rgba(255, 255, 255, 0.9) inset,
-            0 4px 0 rgba(255, 255, 255, 0.8) inset,
-            0 20px 60px rgba(16, 120, 70, 0.10),
-            0 8px 24px rgba(0, 0, 0, 0.06);
+            0 20px 60px rgba(16, 120, 70, 0.12),
+            0 8px 24px rgba(0, 0, 0, 0.08);
           animation: med-scale-in 0.55s cubic-bezier(0.16, 1, 0.3, 1);
           scrollbar-width: thin;
           scrollbar-color: rgba(100, 180, 130, 0.25) transparent;
@@ -906,21 +903,21 @@ const MeditationImages: React.FC = () => {
         }
         .med-orb-1 {
           width: 380px; height: 380px;
-          background: radial-gradient(circle, rgba(167, 243, 208, 0.28) 0%, transparent 65%);
+          background: radial-gradient(circle, rgba(167, 243, 208, 0.38) 0%, transparent 65%);
           top: -120px; right: -80px;
           filter: blur(50px);
           animation: med-orb-drift 8s ease-in-out infinite;
         }
         .med-orb-2 {
           width: 260px; height: 260px;
-          background: radial-gradient(circle, rgba(187, 247, 208, 0.22) 0%, transparent 65%);
+          background: radial-gradient(circle, rgba(187, 247, 208, 0.32) 0%, transparent 65%);
           bottom: -60px; left: -50px;
           filter: blur(45px);
           animation: med-orb-drift 10s ease-in-out infinite reverse;
         }
         .med-orb-3 {
           width: 200px; height: 200px;
-          background: radial-gradient(circle, rgba(209, 250, 229, 0.20) 0%, transparent 65%);
+          background: radial-gradient(circle, rgba(209, 250, 229, 0.30) 0%, transparent 65%);
           top: 40%; left: -40px;
           filter: blur(40px);
           animation: med-orb-drift 12s ease-in-out infinite;
@@ -953,23 +950,63 @@ const MeditationImages: React.FC = () => {
           box-shadow: 0 4px 14px rgba(16, 120, 60, 0.14);
         }
 
-        /* -- Header -- */
+        /* -- Header — decorative mint gradient background -- */
         .med-modal-header {
           position: relative; z-index: 2;
-          padding: 44px 48px 28px;
+          padding: 44px 48px 32px;
           text-align: center;
-          border-bottom: 1px solid rgba(134, 200, 160, 0.18);
+          overflow: hidden;
+          border-bottom: 1px solid rgba(134, 200, 160, 0.20);
+          background: linear-gradient(160deg,
+            rgba(236, 253, 245, 1) 0%,
+            rgba(220, 252, 231, 0.85) 35%,
+            rgba(240, 253, 250, 0.90) 65%,
+            rgba(255, 255, 255, 1) 100%
+          );
+        }
+        /* Soft bokeh orbs inside header */
+        .med-modal-header::before {
+          content: '';
+          position: absolute; top: -60px; left: -60px;
+          width: 260px; height: 260px; border-radius: 50%;
+          background: radial-gradient(circle, rgba(134,210,166,0.25) 0%, transparent 65%);
+          filter: blur(30px); pointer-events: none;
+          animation: med-orb-drift 9s ease-in-out infinite;
+        }
+        .med-modal-header::after {
+          content: '';
+          position: absolute; bottom: -40px; right: -40px;
+          width: 200px; height: 200px; border-radius: 50%;
+          background: radial-gradient(circle, rgba(187,247,208,0.28) 0%, transparent 65%);
+          filter: blur(28px); pointer-events: none;
+          animation: med-orb-drift 11s ease-in-out infinite reverse;
+        }
+        /* Floating sparkle dots */
+        .med-modal-header-sparkle {
+          position: absolute; border-radius: 50%; pointer-events: none;
+          background: rgba(52, 211, 153, 0.50);
+          animation: med-sparkle-float 4s ease-in-out infinite;
+        }
+        .med-modal-header-sparkle:nth-child(1) { width:5px;height:5px; top:18%; left:12%; animation-delay:0s; }
+        .med-modal-header-sparkle:nth-child(2) { width:3px;height:3px; top:35%; left:82%; animation-delay:0.8s; }
+        .med-modal-header-sparkle:nth-child(3) { width:4px;height:4px; top:65%; left:22%; animation-delay:1.4s; }
+        .med-modal-header-sparkle:nth-child(4) { width:3px;height:3px; top:20%; left:65%; animation-delay:2s; }
+        .med-modal-header-sparkle:nth-child(5) { width:5px;height:5px; top:75%; left:75%; animation-delay:0.4s; }
+        @keyframes med-sparkle-float {
+          0%,100% { transform: translateY(0) scale(1); opacity: 0.5; }
+          50%      { transform: translateY(-8px) scale(1.3); opacity: 1; }
         }
 
         /* Badge row: num · sanskrit */
         .med-modal-badge {
           display: inline-flex; align-items: center; gap: 10px;
-          background: rgba(209, 250, 229, 0.55);
-          border: 1px solid rgba(134, 200, 160, 0.35);
+          background: rgba(255, 255, 255, 0.75);
+          border: 1px solid rgba(134, 200, 160, 0.45);
           border-radius: 100px;
           padding: 5px 16px;
           margin-bottom: 18px;
           backdrop-filter: blur(8px);
+          box-shadow: 0 2px 8px rgba(16,100,60,0.06);
         }
         .med-modal-num-label {
           font-family: 'Cinzel', serif;
@@ -1031,6 +1068,7 @@ const MeditationImages: React.FC = () => {
           position: relative; z-index: 2;
           padding: 24px 28px 32px;
           display: flex; flex-direction: column; gap: 14px;
+          background: linear-gradient(180deg, rgba(248,255,252,1) 0%, rgba(255,255,255,1) 100%);
         }
 
         /* Two-column row */
@@ -1042,65 +1080,53 @@ const MeditationImages: React.FC = () => {
 
         /* Glass info card */
         .med-glass-card {
-          background: rgba(255, 255, 255, 0.82);
-          border: 1px solid rgba(134, 200, 160, 0.28);
+          background: rgba(255, 255, 255, 0.98);
+          border: 1px solid rgba(134, 200, 160, 0.30);
           border-radius: 20px;
-          padding: 22px 22px 20px;
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
+          padding: 20px 20px 18px;
           box-shadow:
             0 1px 0 rgba(255, 255, 255, 1) inset,
-            0 4px 16px rgba(16, 100, 60, 0.06);
+            0 2px 12px rgba(16, 100, 60, 0.06),
+            0 1px 3px rgba(0,0,0,0.04);
           transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
                       box-shadow 0.25s ease,
                       border-color 0.25s ease;
-          animation: med-card-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
-        .med-glass-card:nth-child(1) { animation-delay: 0.22s; }
-        .med-glass-card:nth-child(2) { animation-delay: 0.30s; }
+        .med-glass-card:hover {
+          transform: translateY(-3px);
+          border-color: rgba(52, 168, 100, 0.45);
+          box-shadow:
+            0 1px 0 rgba(255, 255, 255, 1) inset,
+            0 10px 28px rgba(16, 100, 60, 0.10),
+            0 0 0 1px rgba(134, 200, 160, 0.22);
+        }
+        /* Staggered entrance per row */
+        .med-row-2:nth-child(1) .med-glass-card:nth-child(1) { animation: med-card-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.20s both; }
+        .med-row-2:nth-child(1) .med-glass-card:nth-child(2) { animation: med-card-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.28s both; }
+        .med-row-2:nth-child(2) .med-glass-card:nth-child(1) { animation: med-card-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.36s both; }
+        .med-row-2:nth-child(2) .med-glass-card:nth-child(2) { animation: med-card-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.44s both; }
+        .med-row-2:nth-child(3) .med-glass-card:nth-child(1) { animation: med-card-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.52s both; }
+        .med-row-2:nth-child(3) .med-glass-card:nth-child(2) { animation: med-card-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.60s both; }
+        .med-card-wide { animation: med-card-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.48s both; }
+        .med-card-wide.med-card-beginner { animation-delay: 0.68s !important; }
         @keyframes med-card-in {
           from { opacity: 0; transform: translateY(14px) scale(0.97); }
           to   { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .med-glass-card:hover {
-          transform: translateY(-3px);
-          border-color: rgba(52, 168, 100, 0.40);
-          box-shadow:
-            0 1px 0 rgba(255, 255, 255, 1) inset,
-            0 10px 28px rgba(16, 100, 60, 0.10),
-            0 0 0 1px rgba(134, 200, 160, 0.20);
+        /* Left-border accent per card type */
+        .med-card-meaning  { border-left: 3px solid rgba(52,211,153,0.60); }
+        .med-card-origin   { border-left: 3px solid rgba(110,200,150,0.55); }
+        .med-card-mental   { border-left: 3px solid rgba(134,200,160,0.60); }
+        .med-card-physical { border-left: 3px solid rgba(52,168,100,0.55); }
+        .med-card-chakra   {
+          border-left: 3px solid rgba(52,211,153,0.60);
+          background: linear-gradient(145deg, rgba(245,255,250,0.99) 0%, rgba(235,252,243,0.96) 100%);
         }
-        .med-card-meaning {
-          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(240,253,248,0.88) 100%);
-          border-color: rgba(110, 200, 150, 0.32);
-        }
-        .med-card-origin {
-          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(245,255,250,0.88) 100%);
-          border-color: rgba(134, 200, 160, 0.28);
-        }
-        .med-card-mental {
-          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(242,252,248,0.88) 100%);
-          border-color: rgba(120, 195, 155, 0.30);
-        }
-        .med-card-physical {
-          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(240,253,248,0.88) 100%);
-          border-color: rgba(110, 200, 150, 0.32);
-        }
-        .med-card-chakra {
-          background: linear-gradient(145deg, rgba(245,255,250,0.92) 0%, rgba(235,252,243,0.90) 100%);
-          border-color: rgba(52, 168, 100, 0.25);
-        }
-        .med-card-breath {
-          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(242,252,248,0.88) 100%);
-          border-color: rgba(120, 195, 155, 0.30);
-        }
-        .med-card-time {
-          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(245,255,250,0.88) 100%);
-          border-color: rgba(134, 200, 160, 0.28);
-        }
+        .med-card-breath   { border-left: 3px solid rgba(120,195,155,0.60); }
+        .med-card-time     { border-left: 3px solid rgba(134,200,160,0.55); }
         .med-card-beginner {
-          background: linear-gradient(145deg, rgba(240, 253, 248, 0.92) 0%, rgba(220, 252, 231, 0.85) 100%);
-          border-color: rgba(52, 168, 100, 0.30);
+          border-left: 3px solid rgba(52,168,100,0.65);
+          background: linear-gradient(145deg, rgba(240,253,248,0.99) 0%, rgba(220,252,231,0.92) 100%);
         }
         .med-card-wide { grid-column: 1 / -1; }
         .med-card-icon-row {
@@ -1110,10 +1136,16 @@ const MeditationImages: React.FC = () => {
         .med-card-icon-box {
           width: 36px; height: 36px; flex-shrink: 0;
           border-radius: 10px;
-          background: linear-gradient(135deg, rgba(209,250,229,0.70) 0%, rgba(187,247,208,0.55) 100%);
-          border: 1px solid rgba(134,200,160,0.30);
+          background: linear-gradient(135deg, rgba(209,250,229,0.85) 0%, rgba(167,243,208,0.70) 100%);
+          border: 1px solid rgba(134,200,160,0.38);
           display: flex; align-items: center; justify-content: center;
           color: #16a34a;
+          box-shadow: 0 2px 6px rgba(16,100,60,0.08);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .med-glass-card:hover .med-card-icon-box {
+          transform: scale(1.10);
+          box-shadow: 0 4px 12px rgba(16,100,60,0.15);
         }
 
         /* Card heading */
