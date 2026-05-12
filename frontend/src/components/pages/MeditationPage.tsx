@@ -578,81 +578,65 @@ const MeditationImages: React.FC = () => {
               {/* Row 1: Essence + Origin */}
               <div className="med-row-2">
                 <div className="med-glass-card">
-                  <div className="med-card-inner">
-                    <p className="med-card-heading">Spiritual Essence</p>
-                    <div className="med-card-rule" />
-                    <p className="med-card-text">{(selected as any).essence}</p>
-                  </div>
+                  <p className="med-card-heading">Spiritual Essence</p>
+                  <div className="med-card-rule" />
+                  <p className="med-card-text">{(selected as any).essence}</p>
                 </div>
                 <div className="med-glass-card">
-                  <div className="med-card-inner">
-                    <p className="med-card-heading">Ancient Origin</p>
-                    <div className="med-card-rule" />
-                    <p className="med-card-text">{(selected as any).origin}</p>
-                  </div>
+                  <p className="med-card-heading">Ancient Origin</p>
+                  <div className="med-card-rule" />
+                  <p className="med-card-text">{(selected as any).origin}</p>
                 </div>
               </div>
 
               {/* Row 2: Benefits */}
               <div className="med-row-2">
                 <div className="med-glass-card">
-                  <div className="med-card-inner">
-                    <p className="med-card-heading">Mental & Emotional</p>
-                    <div className="med-card-rule" />
-                    <ul className="med-list">
-                      {(selected as any).mentalBenefits.map((b: string, i: number) => (
-                        <li key={i}>{b}</li>
-                      ))}
-                    </ul>
-                  </div>
+                  <p className="med-card-heading">Mental & Emotional</p>
+                  <div className="med-card-rule" />
+                  <ul className="med-list">
+                    {(selected as any).mentalBenefits.map((b: string, i: number) => (
+                      <li key={i}>{b}</li>
+                    ))}
+                  </ul>
                 </div>
                 <div className="med-glass-card">
-                  <div className="med-card-inner">
-                    <p className="med-card-heading">Physical Benefits</p>
-                    <div className="med-card-rule" />
-                    <ul className="med-list">
-                      {(selected as any).physicalBenefits.map((b: string, i: number) => (
-                        <li key={i}>{b}</li>
-                      ))}
-                    </ul>
-                  </div>
+                  <p className="med-card-heading">Physical Benefits</p>
+                  <div className="med-card-rule" />
+                  <ul className="med-list">
+                    {(selected as any).physicalBenefits.map((b: string, i: number) => (
+                      <li key={i}>{b}</li>
+                    ))}
+                  </ul>
                 </div>
               </div>
 
               {/* Row 3: Chakra full-width */}
-              <div className="med-glass-card med-card-wide med-card-chakra">
-                <div className="med-card-inner">
-                  <p className="med-card-heading">Chakra & Energy Connection</p>
-                  <div className="med-card-rule" />
-                  <p className="med-card-text">{(selected as any).chakra}</p>
-                </div>
+              <div className="med-glass-card med-card-wide">
+                <p className="med-card-heading">Chakra & Energy Connection</p>
+                <div className="med-card-rule" />
+                <p className="med-card-text">{(selected as any).chakra}</p>
               </div>
 
               {/* Row 4: Breathing + Best Time */}
               <div className="med-row-2">
                 <div className="med-glass-card">
-                  <div className="med-card-inner">
-                    <p className="med-card-heading">Breathing Technique</p>
-                    <div className="med-card-rule" />
-                    <p className="med-card-text">{(selected as any).breathingTechnique}</p>
-                  </div>
+                  <p className="med-card-heading">Breathing Technique</p>
+                  <div className="med-card-rule" />
+                  <p className="med-card-text">{(selected as any).breathingTechnique}</p>
                 </div>
                 <div className="med-glass-card">
-                  <div className="med-card-inner">
-                    <p className="med-card-heading">Best Practice Time</p>
-                    <div className="med-card-rule" />
-                    <p className="med-card-text">{(selected as any).bestTime}</p>
-                  </div>
+                  <p className="med-card-heading">Best Practice Time</p>
+                  <div className="med-card-rule" />
+                  <p className="med-card-text">{(selected as any).bestTime}</p>
                 </div>
               </div>
 
               {/* Row 5: Beginner Guidance full-width */}
               <div className="med-glass-card med-card-wide med-card-beginner">
-                <div className="med-card-inner">
-                  <p className="med-card-heading">Beginner Guidance</p>
-                  <div className="med-card-rule" />
-                  <p className="med-card-text">{(selected as any).beginnerTip}</p>
-                </div>
+                <p className="med-card-heading">Beginner Guidance</p>
+                <div className="med-card-rule" />
+                <p className="med-card-text">{(selected as any).beginnerTip}</p>
               </div>
 
             </div>
@@ -942,130 +926,86 @@ const MeditationImages: React.FC = () => {
         /* -- Body -- */
         .med-modal-body {
           position: relative; z-index: 2;
-          padding: 24px 28px 36px;
-          display: flex; flex-direction: column; gap: 14px;
+          padding: 28px 32px 38px;
+          display: flex; flex-direction: column; gap: 12px;
         }
 
         /* Two-column row */
         .med-row-2 {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 14px;
+          gap: 12px;
         }
 
-        /* ── Info cards ── */
+        /* Glass card - solid white with green tint */
         .med-glass-card {
-          position: relative;
-          background: #ffffff;
-          border: 1px solid rgba(52, 168, 100, 0.16);
-          border-radius: 20px;
-          overflow: hidden;
-          box-shadow: 0 2px 14px rgba(20, 90, 50, 0.07);
-          transition: transform 0.26s cubic-bezier(0.22,1,0.36,1),
-                      box-shadow 0.26s ease,
-                      border-color 0.26s ease;
+          background: rgba(255, 255, 255, 0.75);
+          border: 1px solid rgba(60, 160, 100, 0.22);
+          border-radius: 18px;
+          padding: 22px 24px;
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          box-shadow: 0 2px 16px rgba(20, 90, 50, 0.10), 0 1px 0 rgba(255,255,255,0.90) inset;
+          transition: background 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
         }
         .med-glass-card:hover {
-          transform: translateY(-3px);
-          border-color: rgba(40, 150, 85, 0.28);
-          box-shadow: 0 8px 28px rgba(20, 90, 50, 0.12);
+          background: rgba(255, 255, 255, 0.88);
+          border-color: rgba(40, 150, 85, 0.38);
+          box-shadow: 0 6px 24px rgba(20, 90, 50, 0.14), 0 0 0 1px rgba(60, 170, 100, 0.18), 0 1px 0 rgba(255,255,255,1) inset;
         }
-
-        /* Left accent bar */
-        .med-glass-card::before {
-          content: '';
-          position: absolute;
-          top: 16px; bottom: 16px; left: 0;
-          width: 3px;
-          border-radius: 0 3px 3px 0;
-          background: linear-gradient(180deg, #52B788, #2D6A4F);
-          opacity: 0.6;
-          transition: opacity 0.26s ease;
-        }
-        .med-glass-card:hover::before { opacity: 1; }
-
-        /* Card inner padding */
-        .med-card-inner {
-          padding: 20px 22px 22px 26px;
-        }
-
         .med-card-wide { grid-column: 1 / -1; }
-
-        /* Beginner card */
         .med-card-beginner {
-          background: #F6FEF9;
-          border-color: rgba(34, 197, 94, 0.2);
+          background: rgba(210, 245, 225, 0.80);
+          border-color: rgba(40, 150, 85, 0.28);
         }
-        .med-card-beginner::before {
-          background: linear-gradient(180deg, #22C55E, #16A34A);
-          opacity: 0.7;
-        }
-
-        /* Chakra card */
-        .med-card-chakra {
-          background: #FDFBFF;
-          border-color: rgba(139, 92, 246, 0.18);
-        }
-        .med-card-chakra::before {
-          background: linear-gradient(180deg, #A78BFA, #7C3AED);
-          opacity: 0.55;
-        }
-        .med-card-chakra:hover::before { opacity: 0.85; }
 
         /* Card heading */
         .med-card-heading {
           font-family: 'Cinzel', serif;
-          font-size: 0.58rem;
-          letter-spacing: 0.28em;
+          font-size: 0.6rem;
+          letter-spacing: 0.30em;
           text-transform: uppercase;
           color: #0e4d26;
           margin: 0 0 10px;
           font-weight: 700;
         }
-        .med-card-chakra .med-card-heading { color: #5B21B6; }
-
         .med-card-rule {
-          width: 28px; height: 1.5px;
-          background: linear-gradient(90deg, #52B788, transparent);
+          width: 24px; height: 1px;
+          background: rgba(20, 110, 60, 0.40);
           margin-bottom: 13px;
-          border-radius: 2px;
-        }
-        .med-card-chakra .med-card-rule {
-          background: linear-gradient(90deg, #8B5CF6, transparent);
         }
 
         /* Card text */
         .med-card-text {
           font-family: 'Poppins', sans-serif;
-          font-size: 0.83rem;
-          line-height: 1.82;
-          color: #1a3d28;
+          font-size: 0.84rem;
+          line-height: 1.80;
+          color: #0d2b18;
           margin: 0;
-          font-weight: 400;
+          font-weight: 500;
         }
-        .med-card-chakra .med-card-text { color: #3B0764; }
 
         /* List */
         .med-list {
           list-style: none; padding: 0; margin: 0;
-          display: flex; flex-direction: column; gap: 9px;
+          display: flex; flex-direction: column; gap: 10px;
         }
         .med-list li {
           font-family: 'Poppins', sans-serif;
-          font-size: 0.81rem;
-          line-height: 1.6;
-          color: #1a3d28;
-          font-weight: 400;
-          padding-left: 18px;
+          font-size: 0.82rem;
+          line-height: 1.55;
+          color: #0d2b18;
+          font-weight: 500;
+          padding-left: 16px;
           position: relative;
         }
         .med-list li::before {
           content: '';
-          position: absolute; left: 0; top: 8px;
+          position: absolute; left: 0; top: 7px;
           width: 5px; height: 5px;
           border-radius: 50%;
-          background: #52B788;
-          box-shadow: 0 0 5px rgba(82, 183, 136, 0.4);
+          background: #1a7a42;
+          box-shadow: 0 0 6px rgba(26, 122, 66, 0.40);
         }
 
         /* Mobile */
