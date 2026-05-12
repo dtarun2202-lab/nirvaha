@@ -552,91 +552,78 @@ const MeditationImages: React.FC = () => {
         </div>{/* end dark box */}
       </div>{/* end outer container */}
 
-      {/* -- LUXURY GLASSMORPHISM MODAL -- */}
+      {/* -- POSE DETAIL MODAL -- */}
       {selected !== null && (
         <div className="med-modal-overlay" onClick={() => setSelectedPose(null)}>
           <div className="med-modal" onClick={e => e.stopPropagation()}>
 
-            {/* Ambient glow orbs */}
+            {/* Ambient pastel orbs */}
             <div className="med-orb med-orb-1" />
             <div className="med-orb med-orb-2" />
+            <div className="med-orb med-orb-3" />
 
             {/* Close */}
-            <button className="med-modal-close" onClick={() => setSelectedPose(null)}>x</button>
+            <button className="med-modal-close" onClick={() => setSelectedPose(null)} aria-label="Close">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>
+            </button>
 
             {/* -- HEADER -- */}
             <div className="med-modal-header">
-              <p className="med-modal-num-label">{(selected as any).num}</p>
-              <p className="med-modal-sanskrit">{selected.sanskrit}</p>
+              <div className="med-modal-badge">
+                <span className="med-modal-num-label">{(selected as any).num}</span>
+                <span className="med-badge-dot" />
+                <span className="med-modal-sanskrit">{selected.sanskrit}</span>
+              </div>
               <h3 className="med-modal-title">{selected.label}</h3>
+              <p className="med-modal-essence">{(selected as any).essence}</p>
               <div className="med-title-rule" />
             </div>
 
-            {/* -- BODY -- */}
+            {/* -- BODY: 4 focused cards only -- */}
             <div className="med-modal-body">
 
-              {/* Row 1: Essence + Origin */}
+              {/* Row 1: Spiritual Meaning + Benefits */}
               <div className="med-row-2">
-                <div className="med-glass-card">
-                  <p className="med-card-heading">Spiritual Essence</p>
+                <div className="med-glass-card med-card-meaning">
+                  <div className="med-card-icon-row">
+                    <span className="med-card-icon">✦</span>
+                    <p className="med-card-heading">Spiritual Meaning</p>
+                  </div>
                   <div className="med-card-rule" />
-                  <p className="med-card-text">{(selected as any).essence}</p>
+                  <p className="med-card-text">{(selected as any).chakra}</p>
                 </div>
-                <div className="med-glass-card">
-                  <p className="med-card-heading">Ancient Origin</p>
-                  <div className="med-card-rule" />
-                  <p className="med-card-text">{(selected as any).origin}</p>
-                </div>
-              </div>
-
-              {/* Row 2: Benefits */}
-              <div className="med-row-2">
-                <div className="med-glass-card">
-                  <p className="med-card-heading">Mental & Emotional</p>
+                <div className="med-glass-card med-card-benefits">
+                  <div className="med-card-icon-row">
+                    <span className="med-card-icon">◈</span>
+                    <p className="med-card-heading">Benefits</p>
+                  </div>
                   <div className="med-card-rule" />
                   <ul className="med-list">
-                    {(selected as any).mentalBenefits.map((b: string, i: number) => (
-                      <li key={i}>{b}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="med-glass-card">
-                  <p className="med-card-heading">Physical Benefits</p>
-                  <div className="med-card-rule" />
-                  <ul className="med-list">
-                    {(selected as any).physicalBenefits.map((b: string, i: number) => (
+                    {(selected as any).benefits.slice(0, 3).map((b: string, i: number) => (
                       <li key={i}>{b}</li>
                     ))}
                   </ul>
                 </div>
               </div>
 
-              {/* Row 3: Chakra full-width */}
-              <div className="med-glass-card med-card-wide">
-                <p className="med-card-heading">Chakra & Energy Connection</p>
-                <div className="med-card-rule" />
-                <p className="med-card-text">{(selected as any).chakra}</p>
-              </div>
-
-              {/* Row 4: Breathing + Best Time */}
+              {/* Row 2: Breathing Tip + Beginner Guidance */}
               <div className="med-row-2">
-                <div className="med-glass-card">
-                  <p className="med-card-heading">Breathing Technique</p>
+                <div className="med-glass-card med-card-breath">
+                  <div className="med-card-icon-row">
+                    <span className="med-card-icon">◎</span>
+                    <p className="med-card-heading">Breathing Tip</p>
+                  </div>
                   <div className="med-card-rule" />
-                  <p className="med-card-text">{(selected as any).breathingTechnique}</p>
+                  <p className="med-card-text">{(selected as any).breathingTip}</p>
                 </div>
-                <div className="med-glass-card">
-                  <p className="med-card-heading">Best Practice Time</p>
+                <div className="med-glass-card med-card-beginner">
+                  <div className="med-card-icon-row">
+                    <span className="med-card-icon">❋</span>
+                    <p className="med-card-heading">Beginner Guidance</p>
+                  </div>
                   <div className="med-card-rule" />
-                  <p className="med-card-text">{(selected as any).bestTime}</p>
+                  <p className="med-card-text">{(selected as any).beginnerTip}</p>
                 </div>
-              </div>
-
-              {/* Row 5: Beginner Guidance full-width */}
-              <div className="med-glass-card med-card-wide med-card-beginner">
-                <p className="med-card-heading">Beginner Guidance</p>
-                <div className="med-card-rule" />
-                <p className="med-card-text">{(selected as any).beginnerTip}</p>
               </div>
 
             </div>
@@ -799,222 +786,314 @@ const MeditationImages: React.FC = () => {
 
         /* ======================================
            LIGHT GLASSMORPHISM MODAL
+        /* ======================================
+           POSE DETAIL MODAL — LIGHT PREMIUM
         ====================================== */
 
-        /* Overlay - soft sage mist */
+        /* Overlay — soft ivory mist, bright not dark */
         .med-modal-overlay {
           position: fixed; inset: 0; z-index: 1000;
-          background: rgba(8, 24, 14, 0.60);
-          backdrop-filter: blur(24px);
-          -webkit-backdrop-filter: blur(24px);
+          background: rgba(240, 253, 248, 0.55);
+          backdrop-filter: blur(20px) saturate(1.4);
+          -webkit-backdrop-filter: blur(20px) saturate(1.4);
           display: flex; align-items: center; justify-content: center;
           padding: 20px;
-          animation: med-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+          animation: med-fade-in 0.45s cubic-bezier(0.16, 1, 0.3, 1);
         }
         @keyframes med-fade-in {
           from { opacity: 0; backdrop-filter: blur(0px); }
-          to   { opacity: 1; backdrop-filter: blur(24px); }
+          to   { opacity: 1; backdrop-filter: blur(20px); }
         }
 
-        /* Modal container - light sage glass */
+        /* Modal container — bright white glass */
         .med-modal {
           position: relative;
           width: 100%;
-          max-width: 820px;
+          max-width: 760px;
           max-height: 88vh;
           overflow-y: auto;
           overflow-x: hidden;
-          border-radius: 26px;
-          background: linear-gradient(145deg, rgba(180, 230, 205, 0.88) 0%, rgba(155, 215, 185, 0.84) 100%);
+          border-radius: 28px;
+          background: linear-gradient(160deg,
+            rgba(255, 255, 255, 0.97) 0%,
+            rgba(245, 253, 249, 0.96) 50%,
+            rgba(240, 252, 246, 0.97) 100%
+          );
           backdrop-filter: blur(40px);
           -webkit-backdrop-filter: blur(40px);
-          border: 1px solid rgba(255, 255, 255, 0.55);
+          border: 1px solid rgba(134, 210, 166, 0.35);
           box-shadow:
-            0 2px 0 rgba(255, 255, 255, 0.70) inset,
-            0 28px 70px rgba(0, 0, 0, 0.28),
-            0 0 0 1px rgba(134, 200, 160, 0.18);
-          animation: med-scale-in 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+            0 0 0 1px rgba(255, 255, 255, 0.9) inset,
+            0 4px 0 rgba(255, 255, 255, 0.8) inset,
+            0 20px 60px rgba(16, 120, 70, 0.10),
+            0 8px 24px rgba(0, 0, 0, 0.06);
+          animation: med-scale-in 0.55s cubic-bezier(0.16, 1, 0.3, 1);
           scrollbar-width: thin;
-          scrollbar-color: rgba(60, 140, 90, 0.30) transparent;
+          scrollbar-color: rgba(100, 180, 130, 0.25) transparent;
         }
         @keyframes med-scale-in {
-          0%   { opacity: 0; transform: scale(0.90) translateY(28px); box-shadow: 0 0 0 rgba(134,210,166,0), 0 8px 20px rgba(0,0,0,0.15); }
+          0%   { opacity: 0; transform: scale(0.92) translateY(24px); }
           60%  { opacity: 1; }
-          100% { opacity: 1; transform: scale(1) translateY(0); box-shadow: 0 2px 0 rgba(255,255,255,0.70) inset, 0 28px 70px rgba(0,0,0,0.28), 0 0 0 1px rgba(134,200,160,0.18); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
         }
         .med-modal::-webkit-scrollbar { width: 3px; }
-        .med-modal::-webkit-scrollbar-thumb { background: rgba(60,140,90,0.30); border-radius: 4px; }
+        .med-modal::-webkit-scrollbar-thumb { background: rgba(100,180,130,0.25); border-radius: 4px; }
 
-        /* Ambient orbs - soft sage bloom */
+        /* Ambient pastel orbs */
         .med-orb {
           position: absolute; border-radius: 50%;
           pointer-events: none; z-index: 0;
         }
         .med-orb-1 {
-          width: 420px; height: 420px;
-          background: radial-gradient(circle, rgba(134, 210, 166, 0.22) 0%, transparent 65%);
-          top: -140px; right: -100px;
-          filter: blur(55px);
+          width: 380px; height: 380px;
+          background: radial-gradient(circle, rgba(167, 243, 208, 0.28) 0%, transparent 65%);
+          top: -120px; right: -80px;
+          filter: blur(50px);
+          animation: med-orb-drift 8s ease-in-out infinite;
         }
         .med-orb-2 {
-          width: 300px; height: 300px;
-          background: radial-gradient(circle, rgba(180, 230, 200, 0.18) 0%, transparent 65%);
-          bottom: -80px; left: -60px;
-          filter: blur(55px);
+          width: 260px; height: 260px;
+          background: radial-gradient(circle, rgba(187, 247, 208, 0.22) 0%, transparent 65%);
+          bottom: -60px; left: -50px;
+          filter: blur(45px);
+          animation: med-orb-drift 10s ease-in-out infinite reverse;
+        }
+        .med-orb-3 {
+          width: 200px; height: 200px;
+          background: radial-gradient(circle, rgba(209, 250, 229, 0.20) 0%, transparent 65%);
+          top: 40%; left: -40px;
+          filter: blur(40px);
+          animation: med-orb-drift 12s ease-in-out infinite;
+        }
+        @keyframes med-orb-drift {
+          0%, 100% { transform: translate(0, 0); }
+          33%       { transform: translate(12px, -8px); }
+          66%       { transform: translate(-8px, 10px); }
         }
 
-        /* Close button */
+        /* Close button — minimal elegant */
         .med-modal-close {
-          position: absolute; top: 18px; right: 18px; z-index: 20;
-          width: 30px; height: 30px;
+          position: absolute; top: 16px; right: 16px; z-index: 20;
+          width: 32px; height: 32px;
           border-radius: 50%;
-          background: rgba(255, 255, 255, 0.50);
-          border: 1px solid rgba(134, 200, 160, 0.30);
-          color: rgba(30, 90, 55, 0.70);
-          font-size: 0.65rem;
+          background: rgba(255, 255, 255, 0.85);
+          border: 1px solid rgba(134, 200, 160, 0.40);
+          color: #4a7c5e;
           cursor: pointer;
           display: flex; align-items: center; justify-content: center;
-          transition: all 0.22s ease;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
           backdrop-filter: blur(8px);
+          box-shadow: 0 2px 8px rgba(16, 100, 60, 0.08);
         }
         .med-modal-close:hover {
-          background: rgba(134, 210, 166, 0.30);
-          border-color: rgba(60, 160, 100, 0.50);
-          color: rgba(20, 70, 40, 1);
-          transform: rotate(90deg);
+          background: rgba(209, 250, 229, 0.90);
+          border-color: rgba(52, 168, 100, 0.55);
+          color: #166534;
+          transform: rotate(90deg) scale(1.08);
+          box-shadow: 0 4px 14px rgba(16, 120, 60, 0.14);
         }
 
         /* -- Header -- */
         .med-modal-header {
           position: relative; z-index: 2;
-          padding: 46px 52px 30px;
+          padding: 44px 48px 28px;
           text-align: center;
-          border-bottom: 1px solid rgba(30, 120, 70, 0.20);
+          border-bottom: 1px solid rgba(134, 200, 160, 0.18);
+        }
+
+        /* Badge row: num · sanskrit */
+        .med-modal-badge {
+          display: inline-flex; align-items: center; gap: 10px;
+          background: rgba(209, 250, 229, 0.55);
+          border: 1px solid rgba(134, 200, 160, 0.35);
+          border-radius: 100px;
+          padding: 5px 16px;
+          margin-bottom: 18px;
+          backdrop-filter: blur(8px);
         }
         .med-modal-num-label {
           font-family: 'Cinzel', serif;
-          font-size: 0.6rem; letter-spacing: 0.55em;
+          font-size: 0.58rem; letter-spacing: 0.45em;
           text-transform: uppercase;
-          color: #1a6b3a;
-          margin: 0 0 10px;
-          font-weight: 600;
+          color: #166534;
+          margin: 0;
+          font-weight: 700;
+        }
+        .med-badge-dot {
+          width: 3px; height: 3px;
+          border-radius: 50%;
+          background: rgba(22, 101, 52, 0.45);
+          flex-shrink: 0;
         }
         .med-modal-sanskrit {
           font-family: 'Cinzel', serif;
-          font-size: 0.72rem; letter-spacing: 0.42em;
+          font-size: 0.58rem; letter-spacing: 0.38em;
           text-transform: uppercase;
-          color: #145c30;
-          margin: 0 0 14px;
-          font-weight: 700;
+          color: #166534;
+          margin: 0;
+          font-weight: 600;
         }
         .med-modal-title {
           font-family: 'Playfair Display', serif;
-          font-size: clamp(1.9rem, 4vw, 2.6rem);
+          font-size: clamp(1.8rem, 4vw, 2.5rem);
           font-weight: 800;
           font-style: italic;
-          color: #0a2414;
-          margin: 0;
+          color: #0f2d1a;
+          margin: 0 0 14px;
           letter-spacing: 0.01em;
           line-height: 1.15;
+          animation: med-title-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+        }
+        @keyframes med-title-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .med-modal-essence {
+          font-family: 'Poppins', sans-serif;
+          font-size: 0.82rem;
+          line-height: 1.75;
+          color: #2d6a4f;
+          margin: 0;
+          max-width: 520px;
+          margin-left: auto; margin-right: auto;
+          font-weight: 400;
+          font-style: italic;
+          animation: med-title-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
         }
         .med-title-rule {
-          width: 44px; height: 1px;
-          background: linear-gradient(to right, transparent, rgba(20, 100, 55, 0.50), transparent);
-          margin: 22px auto 0;
+          width: 40px; height: 1.5px;
+          background: linear-gradient(to right, transparent, rgba(22, 101, 52, 0.40), transparent);
+          margin: 20px auto 0;
         }
 
         /* -- Body -- */
         .med-modal-body {
           position: relative; z-index: 2;
-          padding: 28px 32px 38px;
-          display: flex; flex-direction: column; gap: 12px;
+          padding: 24px 28px 32px;
+          display: flex; flex-direction: column; gap: 14px;
         }
 
         /* Two-column row */
         .med-row-2 {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 12px;
+          gap: 14px;
         }
 
-        /* Glass card - solid white with green tint */
+        /* Glass info card */
         .med-glass-card {
-          background: rgba(255, 255, 255, 0.75);
-          border: 1px solid rgba(60, 160, 100, 0.22);
-          border-radius: 18px;
-          padding: 22px 24px;
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          box-shadow: 0 2px 16px rgba(20, 90, 50, 0.10), 0 1px 0 rgba(255,255,255,0.90) inset;
-          transition: background 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+          background: rgba(255, 255, 255, 0.82);
+          border: 1px solid rgba(134, 200, 160, 0.28);
+          border-radius: 20px;
+          padding: 22px 22px 20px;
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          box-shadow:
+            0 1px 0 rgba(255, 255, 255, 1) inset,
+            0 4px 16px rgba(16, 100, 60, 0.06);
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      box-shadow 0.25s ease,
+                      border-color 0.25s ease;
+          animation: med-card-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .med-glass-card:nth-child(1) { animation-delay: 0.22s; }
+        .med-glass-card:nth-child(2) { animation-delay: 0.30s; }
+        @keyframes med-card-in {
+          from { opacity: 0; transform: translateY(14px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
         }
         .med-glass-card:hover {
-          background: rgba(255, 255, 255, 0.88);
-          border-color: rgba(40, 150, 85, 0.38);
-          box-shadow: 0 6px 24px rgba(20, 90, 50, 0.14), 0 0 0 1px rgba(60, 170, 100, 0.18), 0 1px 0 rgba(255,255,255,1) inset;
+          transform: translateY(-3px);
+          border-color: rgba(52, 168, 100, 0.40);
+          box-shadow:
+            0 1px 0 rgba(255, 255, 255, 1) inset,
+            0 10px 28px rgba(16, 100, 60, 0.10),
+            0 0 0 1px rgba(134, 200, 160, 0.20);
         }
-        .med-card-wide { grid-column: 1 / -1; }
+        .med-card-meaning {
+          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(240,253,248,0.88) 100%);
+          border-color: rgba(110, 200, 150, 0.32);
+        }
+        .med-card-benefits {
+          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(245,255,250,0.88) 100%);
+          border-color: rgba(134, 200, 160, 0.28);
+        }
+        .med-card-breath {
+          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(242,252,248,0.88) 100%);
+          border-color: rgba(120, 195, 155, 0.30);
+        }
         .med-card-beginner {
-          background: rgba(210, 245, 225, 0.80);
-          border-color: rgba(40, 150, 85, 0.28);
+          background: linear-gradient(145deg, rgba(240, 253, 248, 0.92) 0%, rgba(220, 252, 231, 0.85) 100%);
+          border-color: rgba(52, 168, 100, 0.30);
+        }
+        .med-card-icon-row {
+          display: flex; align-items: center; gap: 8px;
+          margin-bottom: 10px;
+        }
+        .med-card-icon {
+          font-size: 0.75rem;
+          color: #16a34a;
+          line-height: 1;
+          opacity: 0.8;
         }
 
         /* Card heading */
         .med-card-heading {
           font-family: 'Cinzel', serif;
-          font-size: 0.6rem;
-          letter-spacing: 0.30em;
+          font-size: 0.58rem;
+          letter-spacing: 0.28em;
           text-transform: uppercase;
-          color: #0e4d26;
-          margin: 0 0 10px;
+          color: #166534;
+          margin: 0;
           font-weight: 700;
         }
         .med-card-rule {
-          width: 24px; height: 1px;
-          background: rgba(20, 110, 60, 0.40);
-          margin-bottom: 13px;
+          width: 22px; height: 1.5px;
+          background: linear-gradient(to right, rgba(22, 101, 52, 0.45), transparent);
+          margin-bottom: 12px;
         }
 
         /* Card text */
         .med-card-text {
           font-family: 'Poppins', sans-serif;
-          font-size: 0.84rem;
-          line-height: 1.80;
-          color: #0d2b18;
+          font-size: 0.83rem;
+          line-height: 1.78;
+          color: #1a3d28;
           margin: 0;
-          font-weight: 500;
+          font-weight: 400;
         }
 
         /* List */
         .med-list {
           list-style: none; padding: 0; margin: 0;
-          display: flex; flex-direction: column; gap: 10px;
+          display: flex; flex-direction: column; gap: 9px;
         }
         .med-list li {
           font-family: 'Poppins', sans-serif;
           font-size: 0.82rem;
           line-height: 1.55;
-          color: #0d2b18;
-          font-weight: 500;
-          padding-left: 16px;
+          color: #1a3d28;
+          font-weight: 400;
+          padding-left: 18px;
           position: relative;
         }
         .med-list li::before {
           content: '';
-          position: absolute; left: 0; top: 7px;
+          position: absolute; left: 0; top: 8px;
           width: 5px; height: 5px;
           border-radius: 50%;
-          background: #1a7a42;
-          box-shadow: 0 0 6px rgba(26, 122, 66, 0.40);
+          background: linear-gradient(135deg, #34d399, #10b981);
+          box-shadow: 0 0 5px rgba(52, 211, 153, 0.35);
         }
 
         /* Mobile */
         @media (max-width: 640px) {
-          .med-modal { border-radius: 20px; }
-          .med-modal-header { padding: 36px 24px 22px; }
-          .med-modal-body { padding: 20px 20px 28px; gap: 10px; }
+          .med-modal { border-radius: 22px; }
+          .med-modal-header { padding: 36px 22px 22px; }
+          .med-modal-body { padding: 18px 18px 26px; gap: 12px; }
           .med-row-2 { grid-template-columns: 1fr; }
-          .med-modal-title { font-size: 1.7rem; }
+          .med-modal-title { font-size: 1.65rem; }
+          .med-modal-essence { font-size: 0.78rem; }
         }
 
         /* -- Radial layout responsive -- */
