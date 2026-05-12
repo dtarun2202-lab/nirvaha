@@ -233,14 +233,22 @@ export function ShareProfileCard({
                     <span className="text-[11px] font-bold text-emerald-800 tracking-wide uppercase">Nirvaha Wellness</span>
                   </motion.div>
 
-                  {/* Close button */}
+                  {/* Close — minimal glass control */}
                   <motion.button
-                    whileHover={{ scale: 1.08, rotate: 90 }}
-                    whileTap={{ scale: 0.92 }}
+                    type="button"
+                    aria-label="Close"
                     onClick={onClose}
-                    className="w-8 h-8 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 z-20 transition-all border border-gray-200 shadow-sm"
+                    initial={{ opacity: 0.92 }}
+                    whileHover={{
+                      scale: 1.045,
+                      opacity: 1,
+                      transition: { type: "spring", stiffness: 400, damping: 26 },
+                    }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ opacity: { duration: 0.25, ease: [0.4, 0, 0.2, 1] } }}
+                    className="relative z-20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/55 bg-white/20 text-emerald-900/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] backdrop-blur-md transition-[box-shadow,background-color,border-color,color] duration-300 ease-out hover:border-emerald-100/70 hover:bg-emerald-50/35 hover:text-emerald-900/70 hover:shadow-[0_0_0_1px_rgba(167,243,208,0.28),0_4px_20px_rgba(16,185,129,0.14)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-200/60"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="h-[13px] w-[13px]" strokeWidth={1.15} strokeLinecap="round" aria-hidden />
                   </motion.button>
                 </div>
 

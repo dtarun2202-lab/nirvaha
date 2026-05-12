@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import BACKEND_CONFIG from "../../config/backend";
 import { useAuth } from "../../contexts/AuthContext";
 import { useProfileSync } from "../../hooks/useProfileSync";
+import "../../styles/meditation-poses.css";
 
 const heroImage = "/meditation/first.jpg";
 
@@ -64,9 +65,47 @@ const HeroSection: React.FC = () => (
 
 const MeditationImages: React.FC = () => {
   const [selectedPose, setSelectedPose] = React.useState<number | null>(null);
+  const [glassGlow, setGlassGlow] = React.useState<{ id: string; nonce: number } | null>(null);
+  const glassGlowTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const pulseGlassCard = React.useCallback((id: string) => {
+    setGlassGlow((prev) => ({ id, nonce: (prev?.nonce ?? 0) + 1 }));
+    if (glassGlowTimerRef.current) clearTimeout(glassGlowTimerRef.current);
+    glassGlowTimerRef.current = setTimeout(() => {
+      setGlassGlow(null);
+      glassGlowTimerRef.current = null;
+    }, 420);
+  }, []);
+
+  React.useEffect(() => {
+    if (selectedPose === null) {
+      setGlassGlow(null);
+      if (glassGlowTimerRef.current) {
+        clearTimeout(glassGlowTimerRef.current);
+        glassGlowTimerRef.current = null;
+      }
+    }
+  }, [selectedPose]);
   const [activeSession, setActiveSession] = React.useState<number | null>(null);
   const [currentSet, setCurrentSet] = React.useState<0 | 1>(0);
   const [transitioning, setTransitioning] = React.useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  // Track mouse position for water ripple effects
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePos({
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100
+    });
+  }, []);
+
+  // Update CSS variables for cursor position
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--mouse-x', `${mousePos.x}%`);
+    root.style.setProperty('--mouse-y', `${mousePos.y}%`);
+  }, [mousePos]);
 
   const switchSet = (next: 0 | 1) => {
     if (transitioning || next === currentSet) return;
@@ -562,9 +601,15 @@ const MeditationImages: React.FC = () => {
             <div className="med-orb med-orb-2" />
             <div className="med-orb med-orb-3" />
 
-            {/* Close */}
-            <button className="med-modal-close" onClick={() => setSelectedPose(null)} aria-label="Close">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>
+            <button
+              type="button"
+              className="med-modal-close pose-modal-close-btn pose-modal-close-btn--floating"
+              onClick={() => setSelectedPose(null)}
+              aria-label="Close"
+            >
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" />
+              </svg>
             </button>
 
             {/* -- HEADER -- */}
@@ -575,7 +620,6 @@ const MeditationImages: React.FC = () => {
                 <span className="med-modal-sanskrit">{selected.sanskrit}</span>
               </div>
               <h3 className="med-modal-title">{selected.label}</h3>
-              <p className="med-modal-essence">{(selected as any).essence}</p>
               <div className="med-title-rule" />
             </div>
 
@@ -584,54 +628,90 @@ const MeditationImages: React.FC = () => {
 
               {/* Row 1: Spiritual Essence + Ancient Origin */}
               <div className="med-row-2">
-                <div className="med-glass-card med-card-meaning">
-                  <div className="med-card-icon-row">
-                    <div className="med-card-icon-box">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6z"/><circle cx="12" cy="12" r="2"/></svg>
-                    </div>
-                    <p className="med-card-heading">Spiritual Essence</p>
-                  </div>
+                <div
+                  className="med-glass-card med-card-meaning"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => pulseGlassCard('meaning')}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      pulseGlassCard('meaning');
+                    }
+                  }}
+                >
+                  {glassGlow?.id === 'meaning' && (
+                    <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
+                  )}
+                  <h4 className="med-card-heading">Spiritual Essence</h4>
                   <div className="med-card-rule" />
-                  <p className="med-card-text">{(selected as any).essence}</p>
+                  <p className="med-card-text">{selected.essence}</p>
                 </div>
-                <div className="med-glass-card med-card-origin">
-                  <div className="med-card-icon-row">
-                    <div className="med-card-icon-box">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
-                    </div>
-                    <p className="med-card-heading">Ancient Origin</p>
-                  </div>
+                <div
+                  className="med-glass-card med-card-origin"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => pulseGlassCard('origin')}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      pulseGlassCard('origin');
+                    }
+                  }}
+                >
+                  {glassGlow?.id === 'origin' && (
+                    <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
+                  )}
+                  <h4 className="med-card-heading">Ancient Origin</h4>
                   <div className="med-card-rule" />
-                  <p className="med-card-text">{(selected as any).origin}</p>
+                  <p className="med-card-text">{selected.origin}</p>
                 </div>
               </div>
 
               {/* Row 2: Mental & Emotional + Physical Benefits */}
               <div className="med-row-2">
-                <div className="med-glass-card med-card-mental">
-                  <div className="med-card-icon-row">
-                    <div className="med-card-icon-box">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                    </div>
-                    <p className="med-card-heading">Mental &amp; Emotional</p>
-                  </div>
+                <div
+                  className="med-glass-card med-card-mental"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => pulseGlassCard('mental')}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      pulseGlassCard('mental');
+                    }
+                  }}
+                >
+                  {glassGlow?.id === 'mental' && (
+                    <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
+                  )}
+                  <h4 className="med-card-heading">Mental & Emotional</h4>
                   <div className="med-card-rule" />
                   <ul className="med-list">
-                    {(selected as any).mentalBenefits.map((b: string, i: number) => (
+                    {selected.mentalBenefits.map((b: string, i: number) => (
                       <li key={i}>{b}</li>
                     ))}
                   </ul>
                 </div>
-                <div className="med-glass-card med-card-physical">
-                  <div className="med-card-icon-row">
-                    <div className="med-card-icon-box">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v6l-3 3"/><path d="M12 13l3 3"/><path d="M9 17H7a2 2 0 0 0-2 2v1"/><path d="M15 17h2a2 2 0 0 1 2 2v1"/></svg>
-                    </div>
-                    <p className="med-card-heading">Physical Benefits</p>
-                  </div>
+                <div
+                  className="med-glass-card med-card-physical"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => pulseGlassCard('physical')}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      pulseGlassCard('physical');
+                    }
+                  }}
+                >
+                  {glassGlow?.id === 'physical' && (
+                    <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
+                  )}
+                  <h4 className="med-card-heading">Physical Benefits</h4>
                   <div className="med-card-rule" />
                   <ul className="med-list">
-                    {(selected as any).physicalBenefits.map((b: string, i: number) => (
+                    {selected.physicalBenefits.map((b: string, i: number) => (
                       <li key={i}>{b}</li>
                     ))}
                   </ul>
@@ -639,51 +719,87 @@ const MeditationImages: React.FC = () => {
               </div>
 
               {/* Row 3: Chakra — full width */}
-              <div className="med-glass-card med-card-chakra med-card-wide">
-                <div className="med-card-icon-row">
-                  <div className="med-card-icon-box">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="2" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="22" y2="12"/></svg>
-                  </div>
-                  <p className="med-card-heading">Chakra &amp; Energy Connection</p>
-                </div>
+              <div
+                className="med-glass-card med-card-chakra med-card-wide"
+                role="button"
+                tabIndex={0}
+                onClick={() => pulseGlassCard('chakra')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    pulseGlassCard('chakra');
+                  }
+                }}
+              >
+                {glassGlow?.id === 'chakra' && (
+                  <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
+                )}
+                <h4 className="med-card-heading">Chakra & Energy Connection</h4>
                 <div className="med-card-rule" />
-                <p className="med-card-text">{(selected as any).chakra}</p>
+                <p className="med-card-text">{selected.chakra}</p>
               </div>
 
               {/* Row 4: Breathing Technique + Best Practice Time */}
               <div className="med-row-2">
-                <div className="med-glass-card med-card-breath">
-                  <div className="med-card-icon-row">
-                    <div className="med-card-icon-box">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
-                    </div>
-                    <p className="med-card-heading">Breathing Technique</p>
-                  </div>
+                <div
+                  className="med-glass-card med-card-breath"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => pulseGlassCard('breath')}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      pulseGlassCard('breath');
+                    }
+                  }}
+                >
+                  {glassGlow?.id === 'breath' && (
+                    <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
+                  )}
+                  <h4 className="med-card-heading">Breathing Technique</h4>
                   <div className="med-card-rule" />
-                  <p className="med-card-text">{(selected as any).breathingTechnique}</p>
+                  <p className="med-card-text">{selected.breathingTechnique}</p>
                 </div>
-                <div className="med-glass-card med-card-time">
-                  <div className="med-card-icon-row">
-                    <div className="med-card-icon-box">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    </div>
-                    <p className="med-card-heading">Best Practice Time</p>
-                  </div>
+                <div
+                  className="med-glass-card med-card-time"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => pulseGlassCard('time')}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      pulseGlassCard('time');
+                    }
+                  }}
+                >
+                  {glassGlow?.id === 'time' && (
+                    <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
+                  )}
+                  <h4 className="med-card-heading">Best Practice Time</h4>
                   <div className="med-card-rule" />
-                  <p className="med-card-text">{(selected as any).bestTime}</p>
+                  <p className="med-card-text">{selected.bestTime}</p>
                 </div>
               </div>
 
               {/* Row 5: Beginner Guidance — full width */}
-              <div className="med-glass-card med-card-beginner med-card-wide">
-                <div className="med-card-icon-row">
-                  <div className="med-card-icon-box">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
-                  </div>
-                  <p className="med-card-heading">Beginner Guidance</p>
-                </div>
+              <div
+                className="med-glass-card med-card-beginner med-card-wide"
+                role="button"
+                tabIndex={0}
+                onClick={() => pulseGlassCard('beginner')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    pulseGlassCard('beginner');
+                  }
+                }}
+              >
+                {glassGlow?.id === 'beginner' && (
+                  <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
+                )}
+                <h4 className="med-card-heading">Beginner Guidance</h4>
                 <div className="med-card-rule" />
-                <p className="med-card-text">{(selected as any).beginnerTip}</p>
+                <p className="med-card-text">{selected.beginnerTip}</p>
               </div>
 
             </div>
@@ -850,180 +966,427 @@ const MeditationImages: React.FC = () => {
            POSE DETAIL MODAL — LIGHT PREMIUM
         ====================================== */
 
-        /* Overlay — soft ivory mist, bright not dark */
+        /* Overlay — enhanced with gradient and improved blur */
         .med-modal-overlay {
           position: fixed; inset: 0; z-index: 1000;
-          background: rgba(240, 253, 248, 0.55);
-          backdrop-filter: blur(20px) saturate(1.4);
-          -webkit-backdrop-filter: blur(20px) saturate(1.4);
+          background: radial-gradient(circle at center, 
+            rgba(240, 253, 248, 0.65) 0%, 
+            rgba(220, 245, 235, 0.75) 40%, 
+            rgba(200, 235, 220, 0.85) 100%);
+          backdrop-filter: blur(30px) saturate(1.6) brightness(1.05);
+          -webkit-backdrop-filter: blur(30px) saturate(1.6) brightness(1.05);
           display: flex; align-items: center; justify-content: center;
           padding: 20px;
-          animation: med-fade-in 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+          animation: med-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
         @keyframes med-fade-in {
-          from { opacity: 0; backdrop-filter: blur(0px); }
-          to   { opacity: 1; backdrop-filter: blur(20px); }
+          from { 
+            opacity: 0; 
+            backdrop-filter: blur(0px) saturate(1) brightness(1); 
+            background: radial-gradient(circle at center, 
+              rgba(240, 253, 248, 0) 0%, 
+              rgba(220, 245, 235, 0) 40%, 
+              rgba(200, 235, 220, 0) 100%);
+          }
+          to   { 
+            opacity: 1; 
+            backdrop-filter: blur(30px) saturate(1.6) brightness(1.05);
+            background: radial-gradient(circle at center, 
+              rgba(240, 253, 248, 0.65) 0%, 
+              rgba(220, 245, 235, 0.75) 40%, 
+              rgba(200, 235, 220, 0.85) 100%);
+          }
         }
 
-        /* Modal container — bright white glass */
+        /* Modal container — cinematic floating glassmorphism wellness panel */
         .med-modal {
           position: relative;
           width: 100%;
-          max-width: 760px;
-          max-height: 88vh;
+          max-width: 780px;
+          max-height: 90vh;
           overflow-y: auto;
           overflow-x: hidden;
-          border-radius: 28px;
-          background: linear-gradient(160deg,
-            rgba(255, 255, 255, 0.97) 0%,
-            rgba(245, 253, 249, 0.96) 50%,
-            rgba(240, 252, 246, 0.97) 100%
-          );
-          backdrop-filter: blur(40px);
-          -webkit-backdrop-filter: blur(40px);
-          border: 1px solid rgba(134, 210, 166, 0.35);
+          border-radius: 40px;
+          
+          /* Multi-layered mesh gradient surface */
+          background: 
+            /* Primary flowing gradient */
+            linear-gradient(145deg,
+              rgba(255, 255, 255, 0.92) 0%,
+              rgba(248, 255, 252, 0.88) 15%,
+              rgba(240, 252, 248, 0.85) 30%,
+              rgba(232, 248, 240, 0.87) 45%,
+              rgba(224, 244, 235, 0.89) 60%,
+              rgba(216, 240, 230, 0.91) 75%,
+              rgba(208, 236, 225, 0.93) 90%,
+              rgba(200, 232, 220, 0.95) 100%
+            ),
+            
+            /* Aurora-like light streaks */
+            linear-gradient(125deg,
+              rgba(134, 239, 172, 0.12) 0%,
+              rgba(167, 243, 208, 0.08) 25%,
+              rgba(134, 239, 172, 0.06) 50%,
+              rgba(167, 243, 208, 0.04) 75%,
+              rgba(134, 239, 172, 0.02) 100%
+            ),
+            
+            /* Large blurred gradient blobs */
+            radial-gradient(circle at 15% 25%, 
+              rgba(134, 239, 172, 0.18) 0%, 
+              rgba(167, 243, 208, 0.12) 30%,
+              rgba(134, 239, 172, 0.08) 60%,
+              transparent 85%),
+            radial-gradient(circle at 85% 15%, 
+              rgba(134, 239, 172, 0.15) 0%, 
+              rgba(167, 243, 208, 0.10) 35%,
+              rgba(134, 239, 172, 0.06) 70%,
+              transparent 90%),
+            radial-gradient(circle at 75% 85%, 
+              rgba(134, 239, 172, 0.12) 0%, 
+              rgba(167, 243, 208, 0.08) 40%,
+              rgba(134, 239, 172, 0.04) 80%,
+              transparent 95%),
+            radial-gradient(circle at 25% 75%, 
+              rgba(134, 239, 172, 0.10) 0%, 
+              rgba(167, 243, 208, 0.06) 45%,
+              rgba(134, 239, 172, 0.03) 90%,
+              transparent 100%),
+            
+            /* Abstract organic wave textures */
+            radial-gradient(ellipse at 60% 40%, 
+              rgba(134, 239, 172, 0.08) 0%, 
+              rgba(167, 243, 208, 0.04) 40%,
+              rgba(134, 239, 172, 0.02) 80%,
+              transparent 100%),
+            radial-gradient(ellipse at 30% 70%, 
+              rgba(134, 239, 172, 0.06) 0%, 
+              rgba(167, 243, 208, 0.03) 50%,
+              rgba(134, 239, 172, 0.01) 100%),
+            
+            /* Soft mist/fog effects */
+            radial-gradient(circle at 50% 30%, 
+              rgba(255, 255, 255, 0.15) 0%, 
+              rgba(248, 255, 252, 0.08) 40%,
+              transparent 70%),
+            radial-gradient(circle at 20% 80%, 
+              rgba(255, 255, 255, 0.12) 0%, 
+              rgba(248, 255, 252, 0.06) 50%,
+              transparent 80%),
+            radial-gradient(circle at 80% 60%, 
+              rgba(255, 255, 255, 0.10) 0%, 
+              rgba(248, 255, 252, 0.04) 60%,
+              transparent 90%);
+          
+          /* Premium glassmorphism */
+          backdrop-filter: blur(80px) saturate(1.8) brightness(1.05) contrast(1.02);
+          -webkit-backdrop-filter: blur(80px) saturate(1.8) brightness(1.05) contrast(1.02);
+          
+          /* Glowing rim around container borders */
+          border: 
+            1px solid rgba(134, 239, 172, 0.25),
+            inset 0 0 25px rgba(134, 239, 172, 0.15),
+            inset 0 0 50px rgba(134, 239, 172, 0.08);
+          
+          /* Massive soft shadows for floating feel */
           box-shadow:
-            0 0 0 1px rgba(255, 255, 255, 0.9) inset,
-            0 4px 0 rgba(255, 255, 255, 0.8) inset,
-            0 20px 60px rgba(16, 120, 70, 0.10),
-            0 8px 24px rgba(0, 0, 0, 0.06);
-          animation: med-scale-in 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+            /* Inner highlights */
+            0 0 0 2px rgba(255, 255, 255, 0.95) inset,
+            0 0 0 1px rgba(255, 255, 255, 0.88) inset,
+            
+            /* Floating depth shadows */
+            0 0 40px rgba(134, 239, 172, 0.25),
+            0 0 80px rgba(134, 239, 172, 0.18),
+            0 0 140px rgba(134, 239, 172, 0.12),
+            0 0 200px rgba(134, 239, 172, 0.08),
+            0 0 280px rgba(134, 239, 172, 0.04),
+            
+            /* Edge lighting */
+            0 -40px -40px 60px rgba(134, 239, 172, 0.20),
+            0 40px -40px 60px rgba(134, 239, 172, 0.18),
+            0 40px 40px 80px rgba(134, 239, 172, 0.15),
+            0 -40px 40px 80px rgba(134, 239, 172, 0.12);
+          
+          animation: 
+            med-scale-in 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+            med-breathe-glow 8s ease-in-out infinite;
+          
           scrollbar-width: thin;
-          scrollbar-color: rgba(100, 180, 130, 0.25) transparent;
+          scrollbar-color: rgba(134, 239, 172, 0.3) transparent;
+          position: relative;
+        }
+        
+        /* Translucent frosted-glass overlay */
+        .med-modal::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 40px;
+          background: 
+            /* Layered transparency */
+            radial-gradient(circle at 50% 50%, 
+              transparent 0%, 
+              rgba(255, 255, 255, 0.08) 20%,
+              rgba(248, 255, 252, 0.06) 40%,
+              rgba(240, 252, 248, 0.04) 60%,
+              transparent 80%),
+            
+            /* Soft reflective lighting */
+            radial-gradient(circle at 30% 20%, 
+              rgba(255, 255, 255, 0.12) 0%, 
+              transparent 50%),
+            radial-gradient(circle at 70% 80%, 
+              rgba(255, 255, 255, 0.08) 0%, 
+              transparent 40%),
+            radial-gradient(circle at 20% 60%, 
+              rgba(255, 255, 255, 0.06) 0%, 
+              transparent 35%);
+          
+          pointer-events: none;
+          opacity: 0.7;
+          mix-blend-mode: overlay;
+        }
+        
+        /* Extremely slow animated gradient movement */
+        @keyframes med-breathe-glow {
+          0%, 100% {
+            background-position: 0% 50%, 100% 50%;
+            filter: brightness(1.05) saturate(1.8);
+          }
+          25% {
+            background-position: 25% 40%, 75% 60%;
+            filter: brightness(1.08) saturate(1.9);
+          }
+          50% {
+            background-position: 50% 30%, 50% 70%;
+            filter: brightness(1.06) saturate(2.0);
+          }
+          75% {
+            background-position: 75% 45%, 25% 40%;
+            filter: brightness(1.07) saturate(1.85);
+          }
         }
         @keyframes med-scale-in {
-          0%   { opacity: 0; transform: scale(0.92) translateY(24px); }
-          60%  { opacity: 1; }
-          100% { opacity: 1; transform: scale(1) translateY(0); }
+          0%   { 
+            opacity: 0; 
+            transform: scale(0.88) translateY(32px); 
+            filter: blur(8px);
+          }
+          40%  { 
+            opacity: 0.7; 
+            transform: scale(0.96) translateY(8px); 
+            filter: blur(2px);
+          }
+          100% { 
+            opacity: 1; 
+            transform: scale(1) translateY(0); 
+            filter: blur(0px);
+          }
         }
         .med-modal::-webkit-scrollbar { width: 3px; }
         .med-modal::-webkit-scrollbar-thumb { background: rgba(100,180,130,0.25); border-radius: 4px; }
 
-        /* Ambient pastel orbs */
+        /* Ambient orbs - Enhanced with modern colors and movements */
         .med-orb {
           position: absolute; border-radius: 50%;
           pointer-events: none; z-index: 0;
         }
         .med-orb-1 {
-          width: 380px; height: 380px;
-          background: radial-gradient(circle, rgba(167, 243, 208, 0.28) 0%, transparent 65%);
-          top: -120px; right: -80px;
-          filter: blur(50px);
-          animation: med-orb-drift 8s ease-in-out infinite;
+          width: 420px; height: 420px;
+          background: radial-gradient(circle at 30% 30%, 
+            rgba(134, 239, 172, 0.25) 0%, 
+            rgba(167, 243, 208, 0.20) 40%, 
+            transparent 70%);
+          top: -140px; right: -100px;
+          filter: blur(55px) saturate(1.2);
+          animation: med-orb-drift-1 10s ease-in-out infinite;
         }
         .med-orb-2 {
-          width: 260px; height: 260px;
-          background: radial-gradient(circle, rgba(187, 247, 208, 0.22) 0%, transparent 65%);
-          bottom: -60px; left: -50px;
-          filter: blur(45px);
-          animation: med-orb-drift 10s ease-in-out infinite reverse;
+          width: 300px; height: 300px;
+          background: radial-gradient(circle at 70% 70%, 
+            rgba(110, 231, 183, 0.20) 0%, 
+            rgba(187, 247, 208, 0.18) 45%, 
+            transparent 75%);
+          bottom: -80px; left: -70px;
+          filter: blur(50px) saturate(1.3);
+          animation: med-orb-drift-2 12s ease-in-out infinite reverse;
         }
         .med-orb-3 {
-          width: 200px; height: 200px;
-          background: radial-gradient(circle, rgba(209, 250, 229, 0.20) 0%, transparent 65%);
-          top: 40%; left: -40px;
-          filter: blur(40px);
-          animation: med-orb-drift 12s ease-in-out infinite;
+          width: 240px; height: 240px;
+          background: radial-gradient(circle at 50% 50%, 
+            rgba(209, 250, 229, 0.18) 0%, 
+            rgba(220, 252, 245, 0.15) 35%, 
+            rgba(167, 243, 208, 0.12) 60%, 
+            transparent 80%);
+          top: 40%; left: -60px;
+          filter: blur(45px) saturate(1.4);
+          animation: med-orb-drift-3 14s ease-in-out infinite;
         }
-        @keyframes med-orb-drift {
-          0%, 100% { transform: translate(0, 0); }
-          33%       { transform: translate(12px, -8px); }
-          66%       { transform: translate(-8px, 10px); }
+        @keyframes med-orb-drift-1 {
+          0%, 100% { 
+            transform: translate(0, 0) scale(1); 
+            opacity: 0.8;
+          }
+          25% { 
+            transform: translate(18px, -12px) scale(1.05); 
+            opacity: 0.9;
+          }
+          50% { 
+            transform: translate(-8px, 6px) scale(0.95); 
+            opacity: 0.7;
+          }
+          75% { 
+            transform: translate(12px, 8px) scale(1.02); 
+            opacity: 0.85;
+          }
+        }
+        @keyframes med-orb-drift-2 {
+          0%, 100% { 
+            transform: translate(0, 0) rotate(0deg); 
+            opacity: 0.7;
+          }
+          33% { 
+            transform: translate(15px, -10px) rotate(45deg); 
+            opacity: 0.8;
+          }
+          66% { 
+            transform: translate(-12px, 15px) rotate(-30deg); 
+            opacity: 0.6;
+          }
+        }
+        @keyframes med-orb-drift-3 {
+          0%, 100% { 
+            transform: translate(0, 0) scale(1); 
+            opacity: 0.6;
+          }
+          25% { 
+            transform: translate(-10px, 12px) scale(1.08); 
+            opacity: 0.7;
+          }
+          50% { 
+            transform: translate(20px, -8px) scale(0.92); 
+            opacity: 0.8;
+          }
+          75% { 
+            transform: translate(-15px, -5px) scale(1.05); 
+            opacity: 0.65;
+          }
         }
 
-        /* Close button — minimal elegant */
-        .med-modal-close {
-          position: absolute; top: 16px; right: 16px; z-index: 20;
-          width: 32px; height: 32px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.85);
-          border: 1px solid rgba(134, 200, 160, 0.40);
-          color: #4a7c5e;
-          cursor: pointer;
-          display: flex; align-items: center; justify-content: center;
-          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-          backdrop-filter: blur(8px);
-          box-shadow: 0 2px 8px rgba(16, 100, 60, 0.08);
-        }
-        .med-modal-close:hover {
-          background: rgba(209, 250, 229, 0.90);
-          border-color: rgba(52, 168, 100, 0.55);
-          color: #166534;
-          transform: rotate(90deg) scale(1.08);
-          box-shadow: 0 4px 14px rgba(16, 120, 60, 0.14);
-        }
+        /* Close control: see meditation-poses.css (.med-modal-close, .pose-modal-close-btn) */
 
-        /* -- Header -- */
+        /* -- Header -- Enhanced with modern typography */
         .med-modal-header {
           position: relative; z-index: 2;
-          padding: 44px 48px 28px;
+          padding: 48px 52px 32px;
           text-align: center;
-          border-bottom: 1px solid rgba(134, 200, 160, 0.18);
+          border-bottom: 1px solid rgba(134, 200, 160, 0.15);
+          background: linear-gradient(180deg, 
+            rgba(255, 255, 255, 0.03) 0%, 
+            rgba(209, 250, 229, 0.05) 100%);
         }
 
-        /* Badge row: num · sanskrit */
+        /* Badge row: num · sanskrit - Enhanced */
         .med-modal-badge {
-          display: inline-flex; align-items: center; gap: 10px;
-          background: rgba(209, 250, 229, 0.55);
-          border: 1px solid rgba(134, 200, 160, 0.35);
+          display: inline-flex; align-items: center; gap: 12px;
+          background: linear-gradient(135deg, 
+            rgba(209, 250, 229, 0.65) 0%, 
+            rgba(220, 252, 245, 0.55) 100%);
+          border: 1px solid rgba(134, 200, 160, 0.25);
           border-radius: 100px;
-          padding: 5px 16px;
-          margin-bottom: 18px;
-          backdrop-filter: blur(8px);
+          padding: 6px 20px;
+          margin-bottom: 20px;
+          backdrop-filter: blur(12px);
+          box-shadow: 
+            0 2px 8px rgba(134, 200, 160, 0.08),
+            0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .med-modal-badge:hover {
+          background: linear-gradient(135deg, 
+            rgba(220, 252, 245, 0.75) 0%, 
+            rgba(230, 255, 250, 0.65) 100%);
+          border-color: rgba(134, 200, 160, 0.35);
+          transform: translateY(-1px);
+          box-shadow: 
+            0 4px 12px rgba(134, 200, 160, 0.12),
+            0 0 0 1px rgba(255, 255, 255, 0.8) inset;
         }
         .med-modal-num-label {
           font-family: 'Cinzel', serif;
-          font-size: 0.58rem; letter-spacing: 0.45em;
+          font-size: 0.56rem; letter-spacing: 0.48em;
           text-transform: uppercase;
           color: #166534;
           margin: 0;
           font-weight: 700;
+          text-shadow: 0 1px 2px rgba(22, 101, 52, 0.1);
         }
         .med-badge-dot {
-          width: 3px; height: 3px;
+          width: 4px; height: 4px;
           border-radius: 50%;
-          background: rgba(22, 101, 52, 0.45);
+          background: linear-gradient(135deg, 
+            rgba(22, 101, 52, 0.45) 0%, 
+            rgba(52, 168, 100, 0.35) 100%);
           flex-shrink: 0;
+          box-shadow: 0 0 6px rgba(22, 101, 52, 0.2);
         }
         .med-modal-sanskrit {
           font-family: 'Cinzel', serif;
-          font-size: 0.58rem; letter-spacing: 0.38em;
+          font-size: 0.56rem; letter-spacing: 0.42em;
           text-transform: uppercase;
           color: #166534;
           margin: 0;
           font-weight: 600;
+          text-shadow: 0 1px 2px rgba(22, 101, 52, 0.08);
         }
         .med-modal-title {
           font-family: 'Playfair Display', serif;
-          font-size: clamp(1.8rem, 4vw, 2.5rem);
+          font-size: clamp(2rem, 4.5vw, 2.8rem);
           font-weight: 800;
           font-style: italic;
-          color: #0f2d1a;
-          margin: 0 0 14px;
-          letter-spacing: 0.01em;
-          line-height: 1.15;
-          animation: med-title-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+          color: #000000;
+          margin: 0 0 16px;
+          letter-spacing: 0.005em;
+          line-height: 1.12;
+          animation: med-title-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+          text-shadow: 0 2px 4px rgba(15, 45, 26, 0.05);
         }
         @keyframes med-title-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
+          from { 
+            opacity: 0; 
+            transform: translateY(15px) scale(0.95); 
+            filter: blur(2px);
+          }
+          to   { 
+            opacity: 1; 
+            transform: translateY(0) scale(1); 
+            filter: blur(0px);
+          }
         }
         .med-modal-essence {
           font-family: 'Poppins', sans-serif;
-          font-size: 0.82rem;
-          line-height: 1.75;
-          color: #2d6a4f;
+          font-size: 0.84rem;
+          line-height: 1.78;
+          color: #000000;
           margin: 0;
-          max-width: 520px;
+          max-width: 540px;
           margin-left: auto; margin-right: auto;
           font-weight: 400;
           font-style: italic;
-          animation: med-title-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+          animation: med-title-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+          text-shadow: 0 1px 2px rgba(45, 106, 79, 0.03);
         }
         .med-title-rule {
-          width: 40px; height: 1.5px;
-          background: linear-gradient(to right, transparent, rgba(22, 101, 52, 0.40), transparent);
-          margin: 20px auto 0;
+          width: 50px; height: 2px;
+          background: linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(22, 101, 52, 0.35) 20%, 
+            rgba(22, 101, 52, 0.45) 50%, 
+            rgba(22, 101, 52, 0.35) 80%, 
+            transparent 100%);
+          margin: 24px auto 0;
+          border-radius: 2px;
+          box-shadow: 0 1px 3px rgba(22, 101, 52, 0.1);
         }
 
         /* -- Body -- */
@@ -1040,35 +1403,241 @@ const MeditationImages: React.FC = () => {
           gap: 14px;
         }
 
-        /* Glass info card */
+        /* Glass info card - Enhanced with immersive water-like animations */
         .med-glass-card {
-          background: rgba(255, 255, 255, 0.82);
-          border: 1px solid rgba(134, 200, 160, 0.28);
-          border-radius: 20px;
-          padding: 22px 22px 20px;
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
+          position: relative;
+          background: 
+            /* Translucent flowing gradients */
+            linear-gradient(145deg, 
+              rgba(255, 255, 255, 0.92) 0%,
+              rgba(250, 255, 252, 0.88) 25%,
+              rgba(248, 255, 252, 0.85) 50%,
+              rgba(245, 253, 250, 0.87) 75%,
+              rgba(240, 252, 248, 0.89) 100%
+            ),
+            
+            /* Animated water-like reflections */
+            radial-gradient(circle at 30% 40%, 
+              rgba(134, 239, 172, 0.08) 0%, 
+              rgba(167, 243, 208, 0.04) 40%,
+              transparent 70%),
+            radial-gradient(circle at 70% 60%, 
+              rgba(134, 239, 172, 0.06) 0%, 
+              rgba(167, 243, 208, 0.03) 50%,
+              transparent 85%),
+            radial-gradient(circle at 50% 80%, 
+              rgba(134, 239, 172, 0.04) 0%, 
+              rgba(167, 243, 208, 0.02) 45%,
+              transparent 90%);
+          
+          border: 
+            1px solid rgba(134, 200, 160, 0.15),
+            /* Soft inner glow */
+            inset 0 0 15px rgba(134, 239, 172, 0.12),
+            inset 0 0 30px rgba(134, 239, 172, 0.06);
+          border-radius: 24px;
+          padding: 26px 24px 22px;
+          backdrop-filter: blur(25px) saturate(1.4) brightness(1.02);
+          -webkit-backdrop-filter: blur(25px) saturate(1.4) brightness(1.02);
+          
+          /* Premium floating shadows */
           box-shadow:
-            0 1px 0 rgba(255, 255, 255, 1) inset,
-            0 4px 16px rgba(16, 100, 60, 0.06);
-          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-                      box-shadow 0.25s ease,
-                      border-color 0.25s ease;
-          animation: med-card-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+            /* Inner highlights */
+            0 0 0 2px rgba(255, 255, 255, 0.95) inset,
+            0 0 0 1px rgba(255, 255, 255, 0.88) inset,
+            
+            /* Soft depth shadows */
+            0 4px 16px rgba(134, 239, 172, 0.12),
+            0 8px 32px rgba(134, 239, 172, 0.08),
+            0 0 60px rgba(134, 239, 172, 0.05),
+            
+            /* Glowing aura */
+            0 0 0 1px rgba(134, 239, 172, 0.08);
+          
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          cursor: pointer;
+          
+          /* Slow breathing animation even when idle */
+          animation: 
+            med-card-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) both,
+            med-card-breathe 6s ease-in-out infinite,
+            med-card-shimmer 12s linear infinite;
         }
-        .med-glass-card:nth-child(1) { animation-delay: 0.22s; }
-        .med-glass-card:nth-child(2) { animation-delay: 0.30s; }
+
+        /* Fast click glow burst (glass cards in pose modal) */
+        .med-glass-card-flash-burst {
+          position: absolute;
+          inset: 0;
+          border-radius: 24px;
+          pointer-events: none;
+          z-index: 4;
+          mix-blend-mode: soft-light;
+          background: radial-gradient(
+            ellipse 85% 75% at 50% 45%,
+            rgba(187, 247, 208, 0.85) 0%,
+            rgba(134, 239, 172, 0.45) 38%,
+            rgba(52, 211, 153, 0.12) 62%,
+            transparent 78%
+          );
+          box-shadow:
+            0 0 0 1px rgba(167, 243, 208, 0.55),
+            0 0 36px rgba(52, 211, 153, 0.42),
+            0 0 64px rgba(110, 231, 183, 0.22),
+            inset 0 0 36px rgba(255, 255, 255, 0.35);
+          animation: med-glass-flash-burst 0.36s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes med-glass-flash-burst {
+          0% {
+            opacity: 0;
+            transform: scale(0.94);
+            filter: brightness(1) saturate(1);
+          }
+          42% {
+            opacity: 1;
+            transform: scale(1.02);
+            filter: brightness(1.12) saturate(1.18);
+          }
+          100% {
+            opacity: 0;
+            transform: scale(1.04);
+            filter: brightness(1) saturate(1);
+          }
+        }
+        
+        /* Water ripple effect on hover */
+        .med-glass-card::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 24px;
+          background: 
+            radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+              rgba(134, 239, 172, 0.15) 0%, 
+              rgba(167, 243, 208, 0.08) 20%,
+              rgba(134, 239, 172, 0.04) 40%,
+              transparent 70%);
+          opacity: 0;
+          transition: opacity 0.5s ease;
+          pointer-events: none;
+        }
+        
+        /* Glassmorphism shimmer effect */
+        .med-glass-card::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 24px;
+          background: 
+            linear-gradient(105deg,
+              transparent 0%,
+              rgba(255, 255, 255, 0.12) 30%,
+              rgba(248, 255, 252, 0.08) 50%,
+              rgba(240, 252, 248, 0.05) 70%,
+              transparent 100%);
+          opacity: 0.6;
+          mix-blend-mode: overlay;
+          pointer-events: none;
+        }
+        
+        /* Interactive hover effects */
+        .med-glass-card:hover {
+          transform: translateY(-8px) scale(1.02);
+          border-color: rgba(52, 168, 100, 0.35);
+          background: 
+            linear-gradient(145deg, 
+              rgba(255, 255, 255, 0.95) 0%,
+              rgba(250, 255, 252, 0.91) 25%,
+              rgba(248, 255, 252, 0.88) 50%,
+              rgba(245, 253, 250, 0.90) 75%,
+              rgba(240, 252, 248, 0.92) 100%
+            );
+          box-shadow:
+            /* Enhanced floating depth */
+            0 12px 24px rgba(134, 239, 172, 0.18),
+            0 16px 48px rgba(134, 239, 172, 0.15),
+            0 0 80px rgba(134, 239, 172, 0.10),
+            
+            /* Glowing border aura */
+            0 0 0 2px rgba(134, 239, 172, 0.12),
+            0 0 0 1px rgba(134, 239, 172, 0.08);
+        }
+        
+        /* Water ripple appears on hover */
+        .med-glass-card:hover::before {
+          opacity: 1;
+        }
+        
+        /* Shimmer intensifies on hover */
+        .med-glass-card:hover::after {
+          opacity: 0.8;
+          animation: med-card-shimmer-hover 2s ease-in-out infinite;
+        }
+        
+        /* Staggered animation delays */
+        .med-glass-card:nth-child(1) { animation-delay: 0.2s; }
+        .med-glass-card:nth-child(2) { animation-delay: 0.4s; }
+        .med-glass-card:nth-child(3) { animation-delay: 0.6s; }
+        .med-glass-card:nth-child(4) { animation-delay: 0.8s; }
+        .med-glass-card:nth-child(5) { animation-delay: 1.0s; }
+        .med-glass-card:nth-child(6) { animation-delay: 1.2s; }
+        
+        /* Card entrance animation */
         @keyframes med-card-in {
-          from { opacity: 0; transform: translateY(14px) scale(0.97); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
+          0% { 
+            opacity: 0; 
+            transform: translateY(24px) scale(0.92) rotateX(15deg); 
+            filter: blur(6px);
+          }
+          100% { 
+            opacity: 1; 
+            transform: translateY(0) scale(1) rotateX(0deg); 
+            filter: blur(0px);
+          }
+        }
+        
+        /* Slow breathing animation */
+        @keyframes med-card-breathe {
+          0%, 100% {
+            filter: brightness(1.0) saturate(1.4);
+          }
+          50% {
+            filter: brightness(1.03) saturate(1.6);
+          }
+        }
+        
+        /* Shimmer effect */
+        @keyframes med-card-shimmer {
+          0% {
+            background-position: -200% 0%;
+          }
+          100% {
+            background-position: 200% 0%;
+          }
+        }
+        
+        /* Hover shimmer effect */
+        @keyframes med-card-shimmer-hover {
+          0%, 100% {
+            background-position: -100% 0%;
+          }
+          50% {
+            background-position: 100% 0%;
+          }
         }
         .med-glass-card:hover {
-          transform: translateY(-3px);
-          border-color: rgba(52, 168, 100, 0.40);
+          transform: translateY(-4px) scale(1.02);
+          border-color: rgba(52, 168, 100, 0.35);
+          background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.92) 0%, 
+            rgba(250, 255, 252, 0.89) 50%, 
+            rgba(245, 253, 250, 0.91) 100%);
           box-shadow:
             0 1px 0 rgba(255, 255, 255, 1) inset,
-            0 10px 28px rgba(16, 100, 60, 0.10),
-            0 0 0 1px rgba(134, 200, 160, 0.20);
+            0 2px 0 rgba(255, 255, 255, 0.9) inset,
+            0 12px 32px rgba(16, 100, 60, 0.12),
+            0 0 0 1px rgba(134, 200, 160, 0.08),
+            0 0 20px rgba(52, 168, 100, 0.04);
         }
         .med-card-meaning {
           background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(240,253,248,0.88) 100%);
@@ -1116,20 +1685,82 @@ const MeditationImages: React.FC = () => {
           color: #16a34a;
         }
 
-        /* Card heading */
+        /* Card heading - Enhanced with animations */
         .med-card-heading {
           font-family: 'Cinzel', serif;
           font-size: 0.58rem;
           letter-spacing: 0.28em;
           text-transform: uppercase;
-          color: #166534;
+          color: #000000;
           margin: 0;
           font-weight: 700;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          animation: med-heading-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @keyframes med-heading-in {
+          from { 
+            opacity: 0; 
+            transform: translateY(8px) scale(0.95); 
+            filter: blur(1px);
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0) scale(1); 
+            filter: blur(0px);
+          }
         }
         .med-card-rule {
           width: 22px; height: 1.5px;
-          background: linear-gradient(to right, rgba(22, 101, 52, 0.45), transparent);
+          background: linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(22, 101, 52, 0.35) 20%, 
+            rgba(22, 101, 52, 0.45) 50%, 
+            rgba(22, 101, 52, 0.35) 80%, 
+            transparent 100%);
           margin-bottom: 12px;
+          border-radius: 2px;
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          animation: med-rule-grow 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+        }
+        @keyframes med-rule-grow {
+          from { 
+            width: 0; 
+            opacity: 0;
+          }
+          to { 
+            width: 22px; 
+            opacity: 1;
+          }
+        }
+
+        /* Enhanced micro-interactions */
+        .med-glass-card {
+          position: relative;
+          overflow: hidden;
+        }
+        .med-glass-card::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: linear-gradient(45deg, 
+            transparent 30%, 
+            rgba(134, 239, 172, 0.03) 50%, 
+            transparent 70%);
+          opacity: 0;
+          transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          pointer-events: none;
+        }
+        .med-glass-card:hover::before {
+          opacity: 1;
+        }
+        .med-card-icon-box {
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .med-glass-card:hover .med-card-icon-box {
+          transform: scale(1.1) rotate(5deg);
+          box-shadow: 
+            0 4px 16px rgba(134, 239, 172, 0.15),
+            0 0 0 2px rgba(134, 239, 172, 0.2);
         }
 
         /* Card text */
@@ -1137,7 +1768,7 @@ const MeditationImages: React.FC = () => {
           font-family: 'Poppins', sans-serif;
           font-size: 0.83rem;
           line-height: 1.78;
-          color: #1a3d28;
+          color: #000000;
           margin: 0;
           font-weight: 400;
         }
@@ -1151,7 +1782,7 @@ const MeditationImages: React.FC = () => {
           font-family: 'Poppins', sans-serif;
           font-size: 0.82rem;
           line-height: 1.55;
-          color: #1a3d28;
+          color: #000000;
           font-weight: 400;
           padding-left: 18px;
           position: relative;
@@ -1770,12 +2401,60 @@ const yogaTutorialCards = [
   },
 ];
 
+const YOGA_PARTICLE_OFFSETS = [
+  { dx: -38, dy: -52 },
+  { dx: 28, dy: -56 },
+  { dx: 44, dy: -18 },
+  { dx: -42, dy: 12 },
+  { dx: 12, dy: 42 },
+  { dx: -18, dy: 36 },
+  { dx: 40, dy: 28 },
+  { dx: -8, dy: -58 },
+];
+
+const YOGA_CLICK_FX_MS = 1400;
+
 const MeditationPoses: React.FC = () => {
-  const [activePose, setActivePose] = useState<any>(null);
+  const [activePose, setActivePose] = useState<(typeof yogaTutorialCards)[number] | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [clickFxId, setClickFxId] = useState<number | null>(null);
+  const [rippleById, setRippleById] = useState<Record<number, { x: number; y: number; key: number }>>(
+    {}
+  );
+  const fxClearRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const poses = yogaTutorialCards;
+
+  const activatePoseCard = useCallback(
+    (
+      pose: (typeof yogaTutorialCards)[number],
+      clientX: number,
+      clientY: number,
+      shellEl: HTMLElement
+    ) => {
+      const r = shellEl.getBoundingClientRect();
+      setRippleById((prev) => ({
+        ...prev,
+        [pose.id]: { x: clientX - r.left, y: clientY - r.top, key: Date.now() },
+      }));
+      setClickFxId(pose.id);
+      setActivePose(pose);
+      setIsOpen(true);
+      if (fxClearRef.current) clearTimeout(fxClearRef.current);
+      fxClearRef.current = setTimeout(() => {
+        setClickFxId(null);
+        fxClearRef.current = null;
+      }, YOGA_CLICK_FX_MS);
+      window.setTimeout(() => {
+        setRippleById((prev) => {
+          const next = { ...prev };
+          delete next[pose.id];
+          return next;
+        });
+      }, 950);
+    },
+    []
+  );
 
   return (
     <>
@@ -1788,37 +2467,88 @@ const MeditationPoses: React.FC = () => {
             </h2>
             <div className="w-16 h-px bg-green-400/50 mx-auto mt-4" />
             <p className="text-stone-500 mt-4 text-sm tracking-wide" style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 300 }}>
-              Click any pose to watch the tutorial on YouTube 
+              Click any pose for an immersive preview, then explore steps and an optional video tutorial
             </p>
           </div>
 
           <div className="slider" style={{ '--width': '280px', '--height': '400px', '--quantity': String(poses.length) } as React.CSSProperties}>
             <div className="list">
               {poses.map((pose) => {
+                const ripple = rippleById[pose.id];
+                const isFx = clickFxId === pose.id;
                 return (
-                  <a
+                  <div
                     key={pose.id}
-                    href={pose.youtubeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="item"
-                    style={{ '--position': pose.id, textDecoration: 'none', display: 'block' } as React.CSSProperties}
-                    onClick={() => console.log(`Opening: ${pose.name}  ${pose.youtubeUrl}`)}
+                    className={`item ${isFx ? 'item-fx-active' : ''}`}
+                    style={{ '--position': pose.id, display: 'block' } as React.CSSProperties}
                   >
-                    <div className="yoga-card">
-                      <img src={pose.image} alt={pose.name} style={{ objectPosition: pose.id === 6 ? 'right center' : 'center center' }} />
-                      <div className="yoga-card-text">
-                        <p className="tip">{pose.name}</p>
-                        <p className="second-text">{pose.intensity} · {pose.duration}</p>
+                    <div
+                      className={`yoga-pose-shell ${isFx ? 'yoga-pose-click-fx' : ''}`}
+                      onPointerDown={(e) => {
+                        e.preventDefault();
+                        activatePoseCard(pose, e.clientX, e.clientY, e.currentTarget);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          const el = e.currentTarget;
+                          const r = el.getBoundingClientRect();
+                          activatePoseCard(pose, r.left + r.width / 2, r.top + r.height / 2, el);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Open details for ${pose.name}`}
+                    >
+                      <div className="yoga-breath-aura" aria-hidden />
+                      <div className="yoga-border-glow-track" aria-hidden />
+                      <div className="yoga-card">
+                        {ripple && (
+                          <span
+                            key={ripple.key}
+                            className="yoga-water-ripple"
+                            style={{ left: ripple.x, top: ripple.y }}
+                          />
+                        )}
+                        <div className="yoga-img-wrap">
+                          <img
+                            src={pose.image}
+                            alt={pose.name}
+                            className="yoga-liquid-media"
+                            style={{
+                              objectPosition: pose.id === 6 ? 'right center' : 'center center',
+                            }}
+                            draggable={false}
+                          />
+                          <div className="yoga-glass-shimmer" aria-hidden />
+                        </div>
+                        <div className="yoga-card-text">
+                          <p className="tip">{pose.name}</p>
+                          <p className="second-text">
+                            {pose.intensity} · {pose.duration}
+                          </p>
+                        </div>
                       </div>
-                      {/* YouTube play icon - bottom right */}
-                      <div className="yoga-yt-icon">
-                        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
-                          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                        </svg>
-                      </div>
+                      {isFx && (
+                        <div className="yoga-particle-layer" aria-hidden>
+                          {YOGA_PARTICLE_OFFSETS.map((p, i) => (
+                            <span
+                              key={`${pose.id}-p-${i}`}
+                              className="yoga-light-particle"
+                              style={
+                                {
+                                  left: '50%',
+                                  top: '42%',
+                                  '--dx': `${p.dx}px`,
+                                  '--dy': `${p.dy}px`,
+                                } as React.CSSProperties
+                              }
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  </a>
+                  </div>
                 );
               })}
             </div>
@@ -1884,15 +2614,16 @@ const MeditationPoses: React.FC = () => {
           filter: none;
         }
 
-        .yoga-card img {
+        .yoga-card .yoga-img-wrap .yoga-liquid-media {
           position: absolute;
           inset: 0;
           width: 100%;
           height: 100%;
           object-fit: cover;
           transition: transform 0.5s;
-          filter: brightness(1.18) contrast(1.05) saturate(1.1);
         }
+        .yoga-pose-shell:not(.yoga-pose-click-fx) .yoga-card:hover .yoga-liquid-media { transform: scale(1.06); }
+        .yoga-pose-shell:not(.yoga-pose-click-fx) .yoga-card:hover { box-shadow: 0 6px 28px rgba(0,0,0,0.35); }
         .yoga-card::after {
           content: '';
           position: absolute;
@@ -1938,32 +2669,16 @@ const MeditationPoses: React.FC = () => {
           margin: 0;
         }
 
-        /* YouTube play icon - bottom right corner */
-        .yoga-yt-icon {
-          position: absolute;
-          bottom: 10px; right: 10px;
-          z-index: 3;
-          width: 28px; height: 28px;
-          border-radius: 6px;
-          background: rgba(255,0,0,0.75);
-          display: flex; align-items: center; justify-content: center;
-          color: white;
-          opacity: 0.55;
-          transition: opacity 0.25s ease, transform 0.25s ease;
-        }
-        .yoga-card:hover .yoga-yt-icon {
-          opacity: 1;
-          transform: scale(1.12);
-        }
-        .yoga-card:hover img { transform: scale(1.06); }
-        .yoga-card:hover { box-shadow: 0 6px 28px rgba(0,0,0,0.35); }
       `}</style>
 
       {/* Modal */}
       <YogaDetailModal
         pose={activePose}
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={() => {
+          setIsOpen(false);
+          setActivePose(null);
+        }}
       />
     </>
   );
@@ -1971,77 +2686,152 @@ const MeditationPoses: React.FC = () => {
 // =====================
 // Yoga Detail Modal
 // =====================
-const YogaDetailModal = ({ pose, isOpen, onClose }: any) => {
+type YogaTutorialCard = (typeof yogaTutorialCards)[number];
+
+const YogaDetailModal = ({
+  pose,
+  isOpen,
+  onClose,
+}: {
+  pose: YogaTutorialCard | null;
+  isOpen: boolean;
+  onClose: () => void;
+}) => {
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
+
   if (!isOpen || !pose) return null;
 
   const searchQuery = encodeURIComponent(`${pose.name} yoga tutorial`);
   const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${searchQuery}`;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-      <div className="relative bg-white max-w-2xl w-full rounded-2xl overflow-y-auto max-h-[90vh]">
-
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-8 h-8 bg-black/40 text-white rounded-full flex items-center justify-center text-sm font-bold hover:bg-black/60 transition"
-        >
-          x
-        </button>
-
-        {/* Full-width image */}
-        <img
-          src={pose.image}
-          alt={pose.name}
-          className="w-full"
-          style={{ height: '320px', objectFit: 'contain', objectPosition: 'center center', borderRadius: '16px 16px 0 0', background: '#ffffff' }}
-        />
-
-        {/* Content */}
-        <div className="p-6">
-          <h2 className="text-2xl font-semibold mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>{pose.name}</h2>
-          <p className="text-xs text-amber-700 uppercase tracking-widest mb-4" style={{ fontFamily: "'Cinzel', serif" }}>
-            {pose.intensity} . {pose.duration}
-          </p>
-
-          <p className="text-gray-600 mb-5 text-sm leading-relaxed">{pose.description}</p>
-
-          <div className="grid grid-cols-2 gap-6 mb-5">
-            <div>
-              <h4 className="font-semibold mb-2 text-sm uppercase tracking-wide text-stone-700">Steps</h4>
-              <ul className="space-y-1">
-                {pose.guidelines.map((step: string, i: number) => (
-                  <li key={i} className="text-sm text-gray-600 flex gap-2">
-                    <span className="text-amber-600 font-bold">{i + 1}.</span> {step}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-2 text-sm uppercase tracking-wide text-stone-700">Benefits</h4>
-              <ul className="space-y-1">
-                {pose.benefits.map((benefit: string) => (
-                  <li key={benefit} className="text-sm text-gray-600 flex gap-2">
-                    <span className="text-amber-600">v</span> {benefit}
-                  </li>
-                ))}
-              </ul>
-            </div>
+    <div
+      className="fixed inset-0 z-50 pose-modal-backdrop flex items-center justify-center p-4"
+      role="presentation"
+      onClick={onClose}
+    >
+      <div
+        className="pose-modal-glass rounded-[1.75rem] max-w-2xl w-full max-h-[90vh] overflow-y-auto text-emerald-950 shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="yoga-modal-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="pose-modal-aura opacity-40" aria-hidden />
+        <div className="relative z-[1]">
+          <div className="sticky top-0 z-30 flex justify-end pt-4 pr-4 sm:pr-8 pointer-events-none bg-transparent">
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="pose-modal-close-btn pointer-events-auto shrink-0"
+            >
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" />
+              </svg>
+            </button>
           </div>
 
-          {/* YouTube search button */}
-          <a
-            href={youtubeSearchUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-white text-sm font-medium transition-all hover:opacity-90"
-            style={{ background: '#FF0000', fontFamily: "'Poppins', sans-serif" }}
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-            </svg>
-            Watch {pose.name} Tutorial on YouTube
-          </a>
+          <div className="relative px-6 sm:px-10 pb-10 pt-0 -mt-2">
+            <div className="relative mx-auto mb-6 max-h-[280px] sm:max-h-[320px] rounded-2xl overflow-hidden border border-white/25 shadow-lg ring-1 ring-emerald-100/30">
+              <div
+                className="absolute inset-0 opacity-50 blur-2xl scale-110"
+                style={{
+                  background:
+                    'radial-gradient(circle at 50% 40%, rgba(167,243,208,0.35) 0%, transparent 65%)',
+                }}
+                aria-hidden
+              />
+              <img
+                src={pose.image}
+                alt={pose.name}
+                className="relative block w-full h-full max-h-[320px] object-contain object-center bg-white/5"
+                style={{ objectPosition: pose.id === 6 ? 'right center' : 'center center' }}
+              />
+            </div>
+
+            <h2
+              id="yoga-modal-title"
+              className="text-2xl sm:text-3xl font-light mb-2"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              {pose.name}
+            </h2>
+            <p
+              className="text-xs text-emerald-800/80 uppercase tracking-widest mb-5"
+              style={{ fontFamily: "'Cinzel', serif" }}
+            >
+              {pose.intensity} · {pose.duration}
+            </p>
+
+            <p className="text-emerald-950/85 mb-6 text-sm leading-relaxed font-light">{pose.description}</p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
+              <div>
+                <h4
+                  className="font-semibold mb-3 text-xs uppercase tracking-widest text-emerald-900/75"
+                  style={{ fontFamily: "'Cinzel', serif" }}
+                >
+                  Steps
+                </h4>
+                <ul className="space-y-2">
+                  {pose.guidelines.map((step: string, i: number) => (
+                    <li
+                      key={i}
+                      className="text-sm text-emerald-950/80 leading-snug pl-3 border-l border-emerald-200/60"
+                    >
+                      <span className="sr-only">Step {i + 1}. </span>
+                      {step}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h4
+                  className="font-semibold mb-3 text-xs uppercase tracking-widest text-emerald-900/75"
+                  style={{ fontFamily: "'Cinzel', serif" }}
+                >
+                  Benefits
+                </h4>
+                <ul className="space-y-2">
+                  {pose.benefits.map((benefit: string, i: number) => (
+                    <li
+                      key={`${pose.id}-b-${i}`}
+                      className="text-sm text-emerald-950/80 leading-snug pl-3 border-l border-emerald-200/60"
+                    >
+                      {benefit}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {'precautions' in pose && pose.precautions && pose.precautions.length > 0 && (
+              <p className="text-xs text-emerald-900/70 mb-6 leading-relaxed border border-white/20 rounded-xl px-4 py-3 bg-white/10">
+                <span className="font-semibold uppercase tracking-wider" style={{ fontFamily: "'Cinzel', serif" }}>
+                  Note{' '}
+                </span>
+                {pose.precautions.join(' ')}
+              </p>
+            )}
+
+            <a
+              href={youtubeSearchUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full text-center py-3.5 rounded-full text-sm font-medium tracking-wide text-emerald-950 bg-white/25 hover:bg-white/35 border border-white/35 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] transition-colors"
+              style={{ fontFamily: "'Cinzel', serif" }}
+            >
+              Open video tutorials search
+            </a>
+          </div>
         </div>
       </div>
     </div>
