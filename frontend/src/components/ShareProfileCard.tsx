@@ -55,40 +55,48 @@ const statConfig = [
     unit: "days",
     icon: Flame,
     gradient: "from-orange-50 to-amber-50",
-    iconBg: "from-orange-100 to-amber-100",
-    iconColor: "text-orange-400",
-    valueColor: "text-orange-500",
-    border: "border-orange-100",
+    iconBg: "from-orange-200 to-amber-200",
+    iconColor: "text-orange-600",
+    valueColor: "text-orange-700",
+    unitColor: "text-orange-500",
+    labelColor: "text-orange-800",
+    border: "border-orange-200",
   },
   {
     label: "Total Sessions",
     unit: "total",
     icon: Sparkles,
     gradient: "from-violet-50 to-purple-50",
-    iconBg: "from-violet-100 to-purple-100",
-    iconColor: "text-violet-400",
-    valueColor: "text-violet-500",
-    border: "border-violet-100",
+    iconBg: "from-violet-200 to-purple-200",
+    iconColor: "text-violet-600",
+    valueColor: "text-violet-700",
+    unitColor: "text-violet-500",
+    labelColor: "text-violet-800",
+    border: "border-violet-200",
   },
   {
     label: "Meditation",
     unit: "mins",
     icon: Clock,
     gradient: "from-emerald-50 to-teal-50",
-    iconBg: "from-emerald-100 to-teal-100",
-    iconColor: "text-emerald-500",
-    valueColor: "text-emerald-600",
-    border: "border-emerald-100",
+    iconBg: "from-emerald-200 to-teal-200",
+    iconColor: "text-emerald-700",
+    valueColor: "text-emerald-800",
+    unitColor: "text-emerald-600",
+    labelColor: "text-emerald-900",
+    border: "border-emerald-200",
   },
   {
     label: "Sound Healing",
     unit: "mins",
     icon: Music2,
     gradient: "from-sky-50 to-cyan-50",
-    iconBg: "from-sky-100 to-cyan-100",
-    iconColor: "text-sky-400",
-    valueColor: "text-sky-500",
-    border: "border-sky-100",
+    iconBg: "from-sky-200 to-cyan-200",
+    iconColor: "text-sky-600",
+    valueColor: "text-sky-700",
+    unitColor: "text-sky-500",
+    labelColor: "text-sky-800",
+    border: "border-sky-200",
   },
 ];
 
@@ -222,7 +230,7 @@ export function ShareProfileCard({
                     className="flex items-center gap-1.5 bg-white/70 backdrop-blur-sm px-3 py-1.5 rounded-full border border-emerald-100 shadow-sm"
                   >
                     <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-[11px] font-bold text-emerald-700 tracking-wide uppercase">Nirvaha Wellness</span>
+                    <span className="text-[11px] font-bold text-emerald-800 tracking-wide uppercase">Nirvaha Wellness</span>
                   </motion.div>
 
                   {/* Close button */}
@@ -230,7 +238,7 @@ export function ShareProfileCard({
                     whileHover={{ scale: 1.08, rotate: 90 }}
                     whileTap={{ scale: 0.92 }}
                     onClick={onClose}
-                    className="w-8 h-8 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 z-20 transition-all border border-gray-100 shadow-sm"
+                    className="w-8 h-8 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 z-20 transition-all border border-gray-200 shadow-sm"
                   >
                     <X className="w-3.5 h-3.5" />
                   </motion.button>
@@ -271,12 +279,12 @@ export function ShareProfileCard({
                       {userTitle}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      <span className="inline-flex items-center gap-1.5 text-[11px] text-gray-500 bg-white/80 px-2.5 py-1 rounded-full border border-gray-100 shadow-sm font-medium">
-                        <MapPin className="w-3 h-3 text-emerald-400 flex-shrink-0" />
+                      <span className="inline-flex items-center gap-1.5 text-[11px] text-gray-600 bg-white/80 px-2.5 py-1 rounded-full border border-gray-200 shadow-sm font-medium">
+                        <MapPin className="w-3 h-3 text-emerald-500 flex-shrink-0" />
                         {userLocation}
                       </span>
-                      <span className="inline-flex items-center gap-1.5 text-[11px] text-gray-500 bg-white/80 px-2.5 py-1 rounded-full border border-gray-100 shadow-sm font-medium truncate max-w-[200px]">
-                        <Mail className="w-3 h-3 text-emerald-400 flex-shrink-0" />
+                      <span className="inline-flex items-center gap-1.5 text-[11px] text-gray-600 bg-white/80 px-2.5 py-1 rounded-full border border-gray-200 shadow-sm font-medium truncate max-w-[200px]">
+                        <Mail className="w-3 h-3 text-emerald-500 flex-shrink-0" />
                         {userEmail}
                       </span>
                     </div>
@@ -295,14 +303,14 @@ export function ShareProfileCard({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
-                  className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400 mb-4"
+                  className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-500 mb-4"
                 >
                   Wellness Journey
                 </motion.p>
 
                 {/* 4 stat tiles */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                  {statConfig.map(({ label, unit, icon: Icon, gradient, iconBg, iconColor, valueColor, border }, i) => (
+                  {statConfig.map(({ label, unit, icon: Icon, gradient, iconBg, iconColor, valueColor, unitColor, labelColor, border }, i) => (
                     <motion.div
                       key={label}
                       initial={{ opacity: 0, y: 18, scale: 0.9 }}
@@ -320,9 +328,9 @@ export function ShareProfileCard({
                         <StatCounter value={statValues[i]} />
                       </div>
                       {/* Unit */}
-                      <div className="text-[9px] text-gray-400 font-bold uppercase tracking-wider mt-1">{unit}</div>
+                      <div className={`text-[9px] ${unitColor} font-bold uppercase tracking-wider mt-1`}>{unit}</div>
                       {/* Label */}
-                      <div className="text-[10px] text-gray-500 font-semibold mt-0.5 leading-tight">{label}</div>
+                      <div className={`text-[10px] ${labelColor} font-semibold mt-0.5 leading-tight`}>{label}</div>
                     </motion.div>
                   ))}
                 </div>
@@ -342,14 +350,14 @@ export function ShareProfileCard({
                   <div className="relative z-10 p-5 flex items-center justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Activity className="w-3.5 h-3.5 text-emerald-500" />
-                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-emerald-600">Wellness Score</p>
+                        <Activity className="w-3.5 h-3.5 text-emerald-600" />
+                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-emerald-700">Wellness Score</p>
                       </div>
                       <div className="flex items-baseline gap-1 mb-3">
                         <span className="text-gray-800 font-black text-4xl tabular-nums">
                           <StatCounter value={score} duration={2000} />
                         </span>
-                        <span className="text-gray-400 text-sm font-bold">/100</span>
+                        <span className="text-gray-500 text-sm font-bold">/100</span>
                       </div>
                       {/* Progress bar */}
                       <div className="h-2 bg-emerald-100 rounded-full overflow-hidden">
@@ -391,7 +399,7 @@ export function ShareProfileCard({
                         </defs>
                       </svg>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-[11px] font-black text-emerald-600">{score}%</span>
+                        <span className="text-[11px] font-black text-emerald-700">{score}%</span>
                       </div>
                     </div>
                   </div>
@@ -409,17 +417,17 @@ export function ShareProfileCard({
                     whileHover={{ scale: 1.02, y: -1 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={shareOnLinkedIn}
-                    className="relative flex items-center justify-center gap-2.5 py-3.5 rounded-[16px] font-bold text-sm overflow-hidden transition-all shadow-sm shadow-blue-100 border border-blue-100"
+                    className="relative flex items-center justify-center gap-2.5 py-3.5 rounded-[16px] font-bold text-sm overflow-hidden transition-all shadow-sm shadow-blue-100 border border-blue-200"
                     style={{ background: "linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 50%, #EFF6FF 100%)" }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/5 to-blue-500/0 opacity-0 hover:opacity-100 transition-opacity" />
                     <AnimatePresence mode="wait">
                       {shareFeedback === "linkedin" ? (
-                        <motion.span key="ln-ok" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2 text-blue-600 relative z-10">
+                        <motion.span key="ln-ok" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2 text-blue-700 relative z-10">
                           <Check className="w-4 h-4" /> Copied + Opened
                         </motion.span>
                       ) : (
-                        <motion.span key="ln" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2 text-blue-600 relative z-10">
+                        <motion.span key="ln" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2 text-blue-700 relative z-10">
                           <Linkedin className="w-4 h-4" /> Share on LinkedIn
                         </motion.span>
                       )}
@@ -431,17 +439,17 @@ export function ShareProfileCard({
                     whileHover={{ scale: 1.02, y: -1 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={shareOnInstagram}
-                    className="relative flex items-center justify-center gap-2.5 py-3.5 rounded-[16px] font-bold text-sm overflow-hidden transition-all shadow-sm shadow-pink-100 border border-pink-100"
+                    className="relative flex items-center justify-center gap-2.5 py-3.5 rounded-[16px] font-bold text-sm overflow-hidden transition-all shadow-sm shadow-pink-100 border border-pink-200"
                     style={{ background: "linear-gradient(135deg, #FDF2F8 0%, #FCE7F3 50%, #FDF2F8 100%)" }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-pink-500/5 to-pink-500/0 opacity-0 hover:opacity-100 transition-opacity" />
                     <AnimatePresence mode="wait">
                       {shareFeedback === "instagram" ? (
-                        <motion.span key="ig-ok" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2 text-pink-500 relative z-10">
+                        <motion.span key="ig-ok" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2 text-pink-600 relative z-10">
                           <Check className="w-4 h-4" /> Copied + Opened
                         </motion.span>
                       ) : (
-                        <motion.span key="ig" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2 text-pink-500 relative z-10">
+                        <motion.span key="ig" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2 text-pink-600 relative z-10">
                           <Instagram className="w-4 h-4" /> Share on Instagram
                         </motion.span>
                       )}
@@ -454,7 +462,7 @@ export function ShareProfileCard({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.9 }}
-                  className="text-center text-[10px] text-gray-400 mt-4 font-medium"
+                  className="text-center text-[10px] text-gray-500 mt-4 font-medium"
                 >
                   ✦ Your wellness journey, beautifully shared
                 </motion.p>
