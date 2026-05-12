@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
-import { X, Check, Linkedin, Instagram } from "lucide-react";
+import { X, Check, Linkedin, Instagram, MapPin, Mail, Flame, Sparkles, Clock, Music2, Activity } from "lucide-react";
 import { useState, useEffect } from "react";
 
 interface ShareProfileCardProps {
@@ -42,11 +42,55 @@ const PARTICLES = Array.from({ length: 24 }, (_, i) => ({
   angle: (i / 24) * 360,
   dist: 70 + Math.random() * 50,
   size: 3 + Math.random() * 4,
-  color: ["#52B788", "#2D6A4F", "#74C69D", "#1B4332", "#95D5B2", "#B7E4C7"][i % 6],
+  color: ["#86EFAC", "#6EE7B7", "#A7F3D0", "#BBF7D0", "#D1FAE5", "#ECFDF5"][i % 6],
   delay: Math.random() * 0.12,
 }));
 
 const SYMBOLS = ["✦", "◆", "✧", "✦", "◆", "✧", "✦"];
+
+// ── Stat card icon map ────────────────────────────────────────────────────
+const statConfig = [
+  {
+    label: "Days Streak",
+    unit: "days",
+    icon: Flame,
+    gradient: "from-orange-50 to-amber-50",
+    iconBg: "from-orange-100 to-amber-100",
+    iconColor: "text-orange-400",
+    valueColor: "text-orange-500",
+    border: "border-orange-100",
+  },
+  {
+    label: "Total Sessions",
+    unit: "total",
+    icon: Sparkles,
+    gradient: "from-violet-50 to-purple-50",
+    iconBg: "from-violet-100 to-purple-100",
+    iconColor: "text-violet-400",
+    valueColor: "text-violet-500",
+    border: "border-violet-100",
+  },
+  {
+    label: "Meditation",
+    unit: "mins",
+    icon: Clock,
+    gradient: "from-emerald-50 to-teal-50",
+    iconBg: "from-emerald-100 to-teal-100",
+    iconColor: "text-emerald-500",
+    valueColor: "text-emerald-600",
+    border: "border-emerald-100",
+  },
+  {
+    label: "Sound Healing",
+    unit: "mins",
+    icon: Music2,
+    gradient: "from-sky-50 to-cyan-50",
+    iconBg: "from-sky-100 to-cyan-100",
+    iconColor: "text-sky-400",
+    valueColor: "text-sky-500",
+    border: "border-sky-100",
+  },
+];
 
 export function ShareProfileCard({
   isOpen, onClose, userName, userTitle, userEmail, userLocation, stats,
@@ -85,12 +129,7 @@ export function ShareProfileCard({
 
   const initials = userName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
   const score = Math.min(100, stats.wellnessScore);
-  const statItems = [
-    { label: "Streak", value: stats.streak, unit: "days" },
-    { label: "Sessions", value: stats.sessions, unit: "total" },
-    { label: "Meditation", value: stats.meditationMinutes, unit: "mins" },
-    { label: "Sound healing", value: stats.soundMinutes, unit: "mins" },
-  ];
+  const statValues = [stats.streak, stats.sessions, stats.meditationMinutes, stats.soundMinutes];
 
   return (
     <AnimatePresence>
@@ -101,22 +140,20 @@ export function ShareProfileCard({
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/60 backdrop-blur-lg"
+            className="absolute inset-0 bg-black/30 backdrop-blur-xl"
           />
 
-          {/* ── Burst effects (centered) ── */}
+          {/* ── Burst effects ── */}
           {!burstDone && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-              {/* Ripple rings */}
               {[0, 1, 2].map(i => (
                 <motion.div key={`ring-${i}`}
-                  initial={{ scale: 0.2, opacity: 0.9 }}
+                  initial={{ scale: 0.2, opacity: 0.7 }}
                   animate={{ scale: 4 + i, opacity: 0 }}
                   transition={{ duration: 0.65, delay: i * 0.13, ease: "easeOut" }}
-                  className="absolute w-20 h-20 rounded-full border-2 border-[#52B788]"
+                  className="absolute w-20 h-20 rounded-full border-2 border-emerald-300"
                 />
               ))}
-              {/* Particles */}
               {PARTICLES.map(p => (
                 <motion.div key={`p-${p.id}`}
                   initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
@@ -129,13 +166,12 @@ export function ShareProfileCard({
                   style={{ width: p.size, height: p.size, background: p.color, borderRadius: "50%", position: "absolute" }}
                 />
               ))}
-              {/* Floating symbols */}
               {SYMBOLS.map((sym, i) => (
                 <motion.span key={`sym-${i}`}
                   initial={{ y: 0, x: (i - 3) * 32, opacity: 1, scale: 1.2 }}
                   animate={{ y: -130 - i * 12, opacity: 0, scale: 0.4 }}
                   transition={{ duration: 0.85, delay: 0.04 + i * 0.07, ease: "easeOut" }}
-                  className="absolute text-[#52B788] font-black text-xl select-none"
+                  className="absolute text-emerald-400 font-black text-xl select-none"
                 >
                   {sym}
                 </motion.span>
@@ -152,177 +188,276 @@ export function ShareProfileCard({
             className="relative max-w-[640px] w-full z-30"
             style={{ perspective: 1000 }}
           >
-            <div className="rounded-[32px] overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.4)]">
+            {/* Outer glow ring */}
+            <div className="absolute -inset-[1px] rounded-[34px] bg-gradient-to-br from-emerald-200 via-teal-100 to-lime-200 opacity-70 blur-[2px]" />
+
+            <div className="relative rounded-[32px] overflow-hidden shadow-[0_24px_64px_rgba(16,185,129,0.15),0_8px_32px_rgba(0,0,0,0.08)] bg-white">
 
               {/* ── Top hero band ── */}
-              <div className="relative bg-gradient-to-br from-[#E7F9EF] via-[#D0F2DF] to-[#BFEACF] px-8 pt-8 pb-8 overflow-hidden">
+              <div className="relative bg-gradient-to-br from-[#F0FDF8] via-[#ECFDF5] to-[#F0FFF4] px-7 pt-7 pb-7 overflow-hidden">
+
                 {/* Decorative orbs */}
                 <motion.div
-                  animate={{ x: [0, 14, 0], y: [0, -10, 0], opacity: [0.25, 0.45, 0.25] }}
+                  animate={{ x: [0, 14, 0], y: [0, -10, 0], opacity: [0.3, 0.5, 0.3] }}
                   transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -top-10 -right-10 w-48 h-48 bg-emerald-300/35 rounded-full blur-3xl"
+                  className="absolute -top-12 -right-12 w-52 h-52 bg-emerald-200/40 rounded-full blur-3xl pointer-events-none"
                 />
                 <motion.div
-                  animate={{ x: [0, -12, 0], y: [0, 8, 0], opacity: [0.2, 0.35, 0.2] }}
+                  animate={{ x: [0, -10, 0], y: [0, 8, 0], opacity: [0.2, 0.38, 0.2] }}
                   transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -bottom-8 -left-8 w-36 h-36 bg-lime-200/35 rounded-full blur-2xl"
+                  className="absolute -bottom-10 -left-10 w-40 h-40 bg-teal-200/35 rounded-full blur-2xl pointer-events-none"
                 />
                 <motion.div
-                  animate={{ opacity: [0.15, 0.32, 0.15] }}
-                  transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.22),transparent_45%)]"
+                  animate={{ opacity: [0.12, 0.25, 0.12] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-32 bg-lime-100/50 rounded-full blur-3xl pointer-events-none"
                 />
 
-                {/* Close */}
-                <motion.button whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }}
-                  onClick={onClose}
-                  className="close-btn absolute top-5 right-5 w-9 h-9 bg-[#0F5132]/85 hover:bg-[#0B3D2E] rounded-full flex items-center justify-center text-white z-20 transition-colors border border-white/30 shadow-md">
-                  <X className="w-4 h-4" />
-                </motion.button>
+                {/* Nirvaha brand tag */}
+                <div className="flex items-center justify-between mb-5 relative z-10">
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="flex items-center gap-1.5 bg-white/70 backdrop-blur-sm px-3 py-1.5 rounded-full border border-emerald-100 shadow-sm"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-[11px] font-bold text-emerald-700 tracking-wide uppercase">Nirvaha Wellness</span>
+                  </motion.div>
 
-                {/* Avatar + name */}
-                <div className="flex items-start gap-4 relative z-10 mt-4 bg-white/38 backdrop-blur-[2px] rounded-[22px] p-4 border border-white/55 shadow-[0_8px_26px_rgba(22,101,52,0.12)]">
+                  {/* Close button */}
+                  <motion.button
+                    whileHover={{ scale: 1.08, rotate: 90 }}
+                    whileTap={{ scale: 0.92 }}
+                    onClick={onClose}
+                    className="w-8 h-8 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 z-20 transition-all border border-gray-100 shadow-sm"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </motion.button>
+                </div>
+
+                {/* Avatar + name card */}
+                <div className="flex items-start gap-4 relative z-10 bg-white/60 backdrop-blur-md rounded-[22px] p-4 border border-white/80 shadow-[0_4px_20px_rgba(16,185,129,0.08)]">
+
+                  {/* Avatar */}
                   <motion.div
                     initial={{ scale: 0, rotate: -30 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ delay: 0.25, type: "spring", stiffness: 320, damping: 18 }}
-                    className="relative"
+                    className="relative flex-shrink-0"
                   >
-                    <div className="w-20 h-20 rounded-[24px] bg-gradient-to-br from-[#22C55E] via-[#16A34A] to-[#0F766E] flex items-center justify-center text-white text-2xl font-black shadow-xl border-2 border-white/70">
+                    <div className="w-[72px] h-[72px] rounded-[20px] bg-gradient-to-br from-emerald-300 via-teal-300 to-cyan-300 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-emerald-200/60 border-2 border-white">
                       {initials}
                     </div>
                     {/* Online dot */}
-                    <motion.div animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#22C55E] rounded-full border-2 border-[#0F766E]" />
+                    <motion.div
+                      animate={{ scale: [1, 1.5, 1], opacity: [1, 0.7, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white shadow-sm"
+                    />
                   </motion.div>
 
+                  {/* Name & info */}
                   <motion.div
-                    initial={{ opacity: 0, x: -16 }}
+                    initial={{ opacity: 0, x: -12 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3, type: "spring" }}
                     className="min-w-0 flex-1"
                   >
-                    <h2 className="text-[#0B3D2E] font-black text-[34px] sm:text-[38px] tracking-[-0.02em] leading-[1.15] mb-1 break-words">{userName}</h2>
-                    <p className="text-[#145A43] text-[15px] leading-6 font-semibold mb-3 break-words">{userTitle}</p>
-                    <div className="flex flex-wrap gap-2 pr-2">
-                      <span className="text-[11px] text-[#1B5E48] bg-white/60 px-2.5 py-1 rounded-full border border-emerald-200/80">📍 {userLocation}</span>
-                      <span className="text-[11px] text-[#1B5E48] bg-white/60 px-2.5 py-1 rounded-full truncate max-w-[220px] border border-emerald-200/80">✉️ {userEmail}</span>
+                    <h2 className="text-gray-800 font-black text-[28px] sm:text-[32px] tracking-[-0.02em] leading-[1.15] mb-0.5 break-words">
+                      {userName}
+                    </h2>
+                    <p className="text-emerald-600 text-[13px] leading-5 font-semibold mb-3 break-words">
+                      {userTitle}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="inline-flex items-center gap-1.5 text-[11px] text-gray-500 bg-white/80 px-2.5 py-1 rounded-full border border-gray-100 shadow-sm font-medium">
+                        <MapPin className="w-3 h-3 text-emerald-400 flex-shrink-0" />
+                        {userLocation}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 text-[11px] text-gray-500 bg-white/80 px-2.5 py-1 rounded-full border border-gray-100 shadow-sm font-medium truncate max-w-[200px]">
+                        <Mail className="w-3 h-3 text-emerald-400 flex-shrink-0" />
+                        {userEmail}
+                      </span>
                     </div>
                   </motion.div>
                 </div>
               </div>
 
-              {/* ── Stats section ── */}
-              <div className="bg-gradient-to-b from-[#F6FFFA] to-[#EAF8F0] px-8 py-7">
+              {/* Divider */}
+              <div className="h-px bg-gradient-to-r from-transparent via-emerald-100 to-transparent mx-7" />
+
+              {/* ── Stats + Score section ── */}
+              <div className="bg-gradient-to-b from-white to-[#F8FFFE] px-7 py-6">
+
+                {/* Section label */}
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400 mb-4"
+                >
+                  Wellness Journey
+                </motion.p>
 
                 {/* 4 stat tiles */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mb-6">
-                  {statItems.map(({ label, value, unit }, i) => (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                  {statConfig.map(({ label, unit, icon: Icon, gradient, iconBg, iconColor, valueColor, border }, i) => (
                     <motion.div
                       key={label}
-                      initial={{ opacity: 0, y: 20, scale: 0.88 }}
+                      initial={{ opacity: 0, y: 18, scale: 0.9 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{ delay: 0.35 + i * 0.08, type: "spring", stiffness: 260, damping: 20 }}
-                      whileHover={{ y: -4, scale: 1.02 }}
-                      className="bg-white rounded-[20px] p-4 shadow-[0_8px_24px_rgba(22,101,52,0.08)] border border-emerald-100/70 text-center"
+                      transition={{ delay: 0.38 + i * 0.08, type: "spring", stiffness: 260, damping: 20 }}
+                      whileHover={{ y: -3, scale: 1.03, transition: { duration: 0.2 } }}
+                      className={`bg-gradient-to-br ${gradient} rounded-[18px] p-3.5 border ${border} shadow-sm text-center cursor-default`}
                     >
-                      <div className="text-[#0E3D2D] font-black text-3xl leading-none tabular-nums mt-1">
-                        <StatCounter value={value} />
+                      {/* Icon */}
+                      <div className={`w-8 h-8 rounded-[10px] bg-gradient-to-br ${iconBg} flex items-center justify-center mx-auto mb-2.5 shadow-sm`}>
+                        <Icon className={`w-4 h-4 ${iconColor}`} />
                       </div>
-                      <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-2">{unit}</div>
-                      <div className="text-[11px] text-gray-600 font-semibold mt-1">{label}</div>
+                      {/* Value */}
+                      <div className={`${valueColor} font-black text-2xl leading-none tabular-nums`}>
+                        <StatCounter value={statValues[i]} />
+                      </div>
+                      {/* Unit */}
+                      <div className="text-[9px] text-gray-400 font-bold uppercase tracking-wider mt-1">{unit}</div>
+                      {/* Label */}
+                      <div className="text-[10px] text-gray-500 font-semibold mt-0.5 leading-tight">{label}</div>
                     </motion.div>
                   ))}
                 </div>
 
-                {/* Wellness score — hero row */}
+                {/* Wellness score card */}
                 <motion.div
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.65, type: "spring" }}
-                  className="bg-gradient-to-r from-[#166534] via-[#15803D] to-[#0F766E] rounded-[24px] p-6 mb-6 relative overflow-hidden shadow-[0_14px_34px_rgba(21,128,61,0.32)]"
+                  className="relative rounded-[22px] overflow-hidden mb-5"
                 >
-                  <div className="relative z-10 flex items-center justify-between">
-                    <div>
-                      <p className="text-emerald-100 text-[10px] font-black uppercase tracking-widest mb-1">Wellness Score</p>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-white font-black text-4xl tabular-nums">
+                  {/* Light gradient background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50" />
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(110,231,183,0.3),transparent_60%)]" />
+                  <div className="absolute inset-[1px] rounded-[21px] border border-emerald-100/80" />
+
+                  <div className="relative z-10 p-5 flex items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Activity className="w-3.5 h-3.5 text-emerald-500" />
+                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-emerald-600">Wellness Score</p>
+                      </div>
+                      <div className="flex items-baseline gap-1 mb-3">
+                        <span className="text-gray-800 font-black text-4xl tabular-nums">
                           <StatCounter value={score} duration={2000} />
                         </span>
-                        <span className="text-white/40 text-sm font-bold">/100</span>
+                        <span className="text-gray-400 text-sm font-bold">/100</span>
+                      </div>
+                      {/* Progress bar */}
+                      <div className="h-2 bg-emerald-100 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${score}%` }}
+                          transition={{ delay: 0.85, duration: 1.3, ease: "easeOut" }}
+                          className="h-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 rounded-full relative overflow-hidden"
+                        >
+                          {/* Shimmer */}
+                          <motion.div
+                            className="absolute inset-y-0 -left-8 w-8 bg-white/40 blur-sm skew-x-12"
+                            animate={{ x: [0, 300] }}
+                            transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 1.5, ease: "easeInOut" }}
+                          />
+                        </motion.div>
                       </div>
                     </div>
+
                     {/* Circular progress */}
-                    <div className="relative w-16 h-16">
-                      <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
-                        <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="6" />
-                        <motion.circle cx="32" cy="32" r="26" fill="none" stroke="#A7F3D0" strokeWidth="6"
+                    <div className="relative w-[68px] h-[68px] flex-shrink-0">
+                      <svg className="w-full h-full -rotate-90" viewBox="0 0 68 68">
+                        <circle cx="34" cy="34" r="28" fill="none" stroke="rgba(16,185,129,0.12)" strokeWidth="6" />
+                        <motion.circle
+                          cx="34" cy="34" r="28" fill="none"
+                          stroke="url(#scoreGrad)"
+                          strokeWidth="6"
                           strokeLinecap="round"
-                          strokeDasharray={`${2 * Math.PI * 26}`}
-                          initial={{ strokeDashoffset: 2 * Math.PI * 26 }}
-                          animate={{ strokeDashoffset: 2 * Math.PI * 26 * (1 - score / 100) }}
+                          strokeDasharray={`${2 * Math.PI * 28}`}
+                          initial={{ strokeDashoffset: 2 * Math.PI * 28 }}
+                          animate={{ strokeDashoffset: 2 * Math.PI * 28 * (1 - score / 100) }}
                           transition={{ delay: 0.8, duration: 1.4, ease: "easeOut" }}
                         />
+                        <defs>
+                          <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#34D399" />
+                            <stop offset="100%" stopColor="#06B6D4" />
+                          </linearGradient>
+                        </defs>
                       </svg>
-                      <div className="absolute inset-0 flex items-center justify-center text-[10px] font-extrabold text-emerald-100">
-                        {score}%
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-[11px] font-black text-emerald-600">{score}%</span>
                       </div>
                     </div>
                   </div>
-                  {/* Progress bar */}
-                  <div className="mt-3 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${score}%` }}
-                      transition={{ delay: 0.85, duration: 1.3, ease: "easeOut" }}
-                      className="h-full bg-gradient-to-r from-emerald-200 to-lime-200 rounded-full"
-                    />
-                  </div>
-                  <motion.div
-                    className="absolute inset-y-0 -left-20 w-20 bg-white/20 blur-md"
-                    animate={{ x: [0, 560] }}
-                    transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 1.2, ease: "easeInOut" }}
-                  />
                 </motion.div>
 
                 {/* Action buttons */}
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.75 }}
-                  className="action-buttons grid grid-cols-1 sm:grid-cols-2 gap-3"
+                  transition={{ delay: 0.78 }}
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-3"
                 >
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+                  {/* LinkedIn */}
+                  <motion.button
+                    whileHover={{ scale: 1.02, y: -1 }}
+                    whileTap={{ scale: 0.97 }}
                     onClick={shareOnLinkedIn}
-                    className="flex items-center justify-center gap-2 py-3.5 bg-[#0A66C2] text-white rounded-[16px] font-bold text-sm shadow-sm transition-all">
+                    className="relative flex items-center justify-center gap-2.5 py-3.5 rounded-[16px] font-bold text-sm overflow-hidden transition-all shadow-sm shadow-blue-100 border border-blue-100"
+                    style={{ background: "linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 50%, #EFF6FF 100%)" }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/5 to-blue-500/0 opacity-0 hover:opacity-100 transition-opacity" />
                     <AnimatePresence mode="wait">
                       {shareFeedback === "linkedin" ? (
-                        <motion.span key="ln-ok" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2">
+                        <motion.span key="ln-ok" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2 text-blue-600 relative z-10">
                           <Check className="w-4 h-4" /> Copied + Opened
                         </motion.span>
                       ) : (
-                        <motion.span key="ln" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2">
-                          <Linkedin className="w-4 h-4" /> LinkedIn
+                        <motion.span key="ln" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2 text-blue-600 relative z-10">
+                          <Linkedin className="w-4 h-4" /> Share on LinkedIn
                         </motion.span>
                       )}
                     </AnimatePresence>
                   </motion.button>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+
+                  {/* Instagram */}
+                  <motion.button
+                    whileHover={{ scale: 1.02, y: -1 }}
+                    whileTap={{ scale: 0.97 }}
                     onClick={shareOnInstagram}
-                    className="flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-[#833AB4] via-[#E1306C] to-[#F77737] text-white rounded-[16px] font-bold text-sm shadow-sm transition-all">
+                    className="relative flex items-center justify-center gap-2.5 py-3.5 rounded-[16px] font-bold text-sm overflow-hidden transition-all shadow-sm shadow-pink-100 border border-pink-100"
+                    style={{ background: "linear-gradient(135deg, #FDF2F8 0%, #FCE7F3 50%, #FDF2F8 100%)" }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-pink-500/5 to-pink-500/0 opacity-0 hover:opacity-100 transition-opacity" />
                     <AnimatePresence mode="wait">
                       {shareFeedback === "instagram" ? (
-                        <motion.span key="ig-ok" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2">
+                        <motion.span key="ig-ok" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2 text-pink-500 relative z-10">
                           <Check className="w-4 h-4" /> Copied + Opened
                         </motion.span>
                       ) : (
-                        <motion.span key="ig" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2">
-                          <Instagram className="w-4 h-4" /> Instagram
+                        <motion.span key="ig" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-2 text-pink-500 relative z-10">
+                          <Instagram className="w-4 h-4" /> Share on Instagram
                         </motion.span>
                       )}
                     </AnimatePresence>
                   </motion.button>
                 </motion.div>
+
+                {/* Footer note */}
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.9 }}
+                  className="text-center text-[10px] text-gray-400 mt-4 font-medium"
+                >
+                  ✦ Your wellness journey, beautifully shared
+                </motion.p>
               </div>
             </div>
           </motion.div>
