@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import BACKEND_CONFIG from "../../config/backend";
 import { useAuth } from "../../contexts/AuthContext";
+import { useProfileSync } from "../../hooks/useProfileSync";
 
 const heroImage = "/meditation/first.jpg";
 
@@ -2793,12 +2794,14 @@ function formatDurationLabel(raw: unknown): string {
 // -- Session Card Component -------------------------------------------------
 const SessionCard: React.FC<{ session: any }> = ({ session }) => {
   const { user, refreshProfile } = useAuth();
+  const { updateProfileStats, isUpdating } = useProfileSync();
   const [btnState, setBtnState] = useState<'idle' | 'starting'>('idle');
   const [showModal, setShowModal] = useState(false);
 
   const logCompletedSession = useCallback(
     async ({ title, durationMinutes }: { title: string; durationMinutes: number }) => {
-      if (!user?.id) return;
+      if (!user?.id || isUpdating) return;
+      
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-session`, {
@@ -2815,12 +2818,37 @@ const SessionCard: React.FC<{ session: any }> = ({ session }) => {
             ...(session.category ? { category: String(session.category) } : {}),
           }),
         });
-        if (res.ok) await refreshProfile();
+        
+        if (res.ok) {
+          // Update profile stats safely with real-time sync
+          await updateProfileStats({
+            duration: durationMinutes,
+            sessionType: 'meditation',
+            title,
+            category: session.category ? String(session.category) : undefined
+          });
+          
+          // Refresh profile from backend as backup
+          setTimeout(() => {
+            refreshProfile();
+          }, 200);
+        }
       } catch (e) {
         console.error("[MeditationPage] log-session failed", e);
+        // Still try to update local stats even if API fails
+        try {
+          await updateProfileStats({
+            duration: durationMinutes,
+            sessionType: 'meditation',
+            title,
+            category: session.category ? String(session.category) : undefined
+          });
+        } catch (localErr) {
+          console.error("[MeditationPage] local stats update failed", localErr);
+        }
       }
     },
-    [user?.id, refreshProfile, session.category]
+    [user?.id, refreshProfile, session.category, updateProfileStats, isUpdating]
   );
 
   const handleStart = () => {

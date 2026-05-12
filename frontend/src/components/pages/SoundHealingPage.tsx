@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Volume2, Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, Share2, Download, ChevronRight, X, ListPlus, Heart, Clock, Plus, Bookmark, Music, Hash } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext";
+import { useProfileSync } from "../../hooks/useProfileSync";
 import BACKEND_CONFIG from "../../config/backend";
 import Iridescence from '../Iridescence';
 
@@ -152,6 +153,7 @@ const sacredInstruments = [
 
 export function SoundHealingPage() {
   const { user, refreshProfile } = useAuth();
+  const { updateProfileStats, isUpdating } = useProfileSync();
   const audioRef = useRef<HTMLAudioElement>(null);
   /** One profile log per main track play (≥60s), avoids double fire on timeupdate + ended. */
   const soundSessionLoggedRef = useRef(false);
@@ -517,8 +519,8 @@ export function SoundHealingPage() {
     }
   };
 
-  const handleCardClick = (track: any, source: string = "global") => {
-    if (!track) return;
+  const handleCardClick = async (track: any, source: string = "global") => {
+    if (!track || isUpdating) return;
 
     // If source is 'all-sounds', we handle playback differently (e.g., local only)
     // and skip updating the global "Now Playing" panel as requested.
@@ -544,6 +546,18 @@ export function SoundHealingPage() {
 
     const audioSrc = track.audioUrl;
     console.log('[SoundHealing] Playing (Global):', track.title, '→', audioSrc);
+
+    // Update profile stats immediately when track starts playing
+    try {
+      await updateProfileStats({
+        duration: 0, // Will be updated when audio actually plays
+        sessionType: 'sound',
+        title: track.title,
+        category: track.category || "Sound Healing"
+      });
+    } catch (err) {
+      console.error('[SoundHealing] Failed to update profile stats:', err);
+    }
 
     if (audioRef.current && audioSrc) {
       audioRef.current.src = audioSrc;
@@ -604,9 +618,10 @@ export function SoundHealingPage() {
 
     const track = selectedTrack || nowPlaying;
     const postSoundSession = async (listenedSeconds: number) => {
-      if (!user?.id || !track?.title || soundSessionLoggedRef.current) return;
+      if (!user?.id || !track?.title || soundSessionLoggedRef.current || isUpdating) return;
       soundSessionLoggedRef.current = true;
       const minutes = Math.max(1, Math.round(listenedSeconds / 60));
+      
       try {
         const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-sound-session`, {
           method: "POST",
@@ -618,11 +633,38 @@ export function SoundHealingPage() {
             category: track.category || "Sound Healing",
           }),
         });
-        if (res.ok) await refreshProfile();
-        else soundSessionLoggedRef.current = false;
+        
+        if (res.ok) {
+          // Update profile stats safely with real-time sync
+          await updateProfileStats({
+            duration: minutes,
+            sessionType: 'sound',
+            title: track.title,
+            category: track.category || "Sound Healing"
+          });
+          
+          // Refresh profile from backend as backup
+          setTimeout(() => {
+            refreshProfile();
+          }, 200);
+        } else {
+          soundSessionLoggedRef.current = false;
+        }
       } catch (err) {
         soundSessionLoggedRef.current = false;
         console.error("Failed to log sound session:", err);
+        
+        // Still try to update local stats even if API fails
+        try {
+          await updateProfileStats({
+            duration: minutes,
+            sessionType: 'sound',
+            title: track.title,
+            category: track.category || "Sound Healing"
+          });
+        } catch (localErr) {
+          console.error("Failed to update local stats:", localErr);
+        }
       }
     };
 

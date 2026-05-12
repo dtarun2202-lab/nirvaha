@@ -27,6 +27,7 @@ import { ShareProfileCard } from "./ShareProfileCard";
 import { MeditationSessionModal } from "./MeditationSessionModal";
 import { useAuth } from "../contexts/AuthContext";
 import { useSocket } from "../contexts/SocketContext";
+import { useProfileSync } from "../hooks/useProfileSync";
 import BACKEND_CONFIG from "../config/backend";
 import html2canvas from "html2canvas";
 import {
@@ -296,6 +297,7 @@ function mergeStatsForDisplay(profileStats: unknown, userStats: unknown): Record
 export function ProfilePage() {
   const { user, refreshProfile } = useAuth();
   const { socket } = useSocket();
+  const { getWeeklyData, getTodayMinutes } = useProfileSync();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
@@ -405,11 +407,10 @@ export function ProfilePage() {
     { day: "Sun", minutes: weeklyMinutes[6] },
   ];
 
-  const totalWeeklyMinutes = weeklyData.reduce((acc, curr) => acc + curr.minutes, 0);
+  const weeklySyncData = getWeeklyData();
+  const totalWeeklyMinutes = weeklySyncData.totalWeeklyMinutes;
   const averageDailyMinutes = Math.round(totalWeeklyMinutes / 7);
-
-  const mostActiveDayIndex = weeklyData.reduce((maxIdx, curr, idx, arr) => curr.minutes > arr[maxIdx].minutes ? idx : maxIdx, 0);
-  const mostActiveDay = totalWeeklyMinutes > 0 ? weeklyData[mostActiveDayIndex].day : "No activity yet";
+  const mostActiveDay = weeklySyncData.mostActiveDay;
 
   /** Y-axis ceiling with headroom so bars are not glued to the top; ticks stay readable */
   const maxDayMinutes = weeklyData.reduce((acc, d) => Math.max(acc, d.minutes), 0);
