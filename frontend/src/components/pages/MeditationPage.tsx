@@ -579,51 +579,111 @@ const MeditationImages: React.FC = () => {
               <div className="med-title-rule" />
             </div>
 
-            {/* -- BODY: 4 focused cards only -- */}
+            {/* -- BODY -- */}
             <div className="med-modal-body">
 
-              {/* Row 1: Spiritual Meaning + Benefits */}
+              {/* Row 1: Spiritual Essence + Ancient Origin */}
               <div className="med-row-2">
                 <div className="med-glass-card med-card-meaning">
                   <div className="med-card-icon-row">
-                    <span className="med-card-icon">✦</span>
-                    <p className="med-card-heading">Spiritual Meaning</p>
+                    <div className="med-card-icon-box">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6z"/><circle cx="12" cy="12" r="2"/></svg>
+                    </div>
+                    <p className="med-card-heading">Spiritual Essence</p>
                   </div>
                   <div className="med-card-rule" />
-                  <p className="med-card-text">{(selected as any).chakra}</p>
+                  <p className="med-card-text">{(selected as any).essence}</p>
                 </div>
-                <div className="med-glass-card med-card-benefits">
+                <div className="med-glass-card med-card-origin">
                   <div className="med-card-icon-row">
-                    <span className="med-card-icon">◈</span>
-                    <p className="med-card-heading">Benefits</p>
+                    <div className="med-card-icon-box">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+                    </div>
+                    <p className="med-card-heading">Ancient Origin</p>
+                  </div>
+                  <div className="med-card-rule" />
+                  <p className="med-card-text">{(selected as any).origin}</p>
+                </div>
+              </div>
+
+              {/* Row 2: Mental & Emotional + Physical Benefits */}
+              <div className="med-row-2">
+                <div className="med-glass-card med-card-mental">
+                  <div className="med-card-icon-row">
+                    <div className="med-card-icon-box">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </div>
+                    <p className="med-card-heading">Mental &amp; Emotional</p>
                   </div>
                   <div className="med-card-rule" />
                   <ul className="med-list">
-                    {(selected as any).benefits.slice(0, 3).map((b: string, i: number) => (
+                    {(selected as any).mentalBenefits.map((b: string, i: number) => (
+                      <li key={i}>{b}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="med-glass-card med-card-physical">
+                  <div className="med-card-icon-row">
+                    <div className="med-card-icon-box">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v6l-3 3"/><path d="M12 13l3 3"/><path d="M9 17H7a2 2 0 0 0-2 2v1"/><path d="M15 17h2a2 2 0 0 1 2 2v1"/></svg>
+                    </div>
+                    <p className="med-card-heading">Physical Benefits</p>
+                  </div>
+                  <div className="med-card-rule" />
+                  <ul className="med-list">
+                    {(selected as any).physicalBenefits.map((b: string, i: number) => (
                       <li key={i}>{b}</li>
                     ))}
                   </ul>
                 </div>
               </div>
 
-              {/* Row 2: Breathing Tip + Beginner Guidance */}
+              {/* Row 3: Chakra — full width */}
+              <div className="med-glass-card med-card-chakra med-card-wide">
+                <div className="med-card-icon-row">
+                  <div className="med-card-icon-box">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="2" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="22" y2="12"/></svg>
+                  </div>
+                  <p className="med-card-heading">Chakra &amp; Energy Connection</p>
+                </div>
+                <div className="med-card-rule" />
+                <p className="med-card-text">{(selected as any).chakra}</p>
+              </div>
+
+              {/* Row 4: Breathing Technique + Best Practice Time */}
               <div className="med-row-2">
                 <div className="med-glass-card med-card-breath">
                   <div className="med-card-icon-row">
-                    <span className="med-card-icon">◎</span>
-                    <p className="med-card-heading">Breathing Tip</p>
+                    <div className="med-card-icon-box">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+                    </div>
+                    <p className="med-card-heading">Breathing Technique</p>
                   </div>
                   <div className="med-card-rule" />
-                  <p className="med-card-text">{(selected as any).breathingTip}</p>
+                  <p className="med-card-text">{(selected as any).breathingTechnique}</p>
                 </div>
-                <div className="med-glass-card med-card-beginner">
+                <div className="med-glass-card med-card-time">
                   <div className="med-card-icon-row">
-                    <span className="med-card-icon">❋</span>
-                    <p className="med-card-heading">Beginner Guidance</p>
+                    <div className="med-card-icon-box">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <p className="med-card-heading">Best Practice Time</p>
                   </div>
                   <div className="med-card-rule" />
-                  <p className="med-card-text">{(selected as any).beginnerTip}</p>
+                  <p className="med-card-text">{(selected as any).bestTime}</p>
                 </div>
+              </div>
+
+              {/* Row 5: Beginner Guidance — full width */}
+              <div className="med-glass-card med-card-beginner med-card-wide">
+                <div className="med-card-icon-row">
+                  <div className="med-card-icon-box">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
+                  </div>
+                  <p className="med-card-heading">Beginner Guidance</p>
+                </div>
+                <div className="med-card-rule" />
+                <p className="med-card-text">{(selected as any).beginnerTip}</p>
               </div>
 
             </div>
@@ -1014,27 +1074,46 @@ const MeditationImages: React.FC = () => {
           background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(240,253,248,0.88) 100%);
           border-color: rgba(110, 200, 150, 0.32);
         }
-        .med-card-benefits {
+        .med-card-origin {
           background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(245,255,250,0.88) 100%);
           border-color: rgba(134, 200, 160, 0.28);
+        }
+        .med-card-mental {
+          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(242,252,248,0.88) 100%);
+          border-color: rgba(120, 195, 155, 0.30);
+        }
+        .med-card-physical {
+          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(240,253,248,0.88) 100%);
+          border-color: rgba(110, 200, 150, 0.32);
+        }
+        .med-card-chakra {
+          background: linear-gradient(145deg, rgba(245,255,250,0.92) 0%, rgba(235,252,243,0.90) 100%);
+          border-color: rgba(52, 168, 100, 0.25);
         }
         .med-card-breath {
           background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(242,252,248,0.88) 100%);
           border-color: rgba(120, 195, 155, 0.30);
         }
+        .med-card-time {
+          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(245,255,250,0.88) 100%);
+          border-color: rgba(134, 200, 160, 0.28);
+        }
         .med-card-beginner {
           background: linear-gradient(145deg, rgba(240, 253, 248, 0.92) 0%, rgba(220, 252, 231, 0.85) 100%);
           border-color: rgba(52, 168, 100, 0.30);
         }
+        .med-card-wide { grid-column: 1 / -1; }
         .med-card-icon-row {
-          display: flex; align-items: center; gap: 8px;
+          display: flex; align-items: center; gap: 10px;
           margin-bottom: 10px;
         }
-        .med-card-icon {
-          font-size: 0.75rem;
+        .med-card-icon-box {
+          width: 36px; height: 36px; flex-shrink: 0;
+          border-radius: 10px;
+          background: linear-gradient(135deg, rgba(209,250,229,0.70) 0%, rgba(187,247,208,0.55) 100%);
+          border: 1px solid rgba(134,200,160,0.30);
+          display: flex; align-items: center; justify-content: center;
           color: #16a34a;
-          line-height: 1;
-          opacity: 0.8;
         }
 
         /* Card heading */
