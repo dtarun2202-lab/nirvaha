@@ -579,20 +579,14 @@ const MeditationImages: React.FC = () => {
               <div className="med-row-2">
                 <div className="med-glass-card">
                   <div className="med-card-inner">
-                    <div className="med-card-header">
-                      <div className="med-card-icon">🌿</div>
-                      <p className="med-card-heading">Spiritual Essence</p>
-                    </div>
+                    <p className="med-card-heading">Spiritual Essence</p>
                     <div className="med-card-rule" />
                     <p className="med-card-text">{(selected as any).essence}</p>
                   </div>
                 </div>
                 <div className="med-glass-card">
                   <div className="med-card-inner">
-                    <div className="med-card-header">
-                      <div className="med-card-icon">📜</div>
-                      <p className="med-card-heading">Ancient Origin</p>
-                    </div>
+                    <p className="med-card-heading">Ancient Origin</p>
                     <div className="med-card-rule" />
                     <p className="med-card-text">{(selected as any).origin}</p>
                   </div>
@@ -603,10 +597,7 @@ const MeditationImages: React.FC = () => {
               <div className="med-row-2">
                 <div className="med-glass-card">
                   <div className="med-card-inner">
-                    <div className="med-card-header">
-                      <div className="med-card-icon">🧠</div>
-                      <p className="med-card-heading">Mental & Emotional</p>
-                    </div>
+                    <p className="med-card-heading">Mental & Emotional</p>
                     <div className="med-card-rule" />
                     <ul className="med-list">
                       {(selected as any).mentalBenefits.map((b: string, i: number) => (
@@ -617,10 +608,7 @@ const MeditationImages: React.FC = () => {
                 </div>
                 <div className="med-glass-card">
                   <div className="med-card-inner">
-                    <div className="med-card-header">
-                      <div className="med-card-icon">💪</div>
-                      <p className="med-card-heading">Physical Benefits</p>
-                    </div>
+                    <p className="med-card-heading">Physical Benefits</p>
                     <div className="med-card-rule" />
                     <ul className="med-list">
                       {(selected as any).physicalBenefits.map((b: string, i: number) => (
@@ -634,10 +622,7 @@ const MeditationImages: React.FC = () => {
               {/* Row 3: Chakra full-width */}
               <div className="med-glass-card med-card-wide med-card-chakra">
                 <div className="med-card-inner">
-                  <div className="med-card-header">
-                    <div className="med-card-icon">✨</div>
-                    <p className="med-card-heading">Chakra & Energy Connection</p>
-                  </div>
+                  <p className="med-card-heading">Chakra & Energy Connection</p>
                   <div className="med-card-rule" />
                   <p className="med-card-text">{(selected as any).chakra}</p>
                 </div>
@@ -647,20 +632,14 @@ const MeditationImages: React.FC = () => {
               <div className="med-row-2">
                 <div className="med-glass-card">
                   <div className="med-card-inner">
-                    <div className="med-card-header">
-                      <div className="med-card-icon">🌬️</div>
-                      <p className="med-card-heading">Breathing Technique</p>
-                    </div>
+                    <p className="med-card-heading">Breathing Technique</p>
                     <div className="med-card-rule" />
                     <p className="med-card-text">{(selected as any).breathingTechnique}</p>
                   </div>
                 </div>
                 <div className="med-glass-card">
                   <div className="med-card-inner">
-                    <div className="med-card-header">
-                      <div className="med-card-icon">🌅</div>
-                      <p className="med-card-heading">Best Practice Time</p>
-                    </div>
+                    <p className="med-card-heading">Best Practice Time</p>
                     <div className="med-card-rule" />
                     <p className="med-card-text">{(selected as any).bestTime}</p>
                   </div>
@@ -670,10 +649,7 @@ const MeditationImages: React.FC = () => {
               {/* Row 5: Beginner Guidance full-width */}
               <div className="med-glass-card med-card-wide med-card-beginner">
                 <div className="med-card-inner">
-                  <div className="med-card-header">
-                    <div className="med-card-icon">🌱</div>
-                    <p className="med-card-heading">Beginner Guidance</p>
-                  </div>
+                  <p className="med-card-heading">Beginner Guidance</p>
                   <div className="med-card-rule" />
                   <p className="med-card-text">{(selected as any).beginnerTip}</p>
                 </div>
@@ -977,95 +953,64 @@ const MeditationImages: React.FC = () => {
           gap: 14px;
         }
 
-        /* ── Enhanced info cards ── */
+        /* ── Info cards ── */
         .med-glass-card {
           position: relative;
           background: #ffffff;
-          border: 1px solid rgba(52, 168, 100, 0.18);
+          border: 1px solid rgba(52, 168, 100, 0.16);
           border-radius: 20px;
-          padding: 0;
           overflow: hidden;
-          box-shadow:
-            0 1px 3px rgba(0,0,0,0.04),
-            0 4px 20px rgba(20, 90, 50, 0.07),
-            0 0 0 1px rgba(255,255,255,0.9) inset;
-          transition: transform 0.28s cubic-bezier(0.22,1,0.36,1),
-                      box-shadow 0.28s ease,
-                      border-color 0.28s ease;
+          box-shadow: 0 2px 14px rgba(20, 90, 50, 0.07);
+          transition: transform 0.26s cubic-bezier(0.22,1,0.36,1),
+                      box-shadow 0.26s ease,
+                      border-color 0.26s ease;
         }
         .med-glass-card:hover {
           transform: translateY(-3px);
-          border-color: rgba(40, 150, 85, 0.32);
-          box-shadow:
-            0 2px 6px rgba(0,0,0,0.05),
-            0 10px 32px rgba(20, 90, 50, 0.13),
-            0 0 0 1px rgba(255,255,255,1) inset;
+          border-color: rgba(40, 150, 85, 0.28);
+          box-shadow: 0 8px 28px rgba(20, 90, 50, 0.12);
         }
 
-        /* Top accent stripe per card */
+        /* Left accent bar */
         .med-glass-card::before {
           content: '';
           position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 3px;
-          background: linear-gradient(90deg, #22C55E, #0D9488);
-          border-radius: 20px 20px 0 0;
-          opacity: 0.7;
-          transition: opacity 0.28s ease;
+          top: 16px; bottom: 16px; left: 0;
+          width: 3px;
+          border-radius: 0 3px 3px 0;
+          background: linear-gradient(180deg, #52B788, #2D6A4F);
+          opacity: 0.6;
+          transition: opacity 0.26s ease;
         }
         .med-glass-card:hover::before { opacity: 1; }
 
-        /* Card inner padding wrapper */
+        /* Card inner padding */
         .med-card-inner {
-          padding: 20px 22px 22px;
+          padding: 20px 22px 22px 26px;
         }
 
         .med-card-wide { grid-column: 1 / -1; }
 
-        /* Beginner card — warm green tint */
+        /* Beginner card */
         .med-card-beginner {
-          background: linear-gradient(145deg, #F0FDF4 0%, #DCFCE7 100%);
-          border-color: rgba(34, 197, 94, 0.25);
+          background: #F6FEF9;
+          border-color: rgba(34, 197, 94, 0.2);
         }
         .med-card-beginner::before {
-          background: linear-gradient(90deg, #16A34A, #059669);
-          opacity: 0.85;
+          background: linear-gradient(180deg, #22C55E, #16A34A);
+          opacity: 0.7;
         }
 
-        /* Chakra card — purple tint */
+        /* Chakra card */
         .med-card-chakra {
-          background: linear-gradient(145deg, #FAF5FF 0%, #F3E8FF 100%);
-          border-color: rgba(139, 92, 246, 0.2);
+          background: #FDFBFF;
+          border-color: rgba(139, 92, 246, 0.18);
         }
         .med-card-chakra::before {
-          background: linear-gradient(90deg, #8B5CF6, #6366F1);
-          opacity: 0.75;
+          background: linear-gradient(180deg, #A78BFA, #7C3AED);
+          opacity: 0.55;
         }
-
-        /* Card icon-heading row */
-        .med-card-header {
-          display: flex;
-          align-items: center;
-          gap: 9px;
-          margin-bottom: 12px;
-        }
-        .med-card-icon {
-          width: 30px; height: 30px;
-          border-radius: 9px;
-          display: flex; align-items: center; justify-content: center;
-          flex-shrink: 0;
-          font-size: 14px;
-          background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(13,148,136,0.12));
-          border: 1px solid rgba(34,197,94,0.2);
-        }
-        .med-card-beginner .med-card-icon {
-          background: linear-gradient(135deg, rgba(22,163,74,0.18), rgba(5,150,105,0.14));
-          border-color: rgba(22,163,74,0.25);
-        }
-        .med-card-chakra .med-card-icon {
-          background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(99,102,241,0.12));
-          border-color: rgba(139,92,246,0.22);
-        }
+        .med-card-chakra:hover::before { opacity: 0.85; }
 
         /* Card heading */
         .med-card-heading {
@@ -1074,16 +1019,15 @@ const MeditationImages: React.FC = () => {
           letter-spacing: 0.28em;
           text-transform: uppercase;
           color: #0e4d26;
-          margin: 0;
+          margin: 0 0 10px;
           font-weight: 700;
-          line-height: 1.3;
         }
         .med-card-chakra .med-card-heading { color: #5B21B6; }
 
         .med-card-rule {
           width: 28px; height: 1.5px;
-          background: linear-gradient(90deg, #22C55E, transparent);
-          margin-bottom: 12px;
+          background: linear-gradient(90deg, #52B788, transparent);
+          margin-bottom: 13px;
           border-radius: 2px;
         }
         .med-card-chakra .med-card-rule {
@@ -1099,7 +1043,7 @@ const MeditationImages: React.FC = () => {
           margin: 0;
           font-weight: 400;
         }
-        .med-card-chakra .med-card-text { color: #2E1065; }
+        .med-card-chakra .med-card-text { color: #3B0764; }
 
         /* List */
         .med-list {
@@ -1112,16 +1056,16 @@ const MeditationImages: React.FC = () => {
           line-height: 1.6;
           color: #1a3d28;
           font-weight: 400;
-          padding-left: 20px;
+          padding-left: 18px;
           position: relative;
         }
         .med-list li::before {
           content: '';
           position: absolute; left: 0; top: 8px;
-          width: 6px; height: 6px;
+          width: 5px; height: 5px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #22C55E, #0D9488);
-          box-shadow: 0 0 6px rgba(34, 197, 94, 0.45);
+          background: #52B788;
+          box-shadow: 0 0 5px rgba(82, 183, 136, 0.4);
         }
 
         /* Mobile */
