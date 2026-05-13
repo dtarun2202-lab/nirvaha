@@ -516,22 +516,18 @@ const MeditationImages: React.FC = () => {
           <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '12px', fontFamily: "'Poppins', sans-serif" }}>Click any pose to explore</p>
         </div>
 
-        {/* Dark box wrapping only the radial layout */}
+        {/* Light glassmorphism box wrapping the radial layout */}
         <div style={{
-          background: 'linear-gradient(135deg, #000000 0%, #020d0a 40%, #000d1a 100%)',
+          background: 'linear-gradient(135deg, rgba(209,250,229,0.45) 0%, rgba(167,243,208,0.35) 50%, rgba(236,253,245,0.50) 100%)',
+          backdropFilter: 'blur(20px) saturate(1.4)',
+          WebkitBackdropFilter: 'blur(20px) saturate(1.4)',
           borderRadius: '32px',
           padding: '40px 20px',
           position: 'relative',
           overflow: 'hidden',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,255,157,0.08)',
+          border: '1px solid rgba(52,211,153,0.25)',
+          boxShadow: '0 8px 40px rgba(22,101,52,0.10), 0 0 0 1px rgba(52,211,153,0.12) inset',
         }}>
-
-          {/* Floating particles - inside the box only */}
-          <div className="med-particles" aria-hidden="true">
-            {Array.from({ length: 18 }).map((_, i) => (
-              <div key={i} className="med-particle" style={{ '--i': i } as React.CSSProperties} />
-            ))}
-          </div>
 
           {/* Back button */}
           <button
@@ -581,14 +577,14 @@ const MeditationImages: React.FC = () => {
                   <div className="med-circle-img">
                     <img key={`${currentSet}-${i}`} src={card.src} alt={card.label} />
                   </div>
-                  <span className="med-circle-num">{card.num}</span>
                   <p className="med-circle-label">{card.label}</p>
+                  <button className="med-circle-btn" tabIndex={-1} aria-hidden="true">Explore</button>
                 </div>
               </div>
             ))}
           </div>
           </div>{/* end med-radial-container */}
-        </div>{/* end dark box */}
+        </div>{/* end glassmorphism box */}
       </div>{/* end outer container */}
 
       {/* -- POSE DETAIL MODAL -- */}
@@ -828,46 +824,25 @@ const MeditationImages: React.FC = () => {
       )}
 
       <style>{`
-        /* -- Particles -- */
-        .med-particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-        .med-particle {
-          position: absolute;
-          width: 3px; height: 3px;
-          border-radius: 50%;
-          background: #00ff9d;
-          opacity: 0;
-          animation: med-float calc(8s + var(--i, 0) * 1.2s) ease-in-out infinite;
-          animation-delay: calc(var(--i, 0) * 0.6s);
-          left: calc(var(--i, 0) * 5.8%);
-          top: 100%;
-          box-shadow: 0 0 6px #00ff9d;
-        }
-        @keyframes med-float {
-          0%   { opacity: 0; transform: translateY(0) scale(1); }
-          10%  { opacity: 0.6; }
-          90%  { opacity: 0.2; }
-          100% { opacity: 0; transform: translateY(-110vh) scale(0.4); }
-        }
-
-        /* -- Nav buttons -- */
+        /* -- Nav buttons — adapted for light bg -- */
         .med-nav-btn {
           position: absolute;
           top: 50%; transform: translateY(-50%);
           z-index: 20;
           width: 44px; height: 44px;
           border-radius: 50%;
-          background: rgba(0, 255, 157, 0.07);
-          border: 1px solid rgba(0, 255, 157, 0.25);
-          color: rgba(0, 255, 157, 0.80);
+          background: rgba(255,255,255,0.55);
+          border: 1px solid rgba(52,211,153,0.35);
+          color: #065f46;
           cursor: pointer;
           display: flex; align-items: center; justify-content: center;
           transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
-          backdrop-filter: blur(8px);
+          backdrop-filter: blur(12px);
         }
         .med-nav-btn:hover:not(:disabled) {
-          background: rgba(0, 255, 157, 0.16);
-          border-color: rgba(0, 255, 157, 0.55);
-          color: #00ff9d;
+          background: rgba(209,250,229,0.80);
+          border-color: rgba(22,101,52,0.50);
+          color: #065f46;
           transform: translateY(-50%) scale(1.10);
         }
         .med-nav-btn:disabled {
@@ -888,14 +863,14 @@ const MeditationImages: React.FC = () => {
         .med-set-dot {
           width: 7px; height: 7px;
           border-radius: 50%;
-          background: rgba(0, 255, 157, 0.20);
-          border: 1px solid rgba(0, 255, 157, 0.30);
+          background: rgba(52,211,153,0.25);
+          border: 1px solid rgba(22,101,52,0.30);
           cursor: pointer;
           transition: background 0.25s ease, transform 0.25s ease;
         }
         .med-set-dot-active {
-          background: rgba(0, 255, 157, 0.75);
-          border-color: #00ff9d;
+          background: rgba(22,101,52,0.70);
+          border-color: #065f46;
           transform: scale(1.25);
         }
 
@@ -914,7 +889,7 @@ const MeditationImages: React.FC = () => {
           border-radius: 50%;
           z-index: 10;
           animation: med-breathe 4s ease-in-out infinite;
-          filter: drop-shadow(0 0 30px rgba(0,255,157,0.25));
+          filter: drop-shadow(0 0 20px rgba(52,211,153,0.20));
         }
         @keyframes med-breathe {
           0%,100% { transform: translate(-50%,-50%) scale(1); }
@@ -933,43 +908,107 @@ const MeditationImages: React.FC = () => {
           position: absolute;
           transform: translate(-50%, -50%);
         }
+
+        /* ── Clean glassmorphism pose card ── */
         .med-circle-card {
-          display: flex; flex-direction: column; align-items: center; gap: 10px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0;
           cursor: pointer;
           animation: med-counter 60s linear infinite;
           will-change: transform;
           transform-origin: center;
+          /* Glassmorphism card shell */
+          background: rgba(255,255,255,0.55);
+          backdrop-filter: blur(16px) saturate(1.5);
+          -webkit-backdrop-filter: blur(16px) saturate(1.5);
+          border: 1px solid rgba(52,211,153,0.30);
+          border-radius: 20px;
+          overflow: hidden;
+          width: 148px;
+          box-shadow:
+            0 4px 20px rgba(22,101,52,0.10),
+            0 1px 4px rgba(22,101,52,0.06),
+            0 0 0 1px rgba(255,255,255,0.60) inset;
+          transition: transform 0.35s cubic-bezier(0.16,1,0.3,1),
+                      box-shadow 0.35s ease,
+                      border-color 0.35s ease;
         }
         @keyframes med-counter {
           from { transform: rotate(0deg); }
           to   { transform: rotate(-360deg); }
         }
+
+        /* Image — fills top of card, no circle crop */
         .med-circle-img {
-          width: 155px; height: 155px;
-          border-radius: 50%;
+          width: 148px;
+          height: 148px;
           overflow: hidden;
-          border: 2px solid rgba(0,255,157,0.4);
-          transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
+          border-radius: 0;
+          flex-shrink: 0;
         }
-        .med-circle-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
-        .med-circle-card:hover .med-circle-img {
-          transform: scale(1.1);
-          border-color: #00ff9d;
-          box-shadow: 0 0 0 4px rgba(0,255,157,0.25), 0 0 30px rgba(0,255,157,0.4);
+        .med-circle-img img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center top;
+          display: block;
+          transition: transform 0.45s ease;
+          image-rendering: -webkit-optimize-contrast;
+          image-rendering: crisp-edges;
         }
-        .med-circle-card:hover .med-circle-img img { transform: scale(1.12); }
-        .med-circle-num {
-          font-family: 'Cinzel', serif;
-          font-size: 0.65rem; font-weight: 700;
-          color: #00ff9d; letter-spacing: 0.1em; margin: 0;
-          text-shadow: 0 0 8px rgba(0,255,157,0.6);
-        }
+
+        /* Pose name */
         .med-circle-label {
           font-family: 'Cinzel', serif;
-          font-size: 0.65rem; font-weight: 600;
-          color: #e2e8f0; text-align: center;
-          max-width: 100px; margin: 0; line-height: 1.3;
-          text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+          font-size: 0.60rem;
+          font-weight: 700;
+          color: #065f46;
+          text-align: center;
+          margin: 0;
+          padding: 8px 10px 0;
+          line-height: 1.35;
+          letter-spacing: 0.04em;
+          width: 100%;
+        }
+
+        /* Explore button */
+        .med-circle-btn {
+          display: block;
+          width: calc(100% - 20px);
+          margin: 7px 10px 10px;
+          padding: 5px 0;
+          font-family: 'Poppins', sans-serif;
+          font-size: 0.58rem;
+          font-weight: 600;
+          letter-spacing: 0.10em;
+          text-transform: uppercase;
+          color: #065f46;
+          background: linear-gradient(135deg, rgba(209,250,229,0.80) 0%, rgba(167,243,208,0.65) 100%);
+          border: 1px solid rgba(22,101,52,0.22);
+          border-radius: 8px;
+          cursor: pointer;
+          transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+          pointer-events: none; /* card click handles it */
+        }
+
+        /* Hover state */
+        .med-circle-card:hover {
+          transform: scale(1.08);
+          border-color: rgba(22,101,52,0.45);
+          box-shadow:
+            0 8px 32px rgba(22,101,52,0.16),
+            0 2px 8px rgba(22,101,52,0.10),
+            0 0 0 1px rgba(255,255,255,0.80) inset;
+        }
+        .med-circle-card:hover .med-circle-img img {
+          transform: scale(1.06);
+        }
+        .med-circle-card:hover .med-circle-btn {
+          background: linear-gradient(135deg, rgba(187,247,208,0.95) 0%, rgba(110,231,183,0.80) 100%);
+          border-color: rgba(22,101,52,0.40);
+          color: #064e3b;
         }
 
         /* ======================================
@@ -1809,13 +1848,15 @@ const MeditationImages: React.FC = () => {
         @media (max-width: 960px) {
           .med-radial-container { width: 600px; height: 600px; }
           .med-center { width: 190px; height: 190px; }
-          .med-circle-img { width: 105px; height: 105px; }
+          .med-circle-card { width: 108px; }
+          .med-circle-img { width: 108px; height: 108px; }
         }
         @media (max-width: 640px) {
           .med-radial-container { width: 360px; height: 360px; }
           .med-center { width: 100px; height: 100px; }
-          .med-circle-img { width: 58px; height: 58px; }
-          .med-circle-num, .med-circle-label { display: none; }
+          .med-circle-card { width: 68px; }
+          .med-circle-img { width: 68px; height: 68px; }
+          .med-circle-label, .med-circle-btn { display: none; }
         }
       `}</style>
     </section>
