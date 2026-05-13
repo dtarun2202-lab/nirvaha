@@ -614,12 +614,24 @@ const MeditationImages: React.FC = () => {
 
             {/* -- HEADER -- */}
             <div className="med-modal-header">
+              {/* Pose image — medium size, centered */}
+              <div className="med-modal-img-wrap">
+                <img
+                  src={selected.src}
+                  alt={selected.label}
+                  className="med-modal-hero-img"
+                  style={{ objectPosition: (selected as any).objectPosition || 'center' }}
+                />
+                <div className="med-modal-img-glow" />
+              </div>
+
               <div className="med-modal-badge">
                 <span className="med-modal-num-label">{(selected as any).num}</span>
                 <span className="med-badge-dot" />
                 <span className="med-modal-sanskrit">{selected.sanskrit}</span>
               </div>
               <h3 className="med-modal-title">{selected.label}</h3>
+              <p className="med-modal-desc">{selected.description}</p>
               <div className="med-title-rule" />
             </div>
 
@@ -970,9 +982,9 @@ const MeditationImages: React.FC = () => {
         .med-modal-overlay {
           position: fixed; inset: 0; z-index: 1000;
           background: radial-gradient(circle at center, 
-            rgba(240, 253, 248, 0.65) 0%, 
-            rgba(220, 245, 235, 0.75) 40%, 
-            rgba(200, 235, 220, 0.85) 100%);
+            rgba(209, 250, 229, 0.72) 0%, 
+            rgba(167, 243, 208, 0.80) 40%, 
+            rgba(110, 231, 183, 0.88) 100%);
           backdrop-filter: blur(30px) saturate(1.6) brightness(1.05);
           -webkit-backdrop-filter: blur(30px) saturate(1.6) brightness(1.05);
           display: flex; align-items: center; justify-content: center;
@@ -984,17 +996,17 @@ const MeditationImages: React.FC = () => {
             opacity: 0; 
             backdrop-filter: blur(0px) saturate(1) brightness(1); 
             background: radial-gradient(circle at center, 
-              rgba(240, 253, 248, 0) 0%, 
-              rgba(220, 245, 235, 0) 40%, 
-              rgba(200, 235, 220, 0) 100%);
+              rgba(209, 250, 229, 0) 0%, 
+              rgba(167, 243, 208, 0) 40%, 
+              rgba(110, 231, 183, 0) 100%);
           }
           to   { 
             opacity: 1; 
             backdrop-filter: blur(30px) saturate(1.6) brightness(1.05);
             background: radial-gradient(circle at center, 
-              rgba(240, 253, 248, 0.65) 0%, 
-              rgba(220, 245, 235, 0.75) 40%, 
-              rgba(200, 235, 220, 0.85) 100%);
+              rgba(209, 250, 229, 0.72) 0%, 
+              rgba(167, 243, 208, 0.80) 40%, 
+              rgba(110, 231, 183, 0.88) 100%);
           }
         }
 
@@ -1002,117 +1014,54 @@ const MeditationImages: React.FC = () => {
         .med-modal {
           position: relative;
           width: 100%;
-          max-width: 780px;
+          max-width: 860px;
           max-height: 90vh;
           overflow-y: auto;
           overflow-x: hidden;
           border-radius: 40px;
           
-          /* Multi-layered mesh gradient surface */
+          /* Rich green-dominant surface */
           background: 
-            /* Primary flowing gradient */
             linear-gradient(145deg,
-              rgba(255, 255, 255, 0.92) 0%,
-              rgba(248, 255, 252, 0.88) 15%,
-              rgba(240, 252, 248, 0.85) 30%,
-              rgba(232, 248, 240, 0.87) 45%,
-              rgba(224, 244, 235, 0.89) 60%,
-              rgba(216, 240, 230, 0.91) 75%,
-              rgba(208, 236, 225, 0.93) 90%,
-              rgba(200, 232, 220, 0.95) 100%
+              rgba(236, 253, 245, 0.97) 0%,
+              rgba(209, 250, 229, 0.94) 20%,
+              rgba(187, 247, 208, 0.91) 40%,
+              rgba(167, 243, 208, 0.93) 60%,
+              rgba(187, 247, 208, 0.94) 80%,
+              rgba(209, 250, 229, 0.97) 100%
             ),
-            
-            /* Aurora-like light streaks */
-            linear-gradient(125deg,
-              rgba(134, 239, 172, 0.12) 0%,
-              rgba(167, 243, 208, 0.08) 25%,
-              rgba(134, 239, 172, 0.06) 50%,
-              rgba(167, 243, 208, 0.04) 75%,
-              rgba(134, 239, 172, 0.02) 100%
-            ),
-            
-            /* Large blurred gradient blobs */
             radial-gradient(circle at 15% 25%, 
-              rgba(134, 239, 172, 0.18) 0%, 
-              rgba(167, 243, 208, 0.12) 30%,
-              rgba(134, 239, 172, 0.08) 60%,
-              transparent 85%),
-            radial-gradient(circle at 85% 15%, 
-              rgba(134, 239, 172, 0.15) 0%, 
-              rgba(167, 243, 208, 0.10) 35%,
-              rgba(134, 239, 172, 0.06) 70%,
-              transparent 90%),
-            radial-gradient(circle at 75% 85%, 
-              rgba(134, 239, 172, 0.12) 0%, 
-              rgba(167, 243, 208, 0.08) 40%,
-              rgba(134, 239, 172, 0.04) 80%,
-              transparent 95%),
-            radial-gradient(circle at 25% 75%, 
-              rgba(134, 239, 172, 0.10) 0%, 
-              rgba(167, 243, 208, 0.06) 45%,
-              rgba(134, 239, 172, 0.03) 90%,
-              transparent 100%),
-            
-            /* Abstract organic wave textures */
-            radial-gradient(ellipse at 60% 40%, 
-              rgba(134, 239, 172, 0.08) 0%, 
-              rgba(167, 243, 208, 0.04) 40%,
-              rgba(134, 239, 172, 0.02) 80%,
-              transparent 100%),
-            radial-gradient(ellipse at 30% 70%, 
-              rgba(134, 239, 172, 0.06) 0%, 
-              rgba(167, 243, 208, 0.03) 50%,
-              rgba(134, 239, 172, 0.01) 100%),
-            
-            /* Soft mist/fog effects */
-            radial-gradient(circle at 50% 30%, 
-              rgba(255, 255, 255, 0.15) 0%, 
-              rgba(248, 255, 252, 0.08) 40%,
+              rgba(52, 211, 153, 0.30) 0%, 
+              rgba(16, 185, 129, 0.18) 40%,
               transparent 70%),
-            radial-gradient(circle at 20% 80%, 
-              rgba(255, 255, 255, 0.12) 0%, 
-              rgba(248, 255, 252, 0.06) 50%,
-              transparent 80%),
-            radial-gradient(circle at 80% 60%, 
-              rgba(255, 255, 255, 0.10) 0%, 
-              rgba(248, 255, 252, 0.04) 60%,
-              transparent 90%);
+            radial-gradient(circle at 85% 75%, 
+              rgba(52, 211, 153, 0.25) 0%, 
+              rgba(16, 185, 129, 0.14) 45%,
+              transparent 75%),
+            radial-gradient(circle at 50% 50%, 
+              rgba(110, 231, 183, 0.15) 0%, 
+              transparent 60%);
           
           /* Premium glassmorphism */
           backdrop-filter: blur(80px) saturate(1.8) brightness(1.05) contrast(1.02);
           -webkit-backdrop-filter: blur(80px) saturate(1.8) brightness(1.05) contrast(1.02);
           
-          /* Glowing rim around container borders */
-          border: 
-            1px solid rgba(134, 239, 172, 0.25),
-            inset 0 0 25px rgba(134, 239, 172, 0.15),
-            inset 0 0 50px rgba(134, 239, 172, 0.08);
+          border: 1px solid rgba(22, 101, 52, 0.28);
           
           /* Massive soft shadows for floating feel */
           box-shadow:
-            /* Inner highlights */
-            0 0 0 2px rgba(255, 255, 255, 0.95) inset,
-            0 0 0 1px rgba(255, 255, 255, 0.88) inset,
-            
-            /* Floating depth shadows */
-            0 0 40px rgba(134, 239, 172, 0.25),
-            0 0 80px rgba(134, 239, 172, 0.18),
-            0 0 140px rgba(134, 239, 172, 0.12),
-            0 0 200px rgba(134, 239, 172, 0.08),
-            0 0 280px rgba(134, 239, 172, 0.04),
-            
-            /* Edge lighting */
-            0 -40px -40px 60px rgba(134, 239, 172, 0.20),
-            0 40px -40px 60px rgba(134, 239, 172, 0.18),
-            0 40px 40px 80px rgba(134, 239, 172, 0.15),
-            0 -40px 40px 80px rgba(134, 239, 172, 0.12);
+            0 0 0 2px rgba(255, 255, 255, 0.80) inset,
+            0 0 40px rgba(22, 101, 52, 0.22),
+            0 0 80px rgba(52, 211, 153, 0.16),
+            0 0 140px rgba(52, 211, 153, 0.10),
+            0 24px 60px rgba(22, 101, 52, 0.18);
           
           animation: 
             med-scale-in 0.8s cubic-bezier(0.16, 1, 0.3, 1),
             med-breathe-glow 8s ease-in-out infinite;
           
           scrollbar-width: thin;
-          scrollbar-color: rgba(134, 239, 172, 0.3) transparent;
+          scrollbar-color: rgba(22, 101, 52, 0.30) transparent;
           position: relative;
         }
         
@@ -1278,26 +1227,79 @@ const MeditationImages: React.FC = () => {
         /* -- Header -- Enhanced with modern typography */
         .med-modal-header {
           position: relative; z-index: 2;
-          padding: 48px 52px 32px;
+          padding: 0 0 32px;
           text-align: center;
           border-bottom: 1px solid rgba(134, 200, 160, 0.15);
           background: linear-gradient(180deg, 
             rgba(255, 255, 255, 0.03) 0%, 
             rgba(209, 250, 229, 0.05) 100%);
+          overflow: hidden;
+        }
+
+        /* Pose hero image */
+        .med-modal-img-wrap {
+          position: relative;
+          width: 100%;
+          height: 280px;
+          overflow: hidden;
+          border-radius: 40px 40px 0 0;
+          margin-bottom: 28px;
+        }
+        .med-modal-hero-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+          transition: transform 0.6s ease;
+        }
+        .med-modal-img-wrap:hover .med-modal-hero-img {
+          transform: scale(1.04);
+        }
+        /* Gradient overlay so text below reads cleanly */
+        .med-modal-img-glow {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            to bottom,
+            rgba(0,0,0,0.08) 0%,
+            rgba(0,0,0,0.12) 60%,
+            rgba(240, 253, 248, 0.85) 100%
+          );
+          pointer-events: none;
+        }
+
+        /* Badge + title sit below the image */
+        .med-modal-header .med-modal-badge {
+          margin-top: 0;
+        }
+
+        /* Short description under title */
+        .med-modal-desc {
+          font-family: 'Poppins', sans-serif;
+          font-size: 0.82rem;
+          line-height: 1.7;
+          color: #166534;
+          font-weight: 500;
+          max-width: 520px;
+          margin: 10px auto 0;
+          padding: 0 28px;
+          font-style: italic;
         }
 
         /* Badge row: num · sanskrit - Enhanced */
         .med-modal-badge {
           display: inline-flex; align-items: center; gap: 12px;
           background: linear-gradient(135deg, 
-            rgba(209, 250, 229, 0.65) 0%, 
-            rgba(220, 252, 245, 0.55) 100%);
-          border: 1px solid rgba(134, 200, 160, 0.25);
+            rgba(22, 101, 52, 0.18) 0%, 
+            rgba(5, 150, 105, 0.22) 100%);
+          border: 1px solid rgba(22, 101, 52, 0.35);
           border-radius: 100px;
           padding: 6px 20px;
           margin-bottom: 20px;
           backdrop-filter: blur(12px);
           box-shadow: 
+            0 2px 12px rgba(22, 101, 52, 0.18),
+            0 0 0 1px rgba(255, 255, 255, 0.5) inset;
             0 2px 8px rgba(134, 200, 160, 0.08),
             0 0 0 1px rgba(255, 255, 255, 0.6) inset;
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1407,34 +1409,30 @@ const MeditationImages: React.FC = () => {
         .med-glass-card {
           position: relative;
           background: 
-            /* Translucent flowing gradients */
+            /* Richer green-tinted surface */
             linear-gradient(145deg, 
-              rgba(255, 255, 255, 0.92) 0%,
-              rgba(250, 255, 252, 0.88) 25%,
-              rgba(248, 255, 252, 0.85) 50%,
-              rgba(245, 253, 250, 0.87) 75%,
-              rgba(240, 252, 248, 0.89) 100%
+              rgba(236, 253, 245, 0.97) 0%,
+              rgba(209, 250, 229, 0.93) 25%,
+              rgba(187, 247, 208, 0.90) 50%,
+              rgba(209, 250, 229, 0.92) 75%,
+              rgba(236, 253, 245, 0.95) 100%
             ),
             
             /* Animated water-like reflections */
             radial-gradient(circle at 30% 40%, 
-              rgba(134, 239, 172, 0.08) 0%, 
-              rgba(167, 243, 208, 0.04) 40%,
+              rgba(52, 211, 153, 0.18) 0%, 
+              rgba(16, 185, 129, 0.10) 40%,
               transparent 70%),
             radial-gradient(circle at 70% 60%, 
-              rgba(134, 239, 172, 0.06) 0%, 
-              rgba(167, 243, 208, 0.03) 50%,
+              rgba(52, 211, 153, 0.14) 0%, 
+              rgba(16, 185, 129, 0.08) 50%,
               transparent 85%),
             radial-gradient(circle at 50% 80%, 
-              rgba(134, 239, 172, 0.04) 0%, 
-              rgba(167, 243, 208, 0.02) 45%,
+              rgba(52, 211, 153, 0.10) 0%, 
+              rgba(16, 185, 129, 0.05) 45%,
               transparent 90%);
           
-          border: 
-            1px solid rgba(134, 200, 160, 0.15),
-            /* Soft inner glow */
-            inset 0 0 15px rgba(134, 239, 172, 0.12),
-            inset 0 0 30px rgba(134, 239, 172, 0.06);
+          border: 1px solid rgba(22, 101, 52, 0.22);
           border-radius: 24px;
           padding: 26px 24px 22px;
           backdrop-filter: blur(25px) saturate(1.4) brightness(1.02);
@@ -1443,16 +1441,16 @@ const MeditationImages: React.FC = () => {
           /* Premium floating shadows */
           box-shadow:
             /* Inner highlights */
-            0 0 0 2px rgba(255, 255, 255, 0.95) inset,
-            0 0 0 1px rgba(255, 255, 255, 0.88) inset,
+            0 0 0 2px rgba(255, 255, 255, 0.85) inset,
+            0 0 0 1px rgba(255, 255, 255, 0.70) inset,
             
             /* Soft depth shadows */
-            0 4px 16px rgba(134, 239, 172, 0.12),
-            0 8px 32px rgba(134, 239, 172, 0.08),
-            0 0 60px rgba(134, 239, 172, 0.05),
+            0 4px 16px rgba(22, 101, 52, 0.14),
+            0 8px 32px rgba(22, 101, 52, 0.09),
+            0 0 60px rgba(52, 211, 153, 0.07),
             
             /* Glowing aura */
-            0 0 0 1px rgba(134, 239, 172, 0.08);
+            0 0 0 1px rgba(52, 211, 153, 0.12);
           
           transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
           cursor: pointer;
@@ -1543,24 +1541,24 @@ const MeditationImages: React.FC = () => {
         /* Interactive hover effects */
         .med-glass-card:hover {
           transform: translateY(-8px) scale(1.02);
-          border-color: rgba(52, 168, 100, 0.35);
+          border-color: rgba(22, 101, 52, 0.40);
           background: 
             linear-gradient(145deg, 
-              rgba(255, 255, 255, 0.95) 0%,
-              rgba(250, 255, 252, 0.91) 25%,
-              rgba(248, 255, 252, 0.88) 50%,
-              rgba(245, 253, 250, 0.90) 75%,
-              rgba(240, 252, 248, 0.92) 100%
+              rgba(236, 253, 245, 0.99) 0%,
+              rgba(209, 250, 229, 0.96) 25%,
+              rgba(187, 247, 208, 0.93) 50%,
+              rgba(209, 250, 229, 0.95) 75%,
+              rgba(236, 253, 245, 0.98) 100%
             );
           box-shadow:
             /* Enhanced floating depth */
-            0 12px 24px rgba(134, 239, 172, 0.18),
-            0 16px 48px rgba(134, 239, 172, 0.15),
-            0 0 80px rgba(134, 239, 172, 0.10),
+            0 12px 24px rgba(22, 101, 52, 0.20),
+            0 16px 48px rgba(22, 101, 52, 0.14),
+            0 0 80px rgba(52, 211, 153, 0.12),
             
             /* Glowing border aura */
-            0 0 0 2px rgba(134, 239, 172, 0.12),
-            0 0 0 1px rgba(134, 239, 172, 0.08);
+            0 0 0 2px rgba(52, 211, 153, 0.18),
+            0 0 0 1px rgba(52, 211, 153, 0.12);
         }
         
         /* Water ripple appears on hover */
@@ -1691,7 +1689,7 @@ const MeditationImages: React.FC = () => {
           font-size: 0.58rem;
           letter-spacing: 0.28em;
           text-transform: uppercase;
-          color: #000000;
+          color: #065f46;
           margin: 0;
           font-weight: 700;
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1768,7 +1766,7 @@ const MeditationImages: React.FC = () => {
           font-family: 'Poppins', sans-serif;
           font-size: 0.83rem;
           line-height: 1.78;
-          color: #000000;
+          color: #1a3a2a;
           margin: 0;
           font-weight: 400;
         }
@@ -1782,7 +1780,7 @@ const MeditationImages: React.FC = () => {
           font-family: 'Poppins', sans-serif;
           font-size: 0.82rem;
           line-height: 1.55;
-          color: #000000;
+          color: #1a3a2a;
           font-weight: 400;
           padding-left: 18px;
           position: relative;
@@ -1799,7 +1797,8 @@ const MeditationImages: React.FC = () => {
         /* Mobile */
         @media (max-width: 640px) {
           .med-modal { border-radius: 22px; }
-          .med-modal-header { padding: 36px 22px 22px; }
+          .med-modal-img-wrap { height: 200px; border-radius: 22px 22px 0 0; }
+          .med-modal-header { padding: 0 0 22px; }
           .med-modal-body { padding: 18px 18px 26px; gap: 12px; }
           .med-row-2 { grid-template-columns: 1fr; }
           .med-modal-title { font-size: 1.65rem; }
