@@ -1,9 +1,16 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import BACKEND_CONFIG from "../../config/backend";
 import { useAuth } from "../../contexts/AuthContext";
 import { useProfileSync } from "../../hooks/useProfileSync";
 import "../../styles/meditation-poses.css";
+import BlurText from "../ui/BlurText";
 
 const heroImage = "/meditation/first.jpg";
 
@@ -17,9 +24,6 @@ const vajrasana = "/poses for medittaion/thunder 3.png";
 const siddhasana = "/yoga poses/perfect pose.png";
 const paschimottanasana = "/yoga for meditation/seated 2.png";
 const padmasana = "/lotus.png";
-
-
-
 
 // Main Page Component
 export default function MeditationGuide() {
@@ -39,34 +43,59 @@ export default function MeditationGuide() {
 // Hero Section
 const HeroSection: React.FC = () => (
   <section className="relative h-screen min-h-[600px] overflow-hidden">
-  <video autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover">
-    <source src="/leaves.mp4" type="video/mp4" />
-  </video>
-  <div className="absolute inset-0 bg-black/20" />
-  <div className="relative z-10 flex h-full min-h-[600px] flex-col items-center justify-center px-4 py-24 text-center">
-    <h1 className="mb-6 max-w-4xl font-semibold leading-tight md:text-7xl text-5xl" style={{ fontFamily: "'Poppins', sans-serif", letterSpacing: '0.04em', color: '#ffffff', textShadow: '0 2px 20px rgba(0,0,0,0.6), 0 4px 40px rgba(0,0,0,0.4)', fontStyle: 'italic' }}>
-      Meet Your
-      <span className="block mt-2" style={{ color: '#ffffff', fontFamily: "'Poppins', sans-serif" }}>
-        Meditation Guide
-      </span>
-    </h1>
-    <p className="mb-10 max-w-xl text-base text-white leading-relaxed tracking-wide" style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 300 }}>
-      Ancient wisdom. Modern stillness. A path inward.
-    </p>
-  
-  </div>
-  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-    <div className="h-10 w-6 rounded-full border border-white/30 p-1">
-      <div className="h-2 w-1 animate-pulse rounded-full bg-white/40 mx-auto" />
+    <video
+      autoPlay
+      muted
+      loop
+      playsInline
+      className="absolute inset-0 h-full w-full object-cover"
+    >
+      <source src="/leaves.mp4" type="video/mp4" />
+    </video>
+    <div className="absolute inset-0 bg-black/20" />
+    <div className="relative z-10 flex h-full min-h-[600px] flex-col items-center justify-center px-4 py-24 text-center">
+      <h1
+        className="mb-6 max-w-4xl font-semibold leading-tight md:text-7xl text-5xl"
+        style={{
+          fontFamily: "'Poppins', sans-serif",
+          letterSpacing: "0.04em",
+          color: "#ffffff",
+          textShadow: "0 2px 20px rgba(0,0,0,0.6), 0 4px 40px rgba(0,0,0,0.4)",
+          fontStyle: "italic",
+        }}
+      >
+        Meet Your
+        <span
+          className="block mt-2"
+          style={{ color: "#ffffff", fontFamily: "'Poppins', sans-serif" }}
+        >
+          Meditation Guide
+        </span>
+      </h1>
+      <p
+        className="mb-10 max-w-xl text-base text-white leading-relaxed tracking-wide"
+        style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 300 }}
+      >
+        Ancient wisdom. Modern stillness. A path inward.
+      </p>
     </div>
-  </div>
-</section>
+    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+      <div className="h-10 w-6 rounded-full border border-white/30 p-1">
+        <div className="h-2 w-1 animate-pulse rounded-full bg-white/40 mx-auto" />
+      </div>
+    </div>
+  </section>
 );
 
 const MeditationImages: React.FC = () => {
   const [selectedPose, setSelectedPose] = React.useState<number | null>(null);
-  const [glassGlow, setGlassGlow] = React.useState<{ id: string; nonce: number } | null>(null);
-  const glassGlowTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [glassGlow, setGlassGlow] = React.useState<{
+    id: string;
+    nonce: number;
+  } | null>(null);
+  const glassGlowTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const pulseGlassCard = React.useCallback((id: string) => {
     setGlassGlow((prev) => ({ id, nonce: (prev?.nonce ?? 0) + 1 }));
@@ -96,15 +125,15 @@ const MeditationImages: React.FC = () => {
     const rect = e.currentTarget.getBoundingClientRect();
     setMousePos({
       x: ((e.clientX - rect.left) / rect.width) * 100,
-      y: ((e.clientY - rect.top) / rect.height) * 100
+      y: ((e.clientY - rect.top) / rect.height) * 100,
     });
   }, []);
 
   // Update CSS variables for cursor position
   useEffect(() => {
     const root = document.documentElement;
-    root.style.setProperty('--mouse-x', `${mousePos.x}%`);
-    root.style.setProperty('--mouse-y', `${mousePos.y}%`);
+    root.style.setProperty("--mouse-x", `${mousePos.x}%`);
+    root.style.setProperty("--mouse-y", `${mousePos.y}%`);
   }, [mousePos]);
 
   const switchSet = (next: 0 | 1) => {
@@ -122,184 +151,424 @@ const MeditationImages: React.FC = () => {
       label: "Easy Pose",
       sanskrit: "Sukhasana",
       num: "01",
-      description: "A simple cross-legged seat that grounds the body and quiets the mind. Perfect for beginners entering the world of meditation.",
-      benefits: ["Reduces stress and anxiety", "Improves posture and alignment", "Opens hips and groin", "Calms the nervous system"],
-      steps: ["Sit on a mat with legs crossed", "Rest hands on knees, palms up", "Lengthen spine toward the sky", "Close eyes and breathe deeply for 5-20 min"],
-      inhale: 4, hold: 0, exhale: 6, sessionText: "Relax and breathe gently",
-      breathingTip: "Gentle nasal breathing with slow rhythm. Feel the cool air entering your nostrils and the warmth leaving.",
-      postureGuide: "Sit comfortably with relaxed shoulders. Keep your spine tall but not rigid, resting hands on knees.",
-      sessionInfo: "Beginner-friendly session for calmness. Ideal for setting a peaceful foundation for your day.",
-      mindFocus: "Awareness of breath. Observe each cycle without judgment, simply noticing the rise and fall of your chest.",
+      description:
+        "A simple cross-legged seat that grounds the body and quiets the mind. Perfect for beginners entering the world of meditation.",
+      benefits: [
+        "Reduces stress and anxiety",
+        "Improves posture and alignment",
+        "Opens hips and groin",
+        "Calms the nervous system",
+      ],
+      steps: [
+        "Sit on a mat with legs crossed",
+        "Rest hands on knees, palms up",
+        "Lengthen spine toward the sky",
+        "Close eyes and breathe deeply for 5-20 min",
+      ],
+      inhale: 4,
+      hold: 0,
+      exhale: 6,
+      sessionText: "Relax and breathe gently",
+      breathingTip:
+        "Gentle nasal breathing with slow rhythm. Feel the cool air entering your nostrils and the warmth leaving.",
+      postureGuide:
+        "Sit comfortably with relaxed shoulders. Keep your spine tall but not rigid, resting hands on knees.",
+      sessionInfo:
+        "Beginner-friendly session for calmness. Ideal for setting a peaceful foundation for your day.",
+      mindFocus:
+        "Awareness of breath. Observe each cycle without judgment, simply noticing the rise and fall of your chest.",
       objectPosition: "center",
-      essence: "The gateway pose - where stillness begins and the inner journey unfolds. Sukhasana invites the wandering mind home.",
-      origin: "Rooted in the Hatha Yoga Pradipika (15th century), Sukhasana is the foundational seat prescribed for all beginners entering the path of Dhyana.",
-      mentalBenefits: ["Quiets mental chatter and restless thoughts", "Cultivates patience and inner acceptance", "Reduces anxiety and emotional reactivity"],
-      physicalBenefits: ["Gently opens hip flexors and inner groin", "Lengthens the spine and improves posture", "Relieves mild knee and ankle tension"],
-      chakra: "Muladhara (Root Chakra) - grounds scattered energy, builds a sense of safety and belonging in the present moment.",
-      breathingTechnique: "Sama Vritti (Equal Breathing) - inhale for 4 counts, exhale for 4 counts. Let the breath become a gentle tide.",
-      bestTime: "Early morning at sunrise or just before sleep. Practice on an empty stomach for deepest benefit.",
-      beginnerTip: "Place a folded blanket under your hips to ease lower back strain. Start with just 5 minutes and gradually extend.",
+      essence:
+        "The gateway pose - where stillness begins and the inner journey unfolds. Sukhasana invites the wandering mind home.",
+      origin:
+        "Rooted in the Hatha Yoga Pradipika (15th century), Sukhasana is the foundational seat prescribed for all beginners entering the path of Dhyana.",
+      mentalBenefits: [
+        "Quiets mental chatter and restless thoughts",
+        "Cultivates patience and inner acceptance",
+        "Reduces anxiety and emotional reactivity",
+      ],
+      physicalBenefits: [
+        "Gently opens hip flexors and inner groin",
+        "Lengthens the spine and improves posture",
+        "Relieves mild knee and ankle tension",
+      ],
+      chakra:
+        "Muladhara (Root Chakra) - grounds scattered energy, builds a sense of safety and belonging in the present moment.",
+      color: "#bae6fd",
+      waveGradient: "linear-gradient(744deg, #f0f9ff, #bae6fd 60%, #7dd3fc)",
+      glowInner: "rgba(186, 230, 253, 0.3)",
+      glowOuter: "rgba(186, 230, 253, 0.5)",
     },
     {
       src: "/poses for medittaion/cosmic 2.png",
       label: "Cosmic Stillness",
       sanskrit: "Dhyana Mudra",
       num: "02",
-      description: "A state of deep meditative absorption where the mind dissolves into pure awareness. The gateway to inner silence.",
-      benefits: ["Deepens meditation practice", "Expands consciousness", "Releases mental chatter", "Connects to universal energy"],
-      steps: ["Find a comfortable seated position", "Place hands in Dhyana Mudra on lap", "Soften gaze or close eyes", "Allow thoughts to pass like clouds"],
-      inhale: 5, hold: 2, exhale: 7, sessionText: "Enter deep stillness",
-      breathingTip: "Deep belly breathing. Imagine your breath expanding like the cosmos with every inhale and settling into stillness.",
-      postureGuide: "Place your hands in the Dhyana Mudra on your lap. Let your chin tuck slightly to lengthen your neck.",
-      sessionInfo: "Advanced practice for inner silence. A journey into the depths of pure awareness and universal connection.",
-      mindFocus: "The space between thoughts. Direct your attention to the silent gap where one thought ends and the next begins.",
+      description:
+        "A state of deep meditative absorption where the mind dissolves into pure awareness. The gateway to inner silence.",
+      benefits: [
+        "Deepens meditation practice",
+        "Expands consciousness",
+        "Releases mental chatter",
+        "Connects to universal energy",
+      ],
+      steps: [
+        "Find a comfortable seated position",
+        "Place hands in Dhyana Mudra on lap",
+        "Soften gaze or close eyes",
+        "Allow thoughts to pass like clouds",
+      ],
+      inhale: 5,
+      hold: 2,
+      exhale: 7,
+      sessionText: "Enter deep stillness",
+      breathingTip:
+        "Deep belly breathing. Imagine your breath expanding like the cosmos with every inhale and settling into stillness.",
+      postureGuide:
+        "Place your hands in the Dhyana Mudra on your lap. Let your chin tuck slightly to lengthen your neck.",
+      sessionInfo:
+        "Advanced practice for inner silence. A journey into the depths of pure awareness and universal connection.",
+      mindFocus:
+        "The space between thoughts. Direct your attention to the silent gap where one thought ends and the next begins.",
       objectPosition: "center",
-      essence: "A dissolution of self into the infinite - where the meditator, the act of meditation, and the object of focus become one luminous whole.",
-      origin: "Described in the Yoga Sutras of Patanjali as Samadhi - the eighth and final limb of Ashtanga Yoga, attained through sustained Dhyana practice.",
-      mentalBenefits: ["Dissolves the boundary between self and universe", "Releases deep-seated mental conditioning", "Awakens intuition and inner knowing"],
-      physicalBenefits: ["Lowers cortisol and blood pressure significantly", "Activates the parasympathetic nervous system", "Reduces chronic fatigue and mental exhaustion"],
-      chakra: "Sahasrara (Crown Chakra) - opens the thousand-petalled lotus at the crown, connecting individual consciousness to universal awareness.",
-      breathingTechnique: "Nadi Shodhana (Alternate Nostril) - 5 counts inhale, 2 hold, 7 exhale. Balances solar and lunar energy channels.",
-      bestTime: "Brahma Muhurta - 90 minutes before sunrise. The veil between inner and outer worlds is thinnest at this sacred hour.",
-      beginnerTip: "Begin with 10 minutes of breath observation before attempting this state. Do not force stillness - simply allow it to arise.",
+      essence:
+        "A dissolution of self into the infinite - where the meditator, the act of meditation, and the object of focus become one luminous whole.",
+      origin:
+        "Described in the Yoga Sutras of Patanjali as Samadhi - the eighth and final limb of Ashtanga Yoga, attained through sustained Dhyana practice.",
+      mentalBenefits: [
+        "Dissolves the boundary between self and universe",
+        "Releases deep-seated mental conditioning",
+        "Awakens intuition and inner knowing",
+      ],
+      physicalBenefits: [
+        "Lowers cortisol and blood pressure significantly",
+        "Activates the parasympathetic nervous system",
+        "Reduces chronic fatigue and mental exhaustion",
+      ],
+      chakra:
+        "Sahasrara (Crown Chakra) - opens the thousand-petalled lotus at the crown, connecting individual consciousness to universal awareness.",
+      color: "#e9d5ff",
+      waveGradient: "linear-gradient(744deg, #f5f3ff, #e9d5ff 60%, #c084fc)",
+      glowInner: "rgba(233, 213, 255, 0.3)",
+      glowOuter: "rgba(233, 213, 255, 0.5)",
     },
     {
       src: "/poses for medittaion/thunder 3.png",
       label: "Thunderbolt Pose",
       sanskrit: "Vajrasana",
       num: "03",
-      description: "A kneeling posture of diamond-like stability. Vajrasana is the only pose recommended after meals and builds an unshakeable foundation.",
-      benefits: ["Aids digestion instantly", "Strengthens lower back", "Builds mental focus", "Grounds excess energy"],
-      steps: ["Kneel on a soft mat", "Sit back onto your heels", "Keep spine tall and shoulders relaxed", "Rest hands on thighs and breathe"],
-      inhale: 4, hold: 0, exhale: 4, sessionText: "Stabilize your posture",
-      breathingTip: "Rhythmic and steady breathing. Focus on the stability of your breath, mirroring the unshakeable nature of a diamond.",
-      postureGuide: "Kneel on your mat and sit back on your heels. Keep your spine perfectly upright to facilitate energy flow.",
-      sessionInfo: "Grounding session for stability. Perfect after meals to aid digestion and center your wandering mind.",
-      mindFocus: "Earth connection. Feel the weight of your body pressing into the heels, grounding your energy deep into the earth.",
+      description:
+        "A kneeling posture of diamond-like stability. Vajrasana is the only pose recommended after meals and builds an unshakeable foundation.",
+      benefits: [
+        "Aids digestion instantly",
+        "Strengthens lower back",
+        "Builds mental focus",
+        "Grounds excess energy",
+      ],
+      steps: [
+        "Kneel on a soft mat",
+        "Sit back onto your heels",
+        "Keep spine tall and shoulders relaxed",
+        "Rest hands on thighs and breathe",
+      ],
+      inhale: 4,
+      hold: 0,
+      exhale: 4,
+      sessionText: "Stabilize your posture",
+      breathingTip:
+        "Rhythmic and steady breathing. Focus on the stability of your breath, mirroring the unshakeable nature of a diamond.",
+      postureGuide:
+        "Kneel on your mat and sit back on your heels. Keep your spine perfectly upright to facilitate energy flow.",
+      sessionInfo:
+        "Grounding session for stability. Perfect after meals to aid digestion and center your wandering mind.",
+      mindFocus:
+        "Earth connection. Feel the weight of your body pressing into the heels, grounding your energy deep into the earth.",
       objectPosition: "center",
-      essence: "Named after Vajra - the indestructible thunderbolt of Indra. This pose forges the practitioner into an immovable pillar of awareness.",
-      origin: "Prescribed in both the Hatha Yoga Pradipika and Ayurvedic texts as the only asana safe to practice immediately after eating, aiding the digestive fire (Agni).",
-      mentalBenefits: ["Builds unwavering mental concentration", "Dissolves restlessness and scattered thinking", "Cultivates inner discipline and willpower"],
-      physicalBenefits: ["Stimulates digestive organs and relieves bloating", "Strengthens the lumbar spine and pelvic floor", "Improves circulation in the lower limbs"],
-      chakra: "Manipura (Solar Plexus Chakra) - ignites the inner fire of transformation, willpower, and personal strength.",
-      breathingTechnique: "Kapalabhati (Skull-Shining Breath) - rhythmic forceful exhales to stoke digestive fire, followed by natural inhales.",
-      bestTime: "After meals for digestion, or morning for grounding. Hold for 5-15 minutes to receive full benefit.",
-      beginnerTip: "Place a rolled blanket between your thighs and calves if knees feel pressure. Gradually increase sitting duration over weeks.",
+      essence:
+        "Named after Vajra - the indestructible thunderbolt of Indra. This pose forges the practitioner into an immovable pillar of awareness.",
+      origin:
+        "Prescribed in both the Hatha Yoga Pradipika and Ayurvedic texts as the only asana safe to practice immediately after eating, aiding the digestive fire (Agni).",
+      mentalBenefits: [
+        "Builds unwavering mental concentration",
+        "Dissolves restlessness and scattered thinking",
+        "Cultivates inner discipline and willpower",
+      ],
+      physicalBenefits: [
+        "Stimulates digestive organs and relieves bloating",
+        "Strengthens the lumbar spine and pelvic floor",
+        "Improves circulation in the lower limbs",
+      ],
+      chakra:
+        "Manipura (Solar Plexus Chakra) - ignites the inner fire of transformation, willpower, and personal strength.",
+      color: "#fde68a",
+      waveGradient: "linear-gradient(744deg, #fffbeb, #fef3c7 60%, #fbbf24)",
+      glowInner: "rgba(254, 243, 199, 0.3)",
+      glowOuter: "rgba(254, 243, 199, 0.5)",
     },
     {
       src: "/poses for medittaion/lotus 4.png",
       label: "Lotus Pose",
       sanskrit: "Padmasana",
       num: "04",
-      description: "The sacred lotus blooms from muddy waters - this pose symbolises spiritual awakening and is the crown jewel of meditation postures.",
-      benefits: ["Activates root and sacral chakras", "Deepens breath capacity", "Promotes inner stillness", "Traditionally awakens Kundalini"],
-      steps: ["Sit with legs extended", "Place right foot on left thigh", "Place left foot on right thigh", "Spine tall, hands in Chin Mudra"],
-      inhale: 6, hold: 0, exhale: 6, sessionText: "Balance body and mind",
-      breathingTip: "Lengthened exhales for balance. Inhale energy and exhale any remaining tension, keeping the rhythm circular.",
-      postureGuide: "Cross your legs into a full lotus. Rest your hands in Chin Mudra, connecting thumb and index finger.",
-      sessionInfo: "Balancing body and spirit. This sacred posture opens the heart and awakens the subtle energies within.",
-      mindFocus: "Heart center. Visualize a glowing lotus at your chest, blooming with every breath you take.",
+      description:
+        "The sacred lotus blooms from muddy waters - this pose symbolises spiritual awakening and is the crown jewel of meditation postures.",
+      benefits: [
+        "Activates root and sacral chakras",
+        "Deepens breath capacity",
+        "Promotes inner stillness",
+        "Traditionally awakens Kundalini",
+      ],
+      steps: [
+        "Sit with legs extended",
+        "Place right foot on left thigh",
+        "Place left foot on right thigh",
+        "Spine tall, hands in Chin Mudra",
+      ],
+      inhale: 6,
+      hold: 0,
+      exhale: 6,
+      sessionText: "Balance body and mind",
+      breathingTip:
+        "Lengthened exhales for balance. Inhale energy and exhale any remaining tension, keeping the rhythm circular.",
+      postureGuide:
+        "Cross your legs into a full lotus. Rest your hands in Chin Mudra, connecting thumb and index finger.",
+      sessionInfo:
+        "Balancing body and spirit. This sacred posture opens the heart and awakens the subtle energies within.",
+      mindFocus:
+        "Heart center. Visualize a glowing lotus at your chest, blooming with every breath you take.",
       objectPosition: "center",
-      essence: "The lotus rises pure from muddy waters - a living symbol of the soul's journey from ignorance to enlightenment, from suffering to liberation.",
-      origin: "Revered across Hindu, Buddhist, and Jain traditions for over 3,000 years. Depicted in ancient Vedic texts as the supreme seat of the gods and enlightened masters.",
-      mentalBenefits: ["Awakens Kundalini energy through the central channel", "Induces profound states of meditative absorption", "Cultivates equanimity and spiritual clarity"],
-      physicalBenefits: ["Opens hip joints and sacroiliac region deeply", "Strengthens the spine and core musculature", "Stimulates the abdominal organs and improves circulation"],
-      chakra: "Anahata (Heart Chakra) & Svadhisthana (Sacral Chakra) - opens the heart to unconditional love while awakening creative life force.",
-      breathingTechnique: "Ujjayi (Victorious Breath) - gentle constriction of the throat creates an oceanic sound, deepening focus and extending the breath cycle.",
-      bestTime: "Dawn or dusk - the transitional hours when solar and lunar energies are in perfect balance. Ideal for extended meditation.",
-      beginnerTip: "Practice Half Lotus (one foot on opposite thigh) for several months before attempting full Padmasana. Never force the knees.",
+      essence:
+        "The lotus rises pure from muddy waters - a living symbol of the soul's journey from ignorance to enlightenment, from suffering to liberation.",
+      origin:
+        "Revered across Hindu, Buddhist, and Jain traditions for over 3,000 years. Depicted in ancient Vedic texts as the supreme seat of the gods and enlightened masters.",
+      mentalBenefits: [
+        "Awakens Kundalini energy through the central channel",
+        "Induces profound states of meditative absorption",
+        "Cultivates equanimity and spiritual clarity",
+      ],
+      physicalBenefits: [
+        "Opens hip joints and sacroiliac region deeply",
+        "Strengthens the spine and core musculature",
+        "Stimulates the abdominal organs and improves circulation",
+      ],
+      chakra:
+        "Anahata (Heart Chakra) & Svadhisthana (Sacral Chakra) - opens the heart to unconditional love while awakening creative life force.",
+      color: "#fbcfe8",
+      waveGradient: "linear-gradient(744deg, #fdf2f8, #fce7f3 60%, #f472b6)",
+      glowInner: "rgba(252, 231, 243, 0.3)",
+      glowOuter: "rgba(252, 231, 243, 0.5)",
     },
     {
       src: "/poses for medittaion/corpus 5.png",
       label: "Corpse Pose",
       sanskrit: "Savasana",
       num: "05",
-      description: "The most important pose in yoga - complete surrender. Savasana integrates all practice and allows the body to absorb transformation.",
-      benefits: ["Deep nervous system reset", "Reduces blood pressure", "Integrates meditation benefits", "Releases held tension completely"],
-      steps: ["Lie flat on your back", "Let feet fall open naturally", "Arms slightly away from body", "Close eyes and release all effort"],
-      inhale: 3, hold: 0, exhale: 7, sessionText: "Completely relax your body",
-      breathingTip: "Effortless breathing. Let the body breathe itself without any control, like waves gently washing over a shore.",
-      postureGuide: "Lie flat on your back with arms and legs spread wide. Surrender every muscle to the floor.",
-      sessionInfo: "Deep relaxation and integration. Allow your nervous system to reset and absorb the benefits of practice.",
-      mindFocus: "Total surrender. Imagine your body dissolving into the floor, leaving only a sense of weightless presence.",
+      description:
+        "The most important pose in yoga - complete surrender. Savasana integrates all practice and allows the body to absorb transformation.",
+      benefits: [
+        "Deep nervous system reset",
+        "Reduces blood pressure",
+        "Integrates meditation benefits",
+        "Releases held tension completely",
+      ],
+      steps: [
+        "Lie flat on your back",
+        "Let feet fall open naturally",
+        "Arms slightly away from body",
+        "Close eyes and release all effort",
+      ],
+      inhale: 3,
+      hold: 0,
+      exhale: 7,
+      sessionText: "Completely relax your body",
+      breathingTip:
+        "Effortless breathing. Let the body breathe itself without any control, like waves gently washing over a shore.",
+      postureGuide:
+        "Lie flat on your back with arms and legs spread wide. Surrender every muscle to the floor.",
+      sessionInfo:
+        "Deep relaxation and integration. Allow your nervous system to reset and absorb the benefits of practice.",
+      mindFocus:
+        "Total surrender. Imagine your body dissolving into the floor, leaving only a sense of weightless presence.",
       objectPosition: "center 80%",
-      essence: "A conscious rehearsal of death and rebirth - the ego dissolves, the body rests, and the spirit remembers its boundless nature.",
-      origin: "Described in the Hatha Yoga Pradipika as the remover of fatigue and the giver of rest to the mind. Considered the most difficult pose to master due to the art of conscious surrender.",
-      mentalBenefits: ["Triggers the relaxation response in the nervous system", "Releases unconscious muscular and emotional holding", "Integrates the benefits of all preceding practice"],
-      physicalBenefits: ["Lowers blood pressure and heart rate measurably", "Reduces cortisol and inflammatory markers", "Allows cellular repair and deep tissue recovery"],
-      chakra: "All seven chakras - Savasana allows prana to flow freely through every energy center, harmonizing the entire subtle body.",
-      breathingTechnique: "Natural Breath (Svabhavika Pranayama) - no control, no effort. Simply witness the breath as it breathes itself in complete surrender.",
-      bestTime: "At the close of every yoga or meditation session. Also deeply restorative during afternoon fatigue or before sleep.",
-      beginnerTip: "Cover yourself with a light blanket to prevent chilling. Use an eye pillow to deepen the sense of withdrawal from the outer world.",
+      essence:
+        "A conscious rehearsal of death and rebirth - the ego dissolves, the body rests, and the spirit remembers its boundless nature.",
+      origin:
+        "Described in the Hatha Yoga Pradipika as the remover of fatigue and the giver of rest to the mind. Considered the most difficult pose to master due to the art of conscious surrender.",
+      mentalBenefits: [
+        "Triggers the relaxation response in the nervous system",
+        "Releases unconscious muscular and emotional holding",
+        "Integrates the benefits of all preceding practice",
+      ],
+      physicalBenefits: [
+        "Lowers blood pressure and heart rate measurably",
+        "Reduces cortisol and inflammatory markers",
+        "Allows cellular repair and deep tissue recovery",
+      ],
+      chakra:
+        "All seven chakras - Savasana allows prana to flow freely through every energy center, harmonizing the entire subtle body.",
+      color: "#ccfbf1",
+      waveGradient: "linear-gradient(744deg, #f0fdfa, #ccfbf1 60%, #5eead4)",
+      glowInner: "rgba(204, 251, 241, 0.3)",
+      glowOuter: "rgba(204, 251, 241, 0.5)",
     },
     {
       src: "/poses for medittaion/zen 6.png",
       label: "Zen Awareness",
       sanskrit: "Zazen",
       num: "06",
-      description: "Seated awareness practice rooted in Zen tradition. Simply sitting with full presence - no goal, no destination, just this moment.",
-      benefits: ["Cultivates pure presence", "Sharpens moment-to-moment awareness", "Reduces overthinking", "Builds equanimity"],
-      steps: ["Sit in half or full lotus", "Eyes half-open, gaze downward", "Hands in cosmic mudra on lap", "Simply observe breath without control"],
-      inhale: 4, hold: 1, exhale: 5, sessionText: "Stay present in the moment",
-      breathingTip: "Natural, unforced breath. Observe the breath as it is, without trying to change its pace or depth.",
-      postureGuide: "Sit with a straight back and half-open eyes. Gaze softly at the floor ahead of you, maintaining alert presence.",
-      sessionInfo: "Cultivating pure presence. A practice of radical acceptance and observing the 'here and now' without filters.",
-      mindFocus: "Bare attention. Witness your thoughts and sensations like passing clouds in a vast, empty sky.",
+      description:
+        "Seated awareness practice rooted in Zen tradition. Simply sitting with full presence - no goal, no destination, just this moment.",
+      benefits: [
+        "Cultivates pure presence",
+        "Sharpens moment-to-moment awareness",
+        "Reduces overthinking",
+        "Builds equanimity",
+      ],
+      steps: [
+        "Sit in half or full lotus",
+        "Eyes half-open, gaze downward",
+        "Hands in cosmic mudra on lap",
+        "Simply observe breath without control",
+      ],
+      inhale: 4,
+      hold: 1,
+      exhale: 5,
+      sessionText: "Stay present in the moment",
+      breathingTip:
+        "Natural, unforced breath. Observe the breath as it is, without trying to change its pace or depth.",
+      postureGuide:
+        "Sit with a straight back and half-open eyes. Gaze softly at the floor ahead of you, maintaining alert presence.",
+      sessionInfo:
+        "Cultivating pure presence. A practice of radical acceptance and observing the 'here and now' without filters.",
+      mindFocus:
+        "Bare attention. Witness your thoughts and sensations like passing clouds in a vast, empty sky.",
       objectPosition: "center",
-      essence: "Just sitting - Shikantaza. No goal, no attainment, no path. The practice itself is the destination, and this moment is already complete.",
-      origin: "Transmitted by Bodhidharma from India to China in the 5th century CE, Zazen became the heart of Zen Buddhism. Dogen Zenji formalized it in 13th century Japan as the direct expression of enlightenment.",
-      mentalBenefits: ["Dissolves the compulsive need to achieve or become", "Sharpens bare attention to the present moment", "Cultivates radical acceptance of what is"],
-      physicalBenefits: ["Regulates the autonomic nervous system", "Improves spinal alignment and core stability", "Reduces tension headaches and jaw clenching"],
-      chakra: "Ajna (Third Eye Chakra) - the half-open downward gaze activates the inner witness, the silent observer behind all experience.",
-      breathingTechnique: "Shizen Kokyu (Natural Breath) - breathe from the hara (lower abdomen), 4 counts in, 1 hold, 5 counts out. Let breath anchor awareness.",
-      bestTime: "Early morning before the mind fills with the day's concerns. Traditionally practiced facing a wall to minimize distraction.",
-      beginnerTip: "Use a zafu (round cushion) to elevate the hips above the knees. Begin with 10-minute sits and add 5 minutes each week.",
+      essence:
+        "Just sitting - Shikantaza. No goal, no attainment, no path. The practice itself is the destination, and this moment is already complete.",
+      origin:
+        "Transmitted by Bodhidharma from India to China in the 5th century CE, Zazen became the heart of Zen Buddhism. Dogen Zenji formalized it in 13th century Japan as the direct expression of enlightenment.",
+      mentalBenefits: [
+        "Dissolves the compulsive need to achieve or become",
+        "Sharpens bare attention to the present moment",
+        "Cultivates radical acceptance of what is",
+      ],
+      physicalBenefits: [
+        "Regulates the autonomic nervous system",
+        "Improves spinal alignment and core stability",
+        "Reduces tension headaches and jaw clenching",
+      ],
+      chakra:
+        "Ajna (Third Eye Chakra) - the half-open downward gaze activates the inner witness, the silent observer behind all experience.",
+      color: "#fed7aa",
+      waveGradient: "linear-gradient(744deg, #fff7ed, #ffedd5 60%, #fb923c)",
+      glowInner: "rgba(255, 237, 213, 0.3)",
+      glowOuter: "rgba(255, 237, 213, 0.5)",
     },
     {
       src: "/poses for medittaion/tree 7.png",
       label: "Tree Pose",
       sanskrit: "Vrikshasana",
       num: "07",
-      description: "Stand rooted like an ancient tree. This balancing pose builds the one-pointed focus essential for deep meditation practice.",
-      benefits: ["Improves balance and stability", "Builds laser-sharp concentration", "Strengthens legs and core", "Calms a scattered mind"],
-      steps: ["Stand tall on one leg", "Place other foot on inner thigh", "Bring hands to prayer at heart", "Fix gaze on one still point"],
-      inhale: 5, hold: 0, exhale: 5, sessionText: "Find balance and focus",
-      breathingTip: "Balanced and focused breathing. Use your breath as an anchor to maintain stability in this vertical posture.",
-      postureGuide: "Stand tall on one leg with the other foot against your inner thigh. Find a still point to fix your gaze.",
-      sessionInfo: "Finding balance and focus. This session builds the one-pointed concentration needed for deep meditation.",
-      mindFocus: "Rootedness. Visualize roots growing from your standing foot into the soil, providing unshakeable support.",
+      description:
+        "Stand rooted like an ancient tree. This balancing pose builds the one-pointed focus essential for deep meditation practice.",
+      benefits: [
+        "Improves balance and stability",
+        "Builds laser-sharp concentration",
+        "Strengthens legs and core",
+        "Calms a scattered mind",
+      ],
+      steps: [
+        "Stand tall on one leg",
+        "Place other foot on inner thigh",
+        "Bring hands to prayer at heart",
+        "Fix gaze on one still point",
+      ],
+      inhale: 5,
+      hold: 0,
+      exhale: 5,
+      sessionText: "Find balance and focus",
+      breathingTip:
+        "Balanced and focused breathing. Use your breath as an anchor to maintain stability in this vertical posture.",
+      postureGuide:
+        "Stand tall on one leg with the other foot against your inner thigh. Find a still point to fix your gaze.",
+      sessionInfo:
+        "Finding balance and focus. This session builds the one-pointed concentration needed for deep meditation.",
+      mindFocus:
+        "Rootedness. Visualize roots growing from your standing foot into the soil, providing unshakeable support.",
       objectPosition: "center",
-      essence: "The tree does not struggle to stand - it simply is. Vrikshasana teaches the meditator to be fully present, rooted in stillness while remaining open to the sky.",
-      origin: "One of the oldest standing asanas, depicted in ancient temple carvings across India. Referenced in the Gheranda Samhita as a posture that develops steadiness of body and mind.",
-      mentalBenefits: ["Develops Dharana (one-pointed concentration)", "Builds mental resilience and emotional steadiness", "Reduces anxiety through focused present-moment awareness"],
-      physicalBenefits: ["Strengthens ankles, calves, and stabilizing muscles", "Improves proprioception and neuromuscular coordination", "Opens the hip of the raised leg, releasing stored tension"],
-      chakra: "Muladhara (Root) & Anahata (Heart) - grounds energy through the standing foot while opening the heart through raised arms in prayer.",
-      breathingTechnique: "Sama Vritti (Equal Breath) - 5 counts inhale, 5 counts exhale. The symmetry of breath mirrors the symmetry of balance in the pose.",
-      bestTime: "Morning practice to set a tone of focus and groundedness for the day. Hold each side for 1-3 minutes.",
-      beginnerTip: "Place the raised foot on the calf (never the knee joint) if the inner thigh is not yet accessible. Use a wall for support initially.",
+      essence:
+        "The tree does not struggle to stand - it simply is. Vrikshasana teaches the meditator to be fully present, rooted in stillness while remaining open to the sky.",
+      origin:
+        "One of the oldest standing asanas, depicted in ancient temple carvings across India. Referenced in the Gheranda Samhita as a posture that develops steadiness of body and mind.",
+      mentalBenefits: [
+        "Develops Dharana (one-pointed concentration)",
+        "Builds mental resilience and emotional steadiness",
+        "Reduces anxiety through focused present-moment awareness",
+      ],
+      physicalBenefits: [
+        "Strengthens ankles, calves, and stabilizing muscles",
+        "Improves proprioception and neuromuscular coordination",
+        "Opens the hip of the raised leg, releasing stored tension",
+      ],
+      chakra:
+        "Muladhara (Root) & Anahata (Heart) - grounds energy through the standing foot while opening the heart through raised arms in prayer.",
+      color: "#a7f3d0",
+      waveGradient: "linear-gradient(744deg, #ecfdf5, #d1fae5 60%, #6ee7b7)",
+      glowInner: "rgba(209, 250, 229, 0.3)",
+      glowOuter: "rgba(209, 250, 229, 0.5)",
     },
     {
       src: "/poses for medittaion/deep 8.png",
       label: "Deep Dhyana",
       sanskrit: "Dhyana",
       num: "08",
-      description: "The seventh limb of Patanjali's Ashtanga - unbroken flow of concentration. When meditation becomes effortless and continuous.",
-      benefits: ["Transcends ordinary mind", "Accesses deep inner peace", "Dissolves ego boundaries", "Awakens higher consciousness"],
-      steps: ["Establish comfortable seated pose", "Begin with 10 min of breath focus", "Allow concentration to deepen naturally", "Rest in pure awareness without effort"],
-      inhale: 6, hold: 3, exhale: 8, sessionText: "Go deeper into meditation",
-      breathingTip: "Subtle, refined breathing. As concentration deepens, let the breath become a fine whisper of light.",
-      postureGuide: "Maintain a comfortable but alert seat. Keep your spine as a pillar of light, connecting earth and sky.",
-      sessionInfo: "Transcending the ordinary mind. An effortless flow of concentration where observer and observed become one.",
-      mindFocus: "Pure consciousness. Rest in the vast, luminous space of your own awareness, free from all labels.",
+      description:
+        "The seventh limb of Patanjali's Ashtanga - unbroken flow of concentration. When meditation becomes effortless and continuous.",
+      benefits: [
+        "Transcends ordinary mind",
+        "Accesses deep inner peace",
+        "Dissolves ego boundaries",
+        "Awakens higher consciousness",
+      ],
+      steps: [
+        "Establish comfortable seated pose",
+        "Begin with 10 min of breath focus",
+        "Allow concentration to deepen naturally",
+        "Rest in pure awareness without effort",
+      ],
+      inhale: 6,
+      hold: 3,
+      exhale: 8,
+      sessionText: "Go deeper into meditation",
+      breathingTip:
+        "Subtle, refined breathing. As concentration deepens, let the breath become a fine whisper of light.",
+      postureGuide:
+        "Maintain a comfortable but alert seat. Keep your spine as a pillar of light, connecting earth and sky.",
+      sessionInfo:
+        "Transcending the ordinary mind. An effortless flow of concentration where observer and observed become one.",
+      mindFocus:
+        "Pure consciousness. Rest in the vast, luminous space of your own awareness, free from all labels.",
       objectPosition: "center",
-      essence: "Dhyana is not something you do - it is something that happens when all doing ceases. The river of awareness flows unbroken, effortless, and luminous.",
-      origin: "The seventh of Patanjali's eight limbs of yoga, Dhyana is the sustained, uninterrupted flow of attention toward a single object - the bridge between concentration (Dharana) and liberation (Samadhi).",
-      mentalBenefits: ["Dissolves the observer-observed duality", "Accesses theta and delta brainwave states naturally", "Permanently reduces baseline anxiety and reactivity"],
-      physicalBenefits: ["Measurably reduces inflammatory biomarkers", "Lowers resting heart rate and blood pressure long-term", "Enhances immune function and cellular regeneration"],
-      chakra: "Sahasrara (Crown) & Ajna (Third Eye) - the upper chakras open like a lotus in full bloom, receiving the light of pure consciousness.",
-      breathingTechnique: "Kevala Kumbhaka (Spontaneous Breath Retention) - as Dhyana deepens, the breath naturally suspends. Do not force; allow this to arise organically.",
-      bestTime: "After 20-30 minutes of pranayama practice. The mind is most receptive to deep meditation when the breath has been refined and steadied.",
-      beginnerTip: "Use a mantra or trataka (candle gazing) as an anchor for the first 6 months. Dhyana arises naturally from consistent Dharana practice.",
+      essence:
+        "Dhyana is not something you do - it is something that happens when all doing ceases. The river of awareness flows unbroken, effortless, and luminous.",
+      origin:
+        "The seventh of Patanjali's eight limbs of yoga, Dhyana is the sustained, uninterrupted flow of attention toward a single object - the bridge between concentration (Dharana) and liberation (Samadhi).",
+      mentalBenefits: [
+        "Dissolves the observer-observed duality",
+        "Accesses theta and delta brainwave states naturally",
+        "Permanently reduces baseline anxiety and reactivity",
+      ],
+      physicalBenefits: [
+        "Measurably reduces inflammatory biomarkers",
+        "Lowers resting heart rate and blood pressure long-term",
+        "Enhances immune function and cellular regeneration",
+      ],
+      chakra:
+        "Sahasrara (Crown) & Ajna (Third Eye) - the upper chakras open like a lotus in full bloom, receiving the light of pure consciousness.",
+      color: "#c7d2fe",
+      waveGradient: "linear-gradient(744deg, #eef2ff, #e0e7ff 60%, #a5b4fc)",
+      glowInner: "rgba(224, 231, 255, 0.3)",
+      glowOuter: "rgba(224, 231, 255, 0.5)",
     },
   ];
 
@@ -309,184 +578,424 @@ const MeditationImages: React.FC = () => {
       label: "Bound Angle Pose",
       sanskrit: "Baddha Konasana",
       num: "01",
-      description: "A deeply opening seated posture that releases the hips and inner thighs, preparing the body for extended meditation.",
-      benefits: ["Opens hips and groin deeply", "Stimulates abdominal organs", "Relieves mild depression", "Soothes menstrual discomfort"],
-      steps: ["Sit tall, bring soles of feet together", "Let knees fall open to sides", "Hold feet with both hands", "Breathe and gently fold forward"],
-      inhale: 4, hold: 0, exhale: 6, sessionText: "Open and release",
-      breathingTip: "Slow exhales to deepen the hip opening. Let each breath release tension from the inner thighs.",
-      postureGuide: "Keep spine long. Do not force knees down - let gravity do the work over time.",
-      sessionInfo: "Hip-opening session for emotional release. Stored tension in the hips dissolves with patient practice.",
-      mindFocus: "Surrender. With each exhale, release the need to control and allow the body to open naturally.",
+      description:
+        "A deeply opening seated posture that releases the hips and inner thighs, preparing the body for extended meditation.",
+      benefits: [
+        "Opens hips and groin deeply",
+        "Stimulates abdominal organs",
+        "Relieves mild depression",
+        "Soothes menstrual discomfort",
+      ],
+      steps: [
+        "Sit tall, bring soles of feet together",
+        "Let knees fall open to sides",
+        "Hold feet with both hands",
+        "Breathe and gently fold forward",
+      ],
+      inhale: 4,
+      hold: 0,
+      exhale: 6,
+      sessionText: "Open and release",
+      breathingTip:
+        "Slow exhales to deepen the hip opening. Let each breath release tension from the inner thighs.",
+      postureGuide:
+        "Keep spine long. Do not force knees down - let gravity do the work over time.",
+      sessionInfo:
+        "Hip-opening session for emotional release. Stored tension in the hips dissolves with patient practice.",
+      mindFocus:
+        "Surrender. With each exhale, release the need to control and allow the body to open naturally.",
       objectPosition: "center",
-      essence: "The butterfly rests with wings open - Baddha Konasana teaches the art of yielding, of opening without force, of trusting the process of unfolding.",
-      origin: "Described in the Hatha Yoga Pradipika as a destroyer of disease. Traditionally practiced by cobblers in India for hours daily, earning it the name 'Cobbler's Pose'.",
-      mentalBenefits: ["Releases emotional tension stored in the hips", "Cultivates patience and non-striving", "Reduces anxiety and mild depression"],
-      physicalBenefits: ["Deeply opens hip flexors and inner groin", "Stimulates kidneys, bladder, and prostate", "Improves circulation in the lower body"],
-      chakra: "Svadhisthana (Sacral Chakra) - unlocks creative energy, emotional fluidity, and the capacity for joy and pleasure.",
-      breathingTechnique: "Dirgha (Three-Part Breath) - fill belly, ribs, then chest on inhale. Release chest, ribs, belly on exhale. 4 counts each.",
-      bestTime: "Evening practice to release the day's accumulated tension. Also excellent before seated meditation to open the hips.",
-      beginnerTip: "Sit on a folded blanket to tilt the pelvis forward. Place blocks under both knees for support if hips are tight.",
+      essence:
+        "The butterfly rests with wings open - Baddha Konasana teaches the art of yielding, of opening without force, of trusting the process of unfolding.",
+      origin:
+        "Described in the Hatha Yoga Pradipika as a destroyer of disease. Traditionally practiced by cobblers in India for hours daily, earning it the name 'Cobbler's Pose'.",
+      mentalBenefits: [
+        "Releases emotional tension stored in the hips",
+        "Cultivates patience and non-striving",
+        "Reduces anxiety and mild depression",
+      ],
+      physicalBenefits: [
+        "Deeply opens hip flexors and inner groin",
+        "Stimulates kidneys, bladder, and prostate",
+        "Improves circulation in the lower body",
+      ],
+      chakra:
+        "Svadhisthana (Sacral Chakra) - unlocks creative energy, emotional fluidity, and the capacity for joy and pleasure.",
+      color: "#fecdd3",
+      waveGradient: "linear-gradient(744deg, #fff1f2, #ffe4e6 60%, #fb7185)",
+      glowInner: "rgba(255, 228, 230, 0.3)",
+      glowOuter: "rgba(255, 228, 230, 0.5)",
     },
     {
       src: "/yoga for meditation/seated 2.png",
       label: "Seated Meditation",
       sanskrit: "Sukhasana Dhyana",
       num: "02",
-      description: "The quintessential meditation seat - simple, stable, and open. The foundation from which all inner journeys begin.",
-      benefits: ["Establishes meditation posture", "Calms the nervous system", "Improves spinal alignment", "Deepens breath awareness"],
-      steps: ["Sit cross-legged on a cushion", "Rest hands on knees in Jnana Mudra", "Lengthen spine on each inhale", "Soften face and jaw completely"],
-      inhale: 5, hold: 1, exhale: 6, sessionText: "Settle into stillness",
-      breathingTip: "Natural rhythmic breathing. Allow the breath to find its own pace without interference.",
-      postureGuide: "Alternate which leg is in front each session. Keep ears over shoulders, chin slightly tucked.",
-      sessionInfo: "Foundation meditation session. The simplest and most accessible entry point into formal practice.",
-      mindFocus: "The present moment. Simply notice what is here - sounds, sensations, the breath - without labeling or judging.",
+      description:
+        "The quintessential meditation seat - simple, stable, and open. The foundation from which all inner journeys begin.",
+      benefits: [
+        "Establishes meditation posture",
+        "Calms the nervous system",
+        "Improves spinal alignment",
+        "Deepens breath awareness",
+      ],
+      steps: [
+        "Sit cross-legged on a cushion",
+        "Rest hands on knees in Jnana Mudra",
+        "Lengthen spine on each inhale",
+        "Soften face and jaw completely",
+      ],
+      inhale: 5,
+      hold: 1,
+      exhale: 6,
+      sessionText: "Settle into stillness",
+      breathingTip:
+        "Natural rhythmic breathing. Allow the breath to find its own pace without interference.",
+      postureGuide:
+        "Alternate which leg is in front each session. Keep ears over shoulders, chin slightly tucked.",
+      sessionInfo:
+        "Foundation meditation session. The simplest and most accessible entry point into formal practice.",
+      mindFocus:
+        "The present moment. Simply notice what is here - sounds, sensations, the breath - without labeling or judging.",
       objectPosition: "center",
-      essence: "In the simplicity of sitting, everything is found. Sukhasana Dhyana is the reminder that the path inward requires no special equipment - only willingness.",
-      origin: "The most ancient of all meditation postures, depicted in Indus Valley seals dating to 2500 BCE. The universal human posture of contemplation across all traditions.",
-      mentalBenefits: ["Establishes a consistent meditation anchor", "Reduces mental fragmentation and distraction", "Builds the habit of present-moment awareness"],
-      physicalBenefits: ["Improves posture and spinal health over time", "Reduces lower back tension with consistent practice", "Regulates breathing patterns and lung capacity"],
-      chakra: "Muladhara (Root) - the grounded seat activates the foundation chakra, creating safety and stability for the inner journey.",
-      breathingTechnique: "Anuloma Viloma (Natural Alternate Nostril) - breathe naturally, noticing which nostril is dominant. Simply observe without control.",
-      bestTime: "Same time daily to build a consistent practice. Morning is ideal - the mind is clearest before the day's demands arise.",
-      beginnerTip: "Set a gentle timer for 10 minutes. When the mind wanders, simply return to the breath without self-criticism. This returning is the practice.",
+      essence:
+        "In the simplicity of sitting, everything is found. Sukhasana Dhyana is the reminder that the path inward requires no special equipment - only willingness.",
+      origin:
+        "The most ancient of all meditation postures, depicted in Indus Valley seals dating to 2500 BCE. The universal human posture of contemplation across all traditions.",
+      mentalBenefits: [
+        "Establishes a consistent meditation anchor",
+        "Reduces mental fragmentation and distraction",
+        "Builds the habit of present-moment awareness",
+      ],
+      physicalBenefits: [
+        "Improves posture and spinal health over time",
+        "Reduces lower back tension with consistent practice",
+        "Regulates breathing patterns and lung capacity",
+      ],
+      chakra:
+        "Muladhara (Root) - the grounded seat activates the foundation chakra, creating safety and stability for the inner journey.",
+      color: "#e0f2fe",
+      waveGradient: "linear-gradient(744deg, #f0f9ff, #e0f2fe 60%, #7dd3fc)",
+      glowInner: "rgba(224, 242, 254, 0.3)",
+      glowOuter: "rgba(224, 242, 254, 0.5)",
     },
     {
       src: "/yoga for meditation/staff 3.png",
       label: "Staff Pose",
       sanskrit: "Dandasana",
       num: "03",
-      description: "The foundational seated posture - a staff of awareness. Dandasana builds the spinal strength that supports all seated meditation.",
-      benefits: ["Strengthens spine and core", "Improves posture", "Stretches shoulders and chest", "Calms the mind through alignment"],
-      steps: ["Sit with legs extended forward", "Press thighs and heels into floor", "Sit tall, spine like a staff", "Flex feet, hands beside hips"],
-      inhale: 4, hold: 2, exhale: 4, sessionText: "Align and strengthen",
-      breathingTip: "Steady equal breathing. Each inhale lengthens the spine; each exhale roots the sitting bones deeper.",
-      postureGuide: "Engage the core gently. Do not lock the knees. Keep the spine vertical, not leaning back.",
-      sessionInfo: "Alignment session for spinal health. A strong spine is the foundation of a strong meditation practice.",
-      mindFocus: "Vertical alignment. Feel the spine as a channel of energy connecting earth below to sky above.",
+      description:
+        "The foundational seated posture - a staff of awareness. Dandasana builds the spinal strength that supports all seated meditation.",
+      benefits: [
+        "Strengthens spine and core",
+        "Improves posture",
+        "Stretches shoulders and chest",
+        "Calms the mind through alignment",
+      ],
+      steps: [
+        "Sit with legs extended forward",
+        "Press thighs and heels into floor",
+        "Sit tall, spine like a staff",
+        "Flex feet, hands beside hips",
+      ],
+      inhale: 4,
+      hold: 2,
+      exhale: 4,
+      sessionText: "Align and strengthen",
+      breathingTip:
+        "Steady equal breathing. Each inhale lengthens the spine; each exhale roots the sitting bones deeper.",
+      postureGuide:
+        "Engage the core gently. Do not lock the knees. Keep the spine vertical, not leaning back.",
+      sessionInfo:
+        "Alignment session for spinal health. A strong spine is the foundation of a strong meditation practice.",
+      mindFocus:
+        "Vertical alignment. Feel the spine as a channel of energy connecting earth below to sky above.",
       objectPosition: "center",
-      essence: "The staff is both a support and a symbol of authority. Dandasana teaches the meditator to be their own support - upright, dignified, and self-reliant.",
-      origin: "Referenced in the Yoga Sutras as the basis for all seated asanas. The name Danda means 'staff' or 'rod' - symbolizing the spine as the axis of the body.",
-      mentalBenefits: ["Cultivates mental uprightness and dignity", "Builds discipline through simple sustained effort", "Improves focus through physical alignment"],
-      physicalBenefits: ["Strengthens the erector spinae and core muscles", "Stretches the hamstrings and calves", "Improves kidney and liver function through compression"],
-      chakra: "Manipura (Solar Plexus) - the engaged core activates personal power, discipline, and the fire of transformation.",
-      breathingTechnique: "Sama Vritti (Box Breathing) - 4 counts inhale, 2 hold, 4 exhale, 2 hold. Creates mental steadiness matching physical alignment.",
-      bestTime: "Morning practice to set a tone of uprightness for the day. Hold for 1-3 minutes as a preparatory pose.",
-      beginnerTip: "Sit on a folded blanket if hamstrings are tight. Slightly bend the knees if the lower back rounds. Alignment matters more than straight legs.",
+      essence:
+        "The staff is both a support and a symbol of authority. Dandasana teaches the meditator to be their own support - upright, dignified, and self-reliant.",
+      origin:
+        "Referenced in the Yoga Sutras as the basis for all seated asanas. The name Danda means 'staff' or 'rod' - symbolizing the spine as the axis of the body.",
+      mentalBenefits: [
+        "Cultivates mental uprightness and dignity",
+        "Builds discipline through simple sustained effort",
+        "Improves focus through physical alignment",
+      ],
+      physicalBenefits: [
+        "Strengthens the erector spinae and core muscles",
+        "Stretches the hamstrings and calves",
+        "Improves kidney and liver function through compression",
+      ],
+      chakra:
+        "Manipura (Solar Plexus) - the engaged core activates personal power, discipline, and the fire of transformation.",
+      color: "#f7fee7",
+      waveGradient: "linear-gradient(744deg, #fafff0, #f7fee7 60%, #bef264)",
+      glowInner: "rgba(247, 254, 231, 0.3)",
+      glowOuter: "rgba(247, 254, 231, 0.5)",
     },
     {
       src: "/yoga for meditation/cow 4.png",
       label: "Cow Face Pose",
       sanskrit: "Gomukhasana",
       num: "04",
-      description: "A deep hip and shoulder opener that releases the body's most stubborn tension, creating space for profound stillness.",
-      benefits: ["Opens hips and shoulders simultaneously", "Relieves chronic tension", "Improves posture", "Deepens breath capacity"],
-      steps: ["Stack knees on top of each other", "Sit between the heels", "Reach one arm up, one behind back", "Clasp hands or use a strap"],
-      inhale: 5, hold: 0, exhale: 7, sessionText: "Release deep tension",
-      breathingTip: "Long slow exhales to release shoulder and hip tension. Breathe into the areas of resistance.",
-      postureGuide: "Keep the spine tall. Do not collapse the chest. Work both sides equally for balance.",
-      sessionInfo: "Deep release session for chronic tension. Gomukhasana reaches the places where stress hides most deeply.",
-      mindFocus: "Acceptance of resistance. Notice where the body holds tension and breathe into it with compassion rather than force.",
+      description:
+        "A deep hip and shoulder opener that releases the body's most stubborn tension, creating space for profound stillness.",
+      benefits: [
+        "Opens hips and shoulders simultaneously",
+        "Relieves chronic tension",
+        "Improves posture",
+        "Deepens breath capacity",
+      ],
+      steps: [
+        "Stack knees on top of each other",
+        "Sit between the heels",
+        "Reach one arm up, one behind back",
+        "Clasp hands or use a strap",
+      ],
+      inhale: 5,
+      hold: 0,
+      exhale: 7,
+      sessionText: "Release deep tension",
+      breathingTip:
+        "Long slow exhales to release shoulder and hip tension. Breathe into the areas of resistance.",
+      postureGuide:
+        "Keep the spine tall. Do not collapse the chest. Work both sides equally for balance.",
+      sessionInfo:
+        "Deep release session for chronic tension. Gomukhasana reaches the places where stress hides most deeply.",
+      mindFocus:
+        "Acceptance of resistance. Notice where the body holds tension and breathe into it with compassion rather than force.",
       objectPosition: "center",
-      essence: "Named for the shape of a cow's face - wide at the hips, narrow at the knees. Gomukhasana teaches us to find grace in asymmetry and peace in discomfort.",
-      origin: "One of the 84 classical asanas described in the Hatha Yoga Pradipika. Traditionally used to open the body before pranayama and meditation practice.",
-      mentalBenefits: ["Releases emotional armoring in shoulders and hips", "Cultivates equanimity in the face of discomfort", "Builds patience and non-reactivity"],
-      physicalBenefits: ["Deeply stretches hip rotators and IT band", "Opens chest and shoulder girdle", "Relieves chronic lower back and sacral tension"],
-      chakra: "Anahata (Heart Chakra) - the chest opening releases grief and emotional holding, allowing the heart to breathe freely.",
-      breathingTechnique: "Viloma (Interrupted Breath) - pause briefly mid-inhale and mid-exhale. This deepens awareness of the breath's journey through the body.",
-      bestTime: "Evening to release the day's accumulated physical and emotional tension. Hold each side for 2-5 minutes.",
-      beginnerTip: "Use a yoga strap between the hands if they cannot clasp. Sit on a block if the hips are uneven. Never force the shoulder joint.",
+      essence:
+        "Named for the shape of a cow's face - wide at the hips, narrow at the knees. Gomukhasana teaches us to find grace in asymmetry and peace in discomfort.",
+      origin:
+        "One of the 84 classical asanas described in the Hatha Yoga Pradipika. Traditionally used to open the body before pranayama and meditation practice.",
+      mentalBenefits: [
+        "Releases emotional tension stored in the hips",
+        "Cultivates patience and non-striving",
+        "Reduces anxiety and mild depression",
+      ],
+      physicalBenefits: [
+        "Deeply stretches hip rotators and IT band",
+        "Opens chest and shoulder girdle",
+        "Relieves chronic lower back and sacral tension",
+      ],
+      chakra:
+        "Anahata (Heart Chakra) - the chest opening releases grief and emotional holding, allowing the heart to breathe freely.",
+      color: "#ede9fe",
+      waveGradient: "linear-gradient(744deg, #f5f3ff, #ede9fe 60%, #a78bfa)",
+      glowInner: "rgba(237, 233, 254, 0.3)",
+      glowOuter: "rgba(237, 233, 254, 0.5)",
     },
     {
       src: "/yoga for meditation/camel 5.png",
       label: "Camel Pose",
       sanskrit: "Ustrasana",
       num: "05",
-      description: "A powerful heart-opening backbend that awakens courage, vulnerability, and the expansive energy of the chest and throat.",
-      benefits: ["Opens heart and chest fully", "Strengthens spine", "Stimulates nervous system", "Releases deep emotional holding"],
-      steps: ["Kneel with hips over knees", "Place hands on lower back", "Lift chest and arch back gently", "Reach for heels if accessible"],
-      inhale: 5, hold: 2, exhale: 6, sessionText: "Open your heart",
-      breathingTip: "Expansive inhales to lift and open the chest. Exhale to deepen the backbend without collapsing.",
-      postureGuide: "Keep thighs vertical. Do not compress the lower back - lengthen before bending. Tuck chin slightly.",
-      sessionInfo: "Heart-opening session for courage and vulnerability. Ustrasana invites you to face the world with an open chest.",
-      mindFocus: "Openness. Feel the front of the body expanding with each breath, creating space for new possibilities.",
+      description:
+        "A powerful heart-opening backbend that awakens courage, vulnerability, and the expansive energy of the chest and throat.",
+      benefits: [
+        "Opens heart and chest fully",
+        "Strengthens spine",
+        "Stimulates nervous system",
+        "Releases deep emotional holding",
+      ],
+      steps: [
+        "Kneel with hips over knees",
+        "Place hands on lower back",
+        "Lift chest and arch back gently",
+        "Reach for heels if accessible",
+      ],
+      inhale: 5,
+      hold: 2,
+      exhale: 6,
+      sessionText: "Open your heart",
+      breathingTip:
+        "Expansive inhales to lift and open the chest. Exhale to deepen the backbend without collapsing.",
+      postureGuide:
+        "Keep thighs vertical. Do not compress the lower back - lengthen before bending. Tuck chin slightly.",
+      sessionInfo:
+        "Heart-opening session for courage and vulnerability. Ustrasana invites you to face the world with an open chest.",
+      mindFocus:
+        "Openness. Feel the front of the body expanding with each breath, creating space for new possibilities.",
       objectPosition: "center",
-      essence: "The camel carries its sustenance within - Ustrasana teaches us that our greatest resource is the open heart, always available, always nourishing.",
-      origin: "A classical backbend from the Hatha tradition, Ustrasana is used in Kundalini yoga to activate the heart center and stimulate the thymus gland for immunity.",
-      mentalBenefits: ["Releases fear and emotional armoring around the heart", "Cultivates courage and vulnerability", "Combats depression through chest opening"],
-      physicalBenefits: ["Stretches the entire front body from ankles to throat", "Strengthens the back muscles and spine", "Stimulates the thyroid and parathyroid glands"],
-      chakra: "Anahata (Heart) & Vishuddha (Throat) - opens both the heart to love and the throat to authentic expression.",
-      breathingTechnique: "Bhramari (Humming Bee Breath) - after the pose, hum on the exhale. The vibration soothes the nervous system activated by the backbend.",
-      bestTime: "Mid-morning when energy is rising. Always follow with a forward fold to neutralize the spine.",
-      beginnerTip: "Keep hands on lower back rather than reaching for heels. Tuck toes under to raise the heels if needed. Never rush into deep backbends.",
+      essence:
+        "The camel carries its sustenance within - Ustrasana teaches us that our greatest resource is the open heart, always available, always nourishing.",
+      origin:
+        "A classical backbend from the Hatha tradition, Ustrasana is used in Kundalini yoga to activate the heart center and stimulate the thymus gland for immunity.",
+      mentalBenefits: [
+        "Releases fear and emotional armoring around the heart",
+        "Cultivates courage and vulnerability",
+        "Combats depression through chest opening",
+      ],
+      physicalBenefits: [
+        "Stretches the entire front body from ankles to throat",
+        "Strengthens the back muscles and spine",
+        "Stimulates the thyroid and parathyroid glands",
+      ],
+      chakra:
+        "Anahata (Heart) & Vishuddha (Throat) - opens both the heart to love and the throat to authentic expression.",
+      color: "#fee2e2",
+      waveGradient: "linear-gradient(744deg, #fef2f2, #fee2e2 60%, #f87171)",
+      glowInner: "rgba(254, 226, 226, 0.3)",
+      glowOuter: "rgba(254, 226, 226, 0.5)",
     },
     {
       src: "/yoga for meditation/cobra 6.png",
       label: "Cobra Pose",
       sanskrit: "Bhujangasana",
       num: "06",
-      description: "The cobra rises with awareness - this gentle backbend awakens the spine, stimulates the heart, and builds the energy for meditation.",
-      benefits: ["Strengthens spine and back muscles", "Opens chest and lungs", "Stimulates digestive organs", "Energizes the body gently"],
-      steps: ["Lie face down, hands under shoulders", "Press tops of feet into mat", "Inhale and lift chest off floor", "Keep elbows slightly bent, shoulders down"],
-      inhale: 5, hold: 1, exhale: 5, sessionText: "Rise with awareness",
-      breathingTip: "Inhale to rise, exhale to hold. Feel the breath expanding the chest and ribcage with each cycle.",
-      postureGuide: "Do not straighten arms fully. Keep the pubic bone on the mat. Shoulders away from ears.",
-      sessionInfo: "Energizing session for the spine. Bhujangasana awakens the dormant energy of the back body.",
-      mindFocus: "Rising awareness. Like the cobra lifting its hood, feel your consciousness rising from the base of the spine upward.",
+      description:
+        "The cobra rises with awareness - this gentle backbend awakens the spine, stimulates the heart, and builds the energy for meditation.",
+      benefits: [
+        "Strengthens spine and back muscles",
+        "Opens chest and lungs",
+        "Stimulates digestive organs",
+        "Energizes the body gently",
+      ],
+      steps: [
+        "Lie face down, hands under shoulders",
+        "Press tops of feet into mat",
+        "Inhale and lift chest off floor",
+        "Keep elbows slightly bent, shoulders down",
+      ],
+      inhale: 5,
+      hold: 1,
+      exhale: 5,
+      sessionText: "Rise with awareness",
+      breathingTip:
+        "Inhale to rise, exhale to hold. Feel the breath expanding the chest and ribcage with each cycle.",
+      postureGuide:
+        "Do not straighten arms fully. Keep the pubic bone on the mat. Shoulders away from ears.",
+      sessionInfo:
+        "Energizing session for the spine. Bhujangasana awakens the dormant energy of the back body.",
+      mindFocus:
+        "Rising awareness. Like the cobra lifting its hood, feel your consciousness rising from the base of the spine upward.",
       objectPosition: "center",
-      essence: "The cobra does not rush its rise - it moves with deliberate, fluid awareness. Bhujangasana teaches the meditator to awaken gradually, with grace.",
-      origin: "One of the most ancient asanas, depicted in 2nd century CE texts. In Kundalini tradition, Bhujangasana is used to awaken the serpent energy (Kundalini) at the base of the spine.",
-      mentalBenefits: ["Combats fatigue and mild depression", "Builds confidence and sense of personal power", "Awakens alertness without agitation"],
-      physicalBenefits: ["Strengthens the entire posterior chain", "Opens the chest and increases lung capacity", "Stimulates the kidneys and adrenal glands"],
-      chakra: "Manipura (Solar Plexus) & Anahata (Heart) - activates personal power while simultaneously opening the heart.",
-      breathingTechnique: "Surya Bhedana (Right Nostril Breathing) - inhale through right nostril only. Activates solar energy, warming and energizing the body.",
-      bestTime: "Morning practice to energize the body and spine for the day. Excellent as preparation before seated meditation.",
-      beginnerTip: "Keep the lift low - even 2 inches off the mat is sufficient. Focus on length rather than height. Never strain the lower back.",
+      essence:
+        "The cobra does not rush its rise - it moves with deliberate, fluid awareness. Bhujangasana teaches the meditator to awaken gradually, with grace.",
+      origin:
+        "One of the most ancient asanas, depicted in 2nd century CE texts. In Kundalini tradition, Bhujangasana is used to awaken the serpent energy (Kundalini) at the base of the spine.",
+      mentalBenefits: [
+        "Combats fatigue and mild depression",
+        "Builds confidence and sense of personal power",
+        "Awakens alertness without agitation",
+      ],
+      physicalBenefits: [
+        "Strengthens the entire posterior chain",
+        "Opens the chest and increases lung capacity",
+        "Stimulates the kidneys and adrenal glands",
+      ],
+      chakra:
+        "Manipura (Solar Plexus) & Anahata (Heart) - activates personal power while simultaneously opening the heart.",
+      color: "#fef9c3",
+      waveGradient: "linear-gradient(744deg, #fefce8, #fef9c3 60%, #facc15)",
+      glowInner: "rgba(254, 249, 195, 0.3)",
+      glowOuter: "rgba(254, 249, 195, 0.5)",
     },
     {
       src: "/yoga for meditation/boat 7.png",
       label: "Boat Pose",
       sanskrit: "Navasana",
       num: "07",
-      description: "Balance on the waters of the mind - Navasana builds the core strength and mental fortitude that sustains long meditation practice.",
-      benefits: ["Strengthens core and hip flexors", "Builds mental determination", "Improves balance", "Stimulates digestive fire"],
-      steps: ["Sit with knees bent, feet flat", "Lean back slightly, lift feet", "Extend arms forward parallel to floor", "Straighten legs to form a V-shape"],
-      inhale: 4, hold: 3, exhale: 5, sessionText: "Find your center",
-      breathingTip: "Steady breath despite the challenge. The ability to breathe calmly under effort is the essence of pranayama.",
-      postureGuide: "Keep the spine long, not rounded. Engage the lower belly. Gaze forward or at the toes.",
-      sessionInfo: "Core strength session for mental fortitude. The physical challenge of Navasana mirrors the mental challenge of sustained meditation.",
-      mindFocus: "Steadiness under pressure. Notice the mind's urge to give up and choose to stay one more breath.",
+      description:
+        "Balance on the waters of the mind - Navasana builds the core strength and mental fortitude that sustains long meditation practice.",
+      benefits: [
+        "Strengthens core and hip flexors",
+        "Builds mental determination",
+        "Improves balance",
+        "Stimulates digestive fire",
+      ],
+      steps: [
+        "Sit with knees bent, feet flat",
+        "Lean back slightly, lift feet",
+        "Extend arms forward parallel to floor",
+        "Straighten legs to form a V-shape",
+      ],
+      inhale: 4,
+      hold: 3,
+      exhale: 5,
+      sessionText: "Find your center",
+      breathingTip:
+        "Steady breath despite the challenge. The ability to breathe calmly under effort is the essence of pranayama.",
+      postureGuide:
+        "Keep the spine long, not rounded. Engage the lower belly. Gaze forward or at the toes.",
+      sessionInfo:
+        "Core strength session for mental fortitude. The physical challenge of Navasana mirrors the mental challenge of sustained meditation.",
+      mindFocus:
+        "Steadiness under pressure. Notice the mind's urge to give up and choose to stay one more breath.",
       objectPosition: "center",
-      essence: "The boat navigates turbulent waters by staying centered - Navasana teaches the meditator to find stillness at the core even when the surface of the mind is stormy.",
-      origin: "Referenced in classical Hatha texts as a strengthening pose for the digestive fire (Agni). In modern practice, it is the cornerstone of core-strengthening sequences.",
-      mentalBenefits: ["Builds mental determination and willpower", "Develops the capacity to stay present under discomfort", "Cultivates confidence through physical challenge"],
-      physicalBenefits: ["Strengthens the transverse abdominis and hip flexors", "Stimulates the kidneys, thyroid, and intestines", "Improves balance and proprioception"],
-      chakra: "Manipura (Solar Plexus) - the engaged core directly activates the seat of personal power, will, and transformation.",
-      breathingTechnique: "Kumbhaka (Breath Retention) - hold the breath briefly at the top of the inhale while in the pose. Builds internal heat and concentration.",
-      bestTime: "Morning or midday when energy is available. Never practice on a full stomach. Hold for 5 breaths, rest, repeat 3 times.",
-      beginnerTip: "Keep knees bent and hold the backs of the thighs for support. Focus on a long spine over straight legs. Build duration gradually.",
+      essence:
+        "The boat navigates turbulent waters by staying centered - Navasana teaches the meditator to find stillness at the core even when the surface of the mind is stormy.",
+      origin:
+        "Referenced in classical Hatha texts as a strengthening pose for the digestive fire (Agni). In modern practice, it is the cornerstone of core-strengthening sequences.",
+      mentalBenefits: [
+        "Builds mental determination and willpower",
+        "Develops the capacity to stay present under discomfort",
+        "Cultivates confidence through physical challenge",
+      ],
+      physicalBenefits: [
+        "Strengthens the transverse abdominis and hip flexors",
+        "Stimulates the kidneys, thyroid, and intestines",
+        "Improves balance and proprioception",
+      ],
+      chakra:
+        "Manipura (Solar Plexus) - the engaged core directly activates the seat of personal power, will, and transformation.",
+      color: "#cffafe",
+      waveGradient: "linear-gradient(744deg, #ecfeff, #cffafe 60%, #22d3ee)",
+      glowInner: "rgba(207, 250, 254, 0.3)",
+      glowOuter: "rgba(207, 250, 254, 0.5)",
     },
     {
       src: "/yoga for meditation/seated twist 8.png",
       label: "Seated Twist",
       sanskrit: "Ardha Matsyendrasana",
       num: "08",
-      description: "The spine is wrung like a cloth - releasing toxins, awakening energy, and creating the clarity needed for deep meditation.",
-      benefits: ["Detoxifies digestive organs", "Increases spinal mobility", "Stimulates nervous system", "Improves focus and alertness"],
-      steps: ["Sit with legs extended", "Bend right knee, place foot outside left thigh", "Inhale to lengthen spine", "Exhale and twist right, left elbow outside right knee"],
-      inhale: 4, hold: 1, exhale: 6, sessionText: "Wring and release",
-      breathingTip: "Inhale to lengthen before twisting. Exhale to deepen the twist. Never force - let the breath guide the rotation.",
-      postureGuide: "Twist from the base of the spine upward. Keep both sitting bones grounded. Look over the back shoulder.",
-      sessionInfo: "Detoxifying session for clarity. Twists compress and release the organs, flushing toxins and awakening energy.",
-      mindFocus: "Release of the old. As you twist, visualize releasing stagnant thoughts, emotions, and patterns that no longer serve.",
+      description:
+        "The spine is wrung like a cloth - releasing toxins, awakening energy, and creating the clarity needed for deep meditation.",
+      benefits: [
+        "Detoxifies digestive organs",
+        "Increases spinal mobility",
+        "Stimulates nervous system",
+        "Improves focus and alertness",
+      ],
+      steps: [
+        "Sit with legs extended",
+        "Bend right knee, place foot outside left thigh",
+        "Inhale to lengthen spine",
+        "Exhale and twist right, left elbow outside right knee",
+      ],
+      inhale: 4,
+      hold: 1,
+      exhale: 6,
+      sessionText: "Wring and release",
+      breathingTip:
+        "Inhale to lengthen before twisting. Exhale to deepen the twist. Never force - let the breath guide the rotation.",
+      postureGuide:
+        "Twist from the base of the spine upward. Keep both sitting bones grounded. Look over the back shoulder.",
+      sessionInfo:
+        "Detoxifying session for clarity. Twists compress and release the organs, flushing toxins and awakening energy.",
+      mindFocus:
+        "Release of the old. As you twist, visualize releasing stagnant thoughts, emotions, and patterns that no longer serve.",
       objectPosition: "center",
-      essence: "Named after the sage Matsyendra, who received the secrets of yoga from Shiva himself. This twist is said to awaken the dormant wisdom within the spine.",
-      origin: "One of the original 84 asanas described by Matsyendranath, founder of the Natha tradition. Considered essential for maintaining spinal health and pranic flow.",
-      mentalBenefits: ["Clears mental fog and improves cognitive clarity", "Releases emotional stagnation held in the torso", "Awakens alertness and fresh perspective"],
-      physicalBenefits: ["Massages and detoxifies the liver, kidneys, and spleen", "Increases rotational mobility of the thoracic spine", "Relieves lower back pain and sciatica"],
-      chakra: "Manipura (Solar Plexus) & Anahata (Heart) - the twist activates digestive fire while the rotation opens the heart to new perspectives.",
-      breathingTechnique: "Anuloma Viloma (Alternate Nostril) - after the twist, practice 5 rounds to balance the energy channels activated by the rotation.",
-      bestTime: "Morning to stimulate digestion and awaken the spine. Practice both sides equally, holding each for 5-10 breaths.",
-      beginnerTip: "Keep the bottom leg extended if stacking the knees is uncomfortable. Use the hand on the floor behind you for support rather than forcing the twist.",
+      essence:
+        "Named after the sage Matsyendra, who received the secrets of yoga from Shiva himself. This twist is said to awaken the dormant wisdom within the spine.",
+      origin:
+        "One of the original 84 asanas described by Matsyendranath, founder of the Natha tradition. Considered essential for maintaining spinal health and pranic flow.",
+      mentalBenefits: [
+        "Clears mental fog and improves cognitive clarity",
+        "Releases emotional stagnation held in the torso",
+        "Awakens alertness and fresh perspective",
+      ],
+      physicalBenefits: [
+        "Massages and detoxifies the liver, kidneys, and spleen",
+        "Increases rotational mobility of the thoracic spine",
+        "Relieves lower back pain and sciatica",
+      ],
+      chakra:
+        "Manipura (Solar Plexus) & Anahata (Heart) - the twist activates digestive fire while the rotation opens the heart to new perspectives.",
+      color: "#fdf4ff",
+      waveGradient: "linear-gradient(744deg, #faf5ff, #fdf4ff 60%, #e879f9)",
+      glowInner: "rgba(253, 244, 255, 0.3)",
+      glowOuter: "rgba(253, 244, 255, 0.5)",
     },
   ];
 
@@ -494,7 +1003,7 @@ const MeditationImages: React.FC = () => {
 
   const radius = 300;
   const cards = poses.map((pose, i) => {
-    const angle = (i * 45) - 90;
+    const angle = i * 45 - 90;
     const rad = (angle * Math.PI) / 180;
     return { ...pose, x: Math.cos(rad) * radius, y: Math.sin(rad) * radius };
   });
@@ -502,34 +1011,94 @@ const MeditationImages: React.FC = () => {
   const selected = selectedPose !== null ? poses[selectedPose] : null;
 
   return (
-    <section style={{ background: '#f8fafb', padding: '80px 0', overflow: 'hidden', position: 'relative' }}>
-
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1 }}>
-
+    <section
+      style={{
+        background: "#f8fafb",
+        padding: "80px 0",
+        overflow: "hidden",
+        position: "relative",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "1100px",
+          margin: "0 auto",
+          padding: "0 24px",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
         {/* Heading */}
-        <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-          <p style={{ fontFamily: "'Cinzel', serif", fontSize: '0.7rem', letterSpacing: '0.35em', textTransform: 'uppercase', color: '#2d6a4f', marginBottom: '12px', opacity: 0.8 }}>Ancient Asanas</p>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: 'clamp(2rem, 4vw, 3rem)', color: '#1e293b', margin: 0 }}>
-            Poses for <span style={{ color: '#059669', fontStyle: 'italic' }}>Meditation</span>
+        <div style={{ textAlign: "center", marginBottom: "60px" }}>
+          <p
+            style={{
+              fontFamily: "'Cinzel', serif",
+              fontSize: "0.7rem",
+              letterSpacing: "0.35em",
+              textTransform: "uppercase",
+              color: "#2d6a4f",
+              marginBottom: "12px",
+              opacity: 0.8,
+            }}
+          >
+            Ancient Asanas
+          </p>
+          <h2
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontWeight: 800,
+              fontSize: "clamp(2rem, 4vw, 3rem)",
+              color: "#1e293b",
+              margin: 0,
+            }}
+          >
+            Poses for{" "}
+            <span style={{ color: "#059669", fontStyle: "italic" }}>
+              Meditation
+            </span>
           </h2>
-          <div style={{ width: '60px', height: '1px', background: 'linear-gradient(to right, transparent, #059669, transparent)', margin: '16px auto 0' }} />
-          <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '12px', fontFamily: "'Poppins', sans-serif" }}>Click any pose to explore</p>
+          <div
+            style={{
+              width: "60px",
+              height: "1px",
+              background:
+                "linear-gradient(to right, transparent, #059669, transparent)",
+              margin: "16px auto 0",
+            }}
+          />
+          <p
+            style={{
+              color: "#64748b",
+              fontSize: "0.85rem",
+              marginTop: "12px",
+              fontFamily: "'Poppins', sans-serif",
+            }}
+          >
+            Click any pose to explore
+          </p>
         </div>
 
         {/* Dark box wrapping only the radial layout */}
-        <div style={{
-          background: 'linear-gradient(135deg, #000000 0%, #020d0a 40%, #000d1a 100%)',
-          borderRadius: '32px',
-          padding: '40px 20px',
-          position: 'relative',
-          overflow: 'hidden',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,255,157,0.08)',
-        }}>
-
+        <div
+          style={{
+            background:
+              "linear-gradient(135deg, #000000 0%, #020d0a 40%, #000d1a 100%)",
+            borderRadius: "32px",
+            padding: "40px 20px",
+            position: "relative",
+            overflow: "hidden",
+            boxShadow:
+              "0 20px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,255,157,0.08)",
+          }}
+        >
           {/* Floating particles - inside the box only */}
           <div className="med-particles" aria-hidden="true">
             {Array.from({ length: 18 }).map((_, i) => (
-              <div key={i} className="med-particle" style={{ '--i': i } as React.CSSProperties} />
+              <div
+                key={i}
+                className="med-particle"
+                style={{ "--i": i } as React.CSSProperties}
+              />
             ))}
           </div>
 
@@ -540,7 +1109,18 @@ const MeditationImages: React.FC = () => {
             disabled={currentSet === 0 || transitioning}
             aria-label="Previous pose set"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
           </button>
 
           {/* Next button */}
@@ -550,52 +1130,106 @@ const MeditationImages: React.FC = () => {
             disabled={currentSet === 1 || transitioning}
             aria-label="Next pose set"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
           </button>
 
           {/* Set indicator dots */}
           <div className="med-set-dots">
-            <span className={`med-set-dot${currentSet === 0 ? ' med-set-dot-active' : ''}`} onClick={() => switchSet(0)} />
-            <span className={`med-set-dot${currentSet === 1 ? ' med-set-dot-active' : ''}`} onClick={() => switchSet(1)} />
+            <span
+              className={`med-set-dot${currentSet === 0 ? " med-set-dot-active" : ""}`}
+              onClick={() => switchSet(0)}
+            />
+            <span
+              className={`med-set-dot${currentSet === 1 ? " med-set-dot-active" : ""}`}
+              onClick={() => switchSet(1)}
+            />
           </div>
 
           {/* Radial layout */}
-          <div className="med-radial-container" style={{ opacity: transitioning ? 0 : 1, transform: transitioning ? 'scale(0.97)' : 'scale(1)', transition: 'opacity 0.32s ease, transform 0.32s ease' }}>
-          {/* Center tree */}
-          <div className="med-center">
-            <img src="/circle.jpg" alt="Meditation Tree" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }} />
-          </div>
+          <div
+            className="med-radial-container"
+            style={{
+              opacity: transitioning ? 0 : 1,
+              transform: transitioning ? "scale(0.97)" : "scale(1)",
+              transition: "opacity 0.32s ease, transform 0.32s ease",
+            }}
+          >
+            {/* Center tree */}
+            <div className="med-center">
+              <img
+                src="/circle.jpg"
+                alt="Meditation Tree"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  borderRadius: "50%",
+                }}
+              />
+            </div>
 
-          {/* Orbit wrapper */}
-          <div className="med-orbit-wrapper">
-            {cards.map((card, i) => (
-              <div
-                key={i}
-                className="med-orbit-anchor"
-                style={{ left: `calc(50% + ${card.x}px)`, top: `calc(50% + ${card.y}px)` }}
-              >
+            {/* Orbit wrapper */}
+            <div className="med-orbit-wrapper">
+              {cards.map((card, i) => (
                 <div
-                  className="med-circle-card"
-                  onClick={() => setSelectedPose(i)}
+                  key={i}
+                  className="med-orbit-anchor"
+                  style={{
+                    left: `calc(50% + ${card.x}px)`,
+                    top: `calc(50% + ${card.y}px)`,
+                  }}
                 >
-                  <div className="med-circle-img">
-                    <img key={`${currentSet}-${i}`} src={card.src} alt={card.label} />
+                  <div
+                    className="med-circle-card"
+                    onClick={() => setSelectedPose(i)}
+                    style={{
+                      "--pose-color": card.color,
+                      "--pose-glow-inner": (card as any).glowInner,
+                      "--pose-glow-outer": (card as any).glowOuter,
+                    } as React.CSSProperties}
+                  >
+                    <div className="med-circle-img" style={{ borderColor: card.color }}>
+                      <img
+                        key={`${currentSet}-${i}`}
+                        src={card.src}
+                        alt={card.label}
+                      />
+                    </div>
+                    <span className="med-circle-num" style={{ color: card.color, textShadow: `0 0 8px ${card.color}` }}>{card.num}</span>
+                    <p className="med-circle-label">{card.label}</p>
                   </div>
-                  <span className="med-circle-num">{card.num}</span>
-                  <p className="med-circle-label">{card.label}</p>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-          </div>{/* end med-radial-container */}
-        </div>{/* end dark box */}
-      </div>{/* end outer container */}
+          {/* end med-radial-container */}
+        </div>
+        {/* end dark box */}
+      </div>
+      {/* end outer container */}
 
       {/* -- POSE DETAIL MODAL -- */}
       {selected !== null && (
-        <div className="med-modal-overlay" onClick={() => setSelectedPose(null)}>
-          <div className="med-modal" onClick={e => e.stopPropagation()}>
-
+        <div
+          className="med-modal-overlay"
+          onClick={() => setSelectedPose(null)}
+        >
+          <div 
+            className="med-modal" 
+            onClick={(e) => e.stopPropagation()}
+            style={{ '--pose-bg': (selected as any).color } as any}
+          >
             {/* Ambient pastel orbs */}
             <div className="med-orb med-orb-1" />
             <div className="med-orb med-orb-2" />
@@ -607,76 +1241,91 @@ const MeditationImages: React.FC = () => {
               onClick={() => setSelectedPose(null)}
               aria-label="Close"
             >
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" />
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M6 6L18 18M18 6L6 18"
+                  stroke="currentColor"
+                  strokeWidth="1.15"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
 
-            {/* -- HEADER -- */}
+            {/* -- HEADER: image left + info right -- */}
             <div className="med-modal-header">
-              {/* Pose image — medium size, centered */}
-              <div className="med-modal-img-wrap">
+              <div className="med-modal-hero-row">
+                {/* Left: image */}
                 <img
                   src={selected.src}
                   alt={selected.label}
                   className="med-modal-hero-img"
-                  style={{ objectPosition: (selected as any).objectPosition || 'center' }}
+                  style={{
+                    objectPosition:
+                      (selected as any).objectPosition || "center top",
+                  }}
                 />
-                <div className="med-modal-img-glow" />
+                {/* Right: info */}
+                <div className="med-modal-hero-info">
+                  <div className="med-modal-badge">
+                    <span className="med-modal-num-label">
+                      {(selected as any).num}
+                    </span>
+                    <span className="med-badge-dot" />
+                    <span className="med-modal-sanskrit">
+                      {selected.sanskrit}
+                    </span>
+                  </div>
+                  <BlurText
+                    key={selected.label}
+                    text={selected.label}
+                    animateBy="words"
+                    direction="top"
+                    delay={120}
+                    stepDuration={0.38}
+                    className="med-modal-title"
+                  />
+                  <div className="med-title-rule" />
+                  <p className="med-modal-desc">{selected.description}</p>
+                </div>
               </div>
-
-              <div className="med-modal-badge">
-                <span className="med-modal-num-label">{(selected as any).num}</span>
-                <span className="med-badge-dot" />
-                <span className="med-modal-sanskrit">{selected.sanskrit}</span>
-              </div>
-              <h3 className="med-modal-title">{selected.label}</h3>
-              <p className="med-modal-desc">{selected.description}</p>
-              <div className="med-title-rule" />
             </div>
 
             {/* -- BODY -- */}
             <div className="med-modal-body">
-
               {/* Row 1: Spiritual Essence + Ancient Origin */}
               <div className="med-row-2">
                 <div
                   className="med-glass-card med-card-meaning"
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => pulseGlassCard('meaning')}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      pulseGlassCard('meaning');
-                    }
-                  }}
                 >
-                  {glassGlow?.id === 'meaning' && (
-                    <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
-                  )}
-                  <h4 className="med-card-heading">Spiritual Essence</h4>
-                  <div className="med-card-rule" />
-                  <p className="med-card-text">{selected.essence}</p>
+                  <div className="med-card-particles">
+                    <div className="med-card-particle" style={{'--i': 1} as any} />
+                    <div className="med-card-particle" style={{'--i': 2} as any} />
+                    <div className="med-card-particle" style={{'--i': 3} as any} />
+                  </div>
+                  <div className="med-card-inner">
+                    <h4 className="med-card-heading">Spiritual Essence</h4>
+                    <div className="med-card-rule" />
+                    <p className="med-card-text">{selected.essence}</p>
+                  </div>
                 </div>
                 <div
                   className="med-glass-card med-card-origin"
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => pulseGlassCard('origin')}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      pulseGlassCard('origin');
-                    }
-                  }}
                 >
-                  {glassGlow?.id === 'origin' && (
-                    <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
-                  )}
-                  <h4 className="med-card-heading">Ancient Origin</h4>
-                  <div className="med-card-rule" />
-                  <p className="med-card-text">{selected.origin}</p>
+                  <div className="med-card-particles">
+                    <div className="med-card-particle" style={{'--i': 1} as any} />
+                    <div className="med-card-particle" style={{'--i': 2} as any} />
+                    <div className="med-card-particle" style={{'--i': 3} as any} />
+                  </div>
+                  <div className="med-card-inner">
+                    <h4 className="med-card-heading">Ancient Origin</h4>
+                    <div className="med-card-rule" />
+                    <p className="med-card-text">{selected.origin}</p>
+                  </div>
                 </div>
               </div>
 
@@ -684,134 +1333,56 @@ const MeditationImages: React.FC = () => {
               <div className="med-row-2">
                 <div
                   className="med-glass-card med-card-mental"
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => pulseGlassCard('mental')}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      pulseGlassCard('mental');
-                    }
-                  }}
                 >
-                  {glassGlow?.id === 'mental' && (
-                    <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
-                  )}
-                  <h4 className="med-card-heading">Mental & Emotional</h4>
-                  <div className="med-card-rule" />
-                  <ul className="med-list">
-                    {selected.mentalBenefits.map((b: string, i: number) => (
-                      <li key={i}>{b}</li>
-                    ))}
-                  </ul>
+                  <div className="med-card-particles">
+                    <div className="med-card-particle" style={{'--i': 1} as any} />
+                    <div className="med-card-particle" style={{'--i': 2} as any} />
+                    <div className="med-card-particle" style={{'--i': 3} as any} />
+                  </div>
+                  <div className="med-card-inner">
+                    <h4 className="med-card-heading">Mental & Emotional</h4>
+                    <div className="med-card-rule" />
+                    <ul className="med-list">
+                      {selected.mentalBenefits.map((b: string, i: number) => (
+                        <li key={i}>{b}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
                 <div
                   className="med-glass-card med-card-physical"
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => pulseGlassCard('physical')}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      pulseGlassCard('physical');
-                    }
-                  }}
                 >
-                  {glassGlow?.id === 'physical' && (
-                    <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
-                  )}
-                  <h4 className="med-card-heading">Physical Benefits</h4>
-                  <div className="med-card-rule" />
-                  <ul className="med-list">
-                    {selected.physicalBenefits.map((b: string, i: number) => (
-                      <li key={i}>{b}</li>
-                    ))}
-                  </ul>
+                  <div className="med-card-particles">
+                    <div className="med-card-particle" style={{'--i': 1} as any} />
+                    <div className="med-card-particle" style={{'--i': 2} as any} />
+                    <div className="med-card-particle" style={{'--i': 3} as any} />
+                  </div>
+                  <div className="med-card-inner">
+                    <h4 className="med-card-heading">Physical Benefits</h4>
+                    <div className="med-card-rule" />
+                    <ul className="med-list">
+                      {selected.physicalBenefits.map((b: string, i: number) => (
+                        <li key={i}>{b}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
 
               {/* Row 3: Chakra — full width */}
               <div
                 className="med-glass-card med-card-chakra med-card-wide"
-                role="button"
-                tabIndex={0}
-                onClick={() => pulseGlassCard('chakra')}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    pulseGlassCard('chakra');
-                  }
-                }}
               >
-                {glassGlow?.id === 'chakra' && (
-                  <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
-                )}
-                <h4 className="med-card-heading">Chakra & Energy Connection</h4>
-                <div className="med-card-rule" />
-                <p className="med-card-text">{selected.chakra}</p>
-              </div>
-
-              {/* Row 4: Breathing Technique + Best Practice Time */}
-              <div className="med-row-2">
-                <div
-                  className="med-glass-card med-card-breath"
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => pulseGlassCard('breath')}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      pulseGlassCard('breath');
-                    }
-                  }}
-                >
-                  {glassGlow?.id === 'breath' && (
-                    <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
-                  )}
-                  <h4 className="med-card-heading">Breathing Technique</h4>
-                  <div className="med-card-rule" />
-                  <p className="med-card-text">{selected.breathingTechnique}</p>
+                <div className="med-card-particles">
+                  <div className="med-card-particle" style={{'--i': 1} as any} />
+                  <div className="med-card-particle" style={{'--i': 2} as any} />
+                  <div className="med-card-particle" style={{'--i': 3} as any} />
                 </div>
-                <div
-                  className="med-glass-card med-card-time"
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => pulseGlassCard('time')}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      pulseGlassCard('time');
-                    }
-                  }}
-                >
-                  {glassGlow?.id === 'time' && (
-                    <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
-                  )}
-                  <h4 className="med-card-heading">Best Practice Time</h4>
+                <div className="med-card-inner">
+                  <h4 className="med-card-heading">Chakra & Energy Connection</h4>
                   <div className="med-card-rule" />
-                  <p className="med-card-text">{selected.bestTime}</p>
+                  <p className="med-card-text">{selected.chakra}</p>
                 </div>
-              </div>
-
-              {/* Row 5: Beginner Guidance — full width */}
-              <div
-                className="med-glass-card med-card-beginner med-card-wide"
-                role="button"
-                tabIndex={0}
-                onClick={() => pulseGlassCard('beginner')}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    pulseGlassCard('beginner');
-                  }
-                }}
-              >
-                {glassGlow?.id === 'beginner' && (
-                  <div key={glassGlow.nonce} className="med-glass-card-flash-burst" aria-hidden />
-                )}
-                <h4 className="med-card-heading">Beginner Guidance</h4>
-                <div className="med-card-rule" />
-                <p className="med-card-text">{selected.beginnerTip}</p>
               </div>
 
             </div>
@@ -828,6 +1399,8 @@ const MeditationImages: React.FC = () => {
       )}
 
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
         /* -- Particles -- */
         .med-particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
         .med-particle {
@@ -951,11 +1524,16 @@ const MeditationImages: React.FC = () => {
           border: 2px solid rgba(0,255,157,0.4);
           transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
         }
-        .med-circle-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .med-circle-img img { 
+          width: 100%; height: 100%; 
+          object-fit: cover; 
+          transition: transform 0.4s ease; 
+          filter: brightness(1.15) contrast(1.1); /* Brighten */
+        }
         .med-circle-card:hover .med-circle-img {
           transform: scale(1.1);
-          border-color: #00ff9d;
-          box-shadow: 0 0 0 4px rgba(0,255,157,0.25), 0 0 30px rgba(0,255,157,0.4);
+          border-color: var(--pose-color);
+          box-shadow: 0 0 0 4px var(--pose-glow-inner), 0 0 30px var(--pose-glow-outer);
         }
         .med-circle-card:hover .med-circle-img img { transform: scale(1.12); }
         .med-circle-num {
@@ -1002,58 +1580,102 @@ const MeditationImages: React.FC = () => {
           overflow-y: auto;
           overflow-x: hidden;
           border-radius: 40px;
-          
-          /* Clean white/off-white surface — no green tint */
-          background: rgba(255, 255, 255, 0.97);
-          
-          backdrop-filter: blur(40px) saturate(1.4);
-          -webkit-backdrop-filter: blur(40px) saturate(1.4);
-          
-          border: 1px solid rgba(200, 215, 210, 0.40);
-          
+
+          /* Extremely subtle tint — not dominating */
+          background: linear-gradient(145deg, 
+            rgba(255, 255, 255, 0.99) 0%, 
+            rgba(255, 255, 255, 0.96) 40%,
+            var(--pose-bg, rgba(255, 255, 255, 0.98)) 100%
+          );
+
+          backdrop-filter: blur(45px) saturate(1.1);
+          -webkit-backdrop-filter: blur(45px) saturate(1.1);
+
+          border: 1px solid rgba(255, 255, 255, 0.8);
+
           box-shadow:
-            0 0 0 1px rgba(255, 255, 255, 0.90) inset,
-            0 8px 32px rgba(0, 0, 0, 0.14),
-            0 24px 60px rgba(0, 0, 0, 0.10);
-          
+            0 0 0 1px rgba(255, 255, 255, 1) inset,
+            0 12px 40px rgba(0, 0, 0, 0.06),
+            0 32px 80px rgba(0, 0, 0, 0.04);
+
           animation: med-scale-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-          
+
           scrollbar-width: thin;
-          scrollbar-color: rgba(100, 150, 130, 0.25) transparent;
+          scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
           position: relative;
         }
-        
+
+        /* Darker text for better visibility */
+        .med-modal-title {
+          font-family: 'Outfit', sans-serif;
+          font-size: clamp(1.8rem, 4vw, 2.8rem);
+          font-weight: 800;
+          color: #000000 !important;
+          margin: 0;
+          line-height: 1.1;
+          letter-spacing: -0.02em;
+          text-shadow: none !important;
+        }
+        .med-modal-desc {
+          font-family: 'Inter', sans-serif;
+          font-size: 1.05rem;
+          line-height: 1.65;
+          color: #111827 !important;
+          margin-top: 16px;
+          max-width: 500px;
+          font-weight: 400 !important;
+        }
+        .med-modal-essence {
+          color: #000000 !important;
+        }
+        .med-card-text {
+          color: #1f2937 !important;
+          font-weight: 500 !important;
+        }
+        .med-card-heading {
+          color: #000000 !important;
+          font-weight: 800 !important;
+        }
+        .med-list li {
+          color: #1f2937 !important;
+          font-weight: 500 !important;
+        }
+        .med-modal-num-label, .med-modal-sanskrit {
+          color: #000000 !important;
+          font-weight: 700 !important;
+        }
+
         /* Translucent frosted-glass overlay */
         .med-modal::before {
           content: '';
           position: absolute;
           inset: 0;
           border-radius: 40px;
-          background: 
+          background:
             /* Layered transparency */
-            radial-gradient(circle at 50% 50%, 
-              transparent 0%, 
+            radial-gradient(circle at 50% 50%,
+              transparent 0%,
               rgba(255, 255, 255, 0.08) 20%,
               rgba(248, 255, 252, 0.06) 40%,
               rgba(240, 252, 248, 0.04) 60%,
               transparent 80%),
-            
+
             /* Soft reflective lighting */
-            radial-gradient(circle at 30% 20%, 
-              rgba(255, 255, 255, 0.12) 0%, 
+            radial-gradient(circle at 30% 20%,
+              rgba(255, 255, 255, 0.12) 0%,
               transparent 50%),
-            radial-gradient(circle at 70% 80%, 
-              rgba(255, 255, 255, 0.08) 0%, 
+            radial-gradient(circle at 70% 80%,
+              rgba(255, 255, 255, 0.08) 0%,
               transparent 40%),
-            radial-gradient(circle at 20% 60%, 
-              rgba(255, 255, 255, 0.06) 0%, 
+            radial-gradient(circle at 20% 60%,
+              rgba(255, 255, 255, 0.06) 0%,
               transparent 35%);
-          
+
           pointer-events: none;
           opacity: 0.7;
           mix-blend-mode: overlay;
         }
-        
+
         /* Extremely slow animated gradient movement */
         @keyframes med-breathe-glow {
           0%, 100% {
@@ -1074,19 +1696,19 @@ const MeditationImages: React.FC = () => {
           }
         }
         @keyframes med-scale-in {
-          0%   { 
-            opacity: 0; 
-            transform: scale(0.88) translateY(32px); 
+          0%   {
+            opacity: 0;
+            transform: scale(0.88) translateY(32px);
             filter: blur(8px);
           }
-          40%  { 
-            opacity: 0.7; 
-            transform: scale(0.96) translateY(8px); 
+          40%  {
+            opacity: 0.7;
+            transform: scale(0.96) translateY(8px);
             filter: blur(2px);
           }
-          100% { 
-            opacity: 1; 
-            transform: scale(1) translateY(0); 
+          100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
             filter: blur(0px);
           }
         }
@@ -1103,143 +1725,188 @@ const MeditationImages: React.FC = () => {
         .med-orb-2 { display: none; }
         .med-orb-3 { display: none; }
         @keyframes med-orb-drift-1 {
-          0%, 100% { 
-            transform: translate(0, 0) scale(1); 
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
             opacity: 0.8;
           }
-          25% { 
-            transform: translate(18px, -12px) scale(1.05); 
+          25% {
+            transform: translate(18px, -12px) scale(1.05);
             opacity: 0.9;
           }
-          50% { 
-            transform: translate(-8px, 6px) scale(0.95); 
+          50% {
+            transform: translate(-8px, 6px) scale(0.95);
             opacity: 0.7;
           }
-          75% { 
-            transform: translate(12px, 8px) scale(1.02); 
+          75% {
+            transform: translate(12px, 8px) scale(1.02);
             opacity: 0.85;
           }
         }
         @keyframes med-orb-drift-2 {
-          0%, 100% { 
-            transform: translate(0, 0) rotate(0deg); 
+          0%, 100% {
+            transform: translate(0, 0) rotate(0deg);
             opacity: 0.7;
           }
-          33% { 
-            transform: translate(15px, -10px) rotate(45deg); 
+          33% {
+            transform: translate(15px, -10px) rotate(45deg);
             opacity: 0.8;
           }
-          66% { 
-            transform: translate(-12px, 15px) rotate(-30deg); 
+          66% {
+            transform: translate(-12px, 15px) rotate(-30deg);
             opacity: 0.6;
           }
         }
         @keyframes med-orb-drift-3 {
-          0%, 100% { 
-            transform: translate(0, 0) scale(1); 
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
             opacity: 0.6;
           }
-          25% { 
-            transform: translate(-10px, 12px) scale(1.08); 
+          25% {
+            transform: translate(-10px, 12px) scale(1.08);
             opacity: 0.7;
           }
-          50% { 
-            transform: translate(20px, -8px) scale(0.92); 
+          50% {
+            transform: translate(20px, -8px) scale(0.92);
             opacity: 0.8;
           }
-          75% { 
-            transform: translate(-15px, -5px) scale(1.05); 
+          75% {
+            transform: translate(-15px, -5px) scale(1.05);
             opacity: 0.65;
           }
         }
 
         /* Close control: see meditation-poses.css (.med-modal-close, .pose-modal-close-btn) */
 
-        /* -- Header -- Enhanced with modern typography */
+        /* ── Modal header ── */
         .med-modal-header {
-          position: relative; z-index: 2;
-          padding: 0 0 32px;
-          text-align: center;
-          border-bottom: 1px solid rgba(200, 210, 205, 0.20);
-          background: transparent;
-          overflow: hidden;
-        }
-
-        /* Pose hero image */
-        .med-modal-img-wrap {
           position: relative;
-          width: 100%;
-          height: 280px;
-          overflow: hidden;
-          border-radius: 40px 40px 0 0;
-          margin-bottom: 28px;
+          z-index: 2;
+          padding: 0;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+          background: transparent;
         }
+
+        /* Two-column: image left, info right */
+        .med-modal-hero-row {
+          display: flex;
+          align-items: stretch;
+          gap: 0;
+          min-height: 260px;
+        }
+
+        /* ── Image: large, square-ish, with spacing + animation ── */
         .med-modal-hero-img {
-          width: 100%;
-          height: 100%;
+          flex-shrink: 0;
+          width: 220px;
+          height: 260px;
           object-fit: cover;
+          object-position: center top;
+          border-radius: 16px;
           display: block;
-          transition: transform 0.6s ease;
+          margin: 20px 0 20px 20px;
+          box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
+          animation: med-img-reveal 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+          transition: transform 0.4s ease, box-shadow 0.4s ease;
+          filter: brightness(1.1) contrast(1.05) saturate(1.1); /* Brighten and clear */
         }
-        .med-modal-img-wrap:hover .med-modal-hero-img {
-          transform: scale(1.04);
+        .med-modal-hero-img:hover {
+          transform: scale(1.03);
+          box-shadow: 0 14px 36px rgba(0, 0, 0, 0.18);
         }
-        /* Gradient overlay so text below reads cleanly */
-        .med-modal-img-glow {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(
-            to bottom,
-            rgba(0,0,0,0.06) 0%,
-            rgba(0,0,0,0.10) 60%,
-            rgba(255, 255, 255, 0.80) 100%
-          );
-          pointer-events: none;
+        @keyframes med-img-reveal {
+          0%   { opacity: 0; transform: scale(0.88) translateY(12px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        /* Badge + title sit below the image */
-        .med-modal-header .med-modal-badge {
-          margin-top: 0;
+        /* ── Info panel ── */
+        .med-modal-hero-info {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: flex-start;
+          padding: 20px 26px 20px 22px;
         }
 
-        /* Short description under title */
+        /* Badge */
+        .med-modal-hero-info .med-modal-badge {
+          margin-bottom: 14px;
+          padding: 6px 16px;
+          font-size: 0.60rem;
+          gap: 9px;
+        }
+
+        /* Title — BlurText renders a <p> with flex flex-wrap spans */
+        .med-modal-hero-info .med-modal-title {
+          font-family: 'Playfair Display', serif !important;
+          font-size: 1.75rem;
+          font-weight: 800;
+          font-style: italic;
+          color: #0d2b1a;
+          margin: 0 0 12px;
+          line-height: 1.18;
+          word-break: break-word;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0;
+        }
+        .med-modal-hero-info .med-modal-title span {
+          font-family: 'Playfair Display', serif;
+          font-size: inherit;
+          font-weight: inherit;
+          font-style: inherit;
+          color: inherit;
+          line-height: inherit;
+        }
+
+        /* Accent line */
+        .med-modal-hero-info .med-title-rule {
+          width: 40px;
+          height: 2px;
+          background: linear-gradient(90deg,
+            rgba(22, 101, 52, 0.60) 0%,
+            rgba(5, 150, 105, 0.25) 100%);
+          border-radius: 2px;
+          margin: 0 0 14px;
+          flex-shrink: 0;
+        }
+
+        /* Description */
+        .med-modal-hero-info .med-modal-desc,
         .med-modal-desc {
           font-family: 'Poppins', sans-serif;
-          font-size: 0.82rem;
-          line-height: 1.7;
-          color: #166534;
-          font-weight: 500;
-          max-width: 520px;
-          margin: 10px auto 0;
-          padding: 0 28px;
-          font-style: italic;
+          font-size: 0.88rem;
+          line-height: 1.68;
+          color: rgba(20, 70, 44, 0.78);
+          font-weight: 400;
+          font-style: normal;
+          margin: 0;
+          padding: 0;
+          max-width: 100%;
         }
 
         /* Badge row: num · sanskrit - Enhanced */
         .med-modal-badge {
           display: inline-flex; align-items: center; gap: 12px;
-          background: linear-gradient(135deg, 
-            rgba(22, 101, 52, 0.18) 0%, 
-            rgba(5, 150, 105, 0.22) 100%);
-          border: 1px solid rgba(22, 101, 52, 0.35);
+          background: rgba(0, 0, 0, 0.04);
+          border: 1px solid rgba(0, 0, 0, 0.1);
           border-radius: 100px;
           padding: 6px 20px;
           margin-bottom: 20px;
           backdrop-filter: blur(12px);
-          box-shadow: 
-            0 2px 12px rgba(22, 101, 52, 0.18),
-            0 0 0 1px rgba(255, 255, 255, 0.5) inset;
-            0 2px 8px rgba(134, 200, 160, 0.08),
-            0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+          box-shadow:
+            0 2px 8px rgba(0, 0, 0, 0.04),
+            0 0 0 1px rgba(255, 255, 255, 0.8) inset;
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .med-modal-badge:hover {
-          background: linear-gradient(135deg, 
-            rgba(220, 252, 245, 0.75) 0%, 
+          background: linear-gradient(135deg,
+            rgba(220, 252, 245, 0.75) 0%,
             rgba(230, 255, 250, 0.65) 100%);
           border-color: rgba(134, 200, 160, 0.35);
           transform: translateY(-1px);
-          box-shadow: 
+          box-shadow:
             0 4px 12px rgba(134, 200, 160, 0.12),
             0 0 0 1px rgba(255, 255, 255, 0.8) inset;
         }
@@ -1255,8 +1922,8 @@ const MeditationImages: React.FC = () => {
         .med-badge-dot {
           width: 4px; height: 4px;
           border-radius: 50%;
-          background: linear-gradient(135deg, 
-            rgba(22, 101, 52, 0.45) 0%, 
+          background: linear-gradient(135deg,
+            rgba(22, 101, 52, 0.45) 0%,
             rgba(52, 168, 100, 0.35) 100%);
           flex-shrink: 0;
           box-shadow: 0 0 6px rgba(22, 101, 52, 0.2);
@@ -1283,14 +1950,14 @@ const MeditationImages: React.FC = () => {
           text-shadow: 0 2px 4px rgba(15, 45, 26, 0.05);
         }
         @keyframes med-title-in {
-          from { 
-            opacity: 0; 
-            transform: translateY(15px) scale(0.95); 
+          from {
+            opacity: 0;
+            transform: translateY(15px) scale(0.95);
             filter: blur(2px);
           }
-          to   { 
-            opacity: 1; 
-            transform: translateY(0) scale(1); 
+          to   {
+            opacity: 1;
+            transform: translateY(0) scale(1);
             filter: blur(0px);
           }
         }
@@ -1309,11 +1976,11 @@ const MeditationImages: React.FC = () => {
         }
         .med-title-rule {
           width: 50px; height: 2px;
-          background: linear-gradient(90deg, 
-            transparent 0%, 
-            rgba(22, 101, 52, 0.35) 20%, 
-            rgba(22, 101, 52, 0.45) 50%, 
-            rgba(22, 101, 52, 0.35) 80%, 
+          background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(22, 101, 52, 0.35) 20%,
+            rgba(22, 101, 52, 0.45) 50%,
+            rgba(22, 101, 52, 0.35) 80%,
             transparent 100%);
           margin: 24px auto 0;
           border-radius: 2px;
@@ -1331,226 +1998,119 @@ const MeditationImages: React.FC = () => {
         .med-row-2 {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 14px;
+          gap: 10px; /* Reduced gap between cards */
         }
 
-        /* Glass info card - Enhanced with immersive water-like animations */
         .med-glass-card {
           position: relative;
-          background: rgba(248, 250, 249, 0.95);
-          
-          border: 1px solid rgba(180, 200, 190, 0.30);
-          border-radius: 24px;
-          padding: 26px 24px 22px;
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          
+          background: rgba(255, 255, 255, 0.99);
+          border: 1.5px solid rgba(0, 0, 0, 0.22); /* Slightly darker outline */
+          border-radius: 28px;
+          padding: 16px 18px 14px; 
+          backdrop-filter: blur(20px) saturate(1.2);
+          -webkit-backdrop-filter: blur(20px) saturate(1.2);
           box-shadow:
-            0 0 0 1px rgba(255, 255, 255, 0.80) inset,
-            0 2px 12px rgba(0, 0, 0, 0.06),
-            0 4px 24px rgba(0, 0, 0, 0.04);
-          
-          transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            0 0 0 1px rgba(255, 255, 255, 1) inset,
+            0 4px 16px rgba(0, 0, 0, 0.04),
+            0 0 10px var(--pose-bg, rgba(0, 0, 0, 0.05)); /* Subtle glowing effect */
+          transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
           cursor: pointer;
+          overflow: hidden;
+          animation: med-card-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
           
-          animation: med-card-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-        }
-
-        /* Fast click glow burst (glass cards in pose modal) */
-        .med-glass-card-flash-burst {
-          position: absolute;
-          inset: 0;
-          border-radius: 24px;
-          pointer-events: none;
-          z-index: 4;
-          mix-blend-mode: soft-light;
-          background: radial-gradient(
-            ellipse 85% 75% at 50% 45%,
-            rgba(187, 247, 208, 0.85) 0%,
-            rgba(134, 239, 172, 0.45) 38%,
-            rgba(52, 211, 153, 0.12) 62%,
-            transparent 78%
+          /* Subtle background gradient movement */
+          background-size: 200% 200%;
+          background-image: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.99) 0%, 
+            rgba(252, 252, 252, 0.98) 50%, 
+            rgba(255, 255, 255, 0.99) 100%
           );
-          box-shadow:
-            0 0 0 1px rgba(167, 243, 208, 0.55),
-            0 0 36px rgba(52, 211, 153, 0.42),
-            0 0 64px rgba(110, 231, 183, 0.22),
-            inset 0 0 36px rgba(255, 255, 255, 0.35);
-          animation: med-glass-flash-burst 0.36s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          animation: med-card-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both, 
+                     med-card-bg-drift 12s ease-in-out infinite alternate;
         }
 
-        @keyframes med-glass-flash-burst {
-          0% {
-            opacity: 0;
-            transform: scale(0.94);
-            filter: brightness(1) saturate(1);
-          }
-          42% {
-            opacity: 1;
-            transform: scale(1.02);
-            filter: brightness(1.12) saturate(1.18);
-          }
-          100% {
-            opacity: 0;
-            transform: scale(1.04);
-            filter: brightness(1) saturate(1);
-          }
+        @keyframes med-card-bg-drift {
+          0% { background-position: 0% 0%; }
+          100% { background-position: 100% 100%; }
         }
-        
-        /* Water ripple effect on hover */
-        .med-glass-card::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: 24px;
-          background: 
-            radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
-              rgba(134, 239, 172, 0.15) 0%, 
-              rgba(167, 243, 208, 0.08) 20%,
-              rgba(134, 239, 172, 0.04) 40%,
-              transparent 70%);
-          opacity: 0;
-          transition: opacity 0.5s ease;
-          pointer-events: none;
+
+        .med-card-inner {
+          position: relative;
+          z-index: 5;
         }
-        
-        /* Glassmorphism shimmer effect */
+
+        /* Premium Glass Reflection Overlay */
         .med-glass-card::after {
           content: '';
           position: absolute;
           inset: 0;
-          border-radius: 24px;
-          background: 
-            linear-gradient(105deg,
-              transparent 0%,
-              rgba(255, 255, 255, 0.12) 30%,
-              rgba(248, 255, 252, 0.08) 50%,
-              rgba(240, 252, 248, 0.05) 70%,
-              transparent 100%);
+          background: linear-gradient(105deg,
+            transparent 20%,
+            rgba(255, 255, 255, 0.15) 35%,
+            rgba(255, 255, 255, 0.25) 45%,
+            rgba(255, 255, 255, 0.15) 55%,
+            transparent 70%);
+          background-size: 250% 100%;
+          background-position: -150% 0;
           opacity: 0.6;
           mix-blend-mode: overlay;
           pointer-events: none;
+          z-index: 2;
+          transition: opacity 0.5s ease;
         }
-        
-        /* Interactive hover effects */
+
+        /* Hover: Shimmer movement and lift */
         .med-glass-card:hover {
-          transform: translateY(-6px) scale(1.015);
-          border-color: rgba(100, 160, 130, 0.35);
-          background: rgba(255, 255, 255, 0.99);
+          transform: translateY(-8px);
+          border-color: rgba(0, 0, 0, 0.45); /* Darker hover outline */
+          background-color: rgba(255, 255, 255, 0.99);
           box-shadow:
-            0 0 0 1px rgba(255, 255, 255, 0.90) inset,
-            0 8px 24px rgba(0, 0, 0, 0.10),
-            0 16px 40px rgba(0, 0, 0, 0.07);
+            0 0 0 1px rgba(255, 255, 255, 1) inset,
+            0 12px 36px rgba(0, 0, 0, 0.08),
+            0 0 20px var(--pose-bg, rgba(0, 0, 0, 0.1)); /* Intensified glow */
         }
-        
-        /* Water ripple appears on hover */
-        .med-glass-card:hover::before {
-          opacity: 1;
-        }
-        
-        /* Shimmer intensifies on hover */
+
         .med-glass-card:hover::after {
-          opacity: 0.8;
-          animation: med-card-shimmer-hover 2s ease-in-out infinite;
+          opacity: 1;
+          animation: med-card-shimmer-pass 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }
-        
-        /* Staggered animation delays */
-        .med-glass-card:nth-child(1) { animation-delay: 0.2s; }
-        .med-glass-card:nth-child(2) { animation-delay: 0.4s; }
-        .med-glass-card:nth-child(3) { animation-delay: 0.6s; }
-        .med-glass-card:nth-child(4) { animation-delay: 0.8s; }
-        .med-glass-card:nth-child(5) { animation-delay: 1.0s; }
-        .med-glass-card:nth-child(6) { animation-delay: 1.2s; }
-        
-        /* Card entrance animation */
-        @keyframes med-card-in {
-          0% { 
-            opacity: 0; 
-            transform: translateY(24px) scale(0.92) rotateX(15deg); 
-            filter: blur(6px);
-          }
-          100% { 
-            opacity: 1; 
-            transform: translateY(0) scale(1) rotateX(0deg); 
-            filter: blur(0px);
-          }
+
+        @keyframes med-card-shimmer-pass {
+          0% { background-position: -150% 0; }
+          100% { background-position: 150% 0; }
         }
-        
-        /* Slow breathing animation */
-        @keyframes med-card-breathe {
-          0%, 100% {
-            filter: brightness(1.0) saturate(1.4);
-          }
-          50% {
-            filter: brightness(1.03) saturate(1.6);
-          }
+
+        /* Particles inside cards */
+        .med-card-particles {
+          position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1;
         }
-        
-        /* Shimmer effect */
-        @keyframes med-card-shimmer {
-          0% {
-            background-position: -200% 0%;
-          }
-          100% {
-            background-position: 200% 0%;
-          }
+        .med-card-particle {
+          position: absolute;
+          width: 4px; height: 4px;
+          background: rgba(52, 211, 153, 0.25);
+          border-radius: 50%;
+          opacity: 0;
+          animation: med-card-particle-float calc(6s + var(--i) * 2s) ease-in-out infinite;
+          animation-delay: calc(var(--i) * 1.5s);
         }
-        
-        /* Hover shimmer effect */
-        @keyframes med-card-shimmer-hover {
-          0%, 100% {
-            background-position: -100% 0%;
-          }
-          50% {
-            background-position: 100% 0%;
-          }
+        .med-card-particle:nth-child(1) { left: 20%; top: 80%; }
+        .med-card-particle:nth-child(2) { left: 60%; top: 70%; }
+        .med-card-particle:nth-child(3) { left: 80%; top: 90%; }
+
+        @keyframes med-card-particle-float {
+          0% { opacity: 0; transform: translateY(0) scale(1); }
+          20% { opacity: 0.4; }
+          80% { opacity: 0.2; transform: translateY(-40px) scale(1.2); }
+          100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
         }
-        .med-glass-card:hover {
-          transform: translateY(-4px) scale(1.02);
-          border-color: rgba(52, 168, 100, 0.35);
-          background: linear-gradient(135deg, 
-            rgba(255, 255, 255, 0.92) 0%, 
-            rgba(250, 255, 252, 0.89) 50%, 
-            rgba(245, 253, 250, 0.91) 100%);
-          box-shadow:
-            0 1px 0 rgba(255, 255, 255, 1) inset,
-            0 2px 0 rgba(255, 255, 255, 0.9) inset,
-            0 12px 32px rgba(16, 100, 60, 0.12),
-            0 0 0 1px rgba(134, 200, 160, 0.08),
-            0 0 20px rgba(52, 168, 100, 0.04);
-        }
-        .med-card-meaning {
-          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(240,253,248,0.88) 100%);
-          border-color: rgba(110, 200, 150, 0.32);
-        }
-        .med-card-origin {
-          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(245,255,250,0.88) 100%);
-          border-color: rgba(134, 200, 160, 0.28);
-        }
-        .med-card-mental {
-          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(242,252,248,0.88) 100%);
-          border-color: rgba(120, 195, 155, 0.30);
-        }
-        .med-card-physical {
-          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(240,253,248,0.88) 100%);
-          border-color: rgba(110, 200, 150, 0.32);
-        }
-        .med-card-chakra {
-          background: linear-gradient(145deg, rgba(245,255,250,0.92) 0%, rgba(235,252,243,0.90) 100%);
-          border-color: rgba(52, 168, 100, 0.25);
-        }
-        .med-card-breath {
-          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(242,252,248,0.88) 100%);
-          border-color: rgba(120, 195, 155, 0.30);
-        }
-        .med-card-time {
-          background: linear-gradient(145deg, rgba(255,255,255,0.90) 0%, rgba(245,255,250,0.88) 100%);
-          border-color: rgba(134, 200, 160, 0.28);
-        }
-        .med-card-beginner {
-          background: linear-gradient(145deg, rgba(240, 253, 248, 0.92) 0%, rgba(220, 252, 231, 0.85) 100%);
-          border-color: rgba(52, 168, 100, 0.30);
-        }
+
+        .med-card-meaning { border-left: 4px solid rgba(134, 239, 172, 0.4); }
+        .med-card-origin { border-left: 4px solid rgba(167, 243, 208, 0.4); }
+        .med-card-mental { border-left: 4px solid rgba(120, 195, 155, 0.4); }
+        .med-card-physical { border-left: 4px solid rgba(134, 239, 172, 0.4); }
+        .med-card-chakra { border-left: 4px solid rgba(52, 168, 100, 0.5); }
+        .med-card-beginner { border-left: 4px solid rgba(52, 168, 100, 0.4); }
+
         .med-card-wide { grid-column: 1 / -1; }
         .med-card-icon-row {
           display: flex; align-items: center; gap: 10px;
@@ -1567,35 +2127,35 @@ const MeditationImages: React.FC = () => {
 
         /* Card heading - Enhanced with animations */
         .med-card-heading {
-          font-family: 'Cinzel', serif;
-          font-size: 0.58rem;
-          letter-spacing: 0.28em;
+          font-family: 'Outfit', sans-serif; /* New Font */
+          font-size: 0.7rem; 
+          letter-spacing: 0.12em;
           text-transform: uppercase;
-          color: #065f46;
+          color: #000000 !important;
           margin: 0;
-          font-weight: 700;
+          font-weight: 700 !important;
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           animation: med-heading-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
         @keyframes med-heading-in {
-          from { 
-            opacity: 0; 
-            transform: translateY(8px) scale(0.95); 
+          from {
+            opacity: 0;
+            transform: translateY(8px) scale(0.95);
             filter: blur(1px);
           }
-          to { 
-            opacity: 1; 
-            transform: translateY(0) scale(1); 
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
             filter: blur(0px);
           }
         }
         .med-card-rule {
           width: 22px; height: 1.5px;
-          background: linear-gradient(90deg, 
-            transparent 0%, 
-            rgba(22, 101, 52, 0.35) 20%, 
-            rgba(22, 101, 52, 0.45) 50%, 
-            rgba(22, 101, 52, 0.35) 80%, 
+          background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(22, 101, 52, 0.35) 20%,
+            rgba(22, 101, 52, 0.45) 50%,
+            rgba(22, 101, 52, 0.35) 80%,
             transparent 100%);
           margin-bottom: 12px;
           border-radius: 2px;
@@ -1603,12 +2163,12 @@ const MeditationImages: React.FC = () => {
           animation: med-rule-grow 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
         }
         @keyframes med-rule-grow {
-          from { 
-            width: 0; 
+          from {
+            width: 0;
             opacity: 0;
           }
-          to { 
-            width: 22px; 
+          to {
+            width: 22px;
             opacity: 1;
           }
         }
@@ -1622,9 +2182,9 @@ const MeditationImages: React.FC = () => {
           content: '';
           position: absolute;
           top: 0; left: 0; right: 0; bottom: 0;
-          background: linear-gradient(45deg, 
-            transparent 30%, 
-            rgba(134, 239, 172, 0.03) 50%, 
+          background: linear-gradient(45deg,
+            transparent 30%,
+            rgba(134, 239, 172, 0.03) 50%,
             transparent 70%);
           opacity: 0;
           transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1638,34 +2198,41 @@ const MeditationImages: React.FC = () => {
         }
         .med-glass-card:hover .med-card-icon-box {
           transform: scale(1.1) rotate(5deg);
-          box-shadow: 
+          box-shadow:
             0 4px 16px rgba(134, 239, 172, 0.15),
             0 0 0 2px rgba(134, 239, 172, 0.2);
         }
 
         /* Card text */
         .med-card-text {
-          font-family: 'Poppins', sans-serif;
-          font-size: 0.83rem;
-          line-height: 1.78;
-          color: #1a3a2a;
+          font-family: 'Inter', sans-serif; /* New Font */
+          font-size: 0.9rem; 
+          line-height: 1.5;
+          color: #111827 !important;
           margin: 0;
-          font-weight: 400;
+          font-weight: 400 !important;
         }
 
         /* List */
         .med-list {
           list-style: none; padding: 0; margin: 0;
-          display: flex; flex-direction: column; gap: 9px;
+          display: flex; flex-direction: column; gap: 6px; 
         }
         .med-list li {
-          font-family: 'Poppins', sans-serif;
-          font-size: 0.82rem;
-          line-height: 1.55;
-          color: #1a3a2a;
-          font-weight: 400;
-          padding-left: 18px;
+          font-family: 'Inter', sans-serif; /* New Font */
+          font-size: 0.9rem; 
+          color: #111827 !important;
+          font-weight: 400 !important;
+          line-height: 1.4;
+          padding-left: 20px;
           position: relative;
+        }
+        .med-list li::before {
+          content: '•';
+          position: absolute;
+          left: 0;
+          color: #111827;
+          opacity: 0.6;
         }
         .med-list li::before {
           content: '';
@@ -1679,8 +2246,10 @@ const MeditationImages: React.FC = () => {
         /* Mobile */
         @media (max-width: 640px) {
           .med-modal { border-radius: 22px; }
-          .med-modal-img-wrap { height: 200px; border-radius: 22px 22px 0 0; }
-          .med-modal-header { padding: 0 0 22px; }
+          .med-modal-hero-row { flex-direction: column; min-height: unset; }
+          .med-modal-hero-img { width: calc(100% - 32px); height: 200px; border-radius: 14px; margin: 16px auto 0; }
+          .med-modal-hero-info { padding: 18px 20px; }
+          .med-modal-hero-info .med-modal-title { font-size: 1.25rem; }
           .med-modal-body { padding: 18px 18px 26px; gap: 12px; }
           .med-row-2 { grid-template-columns: 1fr; }
           .med-modal-title { font-size: 1.65rem; }
@@ -1704,14 +2273,17 @@ const MeditationImages: React.FC = () => {
   );
 };
 
-
-
 // -- Meditation Session Screen ----------------------------------------------
-const MeditationSession: React.FC<{ pose: any; onExit: () => void }> = ({ pose, onExit }) => {
+const MeditationSession: React.FC<{ pose: any; onExit: () => void }> = ({
+  pose,
+  onExit,
+}) => {
   const TOTAL = 5 * 60; // 5 minutes
   const [running, setRunning] = React.useState(false);
   const [timeLeft, setTimeLeft] = React.useState(TOTAL);
-  const [phase, setPhase] = React.useState<'inhale' | 'hold' | 'exhale'>('inhale');
+  const [phase, setPhase] = React.useState<"inhale" | "hold" | "exhale">(
+    "inhale",
+  );
   const [phaseTime, setPhaseTime] = React.useState(0);
   const [done, setDone] = React.useState(false);
 
@@ -1723,8 +2295,13 @@ const MeditationSession: React.FC<{ pose: any; onExit: () => void }> = ({ pose, 
   React.useEffect(() => {
     if (!running || done) return;
     const t = setInterval(() => {
-      setTimeLeft(p => {
-        if (p <= 1) { clearInterval(t); setDone(true); setRunning(false); return 0; }
+      setTimeLeft((p) => {
+        if (p <= 1) {
+          clearInterval(t);
+          setDone(true);
+          setRunning(false);
+          return 0;
+        }
         return p - 1;
       });
     }, 1000);
@@ -1735,14 +2312,23 @@ const MeditationSession: React.FC<{ pose: any; onExit: () => void }> = ({ pose, 
   React.useEffect(() => {
     if (!running || done) return;
     const t = setInterval(() => {
-      setPhaseTime(p => {
+      setPhaseTime((p) => {
         const next = p + 1;
-        if (phase === 'inhale') {
-          if (next >= pose.inhale) { setPhase(pose.hold > 0 ? 'hold' : 'exhale'); return 0; }
-        } else if (phase === 'hold') {
-          if (next >= pose.hold) { setPhase('exhale'); return 0; }
+        if (phase === "inhale") {
+          if (next >= pose.inhale) {
+            setPhase(pose.hold > 0 ? "hold" : "exhale");
+            return 0;
+          }
+        } else if (phase === "hold") {
+          if (next >= pose.hold) {
+            setPhase("exhale");
+            return 0;
+          }
         } else {
-          if (next >= pose.exhale) { setPhase('inhale'); return 0; }
+          if (next >= pose.exhale) {
+            setPhase("inhale");
+            return 0;
+          }
         }
         return next;
       });
@@ -1751,23 +2337,33 @@ const MeditationSession: React.FC<{ pose: any; onExit: () => void }> = ({ pose, 
   }, [running, done, phase, pose]);
 
   const reset = () => {
-    setRunning(false); setTimeLeft(TOTAL);
-    setPhase('inhale'); setPhaseTime(0); setDone(false);
+    setRunning(false);
+    setTimeLeft(TOTAL);
+    setPhase("inhale");
+    setPhaseTime(0);
+    setDone(false);
   };
 
-  const mm = String(Math.floor(timeLeft / 60)).padStart(2, '0');
-  const ss = String(timeLeft % 60).padStart(2, '0');
+  const mm = String(Math.floor(timeLeft / 60)).padStart(2, "0");
+  const ss = String(timeLeft % 60).padStart(2, "0");
 
-  const phaseLabel = phase === 'inhale' ? 'Inhale' : phase === 'hold' ? 'Hold' : 'Exhale';
-  const phaseDur   = phase === 'inhale' ? pose.inhale : phase === 'hold' ? pose.hold : pose.exhale;
-  const phaseProgress = phaseDur > 0 ? (phaseTime / phaseDur) : 0;
+  const phaseLabel =
+    phase === "inhale" ? "Inhale" : phase === "hold" ? "Hold" : "Exhale";
+  const phaseDur =
+    phase === "inhale"
+      ? pose.inhale
+      : phase === "hold"
+        ? pose.hold
+        : pose.exhale;
+  const phaseProgress = phaseDur > 0 ? phaseTime / phaseDur : 0;
 
   // Circle scale: inhale  grows, hold  stays big, exhale  shrinks
-  const circleScale = phase === 'inhale'
-    ? 1 + phaseProgress * 0.4
-    : phase === 'hold'
-    ? 1.4
-    : 1.4 - phaseProgress * 0.4;
+  const circleScale =
+    phase === "inhale"
+      ? 1 + phaseProgress * 0.4
+      : phase === "hold"
+        ? 1.4
+        : 1.4 - phaseProgress * 0.4;
 
   const animDur = `1000ms`; // Smoother 1s updates
 
@@ -1775,16 +2371,25 @@ const MeditationSession: React.FC<{ pose: any; onExit: () => void }> = ({ pose, 
     <div className="msession-overlay">
       <div className="msession-particles" aria-hidden="true">
         {Array.from({ length: 20 }).map((_, i) => (
-          <div key={i} className="msession-particle" style={{ '--si': i } as React.CSSProperties} />
+          <div
+            key={i}
+            className="msession-particle"
+            style={{ "--si": i } as React.CSSProperties}
+          />
         ))}
       </div>
 
-      <button className="msession-exit" onClick={onExit}>x Exit</button>
+      <button className="msession-exit" onClick={onExit}>
+        x Exit
+      </button>
 
       <div className="msession-layout">
         {/* LEFT SIDE: GUIDANCE */}
         <aside className="msession-side msession-left">
-          <div className="msession-panel msession-panel-animate" style={{ animationDelay: '0.2s' }}>
+          <div
+            className="msession-panel msession-panel-animate"
+            style={{ animationDelay: "0.2s" }}
+          >
             <div className="msession-side-item">
               <span className="msession-side-label">Breathing Tip</span>
               <p className="msession-side-content">{pose.breathingTip}</p>
@@ -1805,47 +2410,94 @@ const MeditationSession: React.FC<{ pose: any; onExit: () => void }> = ({ pose, 
         {/* CENTER: MAIN FOCUS */}
         <main className="msession-center">
           <div className="msession-circle-container">
-             <svg className="msession-progress-ring" viewBox="0 0 200 200">
-                <circle
-                  className="msession-ring-bg"
-                  cx="100" cy="100" r="90"
-                />
-                <circle
-                  className="msession-ring-fill"
-                  cx="100" cy="100" r="90"
-                  style={{
-                    strokeDasharray: 565,
-                    strokeDashoffset: 565 - (565 * phaseProgress),
-                    transition: 'stroke-dashoffset 1s linear'
-                  }}
-                />
-             </svg>
-             <div className="msession-circle-main" style={{ transform: `scale(${circleScale})`, transition: `transform ${animDur} ease-in-out` }}>
-                {done ? (
-                   <span className="msession-phase-text">Complete</span>
-                ) : (
-                   <span className="msession-phase-text">{running ? phaseLabel.toUpperCase() : 'READY'}</span>
-                )}
-             </div>
+            <svg className="msession-progress-ring" viewBox="0 0 200 200">
+              <circle className="msession-ring-bg" cx="100" cy="100" r="90" />
+              <circle
+                className="msession-ring-fill"
+                cx="100"
+                cy="100"
+                r="90"
+                style={{
+                  strokeDasharray: 565,
+                  strokeDashoffset: 565 - 565 * phaseProgress,
+                  transition: "stroke-dashoffset 1s linear",
+                }}
+              />
+            </svg>
+            <div
+              className="msession-circle-main"
+              style={{
+                transform: `scale(${circleScale})`,
+                transition: `transform ${animDur} ease-in-out`,
+              }}
+            >
+              {done ? (
+                <span className="msession-phase-text">Complete</span>
+              ) : (
+                <span className="msession-phase-text">
+                  {running ? phaseLabel.toUpperCase() : "READY"}
+                </span>
+              )}
+            </div>
           </div>
 
-          <div className="msession-timer">{mm}:{ss}</div>
-          
+          <div className="msession-timer">
+            {mm}:{ss}
+          </div>
+
           <div className="msession-patterns-text">
-            <span style={{ color: phase === 'inhale' ? '#16a34a' : 'inherit', fontWeight: phase === 'inhale' ? 600 : 300 }}>Inhale</span> - 
-            <span style={{ color: phase === 'hold' ? '#16a34a' : 'inherit', fontWeight: phase === 'hold' ? 600 : 300 }}>Hold</span> - 
-            <span style={{ color: phase === 'exhale' ? '#16a34a' : 'inherit', fontWeight: phase === 'exhale' ? 600 : 300 }}>Exhale</span>
+            <span
+              style={{
+                color: phase === "inhale" ? "#16a34a" : "inherit",
+                fontWeight: phase === "inhale" ? 600 : 300,
+              }}
+            >
+              Inhale
+            </span>{" "}
+            -
+            <span
+              style={{
+                color: phase === "hold" ? "#16a34a" : "inherit",
+                fontWeight: phase === "hold" ? 600 : 300,
+              }}
+            >
+              Hold
+            </span>{" "}
+            -
+            <span
+              style={{
+                color: phase === "exhale" ? "#16a34a" : "inherit",
+                fontWeight: phase === "exhale" ? 600 : 300,
+              }}
+            >
+              Exhale
+            </span>
           </div>
 
           <div className="msession-controls">
             {done ? (
-              <button className="msession-btn msession-btn-primary" onClick={reset}> Restart</button>
+              <button
+                className="msession-btn msession-btn-primary"
+                onClick={reset}
+              >
+                {" "}
+                Restart
+              </button>
             ) : (
               <>
-                <button className="msession-btn msession-btn-primary" onClick={() => setRunning(r => !r)}>
-                   {running ? ' PAUSE' : '-|| START'}
+                <button
+                  className="msession-btn msession-btn-primary"
+                  onClick={() => setRunning((r) => !r)}
+                >
+                  {running ? " PAUSE" : "-|| START"}
                 </button>
-                <button className="msession-btn msession-btn-secondary" onClick={reset}> RESET</button>
+                <button
+                  className="msession-btn msession-btn-secondary"
+                  onClick={reset}
+                >
+                  {" "}
+                  RESET
+                </button>
               </>
             )}
           </div>
@@ -1853,7 +2505,10 @@ const MeditationSession: React.FC<{ pose: any; onExit: () => void }> = ({ pose, 
 
         {/* RIGHT SIDE: PROGRESS */}
         <aside className="msession-side msession-right">
-          <div className="msession-panel msession-panel-animate" style={{ animationDelay: '0.4s' }}>
+          <div
+            className="msession-panel msession-panel-animate"
+            style={{ animationDelay: "0.4s" }}
+          >
             <div className="msession-side-item">
               <span className="msession-side-label">Mind Focus</span>
               <p className="msession-side-content">{pose.mindFocus}</p>
@@ -1862,14 +2517,36 @@ const MeditationSession: React.FC<{ pose: any; onExit: () => void }> = ({ pose, 
             <div className="msession-side-item">
               <span className="msession-side-label">Calm Level</span>
               <div className="msession-progress-bar">
-                <div className="msession-progress-fill" style={{ width: `${calmLevel}%` }} />
+                <div
+                  className="msession-progress-fill"
+                  style={{ width: `${calmLevel}%` }}
+                />
               </div>
-              <p className="msession-side-content" style={{ marginTop: '8px' }}>{calmLevel}% Stable</p>
+              <p className="msession-side-content" style={{ marginTop: "8px" }}>
+                {calmLevel}% Stable
+              </p>
             </div>
             <div className="msession-divider" />
-            <div className="msession-side-item" style={{ height: '70px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div
+              className="msession-side-item"
+              style={{
+                height: "70px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}
+            >
               <span className="msession-side-label">Progress</span>
-              <p className="msession-side-content" style={{ fontSize: '1.4rem', color: '#16a34a', fontWeight: 600 }}>{progressPercent}%</p>
+              <p
+                className="msession-side-content"
+                style={{
+                  fontSize: "1.4rem",
+                  color: "#16a34a",
+                  fontWeight: 600,
+                }}
+              >
+                {progressPercent}%
+              </p>
             </div>
           </div>
         </aside>
@@ -2137,7 +2814,6 @@ const MeditationSession: React.FC<{ pose: any; onExit: () => void }> = ({ pose, 
   );
 };
 
-
 // Meditation Poses Section
 // =====================
 // Meditation Poses
@@ -2157,8 +2833,14 @@ const yogaTutorialCards = [
     glowColor: "#f59e0b",
     image: sukhasana,
     description: "A simple and comfortable seated posture ideal for beginners.",
-    youtubeUrl: "https://www.youtube.com/results?search_query=Easy+Pose+Sukhasana+beginner+5+minute+meditation+tutorial",
-    guidelines: ["Sit cross-legged comfortably", "Spine tall", "Relax shoulders", "Focus on breathing"],
+    youtubeUrl:
+      "https://www.youtube.com/results?search_query=Easy+Pose+Sukhasana+beginner+5+minute+meditation+tutorial",
+    guidelines: [
+      "Sit cross-legged comfortably",
+      "Spine tall",
+      "Relax shoulders",
+      "Focus on breathing",
+    ],
     benefits: ["Reduces stress", "Improves focus", "Relaxes body"],
   },
   {
@@ -2170,9 +2852,16 @@ const yogaTutorialCards = [
     duration: "1-5 minutes",
     glowColor: "#06b6d4",
     image: balasana,
-    description: "A deeply calming pose that relaxes the spine and nervous system.",
-    youtubeUrl: "https://www.youtube.com/results?search_query=Balasana+Child+Pose+beginner+short+guided+yoga+tutorial",
-    guidelines: ["Kneel on mat", "Fold forward", "Rest forehead down", "Arms relaxed"],
+    description:
+      "A deeply calming pose that relaxes the spine and nervous system.",
+    youtubeUrl:
+      "https://www.youtube.com/results?search_query=Balasana+Child+Pose+beginner+short+guided+yoga+tutorial",
+    guidelines: [
+      "Kneel on mat",
+      "Fold forward",
+      "Rest forehead down",
+      "Arms relaxed",
+    ],
     benefits: ["Relieves tension", "Calms mind", "Reduces anxiety"],
   },
   {
@@ -2184,9 +2873,16 @@ const yogaTutorialCards = [
     duration: "5-15 minutes",
     glowColor: "#8b5cf6",
     image: vajrasana,
-    description: "A seated kneeling posture that aids digestion and promotes stillness for meditation.",
-    youtubeUrl: "https://www.youtube.com/results?search_query=Vajrasana+Thunderbolt+Pose+beginner+10+minute+meditation+practice",
-    guidelines: ["Kneel on the mat", "Sit back on heels", "Keep spine straight", "Hands on thighs"],
+    description:
+      "A seated kneeling posture that aids digestion and promotes stillness for meditation.",
+    youtubeUrl:
+      "https://www.youtube.com/results?search_query=Vajrasana+Thunderbolt+Pose+beginner+10+minute+meditation+practice",
+    guidelines: [
+      "Kneel on the mat",
+      "Sit back on heels",
+      "Keep spine straight",
+      "Hands on thighs",
+    ],
     benefits: ["Improves digestion", "Enhances focus", "Strengthens posture"],
     precautions: ["Avoid if knee pain", "Use cushion under ankles"],
   },
@@ -2199,9 +2895,16 @@ const yogaTutorialCards = [
     duration: "10-30 minutes",
     glowColor: "#ec4899",
     image: siddhasana,
-    description: "A traditional meditation pose believed to awaken inner energy.",
-    youtubeUrl: "https://www.youtube.com/results?search_query=Siddhasana+Perfect+Pose+5+minute+meditation+tutorial+beginner",
-    guidelines: ["Sit with one heel at perineum", "Other foot placed above", "Spine upright", "Hands resting on knees"],
+    description:
+      "A traditional meditation pose believed to awaken inner energy.",
+    youtubeUrl:
+      "https://www.youtube.com/results?search_query=Siddhasana+Perfect+Pose+5+minute+meditation+tutorial+beginner",
+    guidelines: [
+      "Sit with one heel at perineum",
+      "Other foot placed above",
+      "Spine upright",
+      "Hands resting on knees",
+    ],
     benefits: ["Balances energy", "Improves concentration", "Stabilizes mind"],
     precautions: ["Avoid if hip stiffness"],
   },
@@ -2215,8 +2918,14 @@ const yogaTutorialCards = [
     glowColor: "#22c55e",
     image: paschimottanasana,
     description: "A calming forward bend that relaxes the nervous system.",
-    youtubeUrl: "https://www.youtube.com/results?search_query=Paschimottanasana+Seated+Forward+Fold+beginner+short+guided+meditation+yoga",
-    guidelines: ["Sit with legs extended", "Fold forward gently", "Relax head and neck", "Breathe deeply"],
+    youtubeUrl:
+      "https://www.youtube.com/results?search_query=Paschimottanasana+Seated+Forward+Fold+beginner+short+guided+meditation+yoga",
+    guidelines: [
+      "Sit with legs extended",
+      "Fold forward gently",
+      "Relax head and neck",
+      "Breathe deeply",
+    ],
     benefits: ["Calms nervous system", "Reduces anxiety", "Relieves fatigue"],
     precautions: ["Avoid deep stretch if back pain"],
   },
@@ -2229,9 +2938,16 @@ const yogaTutorialCards = [
     duration: "5-20 minutes",
     glowColor: "#f97316",
     image: savasana,
-    description: "A deeply restorative posture for mindfulness and body awareness.",
-    youtubeUrl: "https://www.youtube.com/results?search_query=Savasana+Corpse+Pose+10+minute+guided+relaxation+beginner+meditation",
-    guidelines: ["Lie flat on back", "Arms relaxed by sides", "Eyes closed", "Observe breath"],
+    description:
+      "A deeply restorative posture for mindfulness and body awareness.",
+    youtubeUrl:
+      "https://www.youtube.com/results?search_query=Savasana+Corpse+Pose+10+minute+guided+relaxation+beginner+meditation",
+    guidelines: [
+      "Lie flat on back",
+      "Arms relaxed by sides",
+      "Eyes closed",
+      "Observe breath",
+    ],
     benefits: ["Deep relaxation", "Reduces stress", "Improves awareness"],
     precautions: ["Use blanket if cold"],
   },
@@ -2244,11 +2960,21 @@ const yogaTutorialCards = [
     duration: "5-15 minutes",
     glowColor: "#e879f9",
     image: butterfly,
-    description: "A relaxing seated pose that opens the hips and calms the nervous system, making it ideal before meditation.",
-    youtubeUrl: "https://www.youtube.com/results?search_query=Butterfly+Pose+Baddha+Konasana+beginner+5+minute+guided+yoga+tutorial",
-    guidelines: ["Sit with spine straight", "Bring soles of feet together", "Hold feet and gently flap knees", "Breathe deeply and relax"],
+    description:
+      "A relaxing seated pose that opens the hips and calms the nervous system, making it ideal before meditation.",
+    youtubeUrl:
+      "https://www.youtube.com/results?search_query=Butterfly+Pose+Baddha+Konasana+beginner+5+minute+guided+yoga+tutorial",
+    guidelines: [
+      "Sit with spine straight",
+      "Bring soles of feet together",
+      "Hold feet and gently flap knees",
+      "Breathe deeply and relax",
+    ],
     benefits: ["Opens hips", "Reduces stress", "Improves flexibility"],
-    precautions: ["Avoid forcing knees down", "Use cushions under thighs if needed"],
+    precautions: [
+      "Avoid forcing knees down",
+      "Use cushions under thighs if needed",
+    ],
   },
   {
     id: 8,
@@ -2259,10 +2985,21 @@ const yogaTutorialCards = [
     duration: "3-8 minutes",
     glowColor: "#ef4444",
     image: ardha,
-    description: "A seated twisting posture that improves spinal flexibility and energizes the body while keeping the mind alert.",
-    youtubeUrl: "https://www.youtube.com/results?search_query=Ardha+Matsyendrasana+Half+Spinal+Twist+beginner+10+minute+yoga+tutorial",
-    guidelines: ["Sit with legs extended", "Bend one knee and place foot outside thigh", "Twist torso gently", "Keep spine upright"],
-    benefits: ["Improves digestion", "Enhances spinal mobility", "Improves focus"],
+    description:
+      "A seated twisting posture that improves spinal flexibility and energizes the body while keeping the mind alert.",
+    youtubeUrl:
+      "https://www.youtube.com/results?search_query=Ardha+Matsyendrasana+Half+Spinal+Twist+beginner+10+minute+yoga+tutorial",
+    guidelines: [
+      "Sit with legs extended",
+      "Bend one knee and place foot outside thigh",
+      "Twist torso gently",
+      "Keep spine upright",
+    ],
+    benefits: [
+      "Improves digestion",
+      "Enhances spinal mobility",
+      "Improves focus",
+    ],
     precautions: ["Avoid if severe back pain", "Twist gently without jerks"],
   },
   {
@@ -2274,9 +3011,16 @@ const yogaTutorialCards = [
     duration: "1-5 minutes",
     glowColor: "#38bdf8",
     image: virkshana,
-    description: "A balancing pose that builds focus, stability, and mental clarity - excellent preparation for meditation.",
-    youtubeUrl: "https://www.youtube.com/results?search_query=Tree+Pose+Vrikshasana+beginner+5+minute+balance+meditation+practice",
-    guidelines: ["Stand straight", "Place one foot on inner thigh or calf", "Hands in prayer position", "Fix gaze on one point"],
+    description:
+      "A balancing pose that builds focus, stability, and mental clarity - excellent preparation for meditation.",
+    youtubeUrl:
+      "https://www.youtube.com/results?search_query=Tree+Pose+Vrikshasana+beginner+5+minute+balance+meditation+practice",
+    guidelines: [
+      "Stand straight",
+      "Place one foot on inner thigh or calf",
+      "Hands in prayer position",
+      "Fix gaze on one point",
+    ],
     benefits: ["Improves balance", "Builds concentration", "Strengthens legs"],
     precautions: ["Avoid if dizziness", "Use wall support if needed"],
   },
@@ -2296,145 +3040,96 @@ const YOGA_PARTICLE_OFFSETS = [
 const YOGA_CLICK_FX_MS = 1400;
 
 const MeditationPoses: React.FC = () => {
-  const [activePose, setActivePose] = useState<(typeof yogaTutorialCards)[number] | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
-  const [clickFxId, setClickFxId] = useState<number | null>(null);
-  const [rippleById, setRippleById] = useState<Record<number, { x: number; y: number; key: number }>>(
-    {}
-  );
-  const fxClearRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const poses = yogaTutorialCards;
-
-  const activatePoseCard = useCallback(
-    (
-      pose: (typeof yogaTutorialCards)[number],
-      clientX: number,
-      clientY: number,
-      shellEl: HTMLElement
-    ) => {
-      const r = shellEl.getBoundingClientRect();
-      setRippleById((prev) => ({
-        ...prev,
-        [pose.id]: { x: clientX - r.left, y: clientY - r.top, key: Date.now() },
-      }));
-      setClickFxId(pose.id);
-      setActivePose(pose);
-      setIsOpen(true);
-      if (fxClearRef.current) clearTimeout(fxClearRef.current);
-      fxClearRef.current = setTimeout(() => {
-        setClickFxId(null);
-        fxClearRef.current = null;
-      }, YOGA_CLICK_FX_MS);
-      window.setTimeout(() => {
-        setRippleById((prev) => {
-          const next = { ...prev };
-          delete next[pose.id];
-          return next;
-        });
-      }, 950);
-    },
-    []
-  );
 
   return (
     <>
       <section className="py-12 bg-white">
         <div className="max-w-full mx-auto px-8">
           <div className="mb-16 text-center">
-            <p className="text-xs tracking-[0.3em] uppercase text-green-700/60 mb-3" style={{ fontFamily: "'Cinzel', serif" }}>Sacred Postures</p>
-            <h2 className="text-4xl text-stone-800" style={{ fontFamily: "'Playfair Display', serif", fontWeight: 800 }}>
-              Yoga for <span style={{ color: '#2d6a4f', fontStyle: 'italic' }}>Meditation</span>
+            <p
+              className="text-xs tracking-[0.3em] uppercase text-green-700/60 mb-3"
+              style={{ fontFamily: "'Cinzel', serif" }}
+            >
+              Sacred Postures
+            </p>
+            <h2
+              className="text-4xl text-stone-800"
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontWeight: 800,
+              }}
+            >
+              Yoga for{" "}
+              <span style={{ color: "#2d6a4f", fontStyle: "italic" }}>
+                Meditation
+              </span>
             </h2>
             <div className="w-16 h-px bg-green-400/50 mx-auto mt-4" />
-            <p className="text-stone-500 mt-4 text-sm tracking-wide" style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 300 }}>
-              Click any pose for an immersive preview, then explore steps and an optional video tutorial
+            <p
+              className="text-stone-500 mt-4 text-sm tracking-wide"
+              style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 300 }}
+            >
+              Click any pose to watch the tutorial on YouTube
             </p>
           </div>
 
-          <div className="slider" style={{ '--width': '280px', '--height': '400px', '--quantity': String(poses.length) } as React.CSSProperties}>
+          <div
+            className="slider"
+            style={
+              {
+                "--width": "280px",
+                "--height": "400px",
+                "--quantity": String(poses.length),
+              } as React.CSSProperties
+            }
+          >
             <div className="list">
-              {poses.map((pose) => {
-                const ripple = rippleById[pose.id];
-                const isFx = clickFxId === pose.id;
-                return (
-                  <div
-                    key={pose.id}
-                    className={`item ${isFx ? 'item-fx-active' : ''}`}
-                    style={{ '--position': pose.id, display: 'block' } as React.CSSProperties}
-                  >
-                    <div
-                      className={`yoga-pose-shell ${isFx ? 'yoga-pose-click-fx' : ''}`}
-                      onPointerDown={(e) => {
-                        e.preventDefault();
-                        activatePoseCard(pose, e.clientX, e.clientY, e.currentTarget);
+              {poses.map((pose) => (
+                <a
+                  key={pose.id}
+                  href={pose.youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="item"
+                  style={
+                    {
+                      "--position": pose.id,
+                      textDecoration: "none",
+                      display: "block",
+                    } as React.CSSProperties
+                  }
+                >
+                  <div className="yoga-card">
+                    <img
+                      src={pose.image}
+                      alt={pose.name}
+                      style={{
+                        objectPosition:
+                          pose.id === 6 ? "right center" : "center center",
                       }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          const el = e.currentTarget;
-                          const r = el.getBoundingClientRect();
-                          activatePoseCard(pose, r.left + r.width / 2, r.top + r.height / 2, el);
-                        }
-                      }}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`Open details for ${pose.name}`}
-                    >
-                      <div className="yoga-breath-aura" aria-hidden />
-                      <div className="yoga-border-glow-track" aria-hidden />
-                      <div className="yoga-card">
-                        {ripple && (
-                          <span
-                            key={ripple.key}
-                            className="yoga-water-ripple"
-                            style={{ left: ripple.x, top: ripple.y }}
-                          />
-                        )}
-                        <div className="yoga-img-wrap">
-                          <img
-                            src={pose.image}
-                            alt={pose.name}
-                            className="yoga-liquid-media"
-                            style={{
-                              objectPosition: pose.id === 6 ? 'right center' : 'center center',
-                            }}
-                            draggable={false}
-                          />
-                          <div className="yoga-glass-shimmer" aria-hidden />
-                        </div>
-                        <div className="yoga-card-text">
-                          <p className="tip">{pose.name}</p>
-                          <p className="second-text">
-                            {pose.intensity} · {pose.duration}
-                          </p>
-                        </div>
-                      </div>
-                      {isFx && (
-                        <div className="yoga-particle-layer" aria-hidden>
-                          {YOGA_PARTICLE_OFFSETS.map((p, i) => (
-                            <span
-                              key={`${pose.id}-p-${i}`}
-                              className="yoga-light-particle"
-                              style={
-                                {
-                                  left: '50%',
-                                  top: '42%',
-                                  '--dx': `${p.dx}px`,
-                                  '--dy': `${p.dy}px`,
-                                } as React.CSSProperties
-                              }
-                            />
-                          ))}
-                        </div>
-                      )}
+                    />
+                    <div className="yoga-card-text">
+                      <p className="tip">{pose.name}</p>
+                      <p className="second-text">
+                        {pose.intensity} · {pose.duration}
+                      </p>
+                    </div>
+                    <div className="yoga-yt-icon">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        width="14"
+                        height="14"
+                      >
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                      </svg>
                     </div>
                   </div>
-                );
-              })}
+                </a>
+              ))}
             </div>
           </div>
-
         </div>
       </section>
 
@@ -2495,16 +3190,17 @@ const MeditationPoses: React.FC = () => {
           filter: none;
         }
 
-        .yoga-card .yoga-img-wrap .yoga-liquid-media {
+        .yoga-card img {
           position: absolute;
           inset: 0;
           width: 100%;
           height: 100%;
           object-fit: cover;
           transition: transform 0.5s;
+          filter: brightness(1.22) contrast(1.1) saturate(1.15); /* Brightened further */
         }
-        .yoga-pose-shell:not(.yoga-pose-click-fx) .yoga-card:hover .yoga-liquid-media { transform: scale(1.06); }
-        .yoga-pose-shell:not(.yoga-pose-click-fx) .yoga-card:hover { box-shadow: 0 6px 28px rgba(0,0,0,0.35); }
+        .yoga-card:hover img { transform: scale(1.06); }
+        .yoga-card:hover { box-shadow: 0 6px 28px rgba(0,0,0,0.35); }
         .yoga-card::after {
           content: '';
           position: absolute;
@@ -2549,18 +3245,24 @@ const MeditationPoses: React.FC = () => {
           text-transform: uppercase;
           margin: 0;
         }
+        .yoga-yt-icon {
+          position: absolute;
+          bottom: 10px; right: 10px;
+          z-index: 3;
+          width: 28px; height: 28px;
+          border-radius: 6px;
+          background: rgba(255,0,0,0.75);
+          display: flex; align-items: center; justify-content: center;
+          color: white;
+          opacity: 0.55;
+          transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .yoga-card:hover .yoga-yt-icon {
+          opacity: 1;
+          transform: scale(1.12);
+        }
 
       `}</style>
-
-      {/* Modal */}
-      <YogaDetailModal
-        pose={activePose}
-        isOpen={isOpen}
-        onClose={() => {
-          setIsOpen(false);
-          setActivePose(null);
-        }}
-      />
     </>
   );
 };
@@ -2581,10 +3283,10 @@ const YogaDetailModal = ({
   useEffect(() => {
     if (!isOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === "Escape") onClose();
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [isOpen, onClose]);
 
   if (!isOpen || !pose) return null;
@@ -2614,8 +3316,18 @@ const YogaDetailModal = ({
               aria-label="Close"
               className="pose-modal-close-btn pointer-events-auto shrink-0"
             >
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" />
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M6 6L18 18M18 6L6 18"
+                  stroke="currentColor"
+                  strokeWidth="1.15"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
           </div>
@@ -2626,7 +3338,7 @@ const YogaDetailModal = ({
                 className="absolute inset-0 opacity-50 blur-2xl scale-110"
                 style={{
                   background:
-                    'radial-gradient(circle at 50% 40%, rgba(167,243,208,0.35) 0%, transparent 65%)',
+                    "radial-gradient(circle at 50% 40%, rgba(167,243,208,0.35) 0%, transparent 65%)",
                 }}
                 aria-hidden
               />
@@ -2634,7 +3346,10 @@ const YogaDetailModal = ({
                 src={pose.image}
                 alt={pose.name}
                 className="relative block w-full h-full max-h-[320px] object-contain object-center bg-white/5"
-                style={{ objectPosition: pose.id === 6 ? 'right center' : 'center center' }}
+                style={{
+                  objectPosition:
+                    pose.id === 6 ? "right center" : "center center",
+                }}
               />
             </div>
 
@@ -2652,7 +3367,9 @@ const YogaDetailModal = ({
               {pose.intensity} · {pose.duration}
             </p>
 
-            <p className="text-emerald-950/85 mb-6 text-sm leading-relaxed font-light">{pose.description}</p>
+            <p className="text-emerald-950/85 mb-6 text-sm leading-relaxed font-light">
+              {pose.description}
+            </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
               <div>
@@ -2694,14 +3411,19 @@ const YogaDetailModal = ({
               </div>
             </div>
 
-            {'precautions' in pose && pose.precautions && pose.precautions.length > 0 && (
-              <p className="text-xs text-emerald-900/70 mb-6 leading-relaxed border border-white/20 rounded-xl px-4 py-3 bg-white/10">
-                <span className="font-semibold uppercase tracking-wider" style={{ fontFamily: "'Cinzel', serif" }}>
-                  Note{' '}
-                </span>
-                {pose.precautions.join(' ')}
-              </p>
-            )}
+            {"precautions" in pose &&
+              pose.precautions &&
+              pose.precautions.length > 0 && (
+                <p className="text-xs text-emerald-900/70 mb-6 leading-relaxed border border-white/20 rounded-xl px-4 py-3 bg-white/10">
+                  <span
+                    className="font-semibold uppercase tracking-wider"
+                    style={{ fontFamily: "'Cinzel', serif" }}
+                  >
+                    Note{" "}
+                  </span>
+                  {pose.precautions.join(" ")}
+                </p>
+              )}
 
             <a
               href={youtubeSearchUrl}
@@ -2719,7 +3441,6 @@ const YogaDetailModal = ({
   );
 };
 
-
 // Essential Guidance Section - Meditation Journey Path
 const EssentialGuidance: React.FC = () => {
   const [activeCard, setActiveCard] = useState<string | null>(null);
@@ -2727,7 +3448,21 @@ const EssentialGuidance: React.FC = () => {
   const [animating, setAnimating] = useState(false);
   const [typedSteps, setTypedSteps] = useState<number>(0);
 
-  const journeyData: Record<string, { steps: string[]; quote: string; breathNote: string; color: string; shadowColor: string; bgLight: string; textColor: string; mutedText: string; cardBg: string; cardShade: string; }> = {
+  const journeyData: Record<
+    string,
+    {
+      steps: string[];
+      quote: string;
+      breathNote: string;
+      color: string;
+      shadowColor: string;
+      bgLight: string;
+      textColor: string;
+      mutedText: string;
+      cardBg: string;
+      cardShade: string;
+    }
+  > = {
     "Start Small": {
       steps: [
         "Choose a consistent time - even 5 minutes at dawn",
@@ -2772,7 +3507,8 @@ const EssentialGuidance: React.FC = () => {
         "Diffuse sandalwood, frankincense, or eucalyptus before sitting",
         "Let this space hold only stillness - no work, no devices",
       ],
-      quote: "Where you sit becomes holy ground when you bring your full presence.",
+      quote:
+        "Where you sit becomes holy ground when you bring your full presence.",
       breathNote: "Inhale 4 . Hold 4 . Exhale 4",
       color: "#4a9e6e",
       shadowColor: "rgba(74,158,110,0.28)",
@@ -2839,12 +3575,12 @@ const EssentialGuidance: React.FC = () => {
   };
 
   const guidanceItems = [
-    { title: "Start Small",           image: "/start small.jpg" },
-    { title: "Morning Practice",      image: "/morning.jpg"     },
-    { title: "Create Sacred Space",   image: "/sacred.jpg"      },
-    { title: "Disconnect to Connect", image: "/phonee.jpg"      },
-    { title: "Breathe First",         image: "/breath.jpg"      },
-    { title: "Be Patient",            image: "/be.webp"         },
+    { title: "Start Small", image: "/start small.jpg" },
+    { title: "Morning Practice", image: "/morning.jpg" },
+    { title: "Create Sacred Space", image: "/sacred.jpg" },
+    { title: "Disconnect to Connect", image: "/phonee.jpg" },
+    { title: "Breathe First", image: "/breath.jpg" },
+    { title: "Be Patient", image: "/be.webp" },
   ];
 
   const handleCardClick = (title: string) => {
@@ -2879,7 +3615,11 @@ const EssentialGuidance: React.FC = () => {
       {/* Ambient particles */}
       <div className="ej-particles" aria-hidden="true">
         {Array.from({ length: 24 }).map((_, i) => (
-          <div key={i} className="ej-particle" style={{ '--pi': i } as React.CSSProperties} />
+          <div
+            key={i}
+            className="ej-particle"
+            style={{ "--pi": i } as React.CSSProperties}
+          />
         ))}
       </div>
 
@@ -2887,9 +3627,13 @@ const EssentialGuidance: React.FC = () => {
         {/* Heading */}
         <div className="ej-heading">
           <p className="ej-eyebrow">Timeless Principles</p>
-          <h2 className="ej-title">Essential <span className="ej-title-accent">Guidance</span></h2>
+          <h2 className="ej-title">
+            Essential <span className="ej-title-accent">Guidance</span>
+          </h2>
           <div className="ej-title-rule" />
-          <p className="ej-subtitle">Select a principle to illuminate your path</p>
+          <p className="ej-subtitle">
+            Select a principle to illuminate your path
+          </p>
         </div>
 
         {/* Cards row */}
@@ -2900,18 +3644,26 @@ const EssentialGuidance: React.FC = () => {
             return (
               <div
                 key={item.title}
-                className={`ej-card${isActive ? ' ej-card-active' : ''}`}
-                style={{
-                  '--card-color': jd.color,
-                  '--card-shadow': jd.shadowColor,
-                  background: isActive ? jd.cardBg : jd.cardShade,
-                  border: isActive ? `1.5px solid ${jd.color}` : '1.5px solid rgba(45,106,79,0.15)',
-                  boxShadow: isActive ? `0 0 0 2px ${jd.color}40, 0 20px 48px ${jd.shadowColor}` : '0 4px 18px rgba(0,0,0,0.10)',
-                } as React.CSSProperties}
+                className={`ej-card${isActive ? " ej-card-active" : ""}`}
+                style={
+                  {
+                    "--card-color": jd.color,
+                    "--card-shadow": jd.shadowColor,
+                    background: isActive ? jd.cardBg : jd.cardShade,
+                    border: isActive
+                      ? `1.5px solid ${jd.color}`
+                      : "1.5px solid rgba(45,106,79,0.15)",
+                    boxShadow: isActive
+                      ? `0 0 0 2px ${jd.color}40, 0 20px 48px ${jd.shadowColor}`
+                      : "0 4px 18px rgba(0,0,0,0.10)",
+                  } as React.CSSProperties
+                }
                 onClick={() => handleCardClick(item.title)}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && handleCardClick(item.title)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && handleCardClick(item.title)
+                }
                 aria-pressed={isActive}
               >
                 {/* Ambient glow layer */}
@@ -2926,7 +3678,9 @@ const EssentialGuidance: React.FC = () => {
                   </div>
                 </div>
                 {/* Title */}
-                <p className="ej-card-title" style={{ color: jd.textColor }}>{item.title}</p>
+                <p className="ej-card-title" style={{ color: jd.textColor }}>
+                  {item.title}
+                </p>
                 {/* Active indicator */}
                 <div className="ej-card-indicator">
                   <div className="ej-card-dot" />
@@ -2939,26 +3693,53 @@ const EssentialGuidance: React.FC = () => {
         {/* Connector + panel — only shown when a card is selected */}
         {journey && (
           <>
-            <div className="ej-connector" style={{ '--path-color': journey.color } as React.CSSProperties}>
+            <div
+              className="ej-connector"
+              style={{ "--path-color": journey.color } as React.CSSProperties}
+            >
               <div className="ej-connector-line" />
-              <div className="ej-connector-node" style={{ background: journey.color, boxShadow: `0 0 12px ${journey.color}` }} />
+              <div
+                className="ej-connector-node"
+                style={{
+                  background: journey.color,
+                  boxShadow: `0 0 12px ${journey.color}`,
+                }}
+              />
             </div>
 
             <div
-              className={`ej-panel${animating ? ' ej-panel-exit' : ' ej-panel-enter'}`}
-              style={{
-                '--path-color': journey.color,
-                '--path-shadow': journey.shadowColor,
-                background: journey.bgLight,
-              } as React.CSSProperties}
+              className={`ej-panel${animating ? " ej-panel-exit" : " ej-panel-enter"}`}
+              style={
+                {
+                  "--path-color": journey.color,
+                  "--path-shadow": journey.shadowColor,
+                  background: journey.bgLight,
+                } as React.CSSProperties
+              }
             >
               {/* Top accent border */}
-              <div className="ej-panel-top-border" style={{ background: `linear-gradient(to right, transparent, ${journey.color}, transparent)` }} />
+              <div
+                className="ej-panel-top-border"
+                style={{
+                  background: `linear-gradient(to right, transparent, ${journey.color}, transparent)`,
+                }}
+              />
 
               <div className="ej-panel-inner">
                 <div className="ej-panel-header">
-                  <div className="ej-panel-pulse" style={{ background: journey.color, boxShadow: `0 0 18px ${journey.shadowColor}` }} />
-                  <h3 className="ej-panel-title" style={{ color: journey.textColor }}>{displayCard}</h3>
+                  <div
+                    className="ej-panel-pulse"
+                    style={{
+                      background: journey.color,
+                      boxShadow: `0 0 18px ${journey.shadowColor}`,
+                    }}
+                  />
+                  <h3
+                    className="ej-panel-title"
+                    style={{ color: journey.textColor }}
+                  >
+                    {displayCard}
+                  </h3>
                 </div>
 
                 <div className="ej-steps">
@@ -2968,25 +3749,67 @@ const EssentialGuidance: React.FC = () => {
                       className="ej-step"
                       style={{
                         opacity: i < typedSteps ? 1 : 0,
-                        transform: i < typedSteps ? 'translateX(0)' : 'translateX(-14px)',
+                        transform:
+                          i < typedSteps
+                            ? "translateX(0)"
+                            : "translateX(-14px)",
                         transition: `opacity 0.4s ease ${i * 0.08}s, transform 0.4s ease ${i * 0.08}s`,
                       }}
                     >
-                      <div className="ej-step-num" style={{ color: journey.color, borderColor: `${journey.color}70`, background: `${journey.color}15` }}>{i + 1}</div>
-                      <p className="ej-step-text" style={{ color: journey.textColor }}>{step}</p>
+                      <div
+                        className="ej-step-num"
+                        style={{
+                          color: journey.color,
+                          borderColor: `${journey.color}70`,
+                          background: `${journey.color}15`,
+                        }}
+                      >
+                        {i + 1}
+                      </div>
+                      <p
+                        className="ej-step-text"
+                        style={{ color: journey.textColor }}
+                      >
+                        {step}
+                      </p>
                     </div>
                   ))}
                 </div>
 
-                <div className="ej-panel-divider" style={{ background: `linear-gradient(to right, transparent, ${journey.color}60, transparent)` }} />
+                <div
+                  className="ej-panel-divider"
+                  style={{
+                    background: `linear-gradient(to right, transparent, ${journey.color}60, transparent)`,
+                  }}
+                />
 
                 <div className="ej-panel-footer">
                   <div className="ej-quote-wrap">
-                    <span className="ej-quote-mark" style={{ color: journey.textColor }}>"</span>
-                    <p className="ej-quote" style={{ color: journey.textColor }}>{journey.quote}</p>
+                    <span
+                      className="ej-quote-mark"
+                      style={{ color: journey.textColor }}
+                    >
+                      "
+                    </span>
+                    <p
+                      className="ej-quote"
+                      style={{ color: journey.textColor }}
+                    >
+                      {journey.quote}
+                    </p>
                   </div>
-                  <div className="ej-breath-pill" style={{ borderColor: journey.textColor, color: journey.textColor, background: `${journey.color}25` }}>
-                    <div className="ej-breath-dot" style={{ background: journey.textColor }} />
+                  <div
+                    className="ej-breath-pill"
+                    style={{
+                      borderColor: journey.textColor,
+                      color: journey.textColor,
+                      background: `${journey.color}25`,
+                    }}
+                  >
+                    <div
+                      className="ej-breath-dot"
+                      style={{ background: journey.textColor }}
+                    />
                     {journey.breathNote}
                   </div>
                 </div>
@@ -3419,14 +4242,53 @@ const BreathingModal: React.FC<{
   durationMinutes?: number;
   onClose: () => void;
   /** Called once when the guided timer finishes (profile / stats logging). */
-  onSessionCompleted?: (payload: { title: string; durationMinutes: number }) => void;
-}> = ({ title, audioUrl, durationMinutes = 5, onClose, onSessionCompleted }) => {
-  type Phase = { label: string; duration: number; scale: number; color: string; hint: string };
+  onSessionCompleted?: (payload: {
+    title: string;
+    durationMinutes: number;
+  }) => void;
+}> = ({
+  title,
+  audioUrl,
+  durationMinutes = 5,
+  onClose,
+  onSessionCompleted,
+}) => {
+  type Phase = {
+    label: string;
+    duration: number;
+    scale: number;
+    color: string;
+    hint: string;
+  };
   const PHASES: Phase[] = [
-    { label: 'Inhale',  duration: 4, scale: 1.4,  color: '#52b788', hint: 'Breathe in slowly' },
-    { label: 'Hold',    duration: 4, scale: 1.4,  color: '#40916c', hint: 'Hold gently'        },
-    { label: 'Exhale',  duration: 6, scale: 0.75, color: '#74c69d', hint: 'Release slowly'     },
-    { label: 'Rest',    duration: 2, scale: 0.75, color: '#95d5b2', hint: 'Pause...'            },
+    {
+      label: "Inhale",
+      duration: 4,
+      scale: 1.4,
+      color: "#52b788",
+      hint: "Breathe in slowly",
+    },
+    {
+      label: "Hold",
+      duration: 4,
+      scale: 1.4,
+      color: "#40916c",
+      hint: "Hold gently",
+    },
+    {
+      label: "Exhale",
+      duration: 6,
+      scale: 0.75,
+      color: "#74c69d",
+      hint: "Release slowly",
+    },
+    {
+      label: "Rest",
+      duration: 2,
+      scale: 0.75,
+      color: "#95d5b2",
+      hint: "Pause...",
+    },
   ];
   const TOTAL = Math.max(60, Math.round(durationMinutes * 60));
   const [started, setStarted] = useState(false);
@@ -3436,9 +4298,14 @@ const BreathingModal: React.FC<{
   const [done, setDone] = useState(false);
   const [cycles, setCycles] = useState(0);
   const phase = PHASES[phaseIdx];
-  const ringSpeed = phase.label === 'Inhale' ? [8,13,18] : phase.label === 'Exhale' ? [4,7,10] : [6,10,14];
-  const mm = String(Math.floor((TOTAL - totalElapsed) / 60)).padStart(2,'0');
-  const ss = String((TOTAL - totalElapsed) % 60).padStart(2,'0');
+  const ringSpeed =
+    phase.label === "Inhale"
+      ? [8, 13, 18]
+      : phase.label === "Exhale"
+        ? [4, 7, 10]
+        : [6, 10, 14];
+  const mm = String(Math.floor((TOTAL - totalElapsed) / 60)).padStart(2, "0");
+  const ss = String((TOTAL - totalElapsed) % 60).padStart(2, "0");
 
   // Audio playback
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
@@ -3461,15 +4328,25 @@ const BreathingModal: React.FC<{
   useEffect(() => {
     if (!started || done) return;
     const t = setInterval(() => {
-      setPhaseElapsed(p => {
+      setPhaseElapsed((p) => {
         const n = p + 1;
         if (n >= phase.duration) {
-          setPhaseIdx(pi => { const np = (pi+1)%PHASES.length; if(np===0) setCycles(c=>c+1); return np; });
+          setPhaseIdx((pi) => {
+            const np = (pi + 1) % PHASES.length;
+            if (np === 0) setCycles((c) => c + 1);
+            return np;
+          });
           return 0;
         }
         return n;
       });
-      setTotalElapsed(p => { const n=p+1; if(n>=TOTAL){setDone(true);} return n; });
+      setTotalElapsed((p) => {
+        const n = p + 1;
+        if (n >= TOTAL) {
+          setDone(true);
+        }
+        return n;
+      });
     }, 1000);
     return () => clearInterval(t);
   }, [started, done, phase.duration, TOTAL]);
@@ -3482,24 +4359,47 @@ const BreathingModal: React.FC<{
     onSessionCompleted?.({ title, durationMinutes: mins });
   }, [done, title, durationMinutes, onSessionCompleted]);
 
-  const reset = () => { setStarted(false); setPhaseIdx(0); setPhaseElapsed(0); setTotalElapsed(0); setDone(false); setCycles(0); };
+  const reset = () => {
+    setStarted(false);
+    setPhaseIdx(0);
+    setPhaseElapsed(0);
+    setTotalElapsed(0);
+    setDone(false);
+    setCycles(0);
+  };
 
   return (
-    <div onClick={onClose} style={{
-      position: 'fixed', inset: 0, zIndex: 9000,
-      background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px',
-      animation: 'bm-fade 0.3s ease',
-    }}>
-      <div onClick={e => e.stopPropagation()} style={{
-        background: 'radial-gradient(ellipse at top, #0d2b1a 0%, #071a0f 60%, #030e08 100%)',
-        borderRadius: '24px', width: '100%', maxWidth: '480px',
-        padding: '32px 24px 28px', position: 'relative',
-        animation: 'bm-pop 0.35s cubic-bezier(0.34,1.56,0.64,1)',
-        boxShadow: '0 24px 80px rgba(0,0,0,0.5)',
-        border: '1px solid rgba(82,183,136,0.2)',
-        overflow: 'hidden',
-      }}>
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9000,
+        background: "rgba(0,0,0,0.6)",
+        backdropFilter: "blur(8px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "16px",
+        animation: "bm-fade 0.3s ease",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background:
+            "radial-gradient(ellipse at top, #0d2b1a 0%, #071a0f 60%, #030e08 100%)",
+          borderRadius: "24px",
+          width: "100%",
+          maxWidth: "480px",
+          padding: "32px 24px 28px",
+          position: "relative",
+          animation: "bm-pop 0.35s cubic-bezier(0.34,1.56,0.64,1)",
+          boxShadow: "0 24px 80px rgba(0,0,0,0.5)",
+          border: "1px solid rgba(82,183,136,0.2)",
+          overflow: "hidden",
+        }}
+      >
         <style>{`
           @keyframes bm-fade { from{opacity:0} to{opacity:1} }
           @keyframes bm-pop  { from{opacity:0;transform:scale(0.88)} to{opacity:1;transform:scale(1)} }
@@ -3520,77 +4420,366 @@ const BreathingModal: React.FC<{
         `}</style>
 
         {/* Cosmic bg */}
-        <div className="bm-stars1" /><div className="bm-stars2" />
-        <div className="bm-planet1" /><div className="bm-planet2" />
+        <div className="bm-stars1" />
+        <div className="bm-stars2" />
+        <div className="bm-planet1" />
+        <div className="bm-planet2" />
 
         {/* Close */}
-        <button onClick={onClose} style={{ position:'absolute',top:'14px',right:'14px',zIndex:10,width:'30px',height:'30px',borderRadius:'50%',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(168,230,207,0.2)',color:'#A8E6CF',fontSize:'0.8rem',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center' }}>x</button>
+        <button
+          onClick={onClose}
+          style={{
+            position: "absolute",
+            top: "14px",
+            right: "14px",
+            zIndex: 10,
+            width: "30px",
+            height: "30px",
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.08)",
+            border: "1px solid rgba(168,230,207,0.2)",
+            color: "#A8E6CF",
+            fontSize: "0.8rem",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          x
+        </button>
 
         {/* Title */}
-        <p style={{ textAlign:'center',fontSize:'0.65rem',letterSpacing:'0.25em',textTransform:'uppercase',color:'#74c69d',marginBottom:'4px',position:'relative',zIndex:1 }}>Guided Breathing</p>
-        <h3 style={{ textAlign:'center',fontFamily:"'Playfair Display',serif",fontWeight:800,fontSize:'clamp(1rem,3vw,1.3rem)',color:'#e8f5e9',margin:'0 0 24px',position:'relative',zIndex:1 }}>{title}</h3>
+        <p
+          style={{
+            textAlign: "center",
+            fontSize: "0.65rem",
+            letterSpacing: "0.25em",
+            textTransform: "uppercase",
+            color: "#74c69d",
+            marginBottom: "4px",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          Guided Breathing
+        </p>
+        <h3
+          style={{
+            textAlign: "center",
+            fontFamily: "'Playfair Display',serif",
+            fontWeight: 800,
+            fontSize: "clamp(1rem,3vw,1.3rem)",
+            color: "#e8f5e9",
+            margin: "0 0 24px",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          {title}
+        </h3>
 
         {/* Orbital */}
-        <div onClick={() => {
-          if (!started) {
-            setStarted(true);
-            // Start audio on user interaction (satisfies browser autoplay policy)
-            if (audioRef.current && audioRef.current.paused) {
-              audioRef.current.play().catch(() => {});
+        <div
+          onClick={() => {
+            if (!started) {
+              setStarted(true);
+              // Start audio on user interaction (satisfies browser autoplay policy)
+              if (audioRef.current && audioRef.current.paused) {
+                audioRef.current.play().catch(() => {});
+              }
             }
-          }
-        }} style={{ position:'relative',width:'clamp(200px,50vw,260px)',height:'clamp(200px,50vw,260px)',margin:'0 auto',cursor:!started?'pointer':'default',zIndex:1 }}>
+          }}
+          style={{
+            position: "relative",
+            width: "clamp(200px,50vw,260px)",
+            height: "clamp(200px,50vw,260px)",
+            margin: "0 auto",
+            cursor: !started ? "pointer" : "default",
+            zIndex: 1,
+          }}
+        >
           {/* Ring 1 */}
-          <div style={{ position:'absolute',borderRadius:'50%',width:'70%',height:'70%',border:`2px solid ${phase.color}55`,top:'50%',left:'50%',animation:`bm-spin-cw ${ringSpeed[0]}s linear infinite`,transition:'border-color 1.5s' }}>
-            <div style={{ position:'absolute',top:'-5px',left:'50%',width:'10px',height:'10px',borderRadius:'50%',background:'#52b788',boxShadow:'0 0 8px #52b788',transform:'translateX(-50%)' }} />
+          <div
+            style={{
+              position: "absolute",
+              borderRadius: "50%",
+              width: "70%",
+              height: "70%",
+              border: `2px solid ${phase.color}55`,
+              top: "50%",
+              left: "50%",
+              animation: `bm-spin-cw ${ringSpeed[0]}s linear infinite`,
+              transition: "border-color 1.5s",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: "-5px",
+                left: "50%",
+                width: "10px",
+                height: "10px",
+                borderRadius: "50%",
+                background: "#52b788",
+                boxShadow: "0 0 8px #52b788",
+                transform: "translateX(-50%)",
+              }}
+            />
           </div>
           {/* Ring 2 */}
-          <div style={{ position:'absolute',borderRadius:'50%',width:'85%',height:'85%',border:`1.5px solid ${phase.color}33`,top:'50%',left:'50%',animation:`bm-spin-ccw ${ringSpeed[1]}s linear infinite`,transition:'border-color 1.5s' }}>
-            <div style={{ position:'absolute',top:'-6px',left:'50%',width:'12px',height:'12px',borderRadius:'50%',background:'linear-gradient(135deg,#d4a017,#f0c040)',boxShadow:'0 0 10px rgba(212,160,23,0.8)',transform:'translateX(-50%)' }} />
+          <div
+            style={{
+              position: "absolute",
+              borderRadius: "50%",
+              width: "85%",
+              height: "85%",
+              border: `1.5px solid ${phase.color}33`,
+              top: "50%",
+              left: "50%",
+              animation: `bm-spin-ccw ${ringSpeed[1]}s linear infinite`,
+              transition: "border-color 1.5s",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: "-6px",
+                left: "50%",
+                width: "12px",
+                height: "12px",
+                borderRadius: "50%",
+                background: "linear-gradient(135deg,#d4a017,#f0c040)",
+                boxShadow: "0 0 10px rgba(212,160,23,0.8)",
+                transform: "translateX(-50%)",
+              }}
+            />
           </div>
           {/* Ring 3 */}
-          <div style={{ position:'absolute',borderRadius:'50%',width:'100%',height:'100%',border:`1px solid ${phase.color}22`,top:'50%',left:'50%',animation:`bm-spin-cw ${ringSpeed[2]}s linear infinite`,transition:'border-color 1.5s' }}>
-            <div style={{ position:'absolute',top:'-4px',left:'50%',width:'8px',height:'8px',borderRadius:'50%',background:'#95d5b2',boxShadow:'0 0 6px rgba(149,213,178,0.7)',transform:'translateX(-50%)' }} />
+          <div
+            style={{
+              position: "absolute",
+              borderRadius: "50%",
+              width: "100%",
+              height: "100%",
+              border: `1px solid ${phase.color}22`,
+              top: "50%",
+              left: "50%",
+              animation: `bm-spin-cw ${ringSpeed[2]}s linear infinite`,
+              transition: "border-color 1.5s",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: "-4px",
+                left: "50%",
+                width: "8px",
+                height: "8px",
+                borderRadius: "50%",
+                background: "#95d5b2",
+                boxShadow: "0 0 6px rgba(149,213,178,0.7)",
+                transform: "translateX(-50%)",
+              }}
+            />
           </div>
           {/* Center */}
-          <div style={{ position:'absolute',top:'50%',left:'50%',transform:`translate(-50%,-50%) scale(${started ? phase.scale : 1})`,width:'45%',height:'45%',borderRadius:'50%',background:`linear-gradient(135deg,${phase.color}dd,#40916c)`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',transition:`transform ${phase.duration}s cubic-bezier(0.45,0,0.55,1), background 1.5s`,animation:started?'bm-pulse 4s ease-in-out infinite':'none',zIndex:10 }}>
-            <span style={{ fontSize:'clamp(0.7rem,2vw,0.9rem)',fontWeight:700,color:'#fff',letterSpacing:'0.04em' }}>{done?'v':started?phase.label:'Tap'}</span>
-            {started && !done && <span style={{ fontSize:'0.6rem',color:'rgba(255,255,255,0.8)',marginTop:'2px' }}>{phase.duration - phaseElapsed}s</span>}
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: `translate(-50%,-50%) scale(${started ? phase.scale : 1})`,
+              width: "45%",
+              height: "45%",
+              borderRadius: "50%",
+              background: `linear-gradient(135deg,${phase.color}dd,#40916c)`,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: `transform ${phase.duration}s cubic-bezier(0.45,0,0.55,1), background 1.5s`,
+              animation: started ? "bm-pulse 4s ease-in-out infinite" : "none",
+              zIndex: 10,
+            }}
+          >
+            <span
+              style={{
+                fontSize: "clamp(0.7rem,2vw,0.9rem)",
+                fontWeight: 700,
+                color: "#fff",
+                letterSpacing: "0.04em",
+              }}
+            >
+              {done ? "v" : started ? phase.label : "Tap"}
+            </span>
+            {started && !done && (
+              <span
+                style={{
+                  fontSize: "0.6rem",
+                  color: "rgba(255,255,255,0.8)",
+                  marginTop: "2px",
+                }}
+              >
+                {phase.duration - phaseElapsed}s
+              </span>
+            )}
           </div>
         </div>
 
         {/* Hint */}
-        <p style={{ textAlign:'center',fontSize:'0.8rem',color:'#95d5b2',marginTop:'16px',minHeight:'20px',position:'relative',zIndex:1 }}>
-          {done ? 'Session complete ' : started ? phase.hint : 'Tap the circle to begin'}
+        <p
+          style={{
+            textAlign: "center",
+            fontSize: "0.8rem",
+            color: "#95d5b2",
+            marginTop: "16px",
+            minHeight: "20px",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          {done
+            ? "Session complete "
+            : started
+              ? phase.hint
+              : "Tap the circle to begin"}
         </p>
 
         {/* Timer + cycles */}
         {started && !done && (
-          <div style={{ display:'flex',justifyContent:'center',gap:'28px',marginTop:'14px',position:'relative',zIndex:1 }}>
-            <div style={{ textAlign:'center' }}>
-              <p style={{ fontFamily:"'Cinzel',serif",fontSize:'1.5rem',fontWeight:700,color:'#e8f5e9',margin:0 }}>{mm}:{ss}</p>
-              <p style={{ fontSize:'0.6rem',color:'#74c69d',margin:0,letterSpacing:'0.1em',textTransform:'uppercase' }}>Remaining</p>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "28px",
+              marginTop: "14px",
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            <div style={{ textAlign: "center" }}>
+              <p
+                style={{
+                  fontFamily: "'Cinzel',serif",
+                  fontSize: "1.5rem",
+                  fontWeight: 700,
+                  color: "#e8f5e9",
+                  margin: 0,
+                }}
+              >
+                {mm}:{ss}
+              </p>
+              <p
+                style={{
+                  fontSize: "0.6rem",
+                  color: "#74c69d",
+                  margin: 0,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Remaining
+              </p>
             </div>
-            <div style={{ width:'1px',background:'rgba(168,230,207,0.15)' }} />
-            <div style={{ textAlign:'center' }}>
-              <p style={{ fontFamily:"'Cinzel',serif",fontSize:'1.5rem',fontWeight:700,color:'#e8f5e9',margin:0 }}>{cycles}</p>
-              <p style={{ fontSize:'0.6rem',color:'#74c69d',margin:0,letterSpacing:'0.1em',textTransform:'uppercase' }}>Cycles</p>
+            <div
+              style={{ width: "1px", background: "rgba(168,230,207,0.15)" }}
+            />
+            <div style={{ textAlign: "center" }}>
+              <p
+                style={{
+                  fontFamily: "'Cinzel',serif",
+                  fontSize: "1.5rem",
+                  fontWeight: 700,
+                  color: "#e8f5e9",
+                  margin: 0,
+                }}
+              >
+                {cycles}
+              </p>
+              <p
+                style={{
+                  fontSize: "0.6rem",
+                  color: "#74c69d",
+                  margin: 0,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Cycles
+              </p>
             </div>
           </div>
         )}
 
         {/* Progress bar */}
         {started && (
-          <div style={{ width:'200px',height:'3px',background:'rgba(168,230,207,0.1)',borderRadius:'4px',margin:'14px auto 0',overflow:'hidden',position:'relative',zIndex:1 }}>
-            <div style={{ height:'100%',background:'linear-gradient(90deg,#52b788,#A8E6CF)',width:`${Math.min((totalElapsed/TOTAL)*100,100)}%`,transition:'width 1s linear' }} />
+          <div
+            style={{
+              width: "200px",
+              height: "3px",
+              background: "rgba(168,230,207,0.1)",
+              borderRadius: "4px",
+              margin: "14px auto 0",
+              overflow: "hidden",
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                background: "linear-gradient(90deg,#52b788,#A8E6CF)",
+                width: `${Math.min((totalElapsed / TOTAL) * 100, 100)}%`,
+                transition: "width 1s linear",
+              }}
+            />
           </div>
         )}
 
         {/* Done buttons */}
         {done && (
-          <div style={{ display:'flex',gap:'10px',justifyContent:'center',marginTop:'20px',position:'relative',zIndex:1 }}>
-            <button onClick={reset} style={{ background:'linear-gradient(135deg,#52b788,#40916c)',color:'#fff',border:'none',borderRadius:'50px',padding:'9px 22px',fontSize:'0.8rem',fontWeight:600,cursor:'pointer',boxShadow:'0 4px 14px rgba(82,183,136,0.35)' }}>Restart</button>
-            <button onClick={onClose} style={{ background:'rgba(255,255,255,0.08)',color:'#A8E6CF',border:'1px solid rgba(168,230,207,0.2)',borderRadius:'50px',padding:'9px 22px',fontSize:'0.8rem',fontWeight:600,cursor:'pointer' }}>Close</button>
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+              justifyContent: "center",
+              marginTop: "20px",
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            <button
+              onClick={reset}
+              style={{
+                background: "linear-gradient(135deg,#52b788,#40916c)",
+                color: "#fff",
+                border: "none",
+                borderRadius: "50px",
+                padding: "9px 22px",
+                fontSize: "0.8rem",
+                fontWeight: 600,
+                cursor: "pointer",
+                boxShadow: "0 4px 14px rgba(82,183,136,0.35)",
+              }}
+            >
+              Restart
+            </button>
+            <button
+              onClick={onClose}
+              style={{
+                background: "rgba(255,255,255,0.08)",
+                color: "#A8E6CF",
+                border: "1px solid rgba(168,230,207,0.2)",
+                borderRadius: "50px",
+                padding: "9px 22px",
+                fontSize: "0.8rem",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Close
+            </button>
           </div>
         )}
       </div>
@@ -3624,39 +4813,50 @@ function formatDurationLabel(raw: unknown): string {
 const SessionCard: React.FC<{ session: any }> = ({ session }) => {
   const { user, refreshProfile } = useAuth();
   const { updateProfileStats, isUpdating } = useProfileSync();
-  const [btnState, setBtnState] = useState<'idle' | 'starting'>('idle');
+  const [btnState, setBtnState] = useState<"idle" | "starting">("idle");
   const [showModal, setShowModal] = useState(false);
 
   const logCompletedSession = useCallback(
-    async ({ title, durationMinutes }: { title: string; durationMinutes: number }) => {
+    async ({
+      title,
+      durationMinutes,
+    }: {
+      title: string;
+      durationMinutes: number;
+    }) => {
       if (!user?.id || isUpdating) return;
-      
+
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-session`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        const res = await fetch(
+          `${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-session`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({
+              userId: user.id,
+              duration: durationMinutes,
+              sessionType: "meditation",
+              title,
+              ...(session.category
+                ? { category: String(session.category) }
+                : {}),
+            }),
           },
-          body: JSON.stringify({
-            userId: user.id,
-            duration: durationMinutes,
-            sessionType: "meditation",
-            title,
-            ...(session.category ? { category: String(session.category) } : {}),
-          }),
-        });
-        
+        );
+
         if (res.ok) {
           // Update profile stats safely with real-time sync
           await updateProfileStats({
             duration: durationMinutes,
-            sessionType: 'meditation',
+            sessionType: "meditation",
             title,
-            category: session.category ? String(session.category) : undefined
+            category: session.category ? String(session.category) : undefined,
           });
-          
+
           // Refresh profile from backend as backup
           setTimeout(() => {
             refreshProfile();
@@ -3668,22 +4868,31 @@ const SessionCard: React.FC<{ session: any }> = ({ session }) => {
         try {
           await updateProfileStats({
             duration: durationMinutes,
-            sessionType: 'meditation',
+            sessionType: "meditation",
             title,
-            category: session.category ? String(session.category) : undefined
+            category: session.category ? String(session.category) : undefined,
           });
         } catch (localErr) {
           console.error("[MeditationPage] local stats update failed", localErr);
         }
       }
     },
-    [user?.id, refreshProfile, session.category, updateProfileStats, isUpdating]
+    [
+      user?.id,
+      refreshProfile,
+      session.category,
+      updateProfileStats,
+      isUpdating,
+    ],
   );
 
   const handleStart = () => {
-    if (btnState !== 'idle') return;
-    setBtnState('starting');
-    setTimeout(() => { setBtnState('idle'); setShowModal(true); }, 500);
+    if (btnState !== "idle") return;
+    setBtnState("starting");
+    setTimeout(() => {
+      setBtnState("idle");
+      setShowModal(true);
+    }, 500);
   };
 
   return (
@@ -3734,21 +4943,40 @@ const SessionCard: React.FC<{ session: any }> = ({ session }) => {
       <div className="med-card">
         <div className="med-card-inner">
           {/* Top row: badges */}
-          <div style={{ display:'flex', alignItems:'flex-start' }}>
-            <div style={{ display:'flex', gap:'5px', flexWrap:'wrap' }}>
-              {session.level    && <span className="med-card-badge level">{session.level}</span>}
-              {session.category && <span className="med-card-badge cat">{session.category}</span>}
+          <div style={{ display: "flex", alignItems: "flex-start" }}>
+            <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
+              {session.level && (
+                <span className="med-card-badge level">{session.level}</span>
+              )}
+              {session.category && (
+                <span className="med-card-badge cat">{session.category}</span>
+              )}
             </div>
           </div>
           <h3 className="med-card-title">{session.title}</h3>
-          <p className="med-card-desc">{session.description || '\u00A0'}</p>
-          <p className="med-card-dur">{formatDurationLabel(session.duration)}</p>
-          <button className={`med-card-btn${btnState==='starting'?' starting':''}`} onClick={handleStart}>
-            {btnState === 'starting' ? 'Starting...' : 'Start Session'}
+          <p className="med-card-desc">{session.description || "\u00A0"}</p>
+          <p className="med-card-dur">
+            {formatDurationLabel(session.duration)}
+          </p>
+          <button
+            className={`med-card-btn${btnState === "starting" ? " starting" : ""}`}
+            onClick={handleStart}
+          >
+            {btnState === "starting" ? "Starting..." : "Start Session"}
           </button>
         </div>
-        {btnState === 'starting' && (
-          <div style={{ position:'absolute',inset:0,borderRadius:'16px',border:'2px solid rgba(168,230,207,0.5)',animation:'sc-pulse 0.5s ease-out forwards',pointerEvents:'none',zIndex:2 }} />
+        {btnState === "starting" && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              borderRadius: "16px",
+              border: "2px solid rgba(168,230,207,0.5)",
+              animation: "sc-pulse 0.5s ease-out forwards",
+              pointerEvents: "none",
+              zIndex: 2,
+            }}
+          />
         )}
       </div>
 
@@ -3775,10 +5003,12 @@ const MeditationSessions: React.FC = () => {
   // Fetch active sessions from backend
   useEffect(() => {
     fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/meditations`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         // Show only Active sessions
-        const active = Array.isArray(data) ? data.filter((s: any) => s.status === "Active") : [];
+        const active = Array.isArray(data)
+          ? data.filter((s: any) => s.status === "Active")
+          : [];
         setSessions(active);
       })
       .catch(() => setSessions([]))
@@ -3788,24 +5018,66 @@ const MeditationSessions: React.FC = () => {
   if (!loading && sessions.length === 0) return null;
 
   return (
-    <section style={{ background: '#f8fafb', padding: '80px 0', opacity: 0, animation: 'sc-fadein 0.8s ease 0.2s forwards' }}>
+    <section
+      style={{
+        background: "#f8fafb",
+        padding: "80px 0",
+        opacity: 0,
+        animation: "sc-fadein 0.8s ease 0.2s forwards",
+      }}
+    >
       <style>{`@keyframes sc-fadein { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }`}</style>
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px' }}>
-
+      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 24px" }}>
         {/* Heading */}
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <p style={{ fontFamily: "'Cinzel', serif", fontSize: '0.7rem', letterSpacing: '0.35em', textTransform: 'uppercase', color: '#2d6a4f', marginBottom: '12px', opacity: 0.8 }}>
+        <div style={{ textAlign: "center", marginBottom: "40px" }}>
+          <p
+            style={{
+              fontFamily: "'Cinzel', serif",
+              fontSize: "0.7rem",
+              letterSpacing: "0.35em",
+              textTransform: "uppercase",
+              color: "#2d6a4f",
+              marginBottom: "12px",
+              opacity: 0.8,
+            }}
+          >
             Guided Library
           </p>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', color: '#1e293b', margin: 0 }}>
-            Meditation <span style={{ color: '#059669', fontStyle: 'italic' }}>Sessions</span>
+          <h2
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontWeight: 800,
+              fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
+              color: "#1e293b",
+              margin: 0,
+            }}
+          >
+            Meditation{" "}
+            <span style={{ color: "#059669", fontStyle: "italic" }}>
+              Sessions
+            </span>
           </h2>
-          <div style={{ width: '60px', height: '1px', background: 'linear-gradient(to right, transparent, #059669, transparent)', margin: '16px auto 0' }} />
+          <div
+            style={{
+              width: "60px",
+              height: "1px",
+              background:
+                "linear-gradient(to right, transparent, #059669, transparent)",
+              margin: "16px auto 0",
+            }}
+          />
         </div>
 
         {/* Loading */}
         {loading && (
-          <p style={{ textAlign: 'center', color: '#74c69d', fontFamily: "'Poppins', sans-serif", fontSize: '0.9rem' }}>
+          <p
+            style={{
+              textAlign: "center",
+              color: "#74c69d",
+              fontFamily: "'Poppins', sans-serif",
+              fontSize: "0.9rem",
+            }}
+          >
             Loading sessions...
           </p>
         )}
@@ -3813,50 +5085,55 @@ const MeditationSessions: React.FC = () => {
         {/* Session cards — first 6; "View more" reveals the rest in a scrollable area */}
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '32px',
-            alignItems: 'stretch',
-            padding: '8px',
-            ...(libraryExpanded && sessions.length > MEDITATION_LIBRARY_CARD_LIMIT
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+            gap: "32px",
+            alignItems: "stretch",
+            padding: "8px",
+            ...(libraryExpanded &&
+            sessions.length > MEDITATION_LIBRARY_CARD_LIMIT
               ? {
-                  maxHeight: 'min(1700px, 85vh)',
-                  overflowY: 'auto',
-                  paddingRight: '4px',
+                  maxHeight: "min(1700px, 85vh)",
+                  overflowY: "auto",
+                  paddingRight: "4px",
                 }
               : {}),
           }}
         >
-          {(libraryExpanded ? sessions : sessions.slice(0, MEDITATION_LIBRARY_CARD_LIMIT)).map((session) => (
+          {(libraryExpanded
+            ? sessions
+            : sessions.slice(0, MEDITATION_LIBRARY_CARD_LIMIT)
+          ).map((session) => (
             <SessionCard key={session.id} session={session} />
           ))}
         </div>
 
         {!loading && sessions.length > MEDITATION_LIBRARY_CARD_LIMIT && (
-          <div style={{ textAlign: 'center', marginTop: '28px' }}>
+          <div style={{ textAlign: "center", marginTop: "28px" }}>
             <button
               type="button"
               onClick={() => setLibraryExpanded((v) => !v)}
               style={{
-                padding: '12px 28px',
-                borderRadius: '999px',
-                border: '2px solid #52b788',
-                background: libraryExpanded ? '#fff' : 'linear-gradient(135deg,#52b788,#40916c)',
-                color: libraryExpanded ? '#1b4332' : '#fff',
+                padding: "12px 28px",
+                borderRadius: "999px",
+                border: "2px solid #52b788",
+                background: libraryExpanded
+                  ? "#fff"
+                  : "linear-gradient(135deg,#52b788,#40916c)",
+                color: libraryExpanded ? "#1b4332" : "#fff",
                 fontFamily: "'Poppins', sans-serif",
-                fontSize: '0.9rem',
+                fontSize: "0.9rem",
                 fontWeight: 700,
-                cursor: 'pointer',
-                boxShadow: '0 4px 14px rgba(82,183,136,0.25)',
+                cursor: "pointer",
+                boxShadow: "0 4px 14px rgba(82,183,136,0.25)",
               }}
             >
               {libraryExpanded
-                ? 'Show less'
+                ? "Show less"
                 : `View more (${sessions.length - MEDITATION_LIBRARY_CARD_LIMIT} more)`}
             </button>
           </div>
         )}
-
       </div>
     </section>
   );
@@ -3864,47 +5141,182 @@ const MeditationSessions: React.FC = () => {
 
 // Consult Section
 const ConsultSection: React.FC = () => (
-  <section id="consult" className="py-20 px-6 text-center" style={{ background: 'linear-gradient(135deg, #f0f9f0 0%, #ffffff 50%, #f0f9f0 100%)' }}>
-    <p className="text-xs tracking-[0.3em] uppercase mb-4" style={{ fontFamily: "'Cinzel', serif", color: '#1b4332' }}>Free of Charge</p>
-    <h2 className="text-3xl mb-3" style={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, color: '#0d2b0d' }}>
-      Consult Us for <span className="italic" style={{ color: '#2d6a4f' }}>Free Guidance</span>
+  <section
+    id="consult"
+    className="py-20 px-6 text-center"
+    style={{
+      background:
+        "linear-gradient(135deg, #f0f9f0 0%, #ffffff 50%, #f0f9f0 100%)",
+    }}
+  >
+    <p
+      className="text-xs tracking-[0.3em] uppercase mb-4"
+      style={{ fontFamily: "'Cinzel', serif", color: "#1b4332" }}
+    >
+      Free of Charge
+    </p>
+    <h2
+      className="text-3xl mb-3"
+      style={{
+        fontFamily: "'Playfair Display', serif",
+        fontWeight: 800,
+        color: "#0d2b0d",
+      }}
+    >
+      Consult Us for{" "}
+      <span className="italic" style={{ color: "#2d6a4f" }}>
+        Free Guidance
+      </span>
     </h2>
     <div className="w-16 h-px bg-amber-600/50 mx-auto mb-6" />
-    <p className="text-center max-w-xl mx-auto mb-10 text-sm leading-relaxed" style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 400, color: '#2d4a2d' }}>
-      Struggling with sleep, stress, anxiety, or focus? Our experts are here to help - at no cost.
+    <p
+      className="text-center max-w-xl mx-auto mb-10 text-sm leading-relaxed"
+      style={{
+        fontFamily: "'Poppins', sans-serif",
+        fontWeight: 400,
+        color: "#2d4a2d",
+      }}
+    >
+      Struggling with sleep, stress, anxiety, or focus? Our experts are here to
+      help - at no cost.
     </p>
     <div className="flex flex-wrap justify-center gap-3 mb-12">
-      {['Sleep Issues', 'Stress & Anxiety', 'Focus Problems', 'Emotional Balance', 'Spiritual Growth', 'Physical Tension'].map(item => (
-        <span key={item} className="px-4 py-2 rounded-full text-xs tracking-widest uppercase border bg-white/70" style={{ fontFamily: "'Cinzel', serif", color: '#1b4332', borderColor: '#52b788' }}>{item}</span>
+      {[
+        "Sleep Issues",
+        "Stress & Anxiety",
+        "Focus Problems",
+        "Emotional Balance",
+        "Spiritual Growth",
+        "Physical Tension",
+      ].map((item) => (
+        <span
+          key={item}
+          className="px-4 py-2 rounded-full text-xs tracking-widest uppercase border bg-white/70"
+          style={{
+            fontFamily: "'Cinzel', serif",
+            color: "#1b4332",
+            borderColor: "#52b788",
+          }}
+        >
+          {item}
+        </span>
       ))}
     </div>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-3xl mx-auto">
-      <a href="tel:+917780754541" className="p-8 rounded-xl text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border bg-white/80 cursor-pointer group no-underline" style={{ borderColor: '#52b78855' }}>
-        <h4 className="text-base font-medium mb-2 transition-colors" style={{ fontFamily: "'Cinzel', serif", letterSpacing: '0.1em', color: '#1a2e1a' }}>Call Us</h4>
-        <p className="text-sm font-medium" style={{ fontFamily: "'Poppins', sans-serif", color: '#2d6a4f' }}>+91 77807 54541</p>
+      <a
+        href="tel:+917780754541"
+        className="p-8 rounded-xl text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border bg-white/80 cursor-pointer group no-underline"
+        style={{ borderColor: "#52b78855" }}
+      >
+        <h4
+          className="text-base font-medium mb-2 transition-colors"
+          style={{
+            fontFamily: "'Cinzel', serif",
+            letterSpacing: "0.1em",
+            color: "#1a2e1a",
+          }}
+        >
+          Call Us
+        </h4>
+        <p
+          className="text-sm font-medium"
+          style={{ fontFamily: "'Poppins', sans-serif", color: "#2d6a4f" }}
+        >
+          +91 77807 54541
+        </p>
       </a>
-      <a href="https://wa.me/917780754541" target="_blank" rel="noopener noreferrer" className="p-8 rounded-xl text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border bg-white/80 cursor-pointer no-underline" style={{ borderColor: '#52b78855' }}>
-        <h4 className="text-base font-medium mb-2" style={{ fontFamily: "'Cinzel', serif", letterSpacing: '0.1em', color: '#1a2e1a' }}>WhatsApp Us</h4>
-        <p className="text-sm font-medium" style={{ fontFamily: "'Poppins', sans-serif", color: '#2d6a4f' }}>+91 77807 54541</p>
+      <a
+        href="https://wa.me/917780754541"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="p-8 rounded-xl text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border bg-white/80 cursor-pointer no-underline"
+        style={{ borderColor: "#52b78855" }}
+      >
+        <h4
+          className="text-base font-medium mb-2"
+          style={{
+            fontFamily: "'Cinzel', serif",
+            letterSpacing: "0.1em",
+            color: "#1a2e1a",
+          }}
+        >
+          WhatsApp Us
+        </h4>
+        <p
+          className="text-sm font-medium"
+          style={{ fontFamily: "'Poppins', sans-serif", color: "#2d6a4f" }}
+        >
+          +91 77807 54541
+        </p>
       </a>
-      <a href="mailto:nirvaha6@gmail.com" className="p-8 rounded-xl text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border bg-white/80 cursor-pointer no-underline" style={{ borderColor: '#52b78855' }}>
-        <h4 className="text-base font-medium mb-2" style={{ fontFamily: "'Cinzel', serif", letterSpacing: '0.1em', color: '#1a2e1a' }}>Email Us</h4>
-        <p className="text-sm font-medium" style={{ fontFamily: "'Poppins', sans-serif", color: '#2d6a4f' }}>nirvaha6@gmail.com</p>
+      <a
+        href="mailto:nirvaha6@gmail.com"
+        className="p-8 rounded-xl text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border bg-white/80 cursor-pointer no-underline"
+        style={{ borderColor: "#52b78855" }}
+      >
+        <h4
+          className="text-base font-medium mb-2"
+          style={{
+            fontFamily: "'Cinzel', serif",
+            letterSpacing: "0.1em",
+            color: "#1a2e1a",
+          }}
+        >
+          Email Us
+        </h4>
+        <p
+          className="text-sm font-medium"
+          style={{ fontFamily: "'Poppins', sans-serif", color: "#2d6a4f" }}
+        >
+          nirvaha6@gmail.com
+        </p>
       </a>
     </div>
-    <p className="text-center text-xs mt-10 tracking-widest" style={{ fontFamily: "'Cinzel', serif", color: '#2d6a4f' }}>* 100% Free &nbsp;.&nbsp; No Obligations &nbsp;.&nbsp; Expert Guidance *</p>
+    <p
+      className="text-center text-xs mt-10 tracking-widest"
+      style={{ fontFamily: "'Cinzel', serif", color: "#2d6a4f" }}
+    >
+      * 100% Free &nbsp;.&nbsp; No Obligations &nbsp;.&nbsp; Expert Guidance *
+    </p>
   </section>
 );
 
-const ActionCard: React.FC<{ title: string; subtitle: string }> = ({ title, subtitle }) => (
-  <div className="p-8 rounded-xl text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border bg-white/80 cursor-pointer group" style={{ borderColor: '#52b78855' }}>
-    <h4 className="text-base font-medium mb-1 transition-colors" style={{ fontFamily: "'Cinzel', serif", letterSpacing: '0.1em', color: '#1a2e1a' }}>{title}</h4>
-    <p className="text-xs" style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 400, color: '#2d6a4f' }}>{subtitle}</p>
+const ActionCard: React.FC<{ title: string; subtitle: string }> = ({
+  title,
+  subtitle,
+}) => (
+  <div
+    className="p-8 rounded-xl text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border bg-white/80 cursor-pointer group"
+    style={{ borderColor: "#52b78855" }}
+  >
+    <h4
+      className="text-base font-medium mb-1 transition-colors"
+      style={{
+        fontFamily: "'Cinzel', serif",
+        letterSpacing: "0.1em",
+        color: "#1a2e1a",
+      }}
+    >
+      {title}
+    </h4>
+    <p
+      className="text-xs"
+      style={{
+        fontFamily: "'Poppins', sans-serif",
+        fontWeight: 400,
+        color: "#2d6a4f",
+      }}
+    >
+      {subtitle}
+    </p>
   </div>
 );
 
 const Footer: React.FC = () => (
-  <footer className="py-6 text-center text-xs text-stone-400 bg-gradient-to-r from-green-50 to-emerald-50 border-t border-green-200/30 tracking-widest" style={{ fontFamily: "'Cinzel', serif" }}>
+  <footer
+    className="py-6 text-center text-xs text-stone-400 bg-gradient-to-r from-green-50 to-emerald-50 border-t border-green-200/30 tracking-widest"
+    style={{ fontFamily: "'Cinzel', serif" }}
+  >
     Om &nbsp; 2024 Nirvaha Meditation Guide &nbsp; Om
   </footer>
 );
