@@ -98,13 +98,14 @@ export const InspirationalQuotes = () => {
                         Discover wisdom to guide your journey</p>
                 </div>
 
-                {/* Horizontal Scrolling Layout */}
-                <div className="flex gap-6 overflow-x-auto no-scrollbar pb-4">
-                    {quotes.map((item) => (
-                      <div
-                        key={item.id}
-                        className="group min-w-[280px] h-[400px] cursor-pointer perspective-1000 flex-shrink-0"
-                      >
+                {/* Infinite Scrolling Layout */}
+                <div className="relative flex overflow-hidden pb-4 group/carousel w-full mask-edges">
+                    <div className="flex gap-6 animate-marquee group-hover/carousel:pause w-max">
+                        {[...quotes, ...quotes].map((item, idx) => (
+                          <div
+                            key={`${item.id}-${idx}`}
+                            className="group min-w-[280px] h-[400px] cursor-pointer perspective-1000 flex-shrink-0"
+                          >
                         <div className="relative w-full h-full duration-700 preserve-3d group-hover:my-rotate-y-180">
 
                           <div className="absolute inset-0 backface-hidden rounded-3xl overflow-hidden shadow-lg border border-gray-100 bg-white">
@@ -141,6 +142,7 @@ export const InspirationalQuotes = () => {
                       </div>
                     </div>
                     ))}
+                    </div>
                 </div>
             </div>
 
@@ -152,6 +154,21 @@ export const InspirationalQuotes = () => {
                 .backface-hidden { backface-visibility: hidden; }
                 .my-rotate-y-180 { transform: rotateY(180deg); }
                 .group:hover .group-hover\\:my-rotate-y-180 { transform: rotateY(180deg); }
+                
+                @keyframes marquee {
+                    0% { transform: translateX(0%); }
+                    100% { transform: translateX(calc(-50% - 12px)); }
+                }
+                .animate-marquee {
+                    animation: marquee 50s linear infinite;
+                }
+                .group\\/carousel:hover .group-hover\\/carousel\\:pause {
+                    animation-play-state: paused;
+                }
+                .mask-edges {
+                    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+                    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+                }
             `}</style>
         </section>
     );

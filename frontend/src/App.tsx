@@ -45,6 +45,8 @@ import { ProductsContent } from "./admin/pages/content/ProductsContent";
 import { ContentUpdatePage } from "./admin/pages/ContentUpdatePage";
 import { MarketplaceManagementPage } from "./admin/pages/MarketplaceManagementPage";
 import { ContactManagementPage } from "./admin/pages/ContactManagementPage";
+import { AdminDashboard } from "./pages/AdminDashboard";
+import { SuccessStoriesManager } from "./components/admin/SuccessStoriesManager";
 
 /**
  * Dashboard Routes Component
@@ -116,6 +118,7 @@ function AppInner() {
           <Route path="content/dynamic" element={<ContentManagementPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="users" element={<UserManagementPage />} />
+          <Route path="success-stories" element={<SuccessStoriesManager />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Route>
 

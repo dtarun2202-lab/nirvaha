@@ -36,6 +36,7 @@ const contactRoutes = require('./modules/contact/contact.routes');
 const userRoutes = require('./routes/userRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const reflectionRoutes = require('./routes/reflectionRoutes');
+const successStoriesRoutes = require('./routes/successStoriesRoutes');
 
 // Import models for seeding
 const User = require('./models/User');
@@ -422,6 +423,7 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/reflect', reflectionRoutes);
+app.use('/api/success-stories', successStoriesRoutes);
 app.use('/api', utilityRoutes);
 
 // Legacy route compatibility (for existing frontend code)
