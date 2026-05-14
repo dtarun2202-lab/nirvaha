@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSocket } from '../contexts/SocketContext';
+import BACKEND_CONFIG from '../config/backend';
 
 interface DynamicImageProps {
   contentKey: string;
@@ -18,7 +19,7 @@ const DynamicImage: React.FC<DynamicImageProps> = ({
   const imageSrc = getContent(contentKey, defaultSrc);
   
   const fullSrc = imageSrc.startsWith('/uploads') 
-    ? `http://localhost:5001${imageSrc}`
+    ? `${BACKEND_CONFIG.API_BASE_URL}${imageSrc}`
     : imageSrc;
   
   return <img src={fullSrc} alt={alt} className={className} />;

@@ -1,7 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, Share2, Download, ChevronRight, Search, X, ListPlus, Heart, Clock, Plus, Bookmark, Music, Hash } from "lucide-react";
+import { Volume2, Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, Share2, Download, ChevronRight, X, ListPlus, Heart, Clock, Plus, Bookmark, Music, Hash } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext";
+import { useProfileSync } from "../../hooks/useProfileSync";
 import BACKEND_CONFIG from "../../config/backend";
 import Iridescence from '../Iridescence';
 
@@ -15,8 +16,12 @@ const fallbackLibrary = [
     category: "Meditation",
     description: "Begin your day with peaceful sunrise meditation sounds.",
     tags: ["meditation", "morning", "peace"],
-    thumbnailUrl: "/images/Meditation at Sunrise.jpg",
-    audioUrl: "/audio/meditation/Meditation-at-Sunrise.mp3"
+    thumbnailUrl: "/Meditation at Sunrise.png",
+    audioUrl: "/audio/meditation/Meditation-at-Sunrise.mp3",
+    additionalTracks: [
+      { audioUrl: "/audio/additional-audios/Calm Field.mpeg", loop: false },
+      { audioUrl: "/audio/additional-audios/Mind Reset.mpeg", loop: false }
+    ]
   },
   {
     title: "Indoor Calm Meditation",
@@ -26,8 +31,12 @@ const fallbackLibrary = [
     category: "Meditation",
     description: "Find tranquility in your indoor meditation practice.",
     tags: ["meditation", "calm", "mindful"],
-    thumbnailUrl: "/images/Indoor Calm Meditation.jpg",
-    audioUrl: "/audio/meditation/Indoor-Calm-Meditation.mp3"
+    thumbnailUrl: "/Indoor Calm Meditation.png",
+    audioUrl: "/audio/meditation/Indoor-Calm-Meditation.mp3",
+    additionalTracks: [
+      { audioUrl: "/audio/additional-audios/Calm Drift.mpeg", loop: true },
+      { audioUrl: "/audio/additional-audios/Calm Within.mpeg", loop: false }
+    ]
   },
   {
     title: "Nature Meditation",
@@ -37,8 +46,11 @@ const fallbackLibrary = [
     category: "Meditation",
     description: "Connect with nature through guided meditation sounds.",
     tags: ["meditation", "nature", "peace"],
-    thumbnailUrl: "/images/Nature Meditation.jpg",
-    audioUrl: "/audio/meditation/Nature-Meditation.mp3"
+    thumbnailUrl: "/nature meditation.png",
+    audioUrl: "/audio/meditation/Nature-Meditation.mp3",
+    additionalTracks: [
+      { audioUrl: "/audio/additional-audios/Calm Current.mpeg", loop: false }
+    ]
   },
   // Sleep Therapy Collection
   {
@@ -49,7 +61,7 @@ const fallbackLibrary = [
     category: "Sleep",
     description: "Drift into peaceful sleep in your cozy sanctuary.",
     tags: ["sleep", "night", "deep"],
-    thumbnailUrl: "/images/Cozy Bed.jpg",
+    thumbnailUrl: "/cozy Bed.webp",
     audioUrl: "/audio/sleep/Moonlight-Lullaby.mp3"
   },
   {
@@ -61,7 +73,10 @@ const fallbackLibrary = [
     description: "Gaze at the stars through your window as you drift to sleep.",
     tags: ["sleep", "night", "deep"],
     thumbnailUrl: "/images/Window Night Sky View.jpg",
-    audioUrl: "/audio/sleep/Night-Ocean-Waves.mp3"
+    audioUrl: "/audio/sleep/Night-Ocean-Waves.mp3",
+    additionalTracks: [
+      { audioUrl: "/audio/additional-audios/Deep Horizon.mpeg", loop: true }
+    ]
   },
   {
     title: "Peaceful Sleeping Scene",
@@ -71,8 +86,11 @@ const fallbackLibrary = [
     category: "Sleep",
     description: "Create the perfect atmosphere for restful sleep.",
     tags: ["sleep", "night", "deep"],
-    thumbnailUrl: "/images/Peaceful Sleeping Scene.jpeg",
-    audioUrl: "/audio/sleep/Starlit-Delta-Waves.mp3"
+    thumbnailUrl: "/peaceful sleeping .png",
+    audioUrl: "/audio/sleep/Starlit-Delta-Waves.mp3",
+    additionalTracks: [
+      { audioUrl: "/audio/additional-audios/Still Waters.mpeg", loop: true }
+    ]
   }
 ];
 
@@ -134,8 +152,11 @@ const sacredInstruments = [
 ];
 
 export function SoundHealingPage() {
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
+  const { updateProfileStats, isUpdating } = useProfileSync();
   const audioRef = useRef<HTMLAudioElement>(null);
+  /** One profile log per main track play (≥60s), avoids double fire on timeupdate + ended. */
+  const soundSessionLoggedRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playProgress, setPlayProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -146,13 +167,13 @@ export function SoundHealingPage() {
   const [activeCard, setActiveCard] = useState<any | null>(null);
   const [volume, setVolume] = useState(75);
   const [savedTracks, setSavedTracks] = useState<any[]>([]);
+  const [additionalTrackIndex, setAdditionalTrackIndex] = useState<number>(-1); // -1 = playing main track
   const [recentTracks, setRecentTracks] = useState<any[]>([]);
   const [soundLibrary, setSoundLibrary] = useState(fallbackLibrary);
   const [libraryLoading, setLibraryLoading] = useState(true);
   const [libraryError, setLibraryError] = useState<string | null>(null);
   const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null);
   const [activeCollection, setActiveCollection] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTrack, setSelectedTrack] = useState<any>(null); // Store clicked track data
   const [showInstrumentModal, setShowInstrumentModal] = useState(false);
@@ -177,9 +198,9 @@ export function SoundHealingPage() {
         { id: 9, title: "Moonlight Lullaby", description: "Soft tones for deep rest", category: "Ambient", frequency: "432 Hz", duration: "40:00", image: "/moon.jpeg", audioUrl: "/audio/sleep/Moonlight-Lullaby.mp3", index: 0 }
       ],
       focus: [
-        { id: 10, title: "Clear Mind Frequencies", description: "Pure tones for concentration", category: "Binaural", frequency: "8-12 Hz", duration: "25:00", image: "/clear.jpg", audioUrl: "/audio/focus/Clear-Mind-Frequencies.mp3", index: 2 },
+        { id: 10, title: "Clear Mind Frequencies", description: "Pure tones for concentration", category: "Binaural", frequency: "8-12 Hz", duration: "25:00", image: "/Clear Mind Frequencies.jpg", audioUrl: "/audio/focus/Clear-Mind-Frequencies.mp3", index: 2 },
         { id: 11, title: "Minimal Nature Sounds", description: "Clean audio for mental clarity", category: "Ambient", frequency: "528 Hz", duration: "20:00", image: "/nature.jpg", audioUrl: "/audio/focus/Minimal-Nature-Sounds.mp3", index: 3 },
-        { id: 12, title: "Productivity Flow", description: "Subtle background for deep work", category: "Focus", frequency: "40 Hz", duration: "30:00", image: "/work.jpg", audioUrl: "/audio/focus/Productivity-Flow.mp3", index: 4 }
+        { id: 12, title: "Productivity Flow", description: "Subtle background for deep work", category: "Focus", frequency: "40 Hz", duration: "30:00", image: "/Productivity Flow.jpg", audioUrl: "/audio/focus/Productivity-Flow.mp3", index: 4 }
       ],
       balance: [
         { id: 13, title: "Chakra Harmony", description: "Balance all energy centers", category: "Chakra Healing", frequency: "852 Hz", duration: "22:30", image: "/sound/chakra_tuning.png", audioUrl: "/audio/emotional/Chakra-Harmony.mp3", index: 5 },
@@ -201,7 +222,7 @@ export function SoundHealingPage() {
       category: "Sleep",
       description: "Drift into peaceful sleep in your cozy sanctuary.",
       tags: ["sleep", "night", "deep"],
-      thumbnailUrl: "/assets/sleep/cozy-bed.jpg",
+      thumbnailUrl: "/cozy Bed.webp",
       audioUrl: "/audio/sleep/Moonlight-Lullaby.mp3"
     },
     {
@@ -225,7 +246,7 @@ export function SoundHealingPage() {
       category: "Sleep",
       description: "Create the perfect atmosphere for restful sleep.",
       tags: ["sleep", "night", "deep"],
-      thumbnailUrl: "/assets/sleep/peaceful-sleep.jpg",
+      thumbnailUrl: "/peaceful sleeping .png",
       audioUrl: "/audio/sleep/Starlit-Delta-Waves.mp3"
     }
   ];
@@ -240,7 +261,7 @@ export function SoundHealingPage() {
       category: "Focus",
       description: "Enhance your productivity with focused work sounds.",
       tags: ["focus", "work", "study"],
-      thumbnailUrl: "/images/Productivity Flow.jpg",
+      thumbnailUrl: "/Productivity Flow.jpg",
       audioUrl: "/audio/focus/Productivity-Flow.mp3"
     },
     {
@@ -252,7 +273,7 @@ export function SoundHealingPage() {
       category: "Focus",
       description: "Clear your mind with pure concentration frequencies.",
       tags: ["focus", "clarity", "brain"],
-      thumbnailUrl: "/images/Clear Mind Frequencies.jpg",
+      thumbnailUrl: "/Clear Mind Frequencies.jpg",
       audioUrl: "/audio/focus/Clear-Mind-Frequencies.mp3"
     },
     {
@@ -308,35 +329,8 @@ export function SoundHealingPage() {
     }
   ];
 
-  // Get filtered tracks based on active collection and search query
+  // Get filtered tracks based on active collection (search removed)
   const getFilteredTracks = () => {
-    const query = searchQuery.toLowerCase().trim();
-
-    if (query) {
-      // Pool all tracks, deduplicate by title
-      const allTracks = [
-        ...soundLibrary,
-        ...sleepTherapyData,
-        ...focusBoostData,
-        ...natureSoundsData,
-      ];
-      const seen = new Set<string>();
-      const unique = allTracks.filter(t => {
-        if (seen.has(t.title)) return false;
-        seen.add(t.title);
-        return true;
-      });
-
-      // Strict exact tag match only — no keyword expansion, no partial matching
-      const results = unique.filter(track =>
-        Array.isArray(track.tags) &&
-        track.tags.some((tag: string) => tag.toLowerCase() === query)
-      );
-
-      return results.slice(0, 3);
-    }
-
-    // No search — apply collection filter
     if (activeCollection) {
       const collectionFilters: Record<string, () => any[]> = {
         'liked':      () => savedTracks,
@@ -409,18 +403,25 @@ export function SoundHealingPage() {
           return;
         }
 
-        const mapped = sounds.map((sound) => ({
-          title: sound.title,
-          artist: sound.artist || "",
-          frequency: sound.frequency || "",
-          duration: `${sound.duration ?? 0}:00`,
-          category: sound.category || "",
-          description: sound.description || "",
-          thumbnailUrl: sound.thumbnailUrl || "",
-          bannerUrl: sound.bannerUrl || "",
-          audioUrl: sound.audioUrl || "",
-          tags: sound.mood || [], // Use mood array as tags, or empty array if not available
-        }));
+        const mapped = sounds.map((sound) => {
+          const dm =
+            typeof sound.duration === "number" && Number.isFinite(sound.duration) && sound.duration > 0
+              ? Math.min(240, Math.round(sound.duration))
+              : Math.max(1, Math.min(240, parseInt(String(sound.duration ?? ""), 10) || 1));
+          return {
+            title: sound.title,
+            artist: sound.artist || "",
+            frequency: sound.frequency || "",
+            durationMinutes: dm,
+            duration: `${dm}:00`,
+            category: sound.category || "",
+            description: sound.description || "",
+            thumbnailUrl: sound.thumbnailUrl || "",
+            bannerUrl: sound.bannerUrl || "",
+            audioUrl: sound.audioUrl || "",
+            tags: sound.mood || [],
+          };
+        });
         setSoundLibrary(mapped);
         setLibraryError(null);
       } catch (error) {
@@ -518,8 +519,8 @@ export function SoundHealingPage() {
     }
   };
 
-  const handleCardClick = (track: any, source: string = "global") => {
-    if (!track) return;
+  const handleCardClick = async (track: any, source: string = "global") => {
+    if (!track || isUpdating) return;
 
     // If source is 'all-sounds', we handle playback differently (e.g., local only)
     // and skip updating the global "Now Playing" panel as requested.
@@ -535,6 +536,7 @@ export function SoundHealingPage() {
     setNowPlaying(track);
     setPlayProgress(0);
     setCurrentTime(0);
+    setAdditionalTrackIndex(-1); // reset to main track
 
     // Add to recently played — no duplicates, latest first, max 10
     setRecentTracks(prev => {
@@ -544,6 +546,18 @@ export function SoundHealingPage() {
 
     const audioSrc = track.audioUrl;
     console.log('[SoundHealing] Playing (Global):', track.title, '→', audioSrc);
+
+    // Update profile stats immediately when track starts playing
+    try {
+      await updateProfileStats({
+        duration: 0, // Will be updated when audio actually plays
+        sessionType: 'sound',
+        title: track.title,
+        category: track.category || "Sound Healing"
+      });
+    } catch (err) {
+      console.error('[SoundHealing] Failed to update profile stats:', err);
+    }
 
     if (audioRef.current && audioSrc) {
       audioRef.current.src = audioSrc;
@@ -593,42 +607,108 @@ export function SoundHealingPage() {
 
   const currentTrack = selectedTrack || nowPlaying || soundLibrary[0];
 
+  useEffect(() => {
+    soundSessionLoggedRef.current = false;
+  }, [nowPlaying?.title, nowPlaying?.audioUrl, selectedTrack?.title, selectedTrack?.audioUrl]);
+
   // Handle audio playback
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
+
+    const track = selectedTrack || nowPlaying;
+    const postSoundSession = async (listenedSeconds: number) => {
+      if (!user?.id || !track?.title || soundSessionLoggedRef.current || isUpdating) return;
+      soundSessionLoggedRef.current = true;
+      const minutes = Math.max(1, Math.round(listenedSeconds / 60));
+      
+      try {
+        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-sound-session`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: user.id,
+            duration: minutes,
+            title: track.title,
+            category: track.category || "Sound Healing",
+          }),
+        });
+        
+        if (res.ok) {
+          // Update profile stats safely with real-time sync
+          await updateProfileStats({
+            duration: minutes,
+            sessionType: 'sound',
+            title: track.title,
+            category: track.category || "Sound Healing"
+          });
+          
+          // Refresh profile from backend as backup
+          setTimeout(() => {
+            refreshProfile();
+          }, 200);
+        } else {
+          soundSessionLoggedRef.current = false;
+        }
+      } catch (err) {
+        soundSessionLoggedRef.current = false;
+        console.error("Failed to log sound session:", err);
+        
+        // Still try to update local stats even if API fails
+        try {
+          await updateProfileStats({
+            duration: minutes,
+            sessionType: 'sound',
+            title: track.title,
+            category: track.category || "Sound Healing"
+          });
+        } catch (localErr) {
+          console.error("Failed to update local stats:", localErr);
+        }
+      }
+    };
 
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
     const handleTimeUpdate = () => {
       setCurrentTime(audio.currentTime);
       setPlayProgress(audio.duration ? (audio.currentTime / audio.duration) * 100 : 0);
+      if (audio.currentTime >= 60) void postSoundSession(audio.currentTime);
     };
     const handleLoadedMetadata = () => {
       setDuration(audio.duration);
     };
     const handleEnded = async () => {
+      const raw = audio.currentTime;
+      const listenedAtEnd = Math.floor(
+        raw > 1 ? raw : (Number.isFinite(audio.duration) ? audio.duration : 0)
+      );
       setIsPlaying(false);
       setPlayProgress(0);
-      
-      // Log sound session if it was played for at least 1 minute
-      if (duration >= 1 && user?.id) {
-        try {
-          const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-sound-session`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              userId: user.id,
-              duration: Math.round(duration)
-            })
-          });
-          if (res.ok) {
-            // Refresh profile data to update UI instantly
-            window.location.reload(); // Simple refresh for now
+
+      // Check if current track has additional tracks to autoplay
+      const currentNowPlaying = nowPlaying || selectedTrack;
+      const additionals = currentNowPlaying?.additionalTracks;
+
+      if (additionals && additionals.length > 0) {
+        const nextIndex = additionalTrackIndex + 1;
+        if (nextIndex < additionals.length) {
+          const nextAdditional = additionals[nextIndex];
+          setAdditionalTrackIndex(nextIndex);
+          if (audio) {
+            audio.src = nextAdditional.audioUrl;
+            audio.loop = nextAdditional.loop ?? false;
+            audio.currentTime = 0;
+            audio.play().catch(err => console.error('[SoundHealing] Additional track play error:', err));
+            setIsPlaying(true);
           }
-        } catch (err) {
-          console.error("Failed to log sound session:", err);
+          return;
         }
+      }
+
+      // Full track finished: log if listened ≥60s (and not already logged at 60s milestone)
+      if (listenedAtEnd >= 60 && user?.id) {
+        await postSoundSession(Math.max(listenedAtEnd, 60));
       }
     };
 
@@ -645,7 +725,7 @@ export function SoundHealingPage() {
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, []);
+  }, [nowPlaying, selectedTrack, additionalTrackIndex, duration, user, refreshProfile]);
 
   // Handle play/pause
   useEffect(() => {
@@ -1036,10 +1116,6 @@ export function SoundHealingPage() {
                         <Play className="w-5 h-5 text-gray-700 ml-0.5" fill="currentColor" />
                       </motion.button>
 
-                      {/* Duration Badge */}
-                      <div className="absolute top-4 right-4 px-3 py-1 bg-black/40 backdrop-blur-sm rounded-full">
-                        <span className="text-white text-sm font-medium">{sound.duration}</span>
-                      </div>
                     </div>
 
                     <div className="p-6">
@@ -1245,38 +1321,6 @@ export function SoundHealingPage() {
                 </p>
               </motion.div>
 
-              {/* Search Bar */}
-              <div className="relative max-w-xl mx-auto mb-8">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search healing sounds..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    const newQuery = e.target.value;
-                    setSearchQuery(newQuery);
-                    // Clear active collection when searching to show all results
-                    if (newQuery.trim() && activeCollection) {
-                      setActiveCollection(null);
-                      setSelectedPlaylist(null);
-                    }
-                  }}
-                  className={`w-full pl-12 pr-4 py-3 bg-white rounded-full text-gray-700 placeholder-gray-400 border transition-all ${
-                    searchQuery.trim() 
-                      ? 'border-green-300 focus:border-green-400 focus:ring-2 focus:ring-green-400' 
-                      : 'border-gray-200 focus:border-green-400 focus:ring-2 focus:ring-green-400'
-                  } focus:outline-none shadow-sm`}
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
             </div>
 
             {/* Sacred Collection - Classical Cards */}
@@ -1284,20 +1328,14 @@ export function SoundHealingPage() {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-800" style={{ fontFamily: "'Cinzel', serif" }}>
-                    {searchQuery.trim() ? 
-                      `Search Results` :
-                      activeCollection ? 
-                        `${playlists.find(p => p.id === activeCollection)?.name || 'Collection'}` : 
-                        'Sacred Collection'
-                    }
+                    {activeCollection
+                      ? `${playlists.find(p => p.id === activeCollection)?.name || "Collection"}`
+                      : "Sacred Collection"}
                   </h2>
                   <p className="text-sm text-gray-600 mt-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                    {searchQuery.trim() ? 
-                      `Top ${getFilteredTracks().length} results for "${searchQuery}"` :
-                      activeCollection ? 
-                        `${getFilteredTracks().length} tracks` :
-                        `${soundLibrary.length} healing sounds`
-                    }
+                    {activeCollection
+                      ? `${getFilteredTracks().length} tracks`
+                      : `${soundLibrary.length} healing sounds`}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -1333,28 +1371,16 @@ export function SoundHealingPage() {
                   >
                     <div className="text-center">
                       <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                        <Search className="w-8 h-8 text-gray-400" />
+                        <Music className="w-8 h-8 text-gray-400" />
                       </div>
                       <h3 className="text-xl font-semibold text-gray-800 mb-2" style={{ fontFamily: "'Cinzel', serif" }}>
                         No results found
                       </h3>
                       <p className="text-gray-600 max-w-md" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                        {searchQuery.trim() 
-                          ? `No results found for "${searchQuery}". Try keywords like "calm", "sleep", "focus", or "rain".`
-                          : activeCollection 
-                            ? "No sounds in this collection yet. Explore other collections or add some sounds to your library."
-                            : "No sounds available at the moment."
-                        }
+                        {activeCollection
+                          ? "No sounds in this collection yet. Explore other collections or add some sounds to your library."
+                          : "No sounds available at the moment."}
                       </p>
-                      {searchQuery.trim() && (
-                        <button
-                          onClick={() => setSearchQuery("")}
-                          className="mt-4 px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-full text-sm font-medium transition-colors"
-                          style={{ fontFamily: "'Poppins', sans-serif" }}
-                        >
-                          Clear search
-                        </button>
-                      )}
                     </div>
                   </motion.div>
                 ) : (
@@ -1368,11 +1394,10 @@ export function SoundHealingPage() {
                   >
                     {getFilteredTracks().map((track, idx) => {
                       // FORCE UNIQUE KEY + CACHE BUSTING for Sleep, Focus & Nature
-                      const uniqueKey = (searchQuery.trim())
-                        ? `search-${track.id || track.title}-${idx}`
-                        : (activeCollection === 'sleep' || activeCollection === 'focus' || activeCollection === 'nature') 
-                        ? `${track.id || `${activeCollection}-${idx}`}-${activeCollection}` 
-                        : `${activeCollection}-${idx}`;
+                      const uniqueKey =
+                        activeCollection === "sleep" || activeCollection === "focus" || activeCollection === "nature"
+                          ? `${track.id || `${activeCollection}-${idx}`}-${activeCollection}`
+                          : `${activeCollection}-${idx}`;
                       
                       const imageUrl = track.thumbnailUrl || track.bannerUrl || track.image || fallbackImages[idx % fallbackImages.length];
 
@@ -1405,10 +1430,6 @@ export function SoundHealingPage() {
                         <Play className="w-5 h-5 text-white ml-0.5" fill="white" />
                       </motion.button>
 
-                      {/* Duration Badge */}
-                      <div className="absolute top-4 right-4 px-2 py-1 bg-black/40 backdrop-blur-sm rounded-md">
-                        <span className="text-white text-xs font-medium">{track.duration}</span>
-                      </div>
                     </div>
 
                     {/* Card Content - Classical Style */}
@@ -1547,10 +1568,29 @@ export function SoundHealingPage() {
 
               {/* Controls */}
               <div className="flex items-center justify-center gap-3 mb-5">
-                <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                <button
+                  className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                  onClick={() => {
+                    const tracks = getFilteredTracks();
+                    if (!tracks.length) return;
+                    const random = tracks[Math.floor(Math.random() * tracks.length)];
+                    handleCardClick(random, "global");
+                  }}
+                  title="Shuffle"
+                >
                   <Shuffle className="w-5 h-5" />
                 </button>
-                <button className="p-2 text-gray-600 hover:text-gray-600 transition-colors">
+                <button
+                  className="p-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  onClick={() => {
+                    const tracks = getFilteredTracks();
+                    if (!tracks.length) return;
+                    const currentIdx = tracks.findIndex(t => t.title === currentTrack?.title);
+                    const prevIdx = currentIdx <= 0 ? tracks.length - 1 : currentIdx - 1;
+                    handleCardClick(tracks[prevIdx], "global");
+                  }}
+                  title="Previous"
+                >
                   <SkipBack className="w-5 h-5" fill="currentColor" />
                 </button>
                 <motion.button
@@ -1565,10 +1605,28 @@ export function SoundHealingPage() {
                     <Play className="w-6 h-6 text-white ml-0.5" fill="white" />
                   )}
                 </motion.button>
-                <button className="p-2 text-gray-600 hover:text-gray-600 transition-colors">
+                <button
+                  className="p-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  onClick={() => {
+                    const tracks = getFilteredTracks();
+                    if (!tracks.length) return;
+                    const currentIdx = tracks.findIndex(t => t.title === currentTrack?.title);
+                    const nextIdx = currentIdx >= tracks.length - 1 ? 0 : currentIdx + 1;
+                    handleCardClick(tracks[nextIdx], "global");
+                  }}
+                  title="Next"
+                >
                   <SkipForward className="w-5 h-5" fill="currentColor" />
                 </button>
-                <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                <button
+                  className={`p-2 transition-colors ${audioRef.current?.loop ? 'text-green-600' : 'text-gray-400 hover:text-gray-600'}`}
+                  onClick={() => {
+                    if (audioRef.current) {
+                      audioRef.current.loop = !audioRef.current.loop;
+                    }
+                  }}
+                  title="Repeat"
+                >
                   <Repeat className="w-5 h-5" />
                 </button>
               </div>
@@ -1779,7 +1837,6 @@ export function SoundHealingPage() {
                 </motion.button>
 
                 <div className="flex items-center gap-6">
-                  <div className="text-6xl">{selectedInstrument.icon}</div>
                   <div>
                     <h2 className="text-3xl font-bold text-gray-800 mb-2" style={{ fontFamily: "'Cinzel', serif" }}>
                       {selectedInstrument.name}
@@ -1802,7 +1859,7 @@ export function SoundHealingPage() {
                   >
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                        <span className="text-green-600 text-sm">📜</span>
+                        <span className="text-green-600 text-sm font-bold">—</span>
                       </div>
                       <h3 className="text-xl font-semibold text-gray-800" style={{ fontFamily: "'Cinzel', serif" }}>
                         History
@@ -1816,7 +1873,6 @@ export function SoundHealingPage() {
                   {/* Divider */}
                   <div className="flex items-center gap-4">
                     <div className="flex-1 h-px bg-gradient-to-r from-transparent via-green-200 to-transparent" />
-                    <span className="text-green-400 text-sm">✦</span>
                     <div className="flex-1 h-px bg-gradient-to-r from-transparent via-green-200 to-transparent" />
                   </div>
 
@@ -1828,7 +1884,7 @@ export function SoundHealingPage() {
                   >
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                        <span className="text-green-600 text-sm">🔬</span>
+                        <span className="text-green-600 text-sm font-bold">—</span>
                       </div>
                       <h3 className="text-xl font-semibold text-gray-800" style={{ fontFamily: "'Cinzel', serif" }}>
                         Science
@@ -1842,7 +1898,6 @@ export function SoundHealingPage() {
                   {/* Divider */}
                   <div className="flex items-center gap-4">
                     <div className="flex-1 h-px bg-gradient-to-r from-transparent via-green-200 to-transparent" />
-                    <span className="text-green-400 text-sm">✦</span>
                     <div className="flex-1 h-px bg-gradient-to-r from-transparent via-green-200 to-transparent" />
                   </div>
 
@@ -1854,7 +1909,7 @@ export function SoundHealingPage() {
                   >
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                        <span className="text-green-600 text-sm">✨</span>
+                        <span className="text-green-600 text-sm font-bold">—</span>
                       </div>
                       <h3 className="text-xl font-semibold text-gray-800" style={{ fontFamily: "'Cinzel', serif" }}>
                         Benefits
@@ -1968,9 +2023,6 @@ export function SoundHealingPage() {
                   <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-gradient-to-br from-gray-50 to-white rounded-2xl overflow-hidden shadow-lg border border-gray-200/60 p-6 flex flex-col justify-center">
                     {/* Icon */}
                     <div className="text-center mb-4">
-                      <div className="text-5xl mb-3 animate-pulse">
-                        {instrument.icon}
-                      </div>
                     </div>
                     
                     {/* Title */}
@@ -2017,14 +2069,42 @@ export function SoundHealingPage() {
   );
 }
 
+const ALL_SOUNDS_SECTION_LIMIT = 6;
+
+function apiSoundDurationMinutes(sound: Record<string, unknown>): number {
+  const dm = sound.durationMinutes;
+  if (typeof dm === "number" && Number.isFinite(dm) && dm > 0) return Math.min(240, Math.round(dm));
+  const d = sound.duration;
+  if (typeof d === "number" && Number.isFinite(d) && d > 0) return Math.min(240, Math.round(d));
+  const s = String(d ?? "").trim();
+  if (/^\d{1,3}:\d{2}$/.test(s)) {
+    const [a, b] = s.split(":").map((x) => Number(x));
+    if (Number.isFinite(a) && Number.isFinite(b)) return Math.min(240, Math.max(1, a + (b >= 30 ? 1 : 0)));
+  }
+  const n = parseInt(s, 10);
+  if (Number.isFinite(n) && n > 0) return Math.min(240, n);
+  return 15;
+}
+
 function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPlay: (track: any, source: string) => void, isTrackSaved: (track: any) => boolean, handleSaveToggle: (track: any) => void }) {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sectionExpanded, setSectionExpanded] = useState(false);
   const [localPlayingId, setLocalPlayingId] = useState<string | null>(null);
   const localAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [toast, setToast] = useState<{ message: string; visible: boolean }>({ message: '', visible: false });
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showToast = (trackTitle: string) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ message: `Now Playing: ${trackTitle}`, visible: true });
+    toastTimerRef.current = setTimeout(() => {
+      setToast(prev => ({ ...prev, visible: false }));
+    }, 2500);
+  };
 
   useEffect(() => {
-    fetch(`${BACKEND_CONFIG.API_BASE_URL || 'http://localhost:5001'}/api/sounds`)
+    fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/sounds`)
       .then(res => res.json())
       .then(data => {
         setSessions(data);
@@ -2050,6 +2130,7 @@ function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPl
     } else {
       // Play new track locally
       setLocalPlayingId(trackId);
+      showToast(track.title);
       if (localAudioRef.current) {
         localAudioRef.current.src = track.audioUrl;
         localAudioRef.current.play().catch(err => console.error("Local play error:", err));
@@ -2063,102 +2144,148 @@ function DynamicSoundSessions({ onPlay, isTrackSaved, handleSaveToggle }: { onPl
   if (loading) return <p className="col-span-full text-center text-gray-500 font-medium py-10">Loading sessions...</p>;
   if (!sessions.length) return <p className="col-span-full text-center text-gray-500 font-medium py-10">No sound healing sessions found in the database.</p>;
 
+  const visibleSessions =
+    sectionExpanded || sessions.length <= ALL_SOUNDS_SECTION_LIMIT
+      ? sessions
+      : sessions.slice(0, ALL_SOUNDS_SECTION_LIMIT);
+
   return (
-    <>
-      <audio 
-        ref={localAudioRef} 
-        onEnded={() => setLocalPlayingId(null)} 
-        onPause={() => {
-           // We only clear localPlayingId if it's not just a transient pause
-        }}
-      />
-      {sessions.map((sound: any, idx: number) => {
-        const trackId = sound.id || sound._id;
-        const track = {
-          ...sound,
-          duration: sound.duration ? `${sound.duration}:00` : '15:00',
-          artist: sound.artist || 'Sacred Sounds',
-          category: sound.category || 'Therapy',
-          frequency: sound.frequency || '432 Hz',
-          mood: sound.mood || [],
-          tags: sound.mood || [],
-          isSoundHealing: true
-        };
-        
-        const icons = [Music, Volume2, Hash, Play, Music, Volume2];
-        const IconComponent = icons[idx % icons.length];
-        const isCurrentLocal = localPlayingId === trackId;
-
-        return (
+    <div className="col-span-full w-full space-y-4">
+      <AnimatePresence>
+        {toast.visible && (
           <motion.div
-            key={trackId}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className={`med-card-theme ${isCurrentLocal ? 'border-green-500 bg-green-50/30' : ''}`}
+            initial={{ opacity: 0, x: 60, y: 0 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            exit={{ opacity: 0, x: 60 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="fixed top-6 right-6 z-[9999] flex items-center gap-3 px-5 py-3 rounded-2xl shadow-xl border border-green-200"
+            style={{
+              background: 'linear-gradient(135deg, #d8f3dc, #b7e4c7)',
+              fontFamily: "'Poppins', sans-serif",
+              minWidth: '260px',
+              maxWidth: '340px',
+            }}
           >
-            <div className="med-card-theme-inner">
-              {/* Top Section */}
-              <div className="flex justify-between items-start">
-                <div className="med-card-theme-icon">
-                  <IconComponent className={`w-5 h-5 ${isCurrentLocal ? 'animate-pulse text-green-600' : ''}`} />
-                </div>
-                <motion.button
-                  whileHover={{ scale: 1.2 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSaveToggle(track);
-                  }}
-                  className={`p-2 rounded-full transition-colors ${isTrackSaved(track)
-                    ? 'text-green-600 bg-green-50'
-                    : 'text-gray-400 hover:text-green-500 hover:bg-green-50'
-                    }`}
-                >
-                  <Bookmark className={`w-5 h-5 ${isTrackSaved(track) ? 'fill-current' : ''}`} />
-                </motion.button>
-              </div>
-
-              {/* Title & Artist */}
-              <div>
-                <h3 className="med-card-theme-title">{sound.title}</h3>
-                <p className="text-xs text-green-600 font-medium mt-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                  By {track.artist}
-                </p>
-              </div>
-
-              {/* Badges */}
-              <div className="flex gap-2 mt-1">
-                <span className="med-card-theme-badge badge-cat">{track.category}</span>
-                <span className="med-card-theme-badge badge-freq">{track.frequency}</span>
-              </div>
-
-              {/* Description */}
-              <p className="med-card-theme-desc line-clamp-3">
-                {sound.description || 'Experience the therapeutic power of sound frequencies to balance your mind and spirit.'}
-              </p>
-
-              {/* Footer */}
-              <div className="mt-auto">
-                <p className="med-card-theme-dur">
-                  <Clock className="w-4 h-4" />
-                  {track.duration} session
-                </p>
-                <button 
-                  className={`med-card-theme-btn ${isCurrentLocal ? 'bg-green-700' : ''}`}
-                  onClick={() => handleLocalPlay(track)}
-                >
-                  {isCurrentLocal ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <Pause className="w-4 h-4 fill-current" /> Playing Locally
-                    </span>
-                  ) : 'Listen Now'}
-                </button>
-              </div>
+            <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <Music className="w-4 h-4 text-white" />
             </div>
+            <p className="text-green-900 font-semibold text-sm leading-tight">{toast.message}</p>
           </motion.div>
-        );
-      })}
-    </>
+        )}
+      </AnimatePresence>
+
+      <audio ref={localAudioRef} onEnded={() => setLocalPlayingId(null)} onPause={() => {}} />
+
+      <div
+        className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ${
+          sectionExpanded && sessions.length > ALL_SOUNDS_SECTION_LIMIT ? "max-h-[85vh] overflow-y-auto pr-1" : ""
+        }`}
+      >
+        {visibleSessions.map((sound: any, idx: number) => {
+          const trackId = sound.id || sound._id;
+          const durationMin = apiSoundDurationMinutes(sound);
+          const track = {
+            ...sound,
+            durationMinutes: durationMin,
+            duration: `${durationMin}:00`,
+            artist: sound.artist || "Sacred Sounds",
+            category: sound.category || "Therapy",
+            frequency: sound.frequency || "432 Hz",
+            mood: sound.mood || [],
+            tags: sound.mood || [],
+            isSoundHealing: true,
+          };
+
+          const icons = [Music, Volume2, Hash, Play, Music, Volume2];
+          const IconComponent = icons[idx % icons.length];
+          const isCurrentLocal = localPlayingId === trackId;
+
+          return (
+            <motion.div
+              key={String(trackId)}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.08 }}
+              className={`med-card-theme ${isCurrentLocal ? "border-green-500 bg-green-50/30" : ""}`}
+            >
+              <div className="med-card-theme-inner">
+                <div className="flex justify-between items-start">
+                  <div className="med-card-theme-icon">
+                    <IconComponent className={`w-5 h-5 ${isCurrentLocal ? "animate-pulse text-green-600" : ""}`} />
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.2 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSaveToggle(track);
+                    }}
+                    className={`p-2 rounded-full transition-colors ${
+                      isTrackSaved(track)
+                        ? "text-green-600 bg-green-50"
+                        : "text-gray-400 hover:text-green-500 hover:bg-green-50"
+                    }`}
+                  >
+                    <Bookmark className={`w-5 h-5 ${isTrackSaved(track) ? "fill-current" : ""}`} />
+                  </motion.button>
+                </div>
+
+                <div>
+                  <h3 className="med-card-theme-title">{sound.title}</h3>
+                  <p className="text-xs text-green-600 font-medium mt-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                    By {track.artist}
+                  </p>
+                </div>
+
+                <p className="text-xs font-semibold text-gray-500" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                  {durationMin} min
+                </p>
+
+                <div className="flex gap-2 mt-1">
+                  <span className="med-card-theme-badge badge-cat">{track.category}</span>
+                  <span className="med-card-theme-badge badge-freq">{track.frequency}</span>
+                </div>
+
+                <p className="med-card-theme-desc line-clamp-3">
+                  {sound.description ||
+                    "Experience the therapeutic power of sound frequencies to balance your mind and spirit."}
+                </p>
+
+                <div className="mt-auto">
+                  <button
+                    type="button"
+                    className={`med-card-theme-btn ${isCurrentLocal ? "bg-green-700" : ""}`}
+                    onClick={() => handleLocalPlay(track)}
+                  >
+                    {isCurrentLocal ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <Pause className="w-4 h-4 fill-current" /> Playing Locally
+                      </span>
+                    ) : (
+                      "Listen Now"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {sessions.length > ALL_SOUNDS_SECTION_LIMIT && (
+        <div className="flex justify-center pt-1">
+          <button
+            type="button"
+            onClick={() => setSectionExpanded((v) => !v)}
+            className="px-8 py-3 rounded-full border-2 border-green-600 bg-white text-green-800 font-semibold text-sm shadow-md hover:bg-green-50 transition-colors"
+            style={{ fontFamily: "'Poppins', sans-serif" }}
+          >
+            {sectionExpanded
+              ? "Show less"
+              : `View more (${sessions.length - ALL_SOUNDS_SECTION_LIMIT} more)`}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

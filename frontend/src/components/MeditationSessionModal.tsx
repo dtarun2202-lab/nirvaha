@@ -2,15 +2,31 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Play, Pause, CheckCircle, Wind, Flame, Moon, Star, Sparkles } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import { useProfileSync } from "../hooks/useProfileSync";
 import BACKEND_CONFIG from "../config/backend";
+
+function sessionDurationMinutes(raw: string | number | undefined): number {
+  if (typeof raw === "number" && Number.isFinite(raw) && raw > 0) return Math.min(240, Math.round(raw));
+  const s = String(raw ?? "").trim();
+  if (!s) return 10;
+  if (/^\d{1,3}:\d{2}$/.test(s)) {
+    const [a, b] = s.split(":").map((x) => Number(x));
+    if (Number.isFinite(a) && Number.isFinite(b)) return Math.min(240, Math.max(1, a + (b >= 30 ? 1 : 0)));
+  }
+  const n = parseInt(s, 10);
+  if (Number.isFinite(n) && n > 0) return Math.min(240, n);
+  return 10;
+}
 
 interface MeditationSessionModalProps {
   isOpen: boolean;
   onClose: () => void;
   session: {
     title: string;
-    duration: string;
-    type: string;
+    duration?: string | number;
+    type?: string;
+    /** e.g. Sleep, Focus — stored on profile session for Emotional Landscape */
+    category?: string;
     sessionType?: string;
     icon: any;
   } | null;
@@ -18,6 +34,7 @@ interface MeditationSessionModalProps {
 
 export function MeditationSessionModal({ isOpen, onClose, session }: MeditationSessionModalProps) {
   const { user, refreshProfile } = useAuth();
+  const { updateProfileStats, isUpdating } = useProfileSync();
   const [timeLeft, setTimeLeft] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -25,11 +42,12 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
   const [isLoaded, setIsLoaded] = useState(false);
   const [breathPhase, setBreathPhase] = useState<"Inhale" | "Hold" | "Exhale">("Inhale");
 
-  // Initialize session
+  // Initialize session — timer matches admin/API duration (minutes)
   useEffect(() => {
     if (isOpen && session) {
       document.body.style.overflow = "hidden";
-      const durationSeconds = 60; // 1 minute for demo
+      const minutes = sessionDurationMinutes(session.duration);
+      const durationSeconds = Math.max(60, minutes * 60);
       setTimeLeft(durationSeconds);
       setTotalDuration(durationSeconds);
       setIsPaused(false);
@@ -89,10 +107,10 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
   }, [timeLeft, isOpen, isLoaded, isCompleted]);
 
   const handleComplete = async () => {
-    if (!isLoaded || isCompleted) return;
+    if (!isLoaded || isCompleted || isUpdating) return;
     setIsCompleted(true);
     
-    const sessionDuration = parseInt(session?.duration || "10");
+    const sessionDuration = sessionDurationMinutes(session?.duration);
     const sessionType = session?.sessionType || 'meditation';
     
     try {
@@ -103,18 +121,55 @@ export function MeditationSessionModal({ isOpen, onClose, session }: MeditationS
         apiUrl = `${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-sound-session`;
       }
       
+      const category = session?.category || session?.type;
       const res = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user?.id,
-          duration: sessionDuration,
-          sessionType: sessionType
-        })
+        body: JSON.stringify(
+          sessionType === "sound" && sessionDuration >= 1
+            ? {
+                userId: user?.id,
+                duration: sessionDuration,
+                title: session?.title,
+                category: category || "Sound Healing",
+              }
+            : {
+                userId: user?.id,
+                duration: sessionDuration,
+                sessionType,
+                title: session?.title,
+                ...(category ? { category } : {}),
+              }
+        ),
       });
-      if (res.ok) refreshProfile();
+      
+      if (res.ok) {
+        // Update profile stats safely with real-time sync
+        await updateProfileStats({
+          duration: sessionDuration,
+          sessionType: sessionType as 'meditation' | 'sound',
+          title: session?.title || 'Session',
+          category: category
+        });
+        
+        // Refresh profile from backend as backup
+        setTimeout(() => {
+          refreshProfile();
+        }, 200);
+      }
     } catch (err) {
       console.error("Failed to log session:", err);
+      // Still try to update local stats even if API fails
+      try {
+        await updateProfileStats({
+          duration: sessionDuration,
+          sessionType: sessionType as 'meditation' | 'sound',
+          title: session?.title || 'Session',
+          category: category
+        });
+      } catch (localErr) {
+        console.error("Failed to update local stats:", localErr);
+      }
     }
   };
 

@@ -89,16 +89,612 @@
   }
 }
 
-/* Meditation card hover effects */
+/* Meditation card hover effects (transform handled by motion / pose layer) */
 .meditation-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow 0.45s cubic-bezier(0.4, 0, 0.2, 1), filter 0.45s ease;
 }
 
 .meditation-card:hover {
-  transform: translateY(-8px) scale(1.05);
-  box-shadow: 
-    0 20px 40px rgba(34, 197, 94, 0.3),
-    0 0 30px rgba(16, 185, 129, 0.4);
+  box-shadow:
+    0 20px 40px rgba(34, 197, 94, 0.28),
+    0 0 36px rgba(16, 185, 129, 0.35);
+}
+
+/* --- Pose card immersive click (liquid glass + wellness) --- */
+.pose-card-root {
+  position: relative;
+  isolation: isolate;
+}
+
+.pose-card-perspective {
+  perspective: 880px;
+  transform-style: preserve-3d;
+}
+
+/* Breathing aura ring (expands on click) */
+.pose-breath-aura {
+  position: absolute;
+  inset: -18%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(167, 243, 208, 0.35) 0%,
+    rgba(52, 211, 153, 0.12) 42%,
+    transparent 70%
+  );
+  opacity: 0;
+  transform: scale(0.72);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.pose-click-fx .pose-breath-aura {
+  animation: poseBreathAura 1.35s cubic-bezier(0.25, 0.9, 0.35, 1) forwards;
+}
+
+@keyframes poseBreathAura {
+  0% {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  22% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+/* Rotating border glow (outside card) */
+.pose-border-glow-track {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(209, 250, 229, 0.95) 55deg,
+    rgba(52, 211, 153, 0.65) 120deg,
+    rgba(16, 185, 129, 0.35) 200deg,
+    transparent 280deg
+  );
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+  filter: blur(0.35px);
+}
+
+.pose-click-fx .pose-border-glow-track {
+  opacity: 1;
+  animation: poseBorderGlowSpin 1.25s linear forwards;
+}
+
+@keyframes poseBorderGlowSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pose-card-body {
+  position: relative;
+  z-index: 2;
+  border-radius: 50%;
+  overflow: hidden;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Soft glow pulse on the glass body */
+.pose-click-fx .pose-card-body {
+  animation: poseGlowPulse 1.15s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes poseGlowPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 8px 28px rgba(6, 78, 59, 0.18),
+      0 0 0 rgba(167, 243, 208, 0);
+  }
+  40% {
+    box-shadow:
+      0 18px 48px rgba(16, 185, 129, 0.35),
+      0 0 42px rgba(167, 243, 208, 0.55),
+      inset 0 0 22px rgba(255, 255, 255, 0.12);
+  }
+}
+
+/* Water ripple from click point */
+.pose-water-ripple {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(236, 253, 245, 0.55);
+  box-shadow:
+    0 0 12px rgba(167, 243, 208, 0.4),
+    inset 0 0 8px rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+  z-index: 4;
+  transform: translate(-50%, -50%);
+  animation: poseRippleExpand 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes poseRippleExpand {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.9;
+  }
+  100% {
+    width: 155%;
+    height: 155%;
+    opacity: 0;
+  }
+}
+
+/* Glass shimmer sweep */
+.pose-glass-shimmer {
+  position: absolute;
+  inset: -8%;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+  background: linear-gradient(
+    108deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.22) 49%,
+    rgba(255, 255, 255, 0.42) 50.5%,
+    rgba(255, 255, 255, 0.2) 52%,
+    transparent 62%
+  );
+  background-size: 220% 100%;
+  background-position: 120% 0;
+  opacity: 0;
+  mix-blend-mode: soft-light;
+}
+
+.pose-click-fx .pose-glass-shimmer {
+  animation: poseShimmerSweep 1.05s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
+@keyframes poseShimmerSweep {
+  0% {
+    opacity: 0;
+    background-position: 130% 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    background-position: -130% 0;
+  }
+}
+
+/* Liquid-style motion on media */
+.pose-liquid-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform-origin: 50% 55%;
+}
+
+.pose-click-fx .pose-liquid-media {
+  animation: poseLiquidWave 1.2s cubic-bezier(0.45, 0, 0.25, 1) forwards;
+}
+
+@keyframes poseLiquidWave {
+  0%,
+  100% {
+    transform: scale(1) translate3d(0, 0, 0) rotate(0deg);
+    filter: saturate(1) brightness(1);
+  }
+  30% {
+    transform: scale(1.035) translate3d(-1.2%, 0.4%, 0) rotate(-0.6deg);
+    filter: saturate(1.08) brightness(1.04);
+  }
+  65% {
+    transform: scale(1.04) translate3d(1.4%, -0.3%, 0) rotate(0.5deg);
+    filter: saturate(1.1) brightness(1.06);
+  }
+}
+
+/* Floating light particles */
+.pose-particle-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.pose-light-particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  margin-left: -1.5px;
+  margin-top: -1.5px;
+  border-radius: 50%;
+  background: rgba(240, 253, 244, 0.95);
+  box-shadow:
+    0 0 10px rgba(167, 243, 208, 0.85),
+    0 0 18px rgba(52, 211, 153, 0.45);
+  opacity: 0;
+  animation: poseParticleFloat 1.05s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes poseParticleFloat {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.35);
+  }
+  18% {
+    opacity: 0.95;
+    transform: translate3d(var(--dx, 0), var(--dy, -18px), 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(var(--dx, 0) * 1.4), calc(var(--dy, -18px) * 1.65 - 12px), 0)
+      scale(0.2);
+  }
+}
+
+/* Modal: liquid glass panel */
+.pose-modal-backdrop {
+  background: rgba(4, 30, 21, 0.52);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.pose-modal-glass {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(236, 253, 245, 0.08) 45%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  backdrop-filter: blur(22px) saturate(1.35);
+  -webkit-backdrop-filter: blur(22px) saturate(1.35);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow:
+    0 28px 80px rgba(0, 40, 30, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 0 rgba(6, 78, 59, 0.12);
+}
+
+.pose-modal-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    125deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.12) 48%,
+    transparent 62%
+  );
+  opacity: 0.55;
+  pointer-events: none;
+  animation: poseModalShimmer 8s ease-in-out infinite;
+}
+
+@keyframes poseModalShimmer {
+  0%,
+  100% {
+    transform: translateX(-8%) skewX(-6deg);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateX(8%) skewX(4deg);
+    opacity: 0.6;
+  }
+}
+
+.pose-modal-aura {
+  position: absolute;
+  width: 140%;
+  height: 140%;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(167, 243, 208, 0.22) 0%,
+    rgba(52, 211, 153, 0.08) 45%,
+    transparent 68%
+  );
+  pointer-events: none;
+  animation: poseModalAura 5.5s ease-in-out infinite;
+}
+
+@keyframes poseModalAura {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+}
+
+/* Minimal glass close — meditation / yoga glass modals (+ .med-modal-close on Meditation page) */
+.pose-modal-close-btn,
+.med-modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  margin: 0;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(6, 78, 59, 0.48);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.25s ease;
+  opacity: 0.92;
+}
+
+.pose-modal-close-btn:hover,
+.pose-modal-close-btn:focus-visible,
+.med-modal-close:hover,
+.med-modal-close:focus-visible {
+  opacity: 1;
+  outline: none;
+  transform: scale(1.045);
+  background: rgba(236, 253, 245, 0.38);
+  border-color: rgba(167, 243, 208, 0.72);
+  color: rgba(6, 46, 34, 0.75);
+  box-shadow:
+    0 0 0 1px rgba(167, 243, 208, 0.28),
+    0 4px 20px rgba(16, 185, 129, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.pose-modal-close-btn:active,
+.med-modal-close:active {
+  transform: scale(0.97);
+  transition-duration: 0.12s;
+}
+
+.pose-modal-close-btn--floating {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  z-index: 40;
+}
+
+.pose-modal-close-btn svg,
+.med-modal-close svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+/* --- Meditation page: rectangular slider pose cards (liquid glass click) --- */
+.slider .list .item.item-fx-active {
+  z-index: 45;
+}
+
+.yoga-pose-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  isolation: isolate;
+  perspective: 920px;
+  transform-style: preserve-3d;
+  outline: none;
+}
+
+.yoga-pose-shell:focus-visible {
+  box-shadow: 0 0 0 2px rgba(45, 106, 79, 0.45);
+}
+
+.yoga-breath-aura {
+  position: absolute;
+  inset: -10%;
+  border-radius: 22px;
+  background: radial-gradient(
+    ellipse at 50% 55%,
+    rgba(167, 243, 208, 0.32) 0%,
+    rgba(52, 211, 153, 0.1) 48%,
+    transparent 72%
+  );
+  opacity: 0;
+  transform: scale(0.88);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.yoga-pose-click-fx .yoga-breath-aura {
+  animation: poseBreathAura 1.35s cubic-bezier(0.25, 0.9, 0.35, 1) forwards;
+}
+
+.yoga-border-glow-track {
+  position: absolute;
+  inset: -3px;
+  border-radius: 17px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(209, 250, 229, 0.85) 52deg,
+    rgba(52, 211, 153, 0.55) 118deg,
+    rgba(16, 185, 129, 0.3) 198deg,
+    transparent 275deg
+  );
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+  filter: blur(0.35px);
+}
+
+.yoga-pose-click-fx .yoga-border-glow-track {
+  opacity: 1;
+  animation: poseBorderGlowSpin 1.25s linear forwards;
+}
+
+.yoga-pose-click-fx .yoga-card {
+  animation:
+    yogaCardLift 1.28s cubic-bezier(0.25, 0.9, 0.35, 1) forwards,
+    yogaGlowPulse 1.12s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes yogaCardLift {
+  0%,
+  100% {
+    transform: translateZ(0) rotateX(0deg) rotateY(0deg) scale(1);
+  }
+  38% {
+    transform: translateZ(14px) rotateX(5deg) rotateY(-4deg) scale(1.028);
+  }
+}
+
+@keyframes yogaGlowPulse {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  42% {
+    filter: brightness(1.06) drop-shadow(0 0 18px rgba(167, 243, 208, 0.45));
+  }
+}
+
+.yoga-water-ripple {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(236, 253, 245, 0.5);
+  box-shadow:
+    0 0 12px rgba(167, 243, 208, 0.35),
+    inset 0 0 8px rgba(255, 255, 255, 0.15);
+  pointer-events: none;
+  z-index: 4;
+  transform: translate(-50%, -50%);
+  animation: poseRippleExpand 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.yoga-img-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.yoga-glass-shimmer {
+  position: absolute;
+  inset: -6%;
+  border-radius: 14px;
+  pointer-events: none;
+  z-index: 5;
+  background: linear-gradient(
+    108deg,
+    transparent 36%,
+    rgba(255, 255, 255, 0.14) 48%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0.12) 52%,
+    transparent 64%
+  );
+  background-size: 220% 100%;
+  background-position: 120% 0;
+  opacity: 0;
+  mix-blend-mode: soft-light;
+}
+
+.yoga-pose-click-fx .yoga-glass-shimmer {
+  animation: poseShimmerSweep 1.05s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
+.yoga-liquid-media {
+  transition: transform 0.5s;
+  filter: brightness(1.18) contrast(1.05) saturate(1.1);
+}
+
+.yoga-pose-click-fx .yoga-liquid-media {
+  animation: yogaLiquidWave 1.18s cubic-bezier(0.45, 0, 0.25, 1) forwards;
+}
+
+@keyframes yogaLiquidWave {
+  0%,
+  100% {
+    transform: scale(1) translate3d(0, 0, 0);
+    filter: brightness(1.18) contrast(1.05) saturate(1.1);
+  }
+  32% {
+    transform: scale(1.04) translate3d(-1.2%, 0.35%, 0);
+    filter: brightness(1.22) contrast(1.06) saturate(1.14);
+  }
+  68% {
+    transform: scale(1.035) translate3d(1.1%, -0.25%, 0);
+    filter: brightness(1.2) contrast(1.05) saturate(1.12);
+  }
+}
+
+.yoga-particle-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  border-radius: 16px;
+  overflow: visible;
+}
+
+.yoga-light-particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  margin-left: -1.5px;
+  margin-top: -1.5px;
+  border-radius: 50%;
+  background: rgba(254, 252, 247, 0.95);
+  box-shadow:
+    0 0 10px rgba(253, 230, 138, 0.55),
+    0 0 16px rgba(167, 243, 208, 0.35);
+  opacity: 0;
+  animation: yogaParticleFloat 1.08s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes yogaParticleFloat {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.35);
+  }
+  18% {
+    opacity: 0.92;
+    transform: translate3d(var(--dx, 0), var(--dy, -22px), 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(var(--dx, 0) * 1.35), calc(var(--dy, -22px) * 1.55 - 14px), 0)
+      scale(0.2);
+  }
 }
 
 /* Modern meditation symbol styling */
@@ -113,11 +709,6 @@
 @media (max-width: 768px) {
   .meditation-circle-container {
     transform: scale(0.85);
-  }
-  
-  .meditation-card {
-    width: 80px;
-    height: 80px;
   }
 }
 

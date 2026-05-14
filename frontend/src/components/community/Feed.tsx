@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import BACKEND_CONFIG from "../../config/backend";
 import PostCard from "./PostCard";
 import type { Post, Comment } from "./communityData";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,6 +10,7 @@ interface FeedProps {
   filter: string;
   searchQuery: string;
   hashtagFilter: string;
+  hashtagTotal?: number | null;
   currentUser: { name: string; initial: string; avatarColor: string };
   onPostsChange: (posts: Post[]) => void;
   onToast: (msg: string) => void;
@@ -20,6 +22,7 @@ export default function Feed({
   filter,
   searchQuery,
   hashtagFilter,
+  hashtagTotal,
   currentUser,
   onPostsChange,
   onToast,
@@ -39,7 +42,7 @@ export default function Feed({
     ));
 
     try {
-      await fetch(`http://localhost:5001/api/posts/${id}/like`, {
+      await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/posts/${id}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ liked: isLiking })
@@ -67,7 +70,7 @@ export default function Feed({
     ));
 
     try {
-      await fetch(`http://localhost:5001/api/posts/${id}/comment`, {
+      await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/posts/${id}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -87,17 +90,8 @@ export default function Feed({
   // ── Apply filters ────────────────────────────────────────
   let visible = [...posts];
 
-  // Hashtag filter (from right sidebar trending click)
-  if (hashtagFilter) {
-    const tag = hashtagFilter.replace("#", "").toLowerCase();
-    visible = visible.filter(p =>
-      p.hashtags.some(h => h.toLowerCase() === tag) ||
-      p.body.toLowerCase().includes(tag) ||
-      p.title.toLowerCase().includes(tag)
-    );
-  }
-
-  // NOTE: Search query and Popular sorting are now completely handled by the backend API.
+  // NOTE: Hashtag filtering, search, and sorting are all handled by the backend API.
+  // Feed just renders whatever posts are passed in.
 
   // ── Header label ─────────────────────────────────────────
   let headerLabel = "Latest Posts";
@@ -109,7 +103,8 @@ export default function Feed({
 
   if (hashtagFilter) {
     headerLabel = `Posts tagged ${hashtagFilter}`;
-    headerRight = `${visible.length} post${visible.length !== 1 ? "s" : ""}`;
+    const count = hashtagTotal ?? visible.length;
+    headerRight = `${count} post${count !== 1 ? "s" : ""}`;
   } else if (searchQuery.trim()) {
     headerLabel = `Results for "${searchQuery.trim()}"`;
     headerRight = `${visible.length} found`;

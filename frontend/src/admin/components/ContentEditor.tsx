@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import BACKEND_CONFIG from '@/config/backend';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trash2, Edit2, Save, X, Plus, Upload } from 'lucide-react';
 
-const API_URL = 'http://localhost:5001';
+const API_URL = BACKEND_CONFIG.API_BASE_URL;
 
 interface ContentItem {
   _id: string;

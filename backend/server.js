@@ -9,6 +9,12 @@ const { v4: uuidv4 } = require('uuid');
 const http = require('http');
 const { Server } = require('socket.io');
 const bcrypt = require('bcryptjs');
+const allowedOrigins = [
+  'https://nirvaha-wellnessllp.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:5001'
+];
 
 // Load environment variables immediately
 dotenv.config();
@@ -28,6 +34,7 @@ const landingRoutes = require('./modules/landing/landing.routes');
 const contactRoutes = require('./modules/contact/contact.routes');
 
 const userRoutes = require('./routes/userRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 const reflectionRoutes = require('./routes/reflectionRoutes');
 
 // Import models for seeding
@@ -41,7 +48,15 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     credentials: true,
   },
@@ -366,10 +381,19 @@ io.on('connection', (socket) => {
 // Middleware
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
+
 app.use(express.json({ limit: '2mb' }));
 
 // Make io accessible to routes
@@ -377,6 +401,11 @@ app.set('io', io);
 
 // Static files
 app.use('/uploads', express.static(UPLOADS_DIR));
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', mongo: mongoConnected, timestamp: new Date().toISOString() });
+});
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -391,6 +420,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/landing', landingRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/profile', profileRoutes);
 app.use('/api/reflect', reflectionRoutes);
 app.use('/api', utilityRoutes);
 

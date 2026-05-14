@@ -12,6 +12,7 @@ import {
   BrainCircuit
 } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import TextType from "../TextType";
 import { BACKEND_CONFIG } from "@/config/backend";
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,6 +22,7 @@ type Session = { id: string; title: string; messages: Message[]; createdAt: numb
 
 export function ChatbotPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const initialMessage: Message = useMemo(
     () => ({
       type: "ai",
@@ -239,10 +241,7 @@ export function ChatbotPage() {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden bg-white z-50">
-      {/* Navigation Padding Adjustment */}
-      <div className="h-16 shrink-0" /> 
-
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-white" style={{ zIndex: 40, top: '64px' }}>
       {/* Main Layout Container */}
       <div className="flex flex-1 overflow-hidden relative text-[#1A2E2A]">
       {/* ChatGPT Style Sidebar - Minimal & Refined */}
@@ -289,11 +288,17 @@ export function ChatbotPage() {
               </div>
 
               <div className="pt-6 border-t border-white/5 space-y-1.5">
-                <button className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 transition-all group">
+                <button
+                  onClick={() => navigate('/dashboard/profile')}
+                  className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200 group"
+                >
                   <User className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" />
                   <span className="text-sm font-medium">Personal Profile</span>
                 </button>
-                <button className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 transition-all group">
+                <button
+                  onClick={() => navigate('/dashboard/overview')}
+                  className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200 group"
+                >
                   <Settings className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" />
                   <span className="text-sm font-medium">Preferences</span>
                 </button>
@@ -307,27 +312,93 @@ export function ChatbotPage() {
       <main className="flex-1 flex flex-col relative overflow-hidden">
         {/* Enhanced Glassmorphism Background */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <div className="absolute inset-0 bg-white/60 backdrop-blur-sm"></div>
-          
-          {/* Animated Aura Elements */}
-          <motion.div 
-            className="absolute w-64 h-64 bg-gradient-to-r from-emerald-200/30 to-teal-200/30 rounded-full blur-3xl"
-            animate={{ 
-              x: [0, 120, -60, 0], 
-              y: [0, -80, 100, 0],
-              scale: [1, 1.3, 0.8, 1]
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, #e8f5ee 0%, #f0faf4 40%, #e4f4ec 100%)' }} />
+
+          {/* Ripple rings — breath pulsing from center */}
+          {[1,2,3,4].map((i) => (
+            <motion.div
+              key={`ripple-${i}`}
+              className="absolute rounded-full border border-emerald-300/25"
+              style={{ left: '50%', top: '45%', translateX: '-50%', translateY: '-50%' }}
+              animate={{ width: [60, 420], height: [60, 420], opacity: [0.5, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: 'easeOut', delay: i * 1.25 }}
+            />
+          ))}
+
+          {/* Orb glow — soft green radial orbs drifting */}
+          <motion.div
+            className="absolute w-80 h-80 rounded-full blur-3xl"
+            style={{ background: 'radial-gradient(circle, rgba(52,211,153,0.18) 0%, transparent 70%)', top: '10%', left: '15%' }}
+            animate={{ x: [0, 60, -30, 0], y: [0, -40, 60, 0], scale: [1, 1.2, 0.9, 1] }}
+            transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
           />
-          <motion.div 
-            className="absolute w-48 h-48 bg-gradient-to-r from-cyan-200/25 to-blue-200/25 rounded-full blur-3xl"
-            animate={{ 
-              x: [0, -80, 60, 0], 
-              y: [0, 60, -40, 0],
-              scale: [1, 0.8, 1.2, 1]
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+          <motion.div
+            className="absolute w-64 h-64 rounded-full blur-3xl"
+            style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.14) 0%, transparent 70%)', bottom: '20%', right: '10%' }}
+            animate={{ x: [0, -50, 40, 0], y: [0, 50, -30, 0], scale: [1, 0.85, 1.15, 1] }}
+            transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut', delay: 4 }}
           />
+
+          {/* Floating leaves — corners, CSS only no emojis */}
+          {[0,1,2,3].map((i) => (
+            <motion.div
+              key={`leaf-${i}`}
+              className="absolute rounded-full"
+              style={{
+                width: 8 + i * 2,
+                height: 8 + i * 2,
+                background: `rgba(52,211,153,${0.3 + i * 0.06})`,
+                left: i % 2 === 0 ? `${8 + i * 6}%` : `${75 + i * 4}%`,
+                top: i < 2 ? '8%' : '75%',
+                filter: 'blur(1px)',
+              }}
+              animate={{
+                y: [0, -18, 8, -12, 0],
+                x: [0, 10, -6, 8, 0],
+                scale: [1, 1.3, 0.8, 1.1, 1],
+              }}
+              transition={{ duration: 7 + i * 1.5, repeat: Infinity, ease: 'easeInOut', delay: i * 1.2 }}
+            />
+          ))}
+
+          {/* Rising particles — green dots from bottom */}
+          {Array.from({ length: 14 }).map((_, i) => (
+            <motion.div
+              key={`particle-${i}`}
+              className="absolute rounded-full"
+              style={{
+                width: 3 + (i % 3),
+                height: 3 + (i % 3),
+                background: `rgba(52,211,153,${0.25 + (i % 4) * 0.08})`,
+                left: `${6 + i * 6.5}%`,
+                bottom: '-8px',
+              }}
+              animate={{ y: [0, -(280 + i * 30)], opacity: [0, 0.7, 0] }}
+              transition={{ duration: 8 + i * 0.6, repeat: Infinity, ease: 'easeOut', delay: i * 0.55 }}
+            />
+          ))}
+
+          {/* Wave flow — bottom gentle water wave */}
+          <svg className="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 100" preserveAspectRatio="none" style={{ height: 100 }}>
+            <motion.path
+              fill="rgba(52,211,153,0.18)"
+              animate={{ d: [
+                'M0,50 C360,90 720,10 1080,50 C1260,70 1380,30 1440,50 L1440,100 L0,100 Z',
+                'M0,50 C360,10 720,90 1080,50 C1260,30 1380,70 1440,50 L1440,100 L0,100 Z',
+                'M0,50 C360,90 720,10 1080,50 C1260,70 1380,30 1440,50 L1440,100 L0,100 Z',
+              ]}}
+              transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.path
+              fill="rgba(16,185,129,0.12)"
+              animate={{ d: [
+                'M0,65 C480,25 960,90 1440,65 L1440,100 L0,100 Z',
+                'M0,65 C480,90 960,25 1440,65 L1440,100 L0,100 Z',
+                'M0,65 C480,25 960,90 1440,65 L1440,100 L0,100 Z',
+              ]}}
+              transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+            />
+          </svg>
         </div>
         
         {/* Toggle Sidebar Button */}
@@ -338,19 +409,6 @@ export function ChatbotPage() {
         >
           <ChevronLeft className={`w-4 h-4 transition-transform duration-300 ${!isSidebarOpen ? 'rotate-180' : ''}`} />
         </button>
-
-        {/* Top Header - Simple */}
-        <header className="h-14 shrink-0 flex items-center justify-between px-4 border-b border-gray-50 bg-white/80 backdrop-blur-sm z-20">
-          <div className="flex items-center gap-3">
-             <div className="w-6 h-6 rounded-md bg-[#2D6A4F] flex items-center justify-center">
-                <BrainCircuit className="w-4 h-4 text-white" />
-             </div>
-             <h1 className="text-sm font-bold tracking-[0.2em] text-[#1A2E2A]">NIRVAHA</h1>
-          </div>
-          <div className="w-8 h-8 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center">
-             <User className="w-4 h-4 text-gray-400" />
-          </div>
-        </header>
 
         {/* Chat / Empty State Container */}
         <div 
@@ -371,7 +429,7 @@ export function ChatbotPage() {
                   textShadow: '0 4px 12px rgba(0,0,0,0.08)'
                 }}>
                   <TextType 
-                    text={["How are you feeling today?"]}
+                    text={["Reconnect With Your Inner Self", "Pause and Reflect", "Begin Your Inner Journey", "Take a Breath and Reflect"]}
                     typingSpeed={80}
                     pauseDuration={3000}
                     showCursor
@@ -380,7 +438,7 @@ export function ChatbotPage() {
                   />
                 </h2>
                 <div className="text-[#2D6A4F] font-semibold text-lg animate-pulse tracking-widest uppercase" style={{ fontSize: '13px' }}>
-                  🌿 Start your reflection...
+                  Start your reflection...
                 </div>
               </motion.div>
 
@@ -391,10 +449,10 @@ export function ChatbotPage() {
                 className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full"
               >
                 {[
-                  { label: "🧘 Grounding Exercise", prompt: "I'm feeling a bit overwhelmed. Can you lead me through a quick grounding exercise?", desc: "Reset your nervous system" },
-                  { label: "🌿 Stress Relief", prompt: "I've had a long day. What's a good way to release stress right now?", desc: "Release mental tension" },
-                  { label: "✨ Meditation Path", prompt: "I'm new to meditation. Where should I begin my journey today?", desc: "Start your practice" },
-                  { label: "💬 Talk to AI Guide", prompt: "I just need someone to talk to. How can we begin?", desc: "Personal reflection" }
+                  { label: "Grounding Exercise", prompt: "I'm feeling a bit overwhelmed. Can you lead me through a quick grounding exercise?", desc: "Reset your nervous system" },
+                  { label: "Stress Relief", prompt: "I've had a long day. What's a good way to release stress right now?", desc: "Release mental tension" },
+                  { label: "Meditation Path", prompt: "I'm new to meditation. Where should I begin my journey today?", desc: "Start your practice" },
+                  { label: "Talk to AI Guide", prompt: "I just need someone to talk to. How can we begin?", desc: "Personal reflection" }
                 ].map((suggestion, i) => (
                   <motion.div
                     key={i}
@@ -414,17 +472,11 @@ export function ChatbotPage() {
                     className="group cursor-pointer"
                   >
                     <div className="relative p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md hover:border-emerald-300 transition-all duration-300">
-                      {/* Content */}
                       <div className="flex items-center gap-3">
-                        {/* Clean icon without emoji background issues */}
-                        <div className="flex-shrink-0 text-lg">
-                          {suggestion.label.split(' ')[0]}
-                        </div>
-                        
                         {/* Text */}
                         <div className="flex-1 min-w-0">
                           <h4 className="text-sm font-medium text-gray-800 group-hover:text-emerald-700 transition-colors truncate">
-                            {suggestion.label.replace(/[^\w\s]/g, '').trim()}
+                            {suggestion.label}
                           </h4>
                           <p className="text-xs text-gray-500 truncate">
                             {suggestion.desc}

@@ -145,11 +145,7 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
                 alt="Nirvaha Logo"
                 className="h-10 w-auto rounded-md object-contain drop-shadow-sm"
               />
-              <div>
-                <h3 className="text-2xl font-black text-emerald-950 tracking-tight drop-shadow-sm">
-                  NIRVAHA
-                </h3>
-              </div>
+              {/* Text removed as requested */}
             </motion.div>
 
             {/* Desktop Menu */}

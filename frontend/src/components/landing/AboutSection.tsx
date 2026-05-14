@@ -1,100 +1,189 @@
-import React from 'react';
-import { motion } from 'motion/react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+
+interface SlideData {
+    image: string;
+    subtitle: string;
+    title: string;
+    description: string;
+    buttonText: string;
+}
+
+const slides: SlideData[] = [
+    {
+        image: "/image 01.png",
+        subtitle: "The Foundation of Peace",
+        title: "Ancient Wisdom",
+        description: "Rooted in millennium-old spiritual traditions, we bring the calming essence of the ancients to your modern lifestyle.",
+        buttonText: "Our Heritage"
+    },
+    {
+        image: "/image 02.png",
+        subtitle: "Neuroscience Meets Spirit",
+        title: "Modern Science",
+        description: "Our AI-driven approach leverages cutting-edge neuro-technology to quantify and enhance your emotional well-being.",
+        buttonText: "Explore Tech"
+    },
+    {
+        image: "/image 03.png",
+        subtitle: "A Sanctuary for the Soul",
+        title: "Inner Harmony",
+        description: "Find your center in a chaotic world. Our guided sessions are designed to align your mind, body, and breath.",
+        buttonText: "Start Healing"
+    },
+    {
+        image: "/image 04.png",
+        subtitle: "Personalized AI Guidance",
+        title: "AI Sanctuary",
+        description: "Experience the convergence of technology and tranquility with an AI guide that learns and grows with your spirit.",
+        buttonText: "Meet Your Guide"
+    },
+    {
+        image: "/image 05.png",
+        subtitle: "The Power of Together",
+        title: "Community",
+        description: "Join a global circle of seekers and healers. Together, we create a resonance that heals the world.",
+        buttonText: "Join the Circle"
+    }
+];
 
 const AboutSection: React.FC = () => {
     const navigate = useNavigate();
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [direction, setDirection] = useState(0);
+
+    // Auto-play effect: change slide every 3 seconds
+    useEffect(() => {
+        const timer = setInterval(() => {
+            paginate(1);
+        }, 3000);
+        return () => clearInterval(timer);
+    }, [currentIndex]);
+
+    const paginate = (newDirection: number) => {
+        setDirection(newDirection);
+        setCurrentIndex((prevIndex) => (prevIndex + newDirection + slides.length) % slides.length);
+    };
+
+    const activeSlide = slides[currentIndex];
 
     return (
-        <section className="relative py-24 bg-white overflow-hidden" id="about">
-            {/* Background elements */}
-            <div className="absolute top-0 right-0 w-1/3 h-full bg-[#f0f9f4] skew-x-12 translate-x-1/4 pointer-events-none" />
-            
+        <section className="relative py-20 lg:py-32 bg-[#eaf5ef] overflow-hidden" id="about">
             <div className="container mx-auto px-6 relative z-10">
-                <div className="flex flex-col lg:flex-row items-center gap-16">
-                    {/* Visual Content */}
-                    <motion.div 
-                        initial={{ opacity: 0, x: -50 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="w-full lg:w-1/2"
-                    >
-                        <div className="relative">
-                            <div className="aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl">
-                                <img 
-                                    src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1000" 
-                                    alt="About Nirvaha" 
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-                            {/* Floating Card */}
-                            <motion.div 
-                                initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                                whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.5, duration: 0.6 }}
-                                className="absolute -bottom-10 -right-10 bg-white/90 backdrop-blur-xl p-8 rounded-[2rem] shadow-xl border border-emerald-50 max-w-xs hidden md:block"
-                            >
-                                <div className="flex items-center gap-3 mb-4 text-[#1a5d47]">
-                                    <Sparkles className="w-6 h-6" />
-                                    <span className="font-bold tracking-wider text-sm uppercase">Our Purpose</span>
+                <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+                    
+                    {/* Visual Content: Image Slider */}
+                    <div className="w-full lg:w-1/2 order-2 lg:order-1">
+                        <div className="relative group">
+                            {/* Image Container */}
+                            <div className="relative aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl bg-emerald-900/10 border-4 border-white">
+                                <AnimatePresence initial={false} custom={direction} mode="wait">
+                                    <motion.img
+                                        key={currentIndex}
+                                        src={activeSlide.image}
+                                        initial={{ opacity: 0, x: direction > 0 ? 100 : -100, scale: 1.1 }}
+                                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                                        exit={{ opacity: 0, x: direction < 0 ? 100 : -100, scale: 0.9 }}
+                                        transition={{ duration: 0.6, ease: "easeInOut" }}
+                                        className="absolute inset-0 w-full h-full object-cover"
+                                        alt={activeSlide.title}
+                                    />
+                                </AnimatePresence>
+
+                                {/* Perfectly Circular Button at Exact Center */}
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                    <AnimatePresence mode="wait">
+                                        <motion.button
+                                            key={`btn-${currentIndex}`}
+                                            initial={{ scale: 0, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            exit={{ scale: 0, opacity: 0 }}
+                                            transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 15 }}
+                                            onClick={() => navigate('/stories')}
+                                            className="pointer-events-auto w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-[#1a5d47] text-white flex items-center justify-center text-center p-4 shadow-[0_0_40px_rgba(26,93,71,0.5)] border-2 border-white/30 backdrop-blur-sm transition-transform hover:scale-110 active:scale-95 group/btn"
+                                        >
+                                            <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] leading-tight group-hover/btn:scale-110 transition-transform">
+                                                {activeSlide.buttonText}
+                                            </span>
+                                            {/* Circular Glow Effect */}
+                                            <div className="absolute inset-0 rounded-full bg-white/10 animate-pulse" />
+                                        </motion.button>
+                                    </AnimatePresence>
                                 </div>
-                                <p className="text-[#595e67] italic font-light leading-relaxed">
-                                    "Healing is not just about the absence of pain, but the presence of peace and purpose."
-                                </p>
-                            </motion.div>
+
+                                {/* Slider Navigation Dots */}
+                                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                                    {slides.map((_, i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => {
+                                                setDirection(i > currentIndex ? 1 : -1);
+                                                setCurrentIndex(i);
+                                            }}
+                                            className={`h-1.5 rounded-full transition-all duration-300 ${
+                                                i === currentIndex ? "w-8 bg-white" : "w-2 bg-white/40 hover:bg-white/60"
+                                            }`}
+                                        />
+                                    ))}
+                                </div>
+
+                                {/* Navigation Arrows */}
+                                <button 
+                                    onClick={() => paginate(-1)}
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/40"
+                                >
+                                    <ChevronLeft className="w-6 h-6" />
+                                </button>
+                                <button 
+                                    onClick={() => paginate(1)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/40"
+                                >
+                                    <ChevronRight className="w-6 h-6" />
+                                </button>
+                            </div>
                         </div>
-                    </motion.div>
+                    </div>
 
                     {/* Text Content */}
-                    <motion.div 
-                        initial={{ opacity: 0, x: 50 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="w-full lg:w-1/2"
-                    >
-                        <span className="text-[#1a5d47] font-bold tracking-[0.3em] uppercase text-sm mb-6 block">Our Journey</span>
-                        <h2 className="text-4xl sm:text-5xl font-bold text-[#0F131A] mb-8 leading-tight" style={{ fontFamily: "'Cinzel', serif" }}>
-                            The Bridge Between <br/>
-                            <span className="text-emerald-700">Tradition & Tech</span>
-                        </h2>
-                        <p className="text-lg text-[#595e67] mb-8 leading-relaxed font-light">
-                            Nirvaha was born from a simple realization: the wisdom of the ancients holds the key to the stresses of the modern world. We've combined millennium-old spiritual practices with cutting-edge AI to create a sanctuary for your mind.
-                        </p>
-                        <p className="text-lg text-[#595e67] mb-12 leading-relaxed font-light">
-                            Every soul has a story. Every journey is unique. Discover how Nirvaha has transformed lives through the voices of our community.
-                        </p>
+                    <div className="w-full lg:w-1/2 order-1 lg:order-2">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={currentIndex}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.5 }}
+                                className="space-y-6"
+                            >
+                                <h2 className="text-5xl sm:text-7xl font-bold text-[#1a5d47] leading-none" style={{ fontFamily: "'Cinzel', serif" }}>
+                                    {activeSlide.title}
+                                </h2>
+                                
+                                <div className="h-1.5 w-24 bg-[#4ade80] rounded-full" />
+                                
+                                <h3 className="text-2xl sm:text-3xl font-bold text-[#1a5d47] tracking-tight">
+                                    {activeSlide.subtitle}
+                                </h3>
+                                
+                                <p className="text-lg text-[#595e67] italic font-light leading-relaxed max-w-xl">
+                                    {activeSlide.description}
+                                </p>
 
-                        <motion.button
-                            whileHover={{ 
-                                scale: 1.05, 
-                                boxShadow: "0 0 30px 5px rgba(26, 93, 71, 0.4)",
-                                backgroundColor: "#1d6b52"
-                            }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => navigate('/stories')}
-                            className="group relative px-10 py-5 bg-[#1a5d47] text-white rounded-full overflow-hidden shadow-xl transition-all duration-300 flex items-center gap-4 border border-emerald-400/20"
-                        >
-                            <span className="text-lg font-bold tracking-wide relative z-10">Read Our Stories</span>
-                            <ArrowRight className="w-6 h-6 relative z-10 transition-transform duration-300 group-hover:translate-x-2" />
-                            
-                            {/* Animated Background Glow */}
-                            <motion.div 
-                                className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-white/10 to-emerald-500/0"
-                                animate={{
-                                    x: ['-100%', '100%'],
-                                }}
-                                transition={{
-                                    repeat: Infinity,
-                                    duration: 2,
-                                    ease: "linear",
-                                }}
-                            />
-                        </motion.button>
-                    </motion.div>
+                                <div className="pt-6">
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => navigate('/stories')}
+                                        className="px-10 py-4 bg-[#1a5d47] text-white rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all"
+                                    >
+                                        {activeSlide.buttonText}
+                                    </motion.button>
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
                 </div>
             </div>
         </section>

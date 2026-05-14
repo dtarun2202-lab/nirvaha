@@ -3,25 +3,14 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, Mail, Lock, Eye, EyeOff, Check, 
-  ChevronRight, Sparkles, Chrome, Github
+  ChevronRight, Sparkles, Chrome, Github, ShieldCheck, Zap, Globe
 } from "lucide-react";
 import BACKEND_CONFIG from "../../config/backend";
-import CosmicBackground from "../../components/auth/CosmicBackground";
 import "./Signup.css";
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
   
-  const illustrationImages = ["/stone.png", "/nature.png"];
-  const [currentImgIndex, setCurrentImgIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentImgIndex((prev) => (prev + 1) % illustrationImages.length);
-    }, 2000);
-    return () => clearInterval(timer);
-  }, []);
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -31,7 +20,7 @@ const Signup: React.FC = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState(0); // 0 to 100
+  const [passwordStrength, setPasswordStrength] = useState(0);
   const [validations, setValidations] = useState({
     name: false,
     email: false,
@@ -109,199 +98,176 @@ const Signup: React.FC = () => {
     }
   };
 
-  const strengthColors = {
-    0: "#e5e7eb",
-    25: "#ef4444",
-    50: "#f59e0b",
-    75: "#10b981",
-    100: "#2E8B57",
-  };
-
   return (
-    <div className="signup-page">
-      <CosmicBackground />
-      {/* Left Section - Rotating Illustrations */}
-      <motion.div 
-        className="left-section"
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className="illustration-container">
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={illustrationImages[currentImgIndex]}
-              src={illustrationImages[currentImgIndex]}
-              alt="Wellness Illustration"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.05 }}
-              transition={{ duration: 0.5 }}
-            />
-          </AnimatePresence>
-        </div>
-      </motion.div>
-
-      {/* Right Section - Signup Form */}
-      <motion.div 
-        className="right-section"
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className="signup-card">
-          <div className="step-indicator">Step 1 of 2</div>
-          <h1 className="signup-title">Join Nirvaha</h1>
-          <p className="signup-subtitle">Start your journey to mindfulness today.</p>
-
-          {/* Social Logins at the Top */}
-          <div className="social-signup top">
-            <button
-              type="button"
-              className="social-btn google"
-              onClick={() => alert("Google login coming soon 🚀")}
+    <div className="signup-container">
+      {/* Left Section: Visual & Value Prop */}
+      <div className="signup-visual-side">
+        <div className="visual-content">
+          <div className="brand-logo">
+            <img src="/logo.png" alt="Nirvaha" className="w-12 h-12" />
+            <span className="brand-name">Nirvaha</span>
+          </div>
+          
+          <div className="value-props">
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="visual-title"
             >
-              <Chrome size={18} color="#4285F4" />
-              Continue with Google
-            </button>
-            <button
-              type="button"
-              className="social-btn github"
-              onClick={() => alert("GitHub login coming soon 🚀")}
-            >
-              <Github size={18} color="#000000" />
-              Continue with GitHub
-            </button>
-            <div className="divider">
-              <span className="divider-text">or sign up with email</span>
+              Start your journey to <br/> <span>Inner Balance</span>
+            </motion.h1>
+            <p className="visual-desc">
+              Join thousands of seekers finding peace through ancient wisdom and modern AI.
+            </p>
+            
+            <div className="feature-list">
+              <div className="feature-item">
+                <div className="feature-icon"><ShieldCheck size={20} /></div>
+                <div>
+                  <h4>Secure & Private</h4>
+                  <p>Your spiritual journey is personal and safe with us.</p>
+                </div>
+              </div>
+              <div className="feature-item">
+                <div className="feature-icon"><Zap size={20} /></div>
+                <div>
+                  <h4>AI-Powered Insights</h4>
+                  <p>Real-time guidance tailored to your emotional state.</p>
+                </div>
+              </div>
+              <div className="feature-item">
+                <div className="feature-icon"><Globe size={20} /></div>
+                <div>
+                  <h4>Global Community</h4>
+                  <p>Connect with healers and practitioners worldwide.</p>
+                </div>
+              </div>
             </div>
           </div>
+          
+          <div className="visual-footer">
+            <p>© 2024 Nirvaha Inc. All rights reserved.</p>
+          </div>
+        </div>
+        {/* Abstract Background Elements */}
+        <div className="abstract-glow-1"></div>
+        <div className="abstract-glow-2"></div>
+      </div>
 
-          <form onSubmit={handleSubmit}>
-            {/* Full Name */}
-            <div className="form-group">
-              <label className="form-label">Full Name</label>
-              <div className="input-wrapper">
-                <User size={16} className="input-icon" />
-                <input
-                  type="text"
+      {/* Right Section: Form */}
+      <div className="signup-form-side">
+        <div className="form-wrapper">
+          <div className="form-header">
+            <h2>Create an Account</h2>
+            <p>Already have a Nirvaha account? <Link to="/login" className="login-link-inline">Sign In</Link></p>
+          </div>
+
+          <div className="social-auth-grid">
+            <button className="social-auth-btn">
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" alt="Google" width="18" />
+              <span>Google</span>
+            </button>
+            <button className="social-auth-btn">
+              <Github size={18} />
+              <span>GitHub</span>
+            </button>
+          </div>
+
+          <div className="form-divider">
+            <span>or sign up with email</span>
+          </div>
+
+          <form onSubmit={handleSubmit} className="actual-form">
+            <div className="input-field">
+              <label>Full Name</label>
+              <div className="input-control">
+                <User size={18} className="field-icon" />
+                <input 
+                  type="text" 
                   name="name"
-                  placeholder="What should we call you?"
-                  className="form-input"
+                  placeholder="Enter your name"
                   value={formData.name}
                   onChange={handleChange}
                   required
                 />
-                {validations.name && (
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="validation-tick">
-                    <Check size={14} />
-                  </motion.div>
-                )}
               </div>
             </div>
 
-            {/* Email */}
-            <div className="form-group">
-              <label className="form-label">Email Address</label>
-              <div className="input-wrapper">
-                <Mail size={16} className="input-icon" />
-                <input
-                  type="email"
+            <div className="input-field">
+              <label>Email Address</label>
+              <div className="input-control">
+                <Mail size={18} className="field-icon" />
+                <input 
+                  type="email" 
                   name="email"
-                  placeholder="Your email address"
-                  className="form-input"
+                  placeholder="name@company.com"
                   value={formData.email}
                   onChange={handleChange}
                   required
                 />
-                {validations.email && (
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="validation-tick">
-                    <Check size={14} />
-                  </motion.div>
-                )}
               </div>
             </div>
 
-            {/* Password */}
-            <div className="form-group">
-              <label className="form-label">Password</label>
-              <div className="input-wrapper">
-                <Lock size={16} className="input-icon" />
-                <input
-                  type={showPassword ? "text" : "password"}
+            <div className="input-field">
+              <label>Password</label>
+              <div className="input-control">
+                <Lock size={18} className="field-icon" />
+                <input 
+                  type={showPassword ? "text" : "password"} 
                   name="password"
-                  placeholder="Create a strong password"
-                  className="form-input"
+                  placeholder="Create a password"
                   value={formData.password}
                   onChange={handleChange}
                   required
                 />
                 <button 
                   type="button" 
-                  className="toggle-password"
+                  className="pass-toggle"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
-                {validations.password && (
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="validation-tick">
-                    <Check size={14} />
-                  </motion.div>
-                )}
               </div>
-              
-              {/* Password Strength Meter */}
-              <div className="password-strength">
-                <div className="strength-bar">
-                  <div 
-                    className="strength-fill" 
-                    style={{ 
-                      width: `${passwordStrength}%`, 
-                      backgroundColor: strengthColors[passwordStrength as keyof typeof strengthColors] 
-                    }}
-                  ></div>
-                </div>
+              <div className="strength-indicator">
+                <div className={`strength-segment ${passwordStrength >= 25 ? 'active' : ''}`} style={{ background: passwordStrength >= 25 ? '#ef4444' : '' }}></div>
+                <div className={`strength-segment ${passwordStrength >= 50 ? 'active' : ''}`} style={{ background: passwordStrength >= 50 ? '#f59e0b' : '' }}></div>
+                <div className={`strength-segment ${passwordStrength >= 75 ? 'active' : ''}`} style={{ background: passwordStrength >= 75 ? '#10b981' : '' }}></div>
+                <div className={`strength-segment ${passwordStrength >= 100 ? 'active' : ''}`} style={{ background: passwordStrength >= 100 ? '#1a5d47' : '' }}></div>
               </div>
             </div>
 
-            {/* Confirm Password */}
-            <div className="form-group">
-              <label className="form-label">Confirm Password</label>
-              <div className="input-wrapper">
-                <Lock size={16} className="input-icon" />
-                <input
-                  type="password"
+            <div className="input-field">
+              <label>Confirm Password</label>
+              <div className="input-control">
+                <Lock size={18} className="field-icon" />
+                <input 
+                  type="password" 
                   name="confirmPassword"
-                  placeholder="Repeat your password"
-                  className="form-input"
+                  placeholder="Repeat password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
                 />
-                {validations.match && (
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="validation-tick">
-                    <Check size={14} />
-                  </motion.div>
-                )}
               </div>
             </div>
 
-            <motion.button
-              type="submit"
-              className="cta-button"
-              disabled={loading}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-            >
-              {loading ? "Creating..." : "Start My Journey ✨"}
-            </motion.button>
+            <div className="form-terms">
+              <input type="checkbox" id="terms" required />
+              <label htmlFor="terms">
+                I agree to the <Link to="/terms">Terms of Service</Link> and <Link to="/privacy">Privacy Policy</Link>.
+              </label>
+            </div>
+
+            <button type="submit" className="submit-auth-btn" disabled={loading}>
+              {loading ? "Creating Account..." : "Create My Free Account"}
+            </button>
           </form>
 
-          <p className="login-link">
-            Already have an account? <Link to="/login">Login</Link>
-          </p>
+          <div className="form-footer">
+            <p>By signing up, you agree to receive updates from Nirvaha. You can unsubscribe at any time.</p>
+          </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

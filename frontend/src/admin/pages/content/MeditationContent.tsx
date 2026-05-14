@@ -173,7 +173,7 @@ export function MeditationContent() {
     }
     try {
       setIsUploading(true);
-      const base = BACKEND_CONFIG.API_BASE_URL || "http://localhost:5001";
+      const base = BACKEND_CONFIG.API_BASE_URL;
 
       let thumbnailUrl = formData.thumbnailUrl || "";
       let bannerUrl    = formData.bannerUrl    || "";

@@ -35,6 +35,7 @@ interface User {
   posts?: number;
   profile?: UserProfile;
   stats?: UserStats;
+  sessionHistory?: Array<Record<string, unknown>>;
 }
 
 interface AuthContextType {
@@ -66,6 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem('token');
+      const cachedUser = localStorage.getItem('user');
       if (token) {
         try {
           const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/auth/user`, {
@@ -77,12 +79,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const data = await res.json();
             setUser(data.user);
           } else {
-            // Token might be invalid or expired
+            // Token is invalid or expired — clear storage
             localStorage.removeItem('token');
             localStorage.removeItem('user');
           }
         } catch (error) {
-          console.error('Error fetching current user:', error);
+          // Network failure — keep user from cache so they aren't logged out
+          console.error('Error fetching current user (network issue):', error);
+          if (cachedUser) {
+            try {
+              setUser(JSON.parse(cachedUser));
+            } catch {
+              localStorage.removeItem('user');
+            }
+          }
         }
       }
       setLoading(false);
@@ -134,7 +144,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       if (res.ok) {
         const data = await res.json();
-        const updated = { ...user, bio: data.bio, location: data.location, stats: data.stats };
+        const payload = data as { bio?: string; location?: string; stats?: UserStats; sessionHistory?: User["sessionHistory"] };
+        const updated: User = {
+          ...user,
+          bio: payload.bio,
+          location: payload.location,
+          stats: payload.stats,
+          ...(Array.isArray(payload.sessionHistory) ? { sessionHistory: payload.sessionHistory } : {}),
+        };
         setUser(updated);
         localStorage.setItem('user', JSON.stringify(updated));
       }

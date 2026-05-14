@@ -1,30 +1,30 @@
 // Backend configuration
 export const BACKEND_CONFIG = {
   // Production backend URL
-  API_URL: 'https://nirvaha-backend.onrender.com',
-  SOCKET_URL: 'https://nirvaha-backend.onrender.com',
+  API_URL: 'https://nirvaha-5cqj.onrender.com',
+  SOCKET_URL: 'https://nirvaha-5cqj.onrender.com',
 
   // Local development URL (prioritized for development)
   LOCAL_API_URL: 'http://localhost:5001',
   LOCAL_SOCKET_URL: 'http://localhost:5001',
 
-  // Check if we're in development mode
-  IS_DEVELOPMENT: import.meta.env.DEV ||
+  // Check if we're in development mode (localhost or 127.0.0.1)
+  IS_DEVELOPMENT: 
     window.location.hostname === 'localhost' ||
     window.location.hostname === '127.0.0.1',
 
   // Force local development (set to true for local development)
-  FORCE_LOCAL: true,
+  FORCE_LOCAL: false,
 
   // Get the appropriate URL based on environment
   get API_BASE_URL() {
-    const url = this.FORCE_LOCAL || this.IS_DEVELOPMENT ? this.LOCAL_API_URL : this.API_URL;
+    const url = (this.IS_DEVELOPMENT || this.FORCE_LOCAL) ? this.LOCAL_API_URL : this.API_URL;
     console.log('🔗 Using API URL:', url);
     return url;
   },
 
   get SOCKET_BASE_URL() {
-    const url = this.FORCE_LOCAL || this.IS_DEVELOPMENT ? this.LOCAL_SOCKET_URL : this.SOCKET_URL;
+    const url = (this.IS_DEVELOPMENT || this.FORCE_LOCAL) ? this.LOCAL_SOCKET_URL : this.SOCKET_URL;
     console.log('🔌 Using Socket URL:', url);
     return url;
   },

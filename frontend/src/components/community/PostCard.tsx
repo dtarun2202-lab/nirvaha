@@ -14,11 +14,12 @@ interface PostCardProps {
 function formatTime(ts: number) {
   const diff = Date.now() - ts;
   const m = Math.floor(diff / 60000);
-  if (m < 1) return "just now";
-  if (m < 60) return `${m}m ago`;
+  if (m < 1) return "Just now";
+  if (m < 60) return `${m} min${m === 1 ? '' : 's'} ago`;
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
+  if (h < 24) return `${h} hour${h === 1 ? '' : 's'} ago`;
+  const d = Math.floor(h / 24);
+  return `${d} day${d === 1 ? '' : 's'} ago`;
 }
 
 export default function PostCard({ post, currentUser, onLike, onComment, onProfileClick, onToast }: PostCardProps) {
@@ -26,7 +27,17 @@ export default function PostCard({ post, currentUser, onLike, onComment, onProfi
   const [commentText, setCommentText] = useState("");
   const [showMenu, setShowMenu] = useState(false);
   const [likeAnim, setLikeAnim] = useState(false);
+  const [timeLabel, setTimeLabel] = useState(() => formatTime(post.timestampValue));
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Auto-update timestamp every 30 seconds
+  useEffect(() => {
+    setTimeLabel(formatTime(post.timestampValue));
+    const interval = setInterval(() => {
+      setTimeLabel(formatTime(post.timestampValue));
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [post.timestampValue]);
 
   // Close menu on outside click
   useEffect(() => {
@@ -97,7 +108,7 @@ export default function PostCard({ post, currentUser, onLike, onComment, onProfi
             <div className="min-w-0">
               <h3 className="text-base font-semibold text-[#0f172a] leading-snug line-clamp-1">{post.title}</h3>
               <p className="text-xs text-[#6b7280] mt-0.5">
-                {post.userName} · {post.userRole} · {formatTime(post.timestampValue)}
+                {post.userName} · {post.userRole} · {timeLabel}
               </p>
             </div>
             {/* ··· menu */}
