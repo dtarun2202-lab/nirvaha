@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Star, Quote } from 'lucide-react';
 import BACKEND_CONFIG from '@/config/backend';
 
@@ -67,6 +68,7 @@ const FALLBACK_STORIES: Story[] = [
 ];
 
 export const CaseStudies = () => {
+    const navigate = useNavigate();
     const [stories, setStories] = useState<Story[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -149,6 +151,7 @@ export const CaseStudies = () => {
                     {featuredStory && (
                         <div
                            className="lg:col-span-7 group relative h-full min-h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl bg-white cursor-pointer"
+                           onClick={() => navigate(`/success-story/${featuredStory._id}`)}
                            >
                             <img
                                 src={featuredStory.image}
@@ -196,6 +199,7 @@ export const CaseStudies = () => {
                             <div
                                key={story._id}
                                className={`flex-1 ${story.bgColor || 'bg-white'} p-8 rounded-[2rem] border border-gray-100 shadow-xl hover:shadow-2xl transition-all duration-500 group relative overflow-hidden cursor-pointer`}
+                               onClick={() => navigate(`/success-story/${story._id}`)}
                             >
                                 <div className={`absolute ${index === 0 ? 'top-0 right-0 p-8 opacity-5' : 'bottom-0 right-0 p-8 opacity-10'}`}>
                                     {index === 0 ? (
