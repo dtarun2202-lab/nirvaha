@@ -213,10 +213,10 @@ export const CommonProblems = () => {
                             exit={{ scale: 0.9, opacity: 0 }}
                             transition={{ type: 'spring', damping: 30, stiffness: 400 }}
                             onClick={(e) => e.stopPropagation()}
-                           className="relative bg-white rounded-2xl max-w-6xl w-full h-[70vh] shadow-2xl overflow-hidden"
+                           className="relative bg-white rounded-2xl w-full max-w-[650px] aspect-square max-h-[90vh] shadow-2xl flex flex-col overflow-hidden mx-auto"
                         >
                             {/* Header with gradient bar */}
-                            <div className="h-3 bg-gradient-to-r from-emerald-400 to-emerald-500" />
+                            <div className="h-3 min-h-[12px] w-full shrink-0 bg-gradient-to-r from-emerald-400 to-emerald-500" />
 
                             {/* X Close Button */}
                             <motion.button
@@ -229,7 +229,7 @@ export const CommonProblems = () => {
                             </motion.button>
 
                             {/* Scrollable Content */}
-                            <div className="p-6 h-[calc(70vh-12px)] flex flex-col">
+                            <div className="p-6 h-[calc(100%-12px)] flex flex-col overflow-hidden">
                                 {/* Title Section */}
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="w-14 h-14 rounded-xl bg-emerald-50 flex items-center justify-center">

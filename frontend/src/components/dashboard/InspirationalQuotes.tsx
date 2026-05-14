@@ -42,6 +42,36 @@ const quotes = [
         image: "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?q=80&w=600&auto=format&fit=crop",
         quote: "Happiness is not something readymade. It comes from your own actions.",
         author: "Dalai Lama"
+    },
+    {
+        id: 8,
+        image: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?q=80&w=600&auto=format&fit=crop",
+        quote: "Your calm mind is the ultimate weapon against your challenges.",
+        author: "Bryant McGill"
+    },
+    {
+        id: 9,
+        image: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?q=80&w=600&auto=format&fit=crop",
+        quote: "Healing takes courage, and we all have courage, even if we have to dig a little to find it.",
+        author: "Tori Amos"
+    },
+    {
+        id: 10,
+        image: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?q=80&w=600&auto=format&fit=crop",
+        quote: "Every moment is a fresh beginning.",
+        author: "T.S. Eliot"
+    },
+    {
+        id: 11,
+        image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=600&auto=format&fit=crop",
+        quote: "Stillness is where clarity begins.",
+        author: "Morning Meditation"
+    },
+    {
+        id: 12,
+        image: "https://images.unsplash.com/photo-1522845015757-50bce044e5da?q=80&w=600&auto=format&fit=crop",
+        quote: "Breathe deeply. Let go gently.",
+        author: "Sunset Flow"
     }
 ];
 
