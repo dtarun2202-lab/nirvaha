@@ -89,6 +89,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           path: "/admin/companions",
         },
         {
+          title: "Success Stories",
+          icon: FileText,
+          path: "/admin/success-stories",
+        },
+        {
           title: "Booking Management",
           icon: Calendar,
           path: "/admin/bookings",

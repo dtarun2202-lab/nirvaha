@@ -1,42 +1,86 @@
-import { motion } from 'motion/react';
-import { Play } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Play, Pause, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 
 const videos = [
     {
         title: "Morning Calm",
         category: "Meditation",
         duration: "10 min",
-        thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop"
+        thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
+        audioSource: "/audio/meditation.mp3"
     },
     {
         title: "Deep Sleep Guide",
         category: "Sleep",
         duration: "45 min",
-        thumbnail: "https://images.squarespace-cdn.com/content/v1/57b5ef68c534a5cc06edc769/b50a955f-e95f-42c1-beb6-4e74d753bfbb/restorative+yoga"
+        thumbnail: "https://images.squarespace-cdn.com/content/v1/57b5ef68c534a5cc06edc769/b50a955f-e95f-42c1-beb6-4e74d753bfbb/restorative+yoga",
+        audioSource: "/audio/sleep.mp3"
     },
     {
         title: "Anxiety Relief",
         category: "Stress",
         duration: "20 min",
-        thumbnail: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=600&auto=format&fit=crop"
+        thumbnail: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=600&auto=format&fit=crop",
+        audioSource: "/audio/stress.mp3"
     },
     {
         title: "Focus Flow",
         category: "Productivity",
         duration: "30 min",
-        thumbnail: "https://lonestarneurology.net/wp-content/uploads/2025/08/3-Mental-Clarity-and-Cognitive-Function-from-Yoga.jpg"
+        thumbnail: "https://lonestarneurology.net/wp-content/uploads/2025/08/3-Mental-Clarity-and-Cognitive-Function-from-Yoga.jpg",
+        audioSource: "/audio/focus.mp3"
     },
     {
         title: "Chakra Balance",
         category: "Energy",
         duration: "15 min",
-        thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop"
+        thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop",
+        audioSource: "/audio/energy.mp3"
     },
 ];
 
 export const WellnessOTT = () => {
+    const [activeAudioItem, setActiveAudioItem] = useState<any | null>(null);
+    const [viewMoreOpen, setViewMoreOpen] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    // Stop audio when closing modal
+    useEffect(() => {
+        if (!activeAudioItem && audioRef.current) {
+            audioRef.current.pause();
+            setIsPlaying(false);
+        }
+    }, [activeAudioItem]);
+
+    const togglePlay = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (audioRef.current) {
+            if (isPlaying) {
+                audioRef.current.pause();
+            } else {
+                audioRef.current.play().catch(err => console.log("Play failed:", err));
+            }
+            setIsPlaying(!isPlaying);
+        }
+    };
+
+    const handleCardClick = (item: any) => {
+        setActiveAudioItem(item);
+        setIsPlaying(true);
+        setTimeout(() => {
+            if (audioRef.current) {
+                audioRef.current.play().catch(err => {
+                    console.log("Autoplay prevented:", err);
+                    setIsPlaying(false);
+                });
+            }
+        }, 100);
+    };
+
     return (
-       <section className="flex flex-col justify-start pt-2 pb-8 bg-[#EEF7F1] overflow-hidden">
+        <section className="flex flex-col justify-start pt-2 pb-8 bg-[#EEF7F1] overflow-hidden relative">
             <div className="max-w-[1440px] mx-auto px-6 md:px-8">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
@@ -58,6 +102,7 @@ export const WellnessOTT = () => {
                         </p>
                     </div>
                     <motion.button
+                        onClick={() => setViewMoreOpen(true)}
                         className="group flex items-center gap-2 text-[#1a5d47] font-semibold hover:text-[#113d2f] transition-all duration-300 pb-1"
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
@@ -80,22 +125,7 @@ export const WellnessOTT = () => {
                     {videos.map((vid, idx) => (
                         <motion.div
                            key={idx}
-                           onClick={() => {
-                              if (vid.title === "Morning Calm")
-                                  window.open("https://www.mindful.org/category/meditation-practices/", "_blank");
-
-                              else if (vid.title === "Deep Sleep Guide")
-                                  window.open("https://www.sleepfoundation.org/", "_blank");
-
-                              else if (vid.title === "Anxiety Relief")
-                                  window.open("https://www.youtube.com/results?search_query=anxiety+relief+meditation", "_blank");
-
-                              else if (vid.title === "Focus Flow")
-                                  window.open("https://www.youtube.com/results?search_query=focus+music+for+work", "_blank");
-
-                              else if (vid.title === "Chakra Balance")
-                                  window.open("https://www.youtube.com/results?search_query=chakra+healing+meditation", "_blank");
-                            }}
+                           onClick={() => handleCardClick(vid)}
                             className="group relative rounded-2xl overflow-hidden cursor-pointer bg-white shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-shadow duration-300"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -132,7 +162,6 @@ export const WellnessOTT = () => {
                             <div className="p-4">
                                 <h3
                                     className="text-lg font-semibold text-[#0F131A] group-hover:text-[#1a5d47] transition-colors tracking-tight">
-
                                     {vid.title}
                                 </h3>
                             </div>
@@ -140,6 +169,99 @@ export const WellnessOTT = () => {
                     ))}
                 </div>
             </div>
+
+            {/* Audio Mode: Immersive Floating Controls */}
+            <AnimatePresence>
+                {activeAudioItem && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.5, ease: "easeInOut" }}
+                        className="fixed inset-0 z-[110] bg-black"
+                    >
+                        {/* Audio Element */}
+                        <audio 
+                            ref={audioRef} 
+                            src={activeAudioItem.audioSource} 
+                            onEnded={() => setIsPlaying(false)}
+                            className="hidden"
+                        />
+
+                        {/* Immersive Image Area */}
+                        <img 
+                            src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=2400&auto=format&fit=crop" 
+                            alt="Peaceful Wellness View"
+                            className="absolute inset-0 w-full h-full object-cover opacity-85"
+                        />
+                            
+                        {/* Close Button */}
+                        <button
+                            onClick={() => setActiveAudioItem(null)}
+                            className="absolute top-6 right-6 sm:top-10 sm:right-10 w-12 h-12 bg-black/20 hover:bg-black/40 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white/90 hover:text-white transition-all z-20"
+                        >
+                            <X className="w-6 h-6" />
+                        </button>
+
+                        {/* Floating Left Side Audio Controls */}
+                        <div className="absolute bottom-8 left-6 sm:bottom-16 sm:left-16 z-20 flex items-center gap-5 bg-black/20 hover:bg-black/40 backdrop-blur-md pr-8 pl-3 py-3 rounded-full border border-white/10 transition-all shadow-[0_0_30px_rgba(0,0,0,0.3)]">
+                            {/* Minimal Play/Pause Button */}
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={togglePlay}
+                                className="w-14 h-14 sm:w-16 sm:h-16 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/90 transition-all cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+                            >
+                                {isPlaying ? (
+                                    <Pause className="w-6 h-6 sm:w-7 sm:h-7 fill-white" />
+                                ) : (
+                                    <Play className="w-6 h-6 sm:w-7 sm:h-7 fill-white ml-1" />
+                                )}
+                            </motion.button>
+                            
+                            {/* Track Info */}
+                            <div className="flex flex-col">
+                                <span className="text-white/90 text-sm font-semibold tracking-widest uppercase">
+                                    {activeAudioItem.category}
+                                </span>
+                                <span className="text-white/60 text-xs mt-0.5 font-light tracking-wide hidden sm:block">
+                                    {activeAudioItem.duration} • Cinematic Audio
+                                </span>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* View More Truly Full-Screen Image Modal (Image Only) */}
+            <AnimatePresence>
+                {viewMoreOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.5, ease: "easeInOut" }}
+                        onClick={() => setViewMoreOpen(false)}
+                        className="fixed inset-0 z-[110] bg-black flex items-center justify-center"
+                    >
+                        <img 
+                            src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=2400&auto=format&fit=crop" 
+                            alt="Peaceful Wellness View"
+                            className="absolute inset-0 w-full h-full object-cover opacity-85"
+                        />
+                        
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setViewMoreOpen(false);
+                            }}
+                            className="absolute top-8 right-8 w-12 h-12 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white/90 hover:text-white transition-colors z-20"
+                        >
+                            <X className="w-6 h-6" />
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </section>
     );
 };

@@ -213,10 +213,10 @@ export const CommonProblems = () => {
                             exit={{ scale: 0.9, opacity: 0 }}
                             transition={{ type: 'spring', damping: 30, stiffness: 400 }}
                             onClick={(e) => e.stopPropagation()}
-                           className="relative bg-white rounded-2xl max-w-6xl w-full h-[70vh] shadow-2xl overflow-hidden"
+                           className="relative bg-white rounded-2xl w-full max-w-[650px] aspect-square max-h-[90vh] shadow-2xl flex flex-col overflow-hidden mx-auto"
                         >
                             {/* Header with gradient bar */}
-                            <div className="h-3 bg-gradient-to-r from-emerald-400 to-emerald-500" />
+                            <div className="h-3 min-h-[12px] w-full shrink-0 bg-gradient-to-r from-emerald-400 to-emerald-500" />
 
                             {/* X Close Button */}
                             <motion.button
@@ -229,7 +229,7 @@ export const CommonProblems = () => {
                             </motion.button>
 
                             {/* Scrollable Content */}
-                            <div className="p-6 h-[calc(70vh-12px)] flex flex-col">
+                            <div className="p-6 h-[calc(100%-12px)] flex flex-col overflow-hidden">
                                 {/* Title Section */}
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="w-14 h-14 rounded-xl bg-emerald-50 flex items-center justify-center">
@@ -272,18 +272,18 @@ export const CommonProblems = () => {
                                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
                                         Quick Actions
                                     </p>
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="flex justify-center gap-6">
                                         {modalProblem.recommendations.map((rec: any, rIdx: number) => (
                                             <motion.button
                                                 key={rIdx}
-                                                whileHover={{ scale: 1.03 }}
-                                                whileTap={{ scale: 0.97 }}
-                                                className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-all text-left"
+                                                whileHover={{ scale: 1.08 }}
+                                                whileTap={{ scale: 0.92 }}
+                                                className="w-28 h-28 flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-all"
                                             >
-                                                <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-emerald-400 to-emerald-500 flex items-center justify-center">
-                                                    <rec.icon className="w-5 h-5 text-white" />
+                                                <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-emerald-400 to-emerald-500 flex items-center justify-center flex-shrink-0">
+                                                    <rec.icon className="w-6 h-6 text-white" />
                                                 </div>
-                                                <span className="text-sm font-medium text-gray-700">{rec.text}</span>
+                                                <span className="text-xs font-medium text-gray-700 text-center line-clamp-2">{rec.text}</span>
                                             </motion.button>
                                         ))}
                                     </div>

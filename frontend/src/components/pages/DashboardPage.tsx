@@ -76,10 +76,6 @@ export function DashboardPage() {
             {slides[currentSlide].desc}
           </p>
 
-          <button className="bg-emerald-700 hover:bg-emerald-800 text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300">
-            {slides[currentSlide].button}
-          </button>
-
           {/* Dots */}
           <div className="flex gap-3 mt-8">
             {slides.map((_, i) => (

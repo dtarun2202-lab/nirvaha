@@ -42,6 +42,36 @@ const quotes = [
         image: "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?q=80&w=600&auto=format&fit=crop",
         quote: "Happiness is not something readymade. It comes from your own actions.",
         author: "Dalai Lama"
+    },
+    {
+        id: 8,
+        image: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?q=80&w=600&auto=format&fit=crop",
+        quote: "Your calm mind is the ultimate weapon against your challenges.",
+        author: "Bryant McGill"
+    },
+    {
+        id: 9,
+        image: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?q=80&w=600&auto=format&fit=crop",
+        quote: "Healing takes courage, and we all have courage, even if we have to dig a little to find it.",
+        author: "Tori Amos"
+    },
+    {
+        id: 10,
+        image: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?q=80&w=600&auto=format&fit=crop",
+        quote: "Every moment is a fresh beginning.",
+        author: "T.S. Eliot"
+    },
+    {
+        id: 11,
+        image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=600&auto=format&fit=crop",
+        quote: "Stillness is where clarity begins.",
+        author: "Morning Meditation"
+    },
+    {
+        id: 12,
+        image: "https://images.unsplash.com/photo-1522845015757-50bce044e5da?q=80&w=600&auto=format&fit=crop",
+        quote: "Breathe deeply. Let go gently.",
+        author: "Sunset Flow"
     }
 ];
 
@@ -68,13 +98,14 @@ export const InspirationalQuotes = () => {
                         Discover wisdom to guide your journey</p>
                 </div>
 
-                {/* Horizontal Scrolling Layout */}
-                <div className="flex gap-6 overflow-x-auto no-scrollbar pb-4">
-                    {quotes.map((item) => (
-                      <div
-                        key={item.id}
-                        className="group min-w-[280px] h-[400px] cursor-pointer perspective-1000 flex-shrink-0"
-                      >
+                {/* Infinite Scrolling Layout */}
+                <div className="relative flex overflow-hidden pb-4 group/carousel w-full mask-edges">
+                    <div className="flex gap-6 animate-marquee group-hover/carousel:pause w-max">
+                        {[...quotes, ...quotes].map((item, idx) => (
+                          <div
+                            key={`${item.id}-${idx}`}
+                            className="group min-w-[280px] h-[400px] cursor-pointer perspective-1000 flex-shrink-0"
+                          >
                         <div className="relative w-full h-full duration-700 preserve-3d group-hover:my-rotate-y-180">
 
                           <div className="absolute inset-0 backface-hidden rounded-3xl overflow-hidden shadow-lg border border-gray-100 bg-white">
@@ -111,6 +142,7 @@ export const InspirationalQuotes = () => {
                       </div>
                     </div>
                     ))}
+                    </div>
                 </div>
             </div>
 
@@ -122,6 +154,21 @@ export const InspirationalQuotes = () => {
                 .backface-hidden { backface-visibility: hidden; }
                 .my-rotate-y-180 { transform: rotateY(180deg); }
                 .group:hover .group-hover\\:my-rotate-y-180 { transform: rotateY(180deg); }
+                
+                @keyframes marquee {
+                    0% { transform: translateX(0%); }
+                    100% { transform: translateX(calc(-50% - 12px)); }
+                }
+                .animate-marquee {
+                    animation: marquee 50s linear infinite;
+                }
+                .group\\/carousel:hover .group-hover\\/carousel\\:pause {
+                    animation-play-state: paused;
+                }
+                .mask-edges {
+                    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+                    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+                }
             `}</style>
         </section>
     );
