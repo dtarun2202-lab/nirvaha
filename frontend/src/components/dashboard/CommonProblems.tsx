@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Cloud, Moon, Zap, Activity, Users, Flame, X, Play, Headphones, MessageCircle, Calendar, Check, Pause, Send, Volume2, Clock } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import BACKEND_CONFIG from '../../config/backend';
 
 export const CommonProblems = () => {
     const navigate = useNavigate();
@@ -20,7 +22,7 @@ export const CommonProblems = () => {
             gradientFrom: "from-orange-500",
             gradientTo: "to-red-500",
 
-            image: "https://th.bing.com/th/id/OIP.rykyx330ZobyXNqSwR4pbAHaE8?w=256&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7",
+            image: "https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=600&h=400&fit=crop&q=80",
             description: "Feeling exhausted and overwhelmed from work or life demands?",
             solutions: ["Practice daily meditation", "Set healthy boundaries", "Take regular breaks", "Engage in sound healing"],
             recommendations: [
@@ -41,7 +43,7 @@ export const CommonProblems = () => {
             gradientFrom: "from-yellow-500",
             gradientTo: "to-orange-500",
 
-            image: "https://static.vecteezy.com/system/resources/thumbnails/026/920/888/small_2x/ai-generative-frustrated-millennial-female-worker-sitting-at-table-with-colleagues-felling-tired-of-working-quarreling-at-business-meeting-upset-stressed-young-businesswoman-suffering-from-head-ache-a-photo.jpg",
+            image: "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=600&h=400&fit=crop&q=80",
 
             description: "Chronic stress can impact your health and productivity.",
             solutions: ["Breathing exercises", "Mindfulness practices", "Regular physical activity", "Connect with AI companion"],
@@ -63,7 +65,7 @@ export const CommonProblems = () => {
             gradientFrom: "from-purple-500",
             gradientTo: "to-indigo-500",
 
-            image: "https://img.freepik.com/premium-photo/person-experiences-insomnia-bed-cannot-fall-asleep-feeling-restless-depressed-afraid_449728-5435.jpg",
+            image: "https://images.unsplash.com/photo-1518281361980-b26bfd556770?w=600&h=400&fit=crop&q=80",
 
             description: "Quality sleep is essential for recovery and mental clarity.",
             solutions: ["Sleep meditation tracks", "Calming frequencies", "Evening routines", "Binaural beats"],
@@ -85,7 +87,7 @@ export const CommonProblems = () => {
             gradientFrom: "from-blue-500",
             gradientTo: "to-cyan-500",
 
-            image: "https://jenniferpartridge.com/wp-content/uploads/2016/01/RELEASE-ANXIETY-AND-FEAR.jpg",
+            image: "https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?w=600&h=400&fit=crop&q=80",
 
             description: "Anxiety can feel overwhelming, but you can find peace.",
             solutions: ["Guided anxiety relief", "Grounding techniques", "Crystal bowl therapy", "Community support"],
@@ -107,7 +109,7 @@ export const CommonProblems = () => {
             gradientFrom: "from-pink-500",
             gradientTo: "to-rose-500",
 
-            image: "https://unicare-clinic.com/wp-content/uploads/2025/06/mood-swings-mental-health-bali.webp",
+            image: "https://images.unsplash.com/photo-1478147427282-58a87a120781?w=600&h=400&fit=crop&q=80",
 
             description: "Emotional fluctuations affect your daily life.",
             solutions: ["Chakra balancing", "Emotional regulation", "Journaling exercises", "Companion sessions"],
@@ -129,7 +131,7 @@ export const CommonProblems = () => {
             gradientFrom: "from-teal-500",
             gradientTo: "to-emerald-500",
 
-            image: "https://as1.ftcdn.net/v2/jpg/06/51/06/24/1000_F_651062454_imP7HlbynRbImuzMaCePbYzpqg31jS1Z.jpg",
+            image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&h=400&fit=crop&q=80",
 
             description: "Connection is a fundamental human need.",
             solutions: ["Join community groups", "Attend live sessions", "Connect with companions", "Group retreats"],
@@ -176,22 +178,10 @@ export const CommonProblems = () => {
                            className="w-full h-40 object-cover"
                          />
 
-                        <div className="flex items-center justify-between p-4">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-12 h-12 rounded-xl ${p.bgColor} flex items-center justify-center transition-all group-hover:scale-110`}>
-                                <p.icon className={`w-6 h-6 ${p.color}`} />
-                            </div>
-
-                            <span className="text-lg font-semibold text-gray-900 group-hover:text-[#1a5d47] transition-colors">
+                        <div className="flex items-center justify-center p-4 w-full">
+                            <span className="text-lg font-semibold text-gray-900 group-hover:text-[#1a5d47] transition-colors text-center">
                               {p.title}
                             </span>
-                          </div>
-
-                          <div className={`w-8 h-8 rounded-full ${p.bgColor} flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}>
-                            <svg className={`w-4 h-4 ${p.color}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                         </div>
                         </div>
                      </motion.div>
                     ))} 
@@ -232,10 +222,7 @@ export const CommonProblems = () => {
                             {/* Scrollable Content */}
                             <div className="p-6 h-[calc(100%-12px)] flex flex-col overflow-hidden">
                                 {/* Title Section */}
-                                <div className="flex items-center gap-4 mb-6">
-                                    <div className="w-14 h-14 rounded-xl bg-emerald-50 flex items-center justify-center">
-                                        <modalProblem.icon className="w-7 h-7 text-emerald-500" />
-                                    </div>
+                                <div className="mb-6">
                                     <div>
                                         <h3
                                            className="text-2xl font-bold text-[#0F131A] tracking-wide"
@@ -427,6 +414,25 @@ const MeditationVariant = ({ onClose, actionName }: { onClose: () => void, actio
     const [isActive, setIsActive] = useState(false);
     const [timeLeft, setTimeLeft] = useState(300);
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const { user, refreshProfile } = useAuth();
+    const [hasLogged, setHasLogged] = useState(false);
+
+    const handleStartSession = async () => {
+        if (!hasLogged && user?.id) {
+            setHasLogged(true);
+            try {
+                await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-session`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem('token')}` },
+                    body: JSON.stringify({ userId: user.id, duration: 0, title: actionName, category: "Wellness" })
+                });
+                refreshProfile();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        setIsActive(true);
+    };
 
     const getMeditationDescription = (action: string) => {
         if(action.includes("Sleep")) return "A soothing 5-minute session to quiet the mind and prepare your body for deep, restorative rest.";
@@ -456,9 +462,20 @@ const MeditationVariant = ({ onClose, actionName }: { onClose: () => void, actio
         } else {
             audioRef.current?.pause();
         }
-        if (timeLeft === 0) setIsActive(false);
+        if (timeLeft === 0 && isActive) {
+            setIsActive(false);
+            if (user?.id) {
+                fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-session`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem('token')}` },
+                    body: JSON.stringify({ userId: user.id, duration: 5, title: actionName, category: "Wellness" })
+                }).then(res => {
+                    if (res.ok) refreshProfile();
+                }).catch(console.error);
+            }
+        }
         return () => clearInterval(interval);
-    }, [isActive, timeLeft]);
+    }, [isActive, timeLeft, actionName, user?.id, refreshProfile]);
 
     const formatTime = (seconds: number) => {
         const m = Math.floor(seconds / 60);
@@ -490,7 +507,7 @@ const MeditationVariant = ({ onClose, actionName }: { onClose: () => void, actio
                 <p className="text-sm text-[#5f6f65] mb-6">{getMeditationDescription(actionName)}</p>
                 
                 {!isActive ? (
-                    <button onClick={() => setIsActive(true)} className="w-full py-3 rounded-xl bg-[#1a5d47] text-white font-semibold text-sm hover:bg-[#134233] transition-colors shadow-lg shadow-[#1a5d47]/30">
+                    <button onClick={handleStartSession} className="w-full py-3 rounded-xl bg-[#1a5d47] text-white font-semibold text-sm hover:bg-[#134233] transition-colors shadow-lg shadow-[#1a5d47]/30">
                         {timeLeft < 300 ? 'Resume Session' : 'Begin Session'}
                     </button>
                 ) : (
@@ -512,25 +529,58 @@ const HealingVariant = ({ onClose, isPlaying, setIsPlaying, actionName, audioSrc
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [progress, setProgress] = useState(0);
     const [duration, setDuration] = useState(0);
+    const { user, refreshProfile } = useAuth();
+    const [hasLogged, setHasLogged] = useState(false);
 
     useEffect(() => {
-        audioRef.current = new Audio(audioSrc);
-        audioRef.current.addEventListener('loadedmetadata', () => {
-            setDuration(audioRef.current?.duration || 0);
-        });
-        audioRef.current.addEventListener('timeupdate', () => {
-            setProgress(audioRef.current?.currentTime || 0);
-        });
-        audioRef.current.addEventListener('ended', () => {
-            setIsPlaying(false);
+        if (isPlaying && !hasLogged && user?.id) {
+            setHasLogged(true);
+            fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-sound-session`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem('token')}` },
+                body: JSON.stringify({ userId: user.id, duration: 0, title: actionName, category: "Wellness" })
+            }).then(res => {
+                if (res.ok) refreshProfile();
+            }).catch(console.error);
+        }
+    }, [isPlaying, hasLogged, user?.id, actionName, refreshProfile]);
+
+    const latestData = useRef({ user, actionName, refreshProfile, setIsPlaying });
+    useEffect(() => {
+        latestData.current = { user, actionName, refreshProfile, setIsPlaying };
+    }, [user, actionName, refreshProfile, setIsPlaying]);
+
+    useEffect(() => {
+        const audio = new Audio(audioSrc);
+        audioRef.current = audio;
+
+        const handleMetadata = () => setDuration(audio.duration || 0);
+        const handleTimeUpdate = () => setProgress(audio.currentTime || 0);
+        const handleEnded = () => {
+            const { user: u, actionName: a, refreshProfile: rp, setIsPlaying: sp } = latestData.current;
+            sp(false);
             setProgress(0);
-        });
+            if (u?.id) {
+                fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-sound-session`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem('token')}` },
+                    body: JSON.stringify({ userId: u.id, duration: Math.max(1, Math.round(audio.duration || 0) / 60), title: a, category: "Wellness" })
+                }).then(res => {
+                    if (res.ok) rp();
+                }).catch(console.error);
+            }
+        };
+
+        audio.addEventListener('loadedmetadata', handleMetadata);
+        audio.addEventListener('timeupdate', handleTimeUpdate);
+        audio.addEventListener('ended', handleEnded);
         
         return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.src = "";
-            }
+            audio.removeEventListener('loadedmetadata', handleMetadata);
+            audio.removeEventListener('timeupdate', handleTimeUpdate);
+            audio.removeEventListener('ended', handleEnded);
+            audio.pause();
+            audio.src = "";
         };
     }, [audioSrc]);
 

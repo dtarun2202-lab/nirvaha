@@ -5,65 +5,53 @@ import BACKEND_CONFIG from '@/config/backend';
 
 interface Story {
   _id: string;
+  category: string;
   title: string;
   description: string;
-  quote: string;
-  image: string;
-  category: string;
-  userName: string;
+  authorName: string;
+  authorRole: string;
   location: string;
-  rating: number;
-  badge: string;
-  bgColor: string;
-  textColor: string;
-  type: 'featured' | 'small';
+  image: string;
+  featured: boolean;
+  theme: 'light' | 'dark';
 }
 
 const FALLBACK_STORIES: Story[] = [
   {
     _id: "fallback-1",
     title: "From Burnout to Balance in 21 Days",
-    description: "I was completely burnt out from working 80-hour weeks in the tech industry. I couldn't sleep, my anxiety was through the roof, and I had lost all motivation. Discovering Nirvaha's guided meditation protocols was a turning point. It didn't just help me sleep; it helped me rediscover the joy in my work and life. The structured 21-day program completely rewired my stress response. Now, I feel more resilient, focused, and genuinely happy.",
-    quote: "The guided meditation protocols didn't just help me sleep; they helped me rediscover the joy in my work.",
+    description: "The guided meditation protocols didn't just help me sleep; they helped me rediscover the joy in my work.",
     image: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?q=80&w=1200&auto=format&fit=crop",
     category: "Featured",
-    userName: "Rohit K.",
-    location: "Software Engineer, Hyderabad",
-    rating: 5,
-    badge: "Featured Transformation",
-    bgColor: "bg-white",
-    textColor: "text-[#1a5d47]",
-    type: "featured",
+    authorName: "Rohit K.",
+    authorRole: "Software Engineer",
+    location: "Hyderabad",
+    featured: true,
+    theme: "light",
   },
   {
     _id: "fallback-2",
     title: "Overcoming Anxiety Through Sound",
-    description: "Anxiety had become my daily companion. I tried various therapies, but nothing seemed to provide lasting relief. Then I started using Nirvaha's sound healing modules. The binaural beats combined with ancient chanting created a sanctuary of peace I didn't know I needed. It's now an essential part of my morning routine, allowing me to start my day with clarity and calmness instead of dread.",
-    quote: "The binaural beats and ancient chanting modules provided a sanctuary I didn't know I needed.",
+    description: "The binaural beats and ancient chanting modules provided a sanctuary I didn't know I needed.",
     image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1200&auto=format&fit=crop",
     category: "Personal Growth",
-    userName: "Marcus J.",
-    location: "Teacher, London",
-    rating: 5,
-    badge: "",
-    bgColor: "bg-white",
-    textColor: "text-[#1a5d47]",
-    type: "small",
+    authorName: "Marcus J.",
+    authorRole: "Teacher",
+    location: "London",
+    featured: false,
+    theme: "light",
   },
   {
     _id: "fallback-3",
     title: "Chronic Pain Relief via Ayurvedic Wisdom",
-    description: "Living with chronic back pain for years was draining both physically and emotionally. I was skeptical about trying yet another program, but the combination of targeted yoga nidra and specific herbal guidance on Nirvaha caught my attention. Slowly, over three months, I began to notice a profound shift. The pain didn't just lessen; my entire body felt more aligned and energetic. It's been a true reversal of years of suffering.",
-    quote: "Reversing years of back pain through consistent yoga nidra and herbal guidance.",
+    description: "Reversing years of back pain through consistent yoga nidra and herbal guidance.",
     image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1200&auto=format&fit=crop",
     category: "Health Mastery",
-    userName: "Sarah P.",
-    location: "Architect, New York",
-    rating: 5,
-    badge: "",
-    bgColor: "bg-[#1a5d47]",
-    textColor: "text-white",
-    type: "small",
+    authorName: "Sarah P.",
+    authorRole: "Architect",
+    location: "New York",
+    featured: false,
+    theme: "dark",
   }
 ];
 
@@ -160,9 +148,9 @@ export default function SuccessStoryDetail() {
 
         <div className="absolute bottom-12 left-0 w-full px-6 md:px-16 z-10">
           <div className="max-w-5xl mx-auto">
-            {story.badge && (
+            {story.featured && (
               <span className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-[0.2em] uppercase border border-white/30 mb-6">
-                {story.badge}
+                FEATURED TRANSFORMATION
               </span>
             )}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-lg" style={{ fontFamily: "'Cinzel', serif" }}>
@@ -170,7 +158,7 @@ export default function SuccessStoryDetail() {
             </h1>
             <div className="flex flex-wrap items-center gap-6 text-white/90">
               <div className="flex gap-1">
-                {[...Array(story.rating || 5)].map((_, i) => (
+                {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400 drop-shadow-md" />
                 ))}
               </div>
@@ -193,7 +181,7 @@ export default function SuccessStoryDetail() {
               <div className="relative">
                 <Quote className="absolute -top-8 -left-8 w-24 h-24 text-emerald-50 opacity-50 -z-10" />
                 <h3 className="text-2xl md:text-3xl font-medium text-[#1a5d47] leading-relaxed italic" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                  "{story.quote}"
+                  "{story.description}"
                 </h3>
               </div>
 
@@ -210,14 +198,14 @@ export default function SuccessStoryDetail() {
               <div className="bg-[#EEF7F1] rounded-3xl p-8 border border-emerald-100 sticky top-8">
                 <div className="flex flex-col items-center text-center">
                   <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#1a5d47] to-emerald-600 flex items-center justify-center text-white text-3xl font-bold shadow-xl border-4 border-white mb-6">
-                    {story.userName.charAt(0)}
+                    {story.authorName ? story.authorName.charAt(0).toUpperCase() : 'U'}
                   </div>
-                  <h4 className="text-2xl font-bold text-[#0F131A] mb-2">{story.userName}</h4>
+                  <h4 className="text-2xl font-bold text-[#0F131A] mb-2">{story.authorName}</h4>
                   
-                  {story.location && (
+                  {(story.authorRole || story.location) && (
                     <div className="flex items-center justify-center gap-2 text-gray-600 mb-6 bg-white px-4 py-2 rounded-full shadow-sm text-sm font-medium w-full">
                       <MapPin className="w-4 h-4 text-[#1a5d47]" />
-                      <span>{story.location}</span>
+                      <span>{story.authorRole} {story.authorRole && story.location ? ', ' : ''} {story.location}</span>
                     </div>
                   )}
 

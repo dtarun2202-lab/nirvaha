@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 
 const successStorySchema = new mongoose.Schema(
   {
+    category: {
+      type: String,
+      required: true
+    },
     title: {
       type: String,
       required: true,
@@ -9,54 +13,32 @@ const successStorySchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      default: ''
+      required: true
     },
-    quote: {
+    authorName: {
       type: String,
       required: true
+    },
+    authorRole: {
+      type: String,
+      default: ''
+    },
+    location: {
+      type: String,
+      default: ''
     },
     image: {
       type: String,
       required: true
     },
-    imageName: {
-      type: String,
-      default: ''
+    featured: {
+      type: Boolean,
+      default: false
     },
-    category: {
+    theme: {
       type: String,
-      required: true
-    },
-    userName: {
-      type: String,
-      required: true
-    },
-    location: {
-      type: String,
-      required: true
-    },
-    rating: {
-      type: Number,
-      min: 1,
-      max: 5,
-      default: 5
-    },
-    badge: {
-      type: String,
-      default: 'TRANSFORMATION'
-    },
-    bgColor: {
-      type: String,
-      default: 'bg-white'
-    },
-    textColor: {
-      type: String,
-      default: 'text-[#1a5d47]'
-    },
-    type: {
-      type: String,
-      enum: ['featured', 'small'],
-      default: 'featured'
+      enum: ['light', 'dark'],
+      default: 'light'
     },
     order: {
       type: Number,

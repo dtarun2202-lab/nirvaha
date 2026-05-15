@@ -3,75 +3,73 @@ import React from 'react';
 const quotes = [
     {
         id: 1,
-        image: "https://images.unsplash.com/photo-1545389336-cf090694435e?q=80&w=600&auto=format&fit=crop",
-        quote: "Peace comes from within. Do not seek it without.",
-        author: "Buddha"
+        image: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop",
+        quote: "Quiet the mind, and the soul will speak.",
+        author: "Ma Jaya Sati Bhagavati",
+        cta: "Breathe In Peace"
     },
     {
         id: 2,
-        image: "https://images.unsplash.com/photo-1519834785169-98be25ec3f84?q=80&w=600&auto=format&fit=crop",
-        quote: "The only journey is the one within.",
-        author: "Rainer Maria Rilke"
+        image: "https://images.unsplash.com/photo-1508672019048-805c876b67e2?q=80&w=600&auto=format&fit=crop",
+        quote: "Balance is not something you find, it's something you create.",
+        author: "Jana Kingsford",
+        cta: "Find Balance"
     },
     {
         id: 3,
-        image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=600&auto=format&fit=crop",
-        quote: "Quiet the mind, and the soul will speak.",
-        author: "Ma Jaya Sati Bhagavati"
+        image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=600&auto=format&fit=crop",
+        quote: "Look deep into nature, and then you will understand everything better.",
+        author: "Albert Einstein",
+        cta: "Connect To Nature"
     },
     {
         id: 4,
-        image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
-        quote: "The soul always knows what to do to heal itself. The challenge is to silence the mind.",
-        author: "Caroline Myss"
+        image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=600&auto=format&fit=crop",
+        quote: "Stillness is where clarity begins.",
+        author: "Morning Meditation",
+        cta: "Embrace Stillness"
     },
     {
         id: 5,
-        image: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?q=80&w=600&auto=format&fit=crop",
-        quote: "Look deep into nature, and then you will understand everything better.",
-        author: "Albert Einstein"
+        image: "https://images.unsplash.com/photo-1475503572774-15a45e5d60b9?q=80&w=600&auto=format&fit=crop",
+        quote: "Peace comes from within. Do not seek it without.",
+        author: "Buddha",
+        cta: "Look Within"
     },
     {
         id: 6,
-        image: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=600&auto=format&fit=crop",
-        quote: "The best way to find yourself is to lose yourself in the service of others.",
-        author: "Mahatma Gandhi"
+        image: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?q=80&w=600&auto=format&fit=crop",
+        quote: "The only journey is the one within.",
+        author: "Rainer Maria Rilke",
+        cta: "Reflect Deeply"
     },
     {
         id: 7,
-        image: "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?q=80&w=600&auto=format&fit=crop",
-        quote: "Happiness is not something readymade. It comes from your own actions.",
-        author: "Dalai Lama"
+        image: "https://images.unsplash.com/photo-1512438248247-f0f2a5a8b7f0?q=80&w=600&auto=format&fit=crop",
+        quote: "Healing takes courage, and we all have courage, even if we have to dig a little to find it.",
+        author: "Tori Amos",
+        cta: "Nurture Yourself"
     },
     {
         id: 8,
-        image: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?q=80&w=600&auto=format&fit=crop",
+        image: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?q=80&w=600&auto=format&fit=crop",
         quote: "Your calm mind is the ultimate weapon against your challenges.",
-        author: "Bryant McGill"
+        author: "Bryant McGill",
+        cta: "Cultivate Calm"
     },
     {
         id: 9,
-        image: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?q=80&w=600&auto=format&fit=crop",
-        quote: "Healing takes courage, and we all have courage, even if we have to dig a little to find it.",
-        author: "Tori Amos"
+        image: "https://images.unsplash.com/photo-1490682143684-14369e18dce8?q=80&w=600&auto=format&fit=crop",
+        quote: "Every moment is a fresh beginning.",
+        author: "T.S. Eliot",
+        cta: "Begin Again"
     },
     {
         id: 10,
-        image: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?q=80&w=600&auto=format&fit=crop",
-        quote: "Every moment is a fresh beginning.",
-        author: "T.S. Eliot"
-    },
-    {
-        id: 11,
-        image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=600&auto=format&fit=crop",
-        quote: "Stillness is where clarity begins.",
-        author: "Morning Meditation"
-    },
-    {
-        id: 12,
-        image: "https://images.unsplash.com/photo-1522845015757-50bce044e5da?q=80&w=600&auto=format&fit=crop",
-        quote: "Breathe deeply. Let go gently.",
-        author: "Sunset Flow"
+        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=600&auto=format&fit=crop",
+        quote: "The soul always knows what to do to heal itself. The challenge is to silence the mind.",
+        author: "Caroline Myss",
+        cta: "Listen Closely"
     }
 ];
 
@@ -97,9 +95,10 @@ export const InspirationalQuotes = () => {
                     >
                         Discover wisdom to guide your journey</p>
                 </div>
+            </div>
 
-                {/* Infinite Scrolling Layout */}
-                <div className="relative flex overflow-hidden pb-4 group/carousel w-full mask-edges">
+            {/* Infinite Scrolling Layout */}
+            <div className="relative flex overflow-hidden pb-4 group/carousel w-full">
                     <div className="flex gap-6 animate-marquee group-hover/carousel:pause w-max">
                         {[...quotes, ...quotes].map((item, idx) => (
                           <div
@@ -119,7 +118,7 @@ export const InspirationalQuotes = () => {
 
                             <div className="absolute bottom-6 left-0 right-0 text-center">
                               <span className="inline-block px-5 py-2 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-black tracking-[0.2em] text-white uppercase border border-white/20">
-                                REVEAL WISDOM
+                                {item.cta}
                               </span>
                           </div>
                          </div>
@@ -144,7 +143,6 @@ export const InspirationalQuotes = () => {
                     ))}
                     </div>
                 </div>
-            </div>
 
             <style>{`
                 .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -164,10 +162,6 @@ export const InspirationalQuotes = () => {
                 }
                 .group\\/carousel:hover .group-hover\\/carousel\\:pause {
                     animation-play-state: paused;
-                }
-                .mask-edges {
-                    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-                    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
                 }
             `}</style>
         </section>
