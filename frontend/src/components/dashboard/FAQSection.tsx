@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Minus, HelpCircle } from 'lucide-react';
@@ -6,45 +7,40 @@ export const FAQSection = () => {
     const faqs = [
         {
             q: "Is Nirvaha suitable for beginners?",
-            a: "Absolutely. Our platform is designed for all levels, offering guided paths from foundational mindfulness to advanced spiritual practices.",
-            image: "https://images.squarespace-cdn.com/content/v1/5fc7c9e713755061c74e8b28/1612789111040-E2XL7IK7US1Y68ZQQNSG/woman-sitting-yoga-pose-beach+(1).jpg"
+            a: "Yes. Our paths are gentle and designed to welcome you exactly as you are, regardless of prior experience.",
+            image: "/images/faq_beginners.png"
         },
         {
-            q: "How does the AI Companion work?",
-            a: "Our AI guide uses empathetic language models trained on therapeutic principles to offer 24/7 support, reflection, and resource recommendations.",
-            image: "https://static.vecteezy.com/system/resources/thumbnails/025/718/298/small_2x/ai-robot-artificial-paper-digital-laptop-document-office-technology-hand-generative-ai-photo.jpg"
+            q: "How does the AI Reflection Companion work?",
+            a: "It acts as a secure, non-judgmental space. It listens to your thoughts and softly guides you toward emotional clarity.",
+            image: "/images/faq_ai_companion.png"
         },
         {
-            q: "Can I access offline?",
-            a: "Yes, Premium members can download meditations and sleep stories for offline use. Perfect for travel or deep focus sessions.",
-            image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop"
+            q: "Is Nirvaha a therapy platform?",
+            a: "No. We are a supportive wellness space meant for mindfulness and emotional reflection, not a replacement for clinical therapy.",
+            image: "/images/faq_therapy_ancient.png"
         },
         {
-            q: "What is your approach to privacy?",
-            a: "Your emotional data is encrypted and never sold. We adhere to strict HIPAA-compliant standards for data protection and security.",
-            image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=800&auto=format&fit=crop"
+            q: "Can I use Nirvaha during stressful moments?",
+            a: "Absolutely. We offer immediate grounding techniques and emergency calm modules to help you navigate sudden overwhelm.",
+            image: "https://images.unsplash.com/photo-1493666438817-866a91353ca9?q=80&w=800&auto=format&fit=crop"
         },
         {
-            q: "Which practices are included?",
-            a: "We offer a diverse range of practices including Pranayama, Yoga Nidra, Sound Healing, Vipassana, and modern CBT-based mindfulness exercises.",
-            image: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=800&auto=format&fit=crop"
+            q: "Are conversations private?",
+            a: "Yes. Your emotional space is entirely your own. All reflections are strictly confidential and securely encrypted.",
+            image: "/images/faq_privacy.png"
         },
         {
-            q: "Can I use Nirvaha with my team?",
-            a: "Yes, we offer specialized Corporate Wellness plans that include team-building 'Spirit Duels' and collective meditation rooms.",
-            image: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop"
-        },
-        {
-            q: "Is there a free version available?",
-            a: "Yes, we offer a 'Foundation' tier with access to daily quotes, basic breathing exercises, and intro-level meditation modules.",
-            image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop"
+            q: "How long are wellness sessions?",
+            a: "Sessions adapt to your needs. Choose from a quick 3-minute breathwork reset to a deep 45-minute guided release.",
+            image: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=800&auto=format&fit=crop"
         }
     ];
 
     const [openIndex, setOpenIndex] = useState<number | null>(0);
 
     return (
-       <section className="py-8 bg-[#EEF7F1] overflow-hidden">
+        <section className="py-8 bg-[#EEF7F1] overflow-hidden">
             <div className="max-w-[1440px] mx-auto px-6 md:px-8">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
@@ -62,17 +58,6 @@ export const FAQSection = () => {
                             Everything you need to know about starting your journey.
                         </p>
                     </div>
-                    <button className="group flex items-center gap-2 text-[#1a5d47] font-semibold hover:text-[#113d2f] transition-all duration-300 pb-1">
-                        <span className="border-b-2 border-transparent group-hover:border-[#1a5d47] transition-all duration-300">View More</span>
-                        <svg
-                            className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                    </button>
                 </div>
 
                 <div className="grid lg:grid-cols-12 gap-12 items-start">

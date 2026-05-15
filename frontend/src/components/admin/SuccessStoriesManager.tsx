@@ -5,35 +5,28 @@ import BACKEND_CONFIG from '@/config/backend';
 
 interface Story {
   _id?: string;
+  category: string;
   title: string;
   description: string;
-  quote: string;
-  image: string;
-  imageName?: string;
-  category: string;
-  userName: string;
+  authorName: string;
+  authorRole: string;
   location: string;
-  rating: number;
-  badge: string;
-  bgColor: string;
-  textColor: string;
-  type: 'featured' | 'small';
+  image: string;
+  featured: boolean;
+  theme: 'light' | 'dark';
   order?: number;
 }
 
 const DEFAULT_STORY: Story = {
-  title: 'Enter Story Title',
-  description: 'Enter description or transformation details',
-  quote: 'Enter inspirational quote',
-  image: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?q=80&w=1200&auto=format&fit=crop',
   category: 'Personal Growth',
-  userName: 'User Name',
-  location: 'City, Role',
-  rating: 5,
-  badge: 'TRANSFORMATION',
-  bgColor: 'bg-white',
-  textColor: 'text-[#1a5d47]',
-  type: 'featured'
+  title: '',
+  description: '',
+  authorName: '',
+  authorRole: '',
+  location: '',
+  image: '',
+  featured: false,
+  theme: 'light'
 };
 
 export function SuccessStoriesManager() {
@@ -44,6 +37,8 @@ export function SuccessStoriesManager() {
   const [previewImage, setPreviewImage] = useState<string>('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [formError, setFormError] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     fetchStories();
@@ -52,10 +47,7 @@ export function SuccessStoriesManager() {
   const fetchStories = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/success-stories`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/success-stories`);
       
       if (!response.ok) {
         setStories([]);
@@ -74,8 +66,9 @@ export function SuccessStoriesManager() {
 
   const handleAddStory = () => {
     setEditingStory({ ...DEFAULT_STORY });
-    setPreviewImage(DEFAULT_STORY.image);
+    setPreviewImage('');
     setImageFile(null);
+    setFormError('');
     setShowModal(true);
   };
 
@@ -83,6 +76,7 @@ export function SuccessStoriesManager() {
     setEditingStory(story);
     setPreviewImage(story.image);
     setImageFile(null);
+    setFormError('');
     setShowModal(true);
   };
 
@@ -106,9 +100,6 @@ export function SuccessStoriesManager() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewImage(reader.result as string);
-        if (editingStory) {
-          setEditingStory({ ...editingStory, image: reader.result as string, imageName: file.name });
-        }
       };
       reader.readAsDataURL(file);
     }
@@ -117,28 +108,73 @@ export function SuccessStoriesManager() {
   const handleSaveStory = async () => {
     if (!editingStory) return;
     
+    // Validation
+    if (!editingStory.title.trim() || !editingStory.description.trim() || !editingStory.authorName.trim()) {
+      setFormError('Title, Description, and Author Name are required fields.');
+      return;
+    }
+
+    if (!editingStory.image && !imageFile) {
+        setFormError('An image must be uploaded.');
+        return;
+    }
+    
+    setFormError('');
+    setIsSaving(true);
+
     try {
-      const method = editingStory._id ? 'PUT' : 'POST';
-      const url = editingStory._id ? `${BACKEND_CONFIG.API_BASE_URL}/api/success-stories/${editingStory._id}` : `${BACKEND_CONFIG.API_BASE_URL}/api/success-stories`;
+      let finalImageUrl = editingStory.image;
+
+      // 1. Upload the image file first if a new one was selected
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('file', imageFile);
+
+        const uploadRes = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/upload`, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error('Failed to upload image file');
+        }
+
+        const uploadData = await uploadRes.json();
+        finalImageUrl = `${BACKEND_CONFIG.API_BASE_URL}${uploadData.url}`;
+      }
+
+      // 2. Save the story data
+      const storyToSave = {
+        ...editingStory,
+        image: finalImageUrl
+      };
+
+      const method = storyToSave._id ? 'PUT' : 'POST';
+      const url = storyToSave._id ? `${BACKEND_CONFIG.API_BASE_URL}/api/success-stories/${storyToSave._id}` : `${BACKEND_CONFIG.API_BASE_URL}/api/success-stories`;
       
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingStory)
+        body: JSON.stringify(storyToSave)
       });
       
       if (response.ok) {
         fetchStories();
         setShowModal(false);
         setEditingStory(null);
+        setImageFile(null);
         setSaveMessage({ type: 'success', text: 'Story saved successfully' });
         setTimeout(() => setSaveMessage(null), 3000);
       } else {
-        setSaveMessage({ type: 'error', text: 'Failed to save story' });
+        const errorData = await response.json().catch(() => null);
+        setSaveMessage({ type: 'error', text: errorData?.message || 'Failed to save story' });
+        setFormError(errorData?.message || 'Failed to save story to database.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving story:', error);
-      setSaveMessage({ type: 'error', text: 'Error saving story' });
+      setFormError(error.message || 'Error processing request');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -187,7 +223,6 @@ export function SuccessStoriesManager() {
   return (
     <div className="min-h-screen bg-[#EEF7F1] p-6 md:p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-[#0F131A]" style={{ fontFamily: "'Cinzel', serif" }}>
@@ -207,7 +242,6 @@ export function SuccessStoriesManager() {
           </motion.button>
         </div>
 
-        {/* Status Message */}
         <AnimatePresence>
           {saveMessage && (
             <motion.div
@@ -225,7 +259,6 @@ export function SuccessStoriesManager() {
           )}
         </AnimatePresence>
 
-        {/* Stories Grid */}
         {stories.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -250,7 +283,6 @@ export function SuccessStoriesManager() {
                 className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all"
               >
                 <div className="flex flex-col md:flex-row">
-                  {/* Image */}
                   <div className="w-full md:w-40 h-40 flex-shrink-0 overflow-hidden bg-gray-200">
                     <img
                       src={story.image}
@@ -258,25 +290,24 @@ export function SuccessStoriesManager() {
                       className="w-full h-full object-cover"
                     />
                   </div>
-
-                  {/* Content */}
                   <div className="flex-1 p-6 flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="text-xs font-bold text-[#1a5d47] uppercase tracking-wider">
-                          {story.type === 'featured' ? '⭐ Featured' : 'Story'}
-                        </span>
+                        {story.featured && (
+                            <span className="text-xs font-bold text-yellow-600 bg-yellow-100 px-2 py-1 rounded uppercase tracking-wider">
+                            ⭐ Featured
+                            </span>
+                        )}
+                        <span className="text-xs font-bold text-[#1a5d47] uppercase tracking-wider">{story.theme}</span>
                         <span className="text-xs text-gray-500">{story.category}</span>
                       </div>
                       <h3 className="text-lg font-bold text-[#0F131A] mb-1">{story.title}</h3>
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-1">{story.quote}</p>
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-1">{story.description}</p>
                       <p className="text-sm font-semibold text-[#1a5d47]">
-                        {story.userName} • {story.location}
+                        {story.authorName} {story.authorRole && `• ${story.authorRole}`} {story.location && `• ${story.location}`}
                       </p>
                     </div>
                   </div>
-
-                  {/* Actions */}
                   <div className="flex flex-col gap-2 p-4 border-t md:border-t-0 md:border-l border-gray-200">
                     <motion.button
                       whileHover={{ scale: 1.1 }}
@@ -332,7 +363,6 @@ export function SuccessStoriesManager() {
         )}
       </div>
 
-      {/* Edit Modal */}
       <AnimatePresence>
         {showModal && editingStory && (
           <motion.div
@@ -349,8 +379,7 @@ export function SuccessStoriesManager() {
               onClick={(e) => e.stopPropagation()}
               className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
             >
-              {/* Modal Header */}
-              <div className="sticky top-0 bg-gradient-to-r from-[#1a5d47] to-[#2a7d67] text-white p-6 flex justify-between items-center">
+              <div className="sticky top-0 bg-gradient-to-r from-[#1a5d47] to-[#2a7d67] text-white p-6 flex justify-between items-center z-10">
                 <h2 className="text-2xl font-bold">
                   {editingStory._id ? 'Edit Story' : 'Add New Story'}
                 </h2>
@@ -362,18 +391,34 @@ export function SuccessStoriesManager() {
                 </button>
               </div>
 
-              {/* Modal Content */}
               <div className="p-6 space-y-6">
-                {/* Image Upload */}
+                {formError && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
+                        {formError}
+                    </div>
+                )}
+
+                {/* Media Section */}
                 <div>
-                  <label className="block text-sm font-bold text-[#0F131A] mb-3">Story Image</label>
+                  <h3 className="text-lg font-bold border-b pb-2 mb-4">Media</h3>
+                  <label className="block text-sm font-bold text-[#0F131A] mb-3">Upload Image *</label>
                   <div className="flex gap-4">
                     <div className="flex-1">
-                      <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-[#1a5d47] rounded-lg cursor-pointer hover:bg-[#1a5d47]/5 transition-all">
-                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <Upload className="w-6 h-6 text-[#1a5d47] mb-2" />
-                          <span className="text-sm text-gray-600">Click to upload image</span>
-                        </div>
+                      <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-[#1a5d47] rounded-lg cursor-pointer hover:bg-[#1a5d47]/5 transition-all overflow-hidden relative group">
+                        {previewImage ? (
+                          <>
+                            <img src={previewImage} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Upload className="w-6 h-6 text-white mb-2" />
+                              <span className="text-sm text-white font-medium">Click to change image</span>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <Upload className="w-6 h-6 text-[#1a5d47] mb-2" />
+                            <span className="text-sm text-gray-600">Click to upload image</span>
+                          </div>
+                        )}
                         <input
                           type="file"
                           accept="image/*"
@@ -382,147 +427,130 @@ export function SuccessStoriesManager() {
                         />
                       </label>
                     </div>
-                    {previewImage && (
-                      <div className="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0">
-                        <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
-                      </div>
-                    )}
                   </div>
                 </div>
 
-                {/* Form Grid */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-[#0F131A] mb-2">Story Title *</label>
-                    <input
-                      type="text"
-                      value={editingStory.title}
-                      onChange={(e) => setEditingStory({ ...editingStory, title: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47] focus:ring-1 focus:ring-[#1a5d47]"
-                      placeholder="Enter story title"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-[#0F131A] mb-2">Category *</label>
-                    <input
-                      type="text"
-                      value={editingStory.category}
-                      onChange={(e) => setEditingStory({ ...editingStory, category: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47] focus:ring-1 focus:ring-[#1a5d47]"
-                      placeholder="e.g., Personal Growth"
-                    />
-                  </div>
-                </div>
-
+                {/* Story Details */}
                 <div>
-                  <label className="block text-sm font-bold text-[#0F131A] mb-2">Testimonial/Quote *</label>
-                  <textarea
-                    value={editingStory.quote}
-                    onChange={(e) => setEditingStory({ ...editingStory, quote: e.target.value })}
-                    rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47] focus:ring-1 focus:ring-[#1a5d47]"
-                    placeholder="Enter the testimonial or quote"
-                  />
+                    <h3 className="text-lg font-bold border-b pb-2 mb-4">Story Details</h3>
+                    <div className="grid md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label className="block text-sm font-bold text-[#0F131A] mb-2">Category</label>
+                        <input
+                        type="text"
+                        value={editingStory.category}
+                        onChange={(e) => setEditingStory({ ...editingStory, category: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47]"
+                        placeholder="e.g., Personal Growth"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-[#0F131A] mb-2">Title *</label>
+                        <input
+                        type="text"
+                        value={editingStory.title}
+                        onChange={(e) => setEditingStory({ ...editingStory, title: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47]"
+                        placeholder="Enter story title"
+                        />
+                    </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-[#0F131A] mb-2">Description / Quote *</label>
+                        <textarea
+                            value={editingStory.description}
+                            onChange={(e) => setEditingStory({ ...editingStory, description: e.target.value })}
+                            rows={3}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47]"
+                            placeholder="Enter the testimonial, quote, or full description"
+                        />
+                    </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-[#0F131A] mb-2">User Name *</label>
-                    <input
-                      type="text"
-                      value={editingStory.userName}
-                      onChange={(e) => setEditingStory({ ...editingStory, userName: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47] focus:ring-1 focus:ring-[#1a5d47]"
-                      placeholder="User's name"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-[#0F131A] mb-2">Role/Location *</label>
-                    <input
-                      type="text"
-                      value={editingStory.location}
-                      onChange={(e) => setEditingStory({ ...editingStory, location: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47] focus:ring-1 focus:ring-[#1a5d47]"
-                      placeholder="e.g., Software Engineer, Bangalore"
-                    />
-                  </div>
+                {/* Author Details */}
+                <div>
+                    <h3 className="text-lg font-bold border-b pb-2 mb-4">Author Details</h3>
+                    <div className="grid md:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-sm font-bold text-[#0F131A] mb-2">Author Name *</label>
+                        <input
+                        type="text"
+                        value={editingStory.authorName}
+                        onChange={(e) => setEditingStory({ ...editingStory, authorName: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47]"
+                        placeholder="User's name"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-[#0F131A] mb-2">Author Role</label>
+                        <input
+                        type="text"
+                        value={editingStory.authorRole}
+                        onChange={(e) => setEditingStory({ ...editingStory, authorRole: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47]"
+                        placeholder="e.g., Software Engineer"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-[#0F131A] mb-2">Location</label>
+                        <input
+                        type="text"
+                        value={editingStory.location}
+                        onChange={(e) => setEditingStory({ ...editingStory, location: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47]"
+                        placeholder="e.g., Bangalore"
+                        />
+                    </div>
+                    </div>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-[#0F131A] mb-2">Rating (Stars)</label>
-                    <select
-                      value={editingStory.rating}
-                      onChange={(e) => setEditingStory({ ...editingStory, rating: parseInt(e.target.value) })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47] focus:ring-1 focus:ring-[#1a5d47]"
-                    >
-                      {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n} ⭐</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-[#0F131A] mb-2">Type</label>
-                    <select
-                      value={editingStory.type}
-                      onChange={(e) => setEditingStory({ ...editingStory, type: e.target.value as 'featured' | 'small' })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47] focus:ring-1 focus:ring-[#1a5d47]"
-                    >
-                      <option value="featured">Featured (Large)</option>
-                      <option value="small">Small (Card)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-[#0F131A] mb-2">Badge/Tag</label>
-                    <input
-                      type="text"
-                      value={editingStory.badge}
-                      onChange={(e) => setEditingStory({ ...editingStory, badge: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47] focus:ring-1 focus:ring-[#1a5d47]"
-                      placeholder="e.g., TRANSFORMATION"
-                    />
-                  </div>
+                {/* Display Options */}
+                <div>
+                    <h3 className="text-lg font-bold border-b pb-2 mb-4">Display Options</h3>
+                    <div className="flex flex-col gap-4">
+                        <label className="flex items-center gap-3 cursor-pointer p-4 border rounded-lg hover:bg-gray-50">
+                            <input 
+                                type="checkbox" 
+                                checked={editingStory.featured}
+                                onChange={(e) => setEditingStory({ ...editingStory, featured: e.target.checked })}
+                                className="w-5 h-5 text-[#1a5d47] rounded focus:ring-[#1a5d47]"
+                            />
+                            <div>
+                                <p className="font-bold text-[#0F131A]">Featured Story</p>
+                                <p className="text-sm text-gray-500">If checked, this story will render in the large left card on the dashboard.</p>
+                            </div>
+                        </label>
+                        
+                        <div>
+                            <label className="block text-sm font-bold text-[#0F131A] mb-2">Card Theme</label>
+                            <select
+                                value={editingStory.theme}
+                                onChange={(e) => setEditingStory({ ...editingStory, theme: e.target.value as 'light' | 'dark' })}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47]"
+                            >
+                                <option value="light">Light Theme (White Background)</option>
+                                <option value="dark">Dark Theme (Teal Background)</option>
+                            </select>
+                            <p className="text-xs text-gray-500 mt-1">Applies only to non-featured (small) cards.</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-[#0F131A] mb-2">Background Color (Tailwind)</label>
-                    <select
-                      value={editingStory.bgColor}
-                      onChange={(e) => setEditingStory({ ...editingStory, bgColor: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47] focus:ring-1 focus:ring-[#1a5d47]"
-                    >
-                      <option value="bg-white">White</option>
-                      <option value="bg-[#1a5d47]">Teal (Dark)</option>
-                      <option value="bg-emerald-50">Light Teal</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-[#0F131A] mb-2">Text Color (Tailwind)</label>
-                    <select
-                      value={editingStory.textColor}
-                      onChange={(e) => setEditingStory({ ...editingStory, textColor: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a5d47] focus:ring-1 focus:ring-[#1a5d47]"
-                    >
-                      <option value="text-[#0F131A]">Dark</option>
-                      <option value="text-[#1a5d47]">Teal</option>
-                      <option value="text-white">White</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
                 <div className="flex gap-4 pt-6 border-t">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleSaveStory}
-                    className="flex-1 flex items-center justify-center gap-2 bg-[#1a5d47] hover:bg-[#113d2f] text-white py-3 rounded-lg font-semibold transition-all"
+                    disabled={isSaving}
+                    className={`flex-1 flex items-center justify-center gap-2 ${isSaving ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#1a5d47] hover:bg-[#113d2f]'} text-white py-3 rounded-lg font-semibold transition-all`}
                   >
-                    <Save className="w-5 h-5" /> Save Story
+                    <Save className="w-5 h-5" /> {isSaving ? 'Saving...' : 'Save Story'}
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setShowModal(false)}
+                    disabled={isSaving}
                     className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold transition-all"
                   >
                     Cancel

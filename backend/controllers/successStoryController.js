@@ -49,25 +49,22 @@ exports.getStoryById = async (req, res) => {
 // Create new story
 exports.createStory = async (req, res) => {
   try {
-    const { title, description, quote, image, category, userName, location, rating, badge, bgColor, textColor, type } = req.body;
+    const { category, title, description, authorName, authorRole, location, image, featured, theme } = req.body;
     
     // Get the highest order value
     const lastStory = await SuccessStory.findOne().sort({ order: -1 }).lean();
     const nextOrder = (lastStory?.order || 0) + 1;
     
     const story = new SuccessStory({
+      category,
       title,
       description,
-      quote,
-      image,
-      category,
-      userName,
+      authorName,
+      authorRole,
       location,
-      rating: rating || 5,
-      badge: badge || 'TRANSFORMATION',
-      bgColor: bgColor || 'bg-white',
-      textColor: textColor || 'text-[#1a5d47]',
-      type: type || 'featured',
+      image,
+      featured: featured || false,
+      theme: theme || 'light',
       order: nextOrder
     });
     
@@ -79,10 +76,13 @@ exports.createStory = async (req, res) => {
       story: story
     });
   } catch (error) {
+    const fs = require('fs');
+    fs.appendFileSync('error_log.txt', new Date().toISOString() + ' - CREATE STORY ERROR: ' + error.message + '\n' + error.stack + '\n\n');
+    console.error('CREATE STORY ERROR:', error);
     res.status(500).json({
       success: false,
-      message: 'Error creating story',
-      error: error.message
+      message: `Error creating story: ${error.message}`,
+      error: error.stack
     });
   }
 };
@@ -115,10 +115,11 @@ exports.updateStory = async (req, res) => {
       story: story
     });
   } catch (error) {
+    console.error('UPDATE STORY ERROR:', error);
     res.status(500).json({
       success: false,
-      message: 'Error updating story',
-      error: error.message
+      message: `Error updating story: ${error.message}`,
+      error: error.stack
     });
   }
 };

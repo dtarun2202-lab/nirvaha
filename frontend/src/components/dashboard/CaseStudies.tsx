@@ -5,65 +5,53 @@ import BACKEND_CONFIG from '@/config/backend';
 
 interface Story {
   _id: string;
+  category: string;
   title: string;
   description: string;
-  quote: string;
-  image: string;
-  category: string;
-  userName: string;
+  authorName: string;
+  authorRole: string;
   location: string;
-  rating: number;
-  badge: string;
-  bgColor: string;
-  textColor: string;
-  type: 'featured' | 'small';
+  image: string;
+  featured: boolean;
+  theme: 'light' | 'dark';
 }
 
 const FALLBACK_STORIES: Story[] = [
   {
     _id: "fallback-1",
     title: "From Burnout to Balance in 21 Days",
-    description: "",
-    quote: "The guided meditation protocols didn't just help me sleep; they helped me rediscover the joy in my work.",
+    description: "The guided meditation protocols didn't just help me sleep; they helped me rediscover the joy in my work.",
     image: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?q=80&w=1200&auto=format&fit=crop",
     category: "Featured",
-    userName: "Rohit K.",
-    location: "Software Engineer, Hyderabad",
-    rating: 5,
-    badge: "Featured Transformation",
-    bgColor: "bg-white",
-    textColor: "text-[#1a5d47]",
-    type: "featured",
+    authorName: "Rohit K.",
+    authorRole: "Software Engineer",
+    location: "Hyderabad",
+    featured: true,
+    theme: "light",
   },
   {
     _id: "fallback-2",
     title: "Overcoming Anxiety Through Sound",
-    description: "",
-    quote: "The binaural beats and ancient chanting modules provided a sanctuary I didn't know I needed.",
+    description: "The binaural beats and ancient chanting modules provided a sanctuary I didn't know I needed.",
     image: "",
     category: "Personal Growth",
-    userName: "Marcus J.",
+    authorName: "Marcus J.",
+    authorRole: "",
     location: "",
-    rating: 5,
-    badge: "",
-    bgColor: "bg-white",
-    textColor: "text-[#1a5d47]",
-    type: "small",
+    featured: false,
+    theme: "light",
   },
   {
     _id: "fallback-3",
     title: "Chronic Pain Relief via Ayurvedic Wisdom",
-    description: "",
-    quote: "Reversing years of back pain through consistent yoga nidra and herbal guidance.",
+    description: "Reversing years of back pain through consistent yoga nidra and herbal guidance.",
     image: "",
     category: "Health Mastery",
-    userName: "Sarah P.",
+    authorName: "Sarah P.",
+    authorRole: "",
     location: "",
-    rating: 5,
-    badge: "",
-    bgColor: "bg-[#1a5d47]",
-    textColor: "text-white",
-    type: "small",
+    featured: false,
+    theme: "dark",
   }
 ];
 
@@ -89,9 +77,21 @@ export const CaseStudies = () => {
         fetchStories();
     }, []);
 
-    const displayStories = stories.length > 0 ? stories : FALLBACK_STORIES;
-    const featuredStory = displayStories.find(s => s.type === 'featured') || displayStories[0];
-    const smallStories = displayStories.filter(s => s._id !== featuredStory?._id).slice(0, 2);
+    let featuredStory = stories.find(s => s.featured);
+    if (!featuredStory) {
+        featuredStory = stories[0] || FALLBACK_STORIES.find(s => s.featured);
+    }
+
+    let smallStories = stories.filter(s => s._id !== featuredStory?._id);
+    if (smallStories.length < 2) {
+        const fallbackSmall = FALLBACK_STORIES.filter(s => !s.featured);
+        for (const fs of fallbackSmall) {
+            if (smallStories.length < 2) {
+                smallStories.push(fs);
+            }
+        }
+    }
+    smallStories = smallStories.slice(0, 2);
 
     if (loading) {
         return (
@@ -160,17 +160,15 @@ export const CaseStudies = () => {
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
 
-                            {featuredStory.badge && (
-                                <div className="absolute top-8 left-8">
-                                    <span className="px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-white text-[10px] font-bold tracking-[0.2em] uppercase border border-white/20">
-                                        {featuredStory.badge}
-                                    </span>
-                                </div>
-                            )}
+                            <div className="absolute top-8 left-8">
+                                <span className="px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-white text-[10px] font-bold tracking-[0.2em] uppercase border border-white/20">
+                                    FEATURED TRANSFORMATION
+                                </span>
+                            </div>
 
                             <div className="absolute bottom-10 left-10 right-10">
                                 <div className="flex gap-1 mb-4">
-                                    {[...Array(featuredStory.rating || 5)].map((_, i) => (
+                                    {[...Array(5)].map((_, i) => (
                                         <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                                     ))}
                                 </div>
@@ -178,15 +176,17 @@ export const CaseStudies = () => {
                                     {featuredStory.title}
                                 </h3>
                                 <p className="text-gray-200 text-lg mb-6 line-clamp-2 max-w-xl">
-                                    "{featuredStory.quote}"
+                                    "{featuredStory.description}"
                                 </p>
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-full border-2 border-white/30 overflow-hidden shadow-lg bg-emerald-700 flex items-center justify-center text-white font-bold">
-                                        {featuredStory.userName.charAt(0)}
+                                        {featuredStory.authorName ? featuredStory.authorName.charAt(0).toUpperCase() : 'U'}
                                     </div>
                                     <div>
-                                        <p className="text-white font-bold">{featuredStory.userName}</p>
-                                        <p className="text-white/60 text-xs tracking-wider uppercase">{featuredStory.location}</p>
+                                        <p className="text-white font-bold">{featuredStory.authorName}</p>
+                                        <p className="text-white/60 text-xs tracking-wider uppercase">
+                                            {featuredStory.authorRole} {featuredStory.authorRole && featuredStory.location ? ', ' : ''} {featuredStory.location}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -198,33 +198,33 @@ export const CaseStudies = () => {
                         {smallStories.map((story, index) => (
                             <div
                                key={story._id}
-                               className={`flex-1 ${story.bgColor || 'bg-white'} p-8 rounded-[2rem] border border-gray-100 shadow-xl hover:shadow-2xl transition-all duration-500 group relative overflow-hidden cursor-pointer`}
+                               className={`flex-1 ${story.theme === 'dark' ? 'bg-[#1a5d47]' : 'bg-white'} p-8 rounded-[2rem] border border-gray-100 shadow-xl hover:shadow-2xl transition-all duration-500 group relative overflow-hidden cursor-pointer`}
                                onClick={() => navigate(`/success-story/${story._id}`)}
                             >
                                 <div className={`absolute ${index === 0 ? 'top-0 right-0 p-8 opacity-5' : 'bottom-0 right-0 p-8 opacity-10'}`}>
                                     {index === 0 ? (
-                                        <Quote className="w-20 h-20 text-[#1a5d47]" />
+                                        <Quote className={`w-20 h-20 ${story.theme === 'dark' ? 'text-white' : 'text-[#1a5d47]'}`} />
                                     ) : (
-                                        <Star className="w-24 h-24 text-white" />
+                                        <Star className={`w-24 h-24 ${story.theme === 'dark' ? 'text-white' : 'text-[#1a5d47]'}`} />
                                     )}
                                 </div>
-                                <span className={`${story.textColor || 'text-[#1a5d47]'} opacity-80 font-bold text-xs tracking-widest uppercase mb-4 block`}>
+                                <span className={`${story.theme === 'dark' ? 'text-white' : 'text-[#1a5d47]'} opacity-80 font-bold text-xs tracking-widest uppercase mb-4 block`}>
                                     {story.category}
                                 </span>
-                                <h3 className={`text-2xl font-bold ${story.textColor === 'text-white' ? 'text-white' : 'text-[#0F131A]'} mb-4 leading-tight`}>
+                                <h3 className={`text-2xl font-bold ${story.theme === 'dark' ? 'text-white' : 'text-[#0F131A]'} mb-4 leading-tight z-10 relative`}>
                                     {story.title}
                                 </h3>
-                                <p className={`${story.textColor === 'text-white' ? 'text-emerald-50/80' : 'text-gray-600'} mb-6 flex-grow ${index === 0 ? 'italic' : ''}`}>
-                                    "{story.quote}"
+                                <p className={`${story.theme === 'dark' ? 'text-emerald-50/80' : 'text-gray-600'} mb-6 flex-grow ${index === 0 ? 'italic' : ''} z-10 relative`}>
+                                    "{story.description}"
                                 </p>
-                                <div className={`flex justify-between items-center pt-6 border-t ${story.textColor === 'text-white' ? 'border-white/10 text-white' : 'border-gray-50 text-[#0F131A]'} mt-auto`}>
+                                <div className={`flex justify-between items-center pt-6 border-t ${story.theme === 'dark' ? 'border-white/10 text-white' : 'border-gray-50 text-[#0F131A]'} mt-auto z-10 relative`}>
                                     <div className="flex items-center gap-3">
-                                        <div className={`w-10 h-10 rounded-full ${story.textColor === 'text-white' ? 'bg-white/10' : 'bg-emerald-50 text-[#1a5d47]'} flex items-center justify-center font-bold`}>
-                                            {story.userName.charAt(0)}
+                                        <div className={`w-10 h-10 rounded-full ${story.theme === 'dark' ? 'bg-white/10' : 'bg-emerald-50 text-[#1a5d47]'} flex items-center justify-center font-bold`}>
+                                            {story.authorName ? story.authorName.charAt(0).toUpperCase() : 'U'}
                                         </div>
-                                        <p className="font-bold text-sm">{story.userName}</p>
+                                        <p className="font-bold text-sm">{story.authorName}</p>
                                     </div>
-                                    <ArrowRight className={`w-5 h-5 ${story.textColor === 'text-white' ? 'text-white' : 'text-[#1a5d47]'} group-hover:translate-x-2 transition-transform`} />
+                                    <ArrowRight className={`w-5 h-5 ${story.theme === 'dark' ? 'text-white' : 'text-[#1a5d47]'} group-hover:translate-x-2 transition-transform`} />
                                 </div>
                             </div>
                         ))}
