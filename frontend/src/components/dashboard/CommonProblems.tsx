@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Cloud, Moon, Zap, Activity, Users, Flame, X, Play, Headphones, MessageCircle, Calendar, Check, Pause, Send, Volume2, Clock } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import BACKEND_CONFIG from '../../config/backend';
 
 export const CommonProblems = () => {
     const navigate = useNavigate();
@@ -427,6 +429,25 @@ const MeditationVariant = ({ onClose, actionName }: { onClose: () => void, actio
     const [isActive, setIsActive] = useState(false);
     const [timeLeft, setTimeLeft] = useState(300);
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const { user, refreshProfile } = useAuth();
+    const [hasLogged, setHasLogged] = useState(false);
+
+    const handleStartSession = async () => {
+        if (!hasLogged && user?.id) {
+            setHasLogged(true);
+            try {
+                await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-session`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem('token')}` },
+                    body: JSON.stringify({ userId: user.id, duration: 0, title: actionName, category: "Wellness" })
+                });
+                refreshProfile();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        setIsActive(true);
+    };
 
     const getMeditationDescription = (action: string) => {
         if(action.includes("Sleep")) return "A soothing 5-minute session to quiet the mind and prepare your body for deep, restorative rest.";
@@ -456,9 +477,20 @@ const MeditationVariant = ({ onClose, actionName }: { onClose: () => void, actio
         } else {
             audioRef.current?.pause();
         }
-        if (timeLeft === 0) setIsActive(false);
+        if (timeLeft === 0 && isActive) {
+            setIsActive(false);
+            if (user?.id) {
+                fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-session`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem('token')}` },
+                    body: JSON.stringify({ userId: user.id, duration: 5, title: actionName, category: "Wellness" })
+                }).then(res => {
+                    if (res.ok) refreshProfile();
+                }).catch(console.error);
+            }
+        }
         return () => clearInterval(interval);
-    }, [isActive, timeLeft]);
+    }, [isActive, timeLeft, actionName, user?.id, refreshProfile]);
 
     const formatTime = (seconds: number) => {
         const m = Math.floor(seconds / 60);
@@ -490,7 +522,7 @@ const MeditationVariant = ({ onClose, actionName }: { onClose: () => void, actio
                 <p className="text-sm text-[#5f6f65] mb-6">{getMeditationDescription(actionName)}</p>
                 
                 {!isActive ? (
-                    <button onClick={() => setIsActive(true)} className="w-full py-3 rounded-xl bg-[#1a5d47] text-white font-semibold text-sm hover:bg-[#134233] transition-colors shadow-lg shadow-[#1a5d47]/30">
+                    <button onClick={handleStartSession} className="w-full py-3 rounded-xl bg-[#1a5d47] text-white font-semibold text-sm hover:bg-[#134233] transition-colors shadow-lg shadow-[#1a5d47]/30">
                         {timeLeft < 300 ? 'Resume Session' : 'Begin Session'}
                     </button>
                 ) : (
@@ -512,6 +544,21 @@ const HealingVariant = ({ onClose, isPlaying, setIsPlaying, actionName, audioSrc
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [progress, setProgress] = useState(0);
     const [duration, setDuration] = useState(0);
+    const { user, refreshProfile } = useAuth();
+    const [hasLogged, setHasLogged] = useState(false);
+
+    useEffect(() => {
+        if (isPlaying && !hasLogged && user?.id) {
+            setHasLogged(true);
+            fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-sound-session`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem('token')}` },
+                body: JSON.stringify({ userId: user.id, duration: 0, title: actionName, category: "Wellness" })
+            }).then(res => {
+                if (res.ok) refreshProfile();
+            }).catch(console.error);
+        }
+    }, [isPlaying, hasLogged, user?.id, actionName, refreshProfile]);
 
     useEffect(() => {
         audioRef.current = new Audio(audioSrc);
@@ -524,6 +571,15 @@ const HealingVariant = ({ onClose, isPlaying, setIsPlaying, actionName, audioSrc
         audioRef.current.addEventListener('ended', () => {
             setIsPlaying(false);
             setProgress(0);
+            if (user?.id) {
+                fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/log-sound-session`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem('token')}` },
+                    body: JSON.stringify({ userId: user.id, duration: Math.max(1, Math.round(audioRef.current?.duration || 0) / 60), title: actionName, category: "Wellness" })
+                }).then(res => {
+                    if (res.ok) refreshProfile();
+                }).catch(console.error);
+            }
         });
         
         return () => {
@@ -532,7 +588,7 @@ const HealingVariant = ({ onClose, isPlaying, setIsPlaying, actionName, audioSrc
                 audioRef.current.src = "";
             }
         };
-    }, [audioSrc]);
+    }, [audioSrc, user?.id, actionName, refreshProfile]);
 
     useEffect(() => {
         if (isPlaying) {
