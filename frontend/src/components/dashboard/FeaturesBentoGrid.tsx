@@ -6,37 +6,37 @@ const features = [
     {
         title: "Guided Meditation",
         description: "Experience personalized meditation sessions that adapt to your emotional state. Our AI-powered guidance helps you find peace, clarity, and balance through ancient techniques reimagined for modern life.",
-        image: "https://brquinn.com/wp-content/uploads/2024/10/someone-meditating-in-the-house.png",
+        image: "/Indoor Calm Meditation.png",
         color: "#1a5d47"
     },
     {
         title: "Mood Tracking",
         description: "Gain deep insights into your emotional patterns with our intuitive mood tracking system. Visualize your journey, identify triggers, and celebrate your progress towards emotional wellness.",
-        image: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80",
+        image: "/Meditation at Sunrise.png",
         color: "#e57373"
     },
     {
         title: "Sleep Stories",
         description: "Drift into restful slumber with our collection of soothing audio journeys. From enchanted forests to peaceful shores, let gentle narratives and ambient sounds guide you to deep, restorative sleep.",
-        image: "https://images.unsplash.com/photo-1531353826977-0941b4779a1c?auto=format&fit=crop&w=800&q=80",
+        image: "/cozy Bed.webp",
         color: "#7986cb"
     },
     {
         title: "Energy Balance",
         description: "Restore your inner vitality with practices designed to harmonize your energy centers. Through guided exercises and mindful techniques, unlock your body's natural ability to heal and recharge.",
-        image: "https://www.healthspectra.com/wp-content/uploads/2019/09/Vrikshasana.jpg",
+        image: "/energy_balance_yoga.png",
         color: "#ffb74d"
     },
     {
         title: "Breathwork",
         description: "Master the art of conscious breathing with powerful techniques from ancient traditions. Reduce stress, boost focus, and transform your state of mind in just a few minutes of daily practice.",
-        image: "https://media.istockphoto.com/id/967773928/photo/group-of-young-sporty-people-doing-alternate-nostril-breathing-exercise.jpg?s=612x612&w=0&k=20&c=fJcn64Sv0UEHoqqkTwwR5k4X64S1ex8rv5s1kP8LW4E=",
+        image: "/breathwork_indoor.png",
         color: "#4fc3f7"
     },
     {
         title: "Daily Affirmations",
         description: "Begin each day with intention and positivity. Our curated affirmations are designed to rewire negative thought patterns and cultivate a mindset of abundance, gratitude, and self-love.",
-        image: "https://www.firstship.net/wp-content/uploads/2022/06/self_affirmation_yoga.jpg",
+        image: "/Productivity Flow.jpg",
         color: "#ce93d8"
     },
 ];
