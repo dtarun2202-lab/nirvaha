@@ -11,6 +11,9 @@ import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 import StoriesPage from './pages/StoriesPage';
 import SuccessStoryDetail from './pages/SuccessStoryDetail';
+import WellnessOTTDetail from './pages/WellnessOTTDetail';
+import WellnessOTTBrowsing from './pages/WellnessOTTBrowsing';
+import WellnessOTTLibrary from './pages/WellnessOTTLibrary';
 import JourneyPage from './pages/JourneyPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import MeditationPage from "./components/pages/MeditationPage";
@@ -123,6 +126,11 @@ function AppInner() {
           <Route path="success-stories" element={<SuccessStoriesManager />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Route>
+
+        {/* Wellness OTT Routes */}
+        <Route path="/wellness-ott" element={<WellnessOTTBrowsing />} />
+        <Route path="/wellness-ott/library" element={<WellnessOTTLibrary />} />
+        <Route path="/wellness-ott/:id" element={<WellnessOTTDetail />} />
 
         {/* Catch-all redirect to landing */}
         <Route path="*" element={<Navigate to="/" replace />} />

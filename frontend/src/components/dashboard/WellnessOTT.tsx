@@ -1,82 +1,31 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, Pause, X } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const videos = [
-    {
-        title: "Morning Calm",
-        category: "Meditation",
-        duration: "10 min",
-        thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
-        audioSource: "/audio/meditation.mp3"
-    },
-    {
-        title: "Deep Sleep Guide",
-        category: "Sleep",
-        duration: "45 min",
-        thumbnail: "https://images.squarespace-cdn.com/content/v1/57b5ef68c534a5cc06edc769/b50a955f-e95f-42c1-beb6-4e74d753bfbb/restorative+yoga",
-        audioSource: "/audio/sleep.mp3"
-    },
-    {
-        title: "Anxiety Relief",
-        category: "Stress",
-        duration: "20 min",
-        thumbnail: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=600&auto=format&fit=crop",
-        audioSource: "/audio/stress.mp3"
-    },
-    {
-        title: "Focus Flow",
-        category: "Productivity",
-        duration: "30 min",
-        thumbnail: "https://lonestarneurology.net/wp-content/uploads/2025/08/3-Mental-Clarity-and-Cognitive-Function-from-Yoga.jpg",
-        audioSource: "/audio/focus.mp3"
-    },
-    {
-        title: "Chakra Balance",
-        category: "Energy",
-        duration: "15 min",
-        thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop",
-        audioSource: "/audio/energy.mp3"
-    },
-];
+import { wellnessSessions as videos } from '../../data/wellnessSessions';
 
 export const WellnessOTT = () => {
-    const [activeAudioItem, setActiveAudioItem] = useState<any | null>(null);
+    const navigate = useNavigate();
+    const [isAnimating, setIsAnimating] = useState(false);
     const [viewMoreOpen, setViewMoreOpen] = useState(false);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // Stop audio when closing modal
-    useEffect(() => {
-        if (!activeAudioItem && audioRef.current) {
-            audioRef.current.pause();
-            setIsPlaying(false);
-        }
-    }, [activeAudioItem]);
-
-    const togglePlay = (e: React.MouseEvent) => {
+    const handleCardClick = (e: React.MouseEvent, item: any) => {
+        e.preventDefault();
         e.stopPropagation();
-        if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.pause();
-            } else {
-                audioRef.current.play().catch(err => console.log("Play failed:", err));
-            }
-            setIsPlaying(!isPlaying);
-        }
+        setIsAnimating(true);
+        setTimeout(() => {
+            navigate(`/wellness-ott/${item.id}`);
+        }, 2800);
     };
 
-    const handleCardClick = (item: any) => {
-        setActiveAudioItem(item);
-        setIsPlaying(true);
+    const handleViewMore = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsAnimating(true);
         setTimeout(() => {
-            if (audioRef.current) {
-                audioRef.current.play().catch(err => {
-                    console.log("Autoplay prevented:", err);
-                    setIsPlaying(false);
-                });
-            }
-        }, 100);
+            navigate('/wellness-ott');
+        }, 2800);
     };
 
     return (
@@ -102,7 +51,7 @@ export const WellnessOTT = () => {
                         </p>
                     </div>
                     <motion.button
-                        onClick={() => setViewMoreOpen(true)}
+                        onClick={handleViewMore}
                         className="group flex items-center gap-2 text-[#1a5d47] font-semibold hover:text-[#113d2f] transition-all duration-300 pb-1"
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
@@ -122,10 +71,10 @@ export const WellnessOTT = () => {
 
                 {/* Video Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
-                    {videos.map((vid, idx) => (
+                    {videos.slice(0, 5).map((vid, idx) => (
                         <motion.div
                            key={idx}
-                           onClick={() => handleCardClick(vid)}
+                           onClick={(e) => handleCardClick(e, vid)}
                             className="group relative rounded-2xl overflow-hidden cursor-pointer bg-white shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-shadow duration-300"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -170,98 +119,88 @@ export const WellnessOTT = () => {
                 </div>
             </div>
 
-            {/* Audio Mode: Immersive Floating Controls */}
+            {/* Fullscreen Cinematic Intro Animation */}
             <AnimatePresence>
-                {activeAudioItem && (
+                {isAnimating && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.5, ease: "easeInOut" }}
-                        className="fixed inset-0 z-[110] bg-black"
+                        transition={{ duration: 0.8, ease: "easeInOut" }}
+                        className="fixed inset-0 z-[9999] bg-[#050505] flex flex-col items-center justify-center overflow-hidden"
                     >
-                        {/* Audio Element */}
-                        <audio 
-                            ref={audioRef} 
-                            src={activeAudioItem.audioSource} 
-                            onEnded={() => setIsPlaying(false)}
-                            className="hidden"
+                        {/* Immersive dark overlay and Emerald glow atmosphere */}
+                        <motion.div 
+                            className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1a5d47]/20 via-[#050505] to-[#050505] opacity-80"
+                            initial={{ scale: 1.1, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 0.8 }}
+                            transition={{ duration: 2.8, ease: "easeOut" }}
                         />
 
-                        {/* Immersive Image Area */}
-                        <img 
-                            src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=2400&auto=format&fit=crop" 
-                            alt="Peaceful Wellness View"
-                            className="absolute inset-0 w-full h-full object-cover opacity-85"
-                        />
-                            
-                        {/* Close Button */}
-                        <button
-                            onClick={() => setActiveAudioItem(null)}
-                            className="absolute top-6 right-6 sm:top-10 sm:right-10 w-12 h-12 bg-black/20 hover:bg-black/40 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white/90 hover:text-white transition-all z-20"
-                        >
-                            <X className="w-6 h-6" />
-                        </button>
-
-                        {/* Floating Left Side Audio Controls */}
-                        <div className="absolute bottom-8 left-6 sm:bottom-16 sm:left-16 z-20 flex items-center gap-5 bg-black/20 hover:bg-black/40 backdrop-blur-md pr-8 pl-3 py-3 rounded-full border border-white/10 transition-all shadow-[0_0_30px_rgba(0,0,0,0.3)]">
-                            {/* Minimal Play/Pause Button */}
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={togglePlay}
-                                className="w-14 h-14 sm:w-16 sm:h-16 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/90 transition-all cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.05)]"
-                            >
-                                {isPlaying ? (
-                                    <Pause className="w-6 h-6 sm:w-7 sm:h-7 fill-white" />
-                                ) : (
-                                    <Play className="w-6 h-6 sm:w-7 sm:h-7 fill-white ml-1" />
-                                )}
-                            </motion.button>
-                            
-                            {/* Track Info */}
-                            <div className="flex flex-col">
-                                <span className="text-white/90 text-sm font-semibold tracking-widest uppercase">
-                                    {activeAudioItem.category}
-                                </span>
-                                <span className="text-white/60 text-xs mt-0.5 font-light tracking-wide hidden sm:block">
-                                    {activeAudioItem.duration} • Cinematic Audio
-                                </span>
-                            </div>
+                        {/* Subtle floating particles */}
+                        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                            {[...Array(15)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    className="absolute w-1 h-1 bg-[#2ed899] rounded-full blur-[1px]"
+                                    initial={{ 
+                                        left: `${Math.random() * 100}%`, 
+                                        top: `${Math.random() * 100}%`,
+                                        opacity: 0,
+                                        scale: Math.random() * 1 + 0.5 
+                                    }}
+                                    animate={{ 
+                                        top: `${Math.random() * 100 - 20}%`,
+                                        opacity: [0, Math.random() * 0.5 + 0.2, 0],
+                                    }}
+                                    transition={{ 
+                                        duration: Math.random() * 2 + 1.5, 
+                                        ease: "linear",
+                                    }}
+                                />
+                            ))}
                         </div>
+                        
+                        {/* Central cinematic text */}
+                        <motion.div
+                            initial={{ scale: 0.85, opacity: 0, filter: 'blur(12px)' }}
+                            animate={{ scale: 1.1, opacity: 1, filter: 'blur(0px)' }}
+                            transition={{ duration: 2.8, ease: [0.25, 0.1, 0.25, 1] }}
+                            className="relative flex flex-col items-center justify-center z-10"
+                        >
+                            <motion.h1 
+                                className="text-white font-medium text-5xl md:text-7xl mb-2 ml-4 uppercase tracking-widest"
+                                initial={{ letterSpacing: '0em' }}
+                                animate={{ letterSpacing: '0.2em' }}
+                                transition={{ duration: 2.8, ease: "easeOut" }}
+                                style={{ fontFamily: "'Cinzel', serif" }}
+                            >
+                                NIRVAHA
+                            </motion.h1>
+                            <motion.h2 
+                                className="text-[#1a5d47] text-lg md:text-2xl font-light uppercase tracking-widest ml-3"
+                                initial={{ letterSpacing: '0em', opacity: 0 }}
+                                animate={{ letterSpacing: '0.4em', opacity: 1 }}
+                                transition={{ duration: 2.4, delay: 0.4, ease: "easeOut" }}
+                                style={{ textShadow: "0 0 20px rgba(26, 93, 71, 0.8)" }}
+                            >
+                                Wellness OTT
+                            </motion.h2>
+                        </motion.div>
+
+                        {/* Cinematic glow pulse */}
+                        <motion.div 
+                            className="absolute w-[40vw] h-[40vw] min-w-[400px] min-h-[400px] bg-[#1a5d47] blur-[120px] rounded-full z-0 pointer-events-none"
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: [0.8, 1.2, 1], opacity: [0, 0.15, 0.25] }}
+                            transition={{ duration: 2.8, ease: "easeInOut" }}
+                        />
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* View More Truly Full-Screen Image Modal (Image Only) */}
-            <AnimatePresence>
-                {viewMoreOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.5, ease: "easeInOut" }}
-                        onClick={() => setViewMoreOpen(false)}
-                        className="fixed inset-0 z-[110] bg-black flex items-center justify-center"
-                    >
-                        <img 
-                            src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=2400&auto=format&fit=crop" 
-                            alt="Peaceful Wellness View"
-                            className="absolute inset-0 w-full h-full object-cover opacity-85"
-                        />
-                        
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setViewMoreOpen(false);
-                            }}
-                            className="absolute top-8 right-8 w-12 h-12 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white/90 hover:text-white transition-colors z-20"
-                        >
-                            <X className="w-6 h-6" />
-                        </button>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+
+
         </section>
     );
 };
