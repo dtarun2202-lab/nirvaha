@@ -197,7 +197,7 @@ export const CaseStudies = () => {
                 </p>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full border-2 border-white/30 overflow-hidden shadow-lg bg-white/10 flex items-center justify-center text-white font-bold">
-                    {featuredStory.userName.charAt(0)}
+                    {(featuredStory.userName || "U").charAt(0)}
                   </div>
                   <div>
                     <p className="text-white font-bold">{featuredStory.userName}</p>
@@ -235,7 +235,7 @@ export const CaseStudies = () => {
                   <div className={`flex justify-between items-center pt-6 border-t ${story.bgColor === 'bg-white' ? 'border-gray-50' : 'border-white/10'} mt-auto`}>
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-full ${story.bgColor === 'bg-white' ? 'bg-emerald-50' : 'bg-white/10'} flex items-center justify-center ${story.textColor} font-bold`}>
-                        {story.userName.charAt(0)}
+                        {(story.userName || "U").charAt(0)}
                       </div>
                       <p className={`${story.textColor} font-bold text-sm`}>{story.userName}</p>
                     </div>

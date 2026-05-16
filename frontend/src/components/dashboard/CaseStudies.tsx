@@ -154,8 +154,8 @@ export const CaseStudies = () => {
                            onClick={() => navigate(`/success-story/${featuredStory._id}`)}
                            >
                             <img
-                                src={featuredStory.image}
-                                alt="Transformation"
+                                src={featuredStory.image || "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1200&auto=format&fit=crop"}
+                                alt={featuredStory.title || "Transformation"}
                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
@@ -173,19 +173,19 @@ export const CaseStudies = () => {
                                     ))}
                                 </div>
                                 <h3 className="text-3xl font-bold text-white mb-4 leading-tight">
-                                    {featuredStory.title}
+                                    {featuredStory.title || "Success Story"}
                                 </h3>
                                 <p className="text-gray-200 text-lg mb-6 line-clamp-2 max-w-xl">
-                                    "{featuredStory.description}"
+                                    "{featuredStory.description || "No description available"}"
                                 </p>
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-full border-2 border-white/30 overflow-hidden shadow-lg bg-emerald-700 flex items-center justify-center text-white font-bold">
-                                        {featuredStory.authorName ? featuredStory.authorName.charAt(0).toUpperCase() : 'U'}
+                                        {(featuredStory.authorName || "Anonymous").charAt(0).toUpperCase()}
                                     </div>
                                     <div>
-                                        <p className="text-white font-bold">{featuredStory.authorName}</p>
+                                        <p className="text-white font-bold">{featuredStory.authorName || "Anonymous"}</p>
                                         <p className="text-white/60 text-xs tracking-wider uppercase">
-                                            {featuredStory.authorRole} {featuredStory.authorRole && featuredStory.location ? ', ' : ''} {featuredStory.location}
+                                            {featuredStory.authorRole} {featuredStory.authorRole && featuredStory.location ? ', ' : ''} {featuredStory.location || "Community Member"}
                                         </p>
                                     </div>
                                 </div>
@@ -220,9 +220,9 @@ export const CaseStudies = () => {
                                 <div className={`flex justify-between items-center pt-6 border-t ${story.theme === 'dark' ? 'border-white/10 text-white' : 'border-gray-50 text-[#0F131A]'} mt-auto z-10 relative`}>
                                     <div className="flex items-center gap-3">
                                         <div className={`w-10 h-10 rounded-full ${story.theme === 'dark' ? 'bg-white/10' : 'bg-emerald-50 text-[#1a5d47]'} flex items-center justify-center font-bold`}>
-                                            {story.authorName ? story.authorName.charAt(0).toUpperCase() : 'U'}
+                                            {(story.authorName || "Anonymous").charAt(0).toUpperCase()}
                                         </div>
-                                        <p className="font-bold text-sm">{story.authorName}</p>
+                                        <p className="font-bold text-sm">{story.authorName || "Anonymous"}</p>
                                     </div>
                                     <ArrowRight className={`w-5 h-5 ${story.theme === 'dark' ? 'text-white' : 'text-[#1a5d47]'} group-hover:translate-x-2 transition-transform`} />
                                 </div>

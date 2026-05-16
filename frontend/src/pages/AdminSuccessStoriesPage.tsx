@@ -230,7 +230,7 @@ export function AdminSuccessStoriesPage() {
                 <p className="text-sm text-gray-600 mb-4 line-clamp-2">{story.quote}</p>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-[#1a5d47]/10 flex items-center justify-center text-[#1a5d47] text-xs font-bold">
-                    {story.userName.charAt(0)}
+                    {(story.userName || "U").charAt(0)}
                   </div>
                   <div>
                     <p className="text-sm font-bold text-[#0F131A]">{story.userName}</p>

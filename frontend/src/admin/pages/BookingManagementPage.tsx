@@ -48,6 +48,9 @@ interface Booking {
   duration: number; // in minutes
   status: "upcoming" | "completed" | "cancelled" | "in-progress";
   price: number;
+  quantity: number;
+  paymentStatus: string;
+  deliveryStatus: string;
   createdAt: string;
 }
 
@@ -122,6 +125,9 @@ export function BookingManagementPage() {
                 duration: typeof booking.duration === "number" ? booking.duration : (parseInt(booking.duration) || 0),
                 status: booking.status || "upcoming",
                 price: Number(booking.price || 0),
+                quantity: booking.quantity || 1,
+                paymentStatus: booking.paymentStatus || "N/A",
+                deliveryStatus: booking.deliveryStatus || "N/A",
                 createdAt: booking.createdAt || new Date().toISOString(),
               };
             })
@@ -282,7 +288,7 @@ export function BookingManagementPage() {
 
           {/* Filters */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2">
-            <div className="relative md:col-span-2">
+            <div className="relative md:col-span-3">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#86CDA6]" />
               <Input
                 placeholder="Search by ID, user, or companion..."
@@ -303,55 +309,7 @@ export function BookingManagementPage() {
                 <SelectItem value="in-progress">In Progress</SelectItem>
               </SelectContent>
             </Select>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-medium bg-white border border-[#BEE4CD] text-[#295641] hover:bg-[#F6FDF8] rounded-xl h-12",
-                    !dateFrom && "text-[#86CDA6]"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateFrom ? (
-                    dateTo ? `${formatDate(dateFrom)} - ${formatDate(dateTo)}` : formatDate(dateFrom)
-                  ) : <span>Date Range</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-white border-[#BEE4CD] rounded-xl">
-                <div className="p-4 space-y-4">
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <div>
-                      <label className="text-sm font-bold text-[#1F4131] mb-2 block">From</label>
-                      <Calendar
-                        mode="single"
-                        selected={dateFrom}
-                        onSelect={setDateFrom}
-                        className="rounded-lg border border-[#D5EEDD]"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-bold text-[#1F4131] mb-2 block">To</label>
-                      <Calendar
-                        mode="single"
-                        selected={dateTo}
-                        onSelect={setDateTo}
-                        className="rounded-lg border border-[#D5EEDD]"
-                      />
-                    </div>
-                  </div>
-                  {(dateFrom || dateTo) && (
-                    <Button 
-                      variant="outline" 
-                      className="w-full text-[#E76E6E] hover:text-red-700 hover:bg-red-50 border-[#F8CACA] font-bold rounded-lg"
-                      onClick={() => { setDateFrom(undefined); setDateTo(undefined); }}
-                    >
-                      Clear Dates
-                    </Button>
-                  )}
-                </div>
-              </PopoverContent>
-            </Popover>
+
           </div>
         </div>
 
@@ -365,56 +323,67 @@ export function BookingManagementPage() {
           ) : (
             <div className="min-w-[1000px]">
               {/* Table Header */}
-              <div className="grid grid-cols-12 gap-4 bg-gradient-to-r from-[#B9EBD1] to-[#D5F2D9] p-5 text-xs font-bold text-[#1A4F35] tracking-widest uppercase rounded-t-2xl">
-                <div className="col-span-2 pl-2">Booking ID</div>
-                <div className="col-span-2">User</div>
-                <div className="col-span-2">Companion</div>
-                <div className="col-span-2">Type / Platform</div>
-                <div className="col-span-2">Date & Time</div>
+              <div className="grid grid-cols-12 gap-4 bg-gradient-to-r from-[#B9EBD1] to-[#D5F2D9] p-5 text-[11px] font-bold text-[#1A4F35] tracking-widest uppercase rounded-t-2xl text-center">
+                <div className="col-span-1 text-left">ID</div>
+                <div className="col-span-2 text-left">User</div>
+                <div className="col-span-2 text-left">Item</div>
+                <div className="col-span-1">Type</div>
+                <div className="col-span-1">Qty</div>
+                <div className="col-span-1">Payment</div>
+                <div className="col-span-1">Delivery</div>
+                <div className="col-span-1">Date</div>
                 <div className="col-span-1">Price</div>
-                <div className="col-span-1 text-right pr-4">Actions</div>
+                <div className="col-span-1 text-right">Actions</div>
               </div>
 
               {/* Table Body */}
               <div className="divide-y divide-[#E6F5EB]">
                 {filteredBookings.map((item) => (
-                  <div key={item.id} className="grid grid-cols-12 gap-4 p-5 items-center hover:bg-[#F6FDF8] transition-colors">
+                  <div key={item.id} className="grid grid-cols-12 gap-4 p-5 items-center hover:bg-[#F6FDF8] transition-colors text-sm text-center">
                     {/* ID */}
-                    <div className="col-span-2 pl-2">
-                      <span className="font-mono text-xs font-medium text-[#295641] bg-[#EAFBF0] px-2 py-1 rounded border border-[#BDE8CE]">{item.id.substring(0, 8)}...</span>
+                    <div className="col-span-1 text-left">
+                      <span className="font-mono font-medium text-[#295641] bg-[#EAFBF0] px-2 py-1 rounded border border-[#BDE8CE]">{item.id.substring(0, 5)}...</span>
                     </div>
                     {/* User */}
-                    <div className="col-span-2">
-                      <div className="font-medium text-[#2A4939] text-sm">{item.userName}</div>
-                      <div className="text-xs text-[#64C08E] font-medium truncate" title={item.userEmail}>{item.userEmail}</div>
+                    <div className="col-span-2 text-left truncate">
+                      <div className="font-bold text-[#2A4939]">{item.userName}</div>
                     </div>
-                    {/* Companion */}
-                    <div className="col-span-2">
-                      <div className="font-medium text-[#2A4939] text-sm">{item.companionName || "-"}</div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <StatusBadge status={item.status} variant="booking" />
-                      </div>
+                    {/* Item */}
+                    <div className="col-span-2 text-left truncate">
+                      <div className="font-medium text-[#2A4939]">{item.companionName || "-"}</div>
                     </div>
-                    {/* Type & Platform */}
-                    <div className="col-span-2">
-                       <span className={`inline-block px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider mb-1 ${item.type === 'video' ? 'bg-[#EAFBF0] text-[#34A46B]' : item.type === 'chat' ? 'bg-[#EBF5FF] text-[#3B82F6]' : item.type === 'retreat' ? 'bg-[#FAF2CD] text-[#9A7D11]' : 'bg-[#F3E8FF] text-[#9333EA]'}`}>
+                    {/* Type */}
+                    <div className="col-span-1 flex justify-center">
+                       <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold uppercase ${item.type === 'Product' ? 'bg-[#D1FAE5] text-[#065F46]' : 'bg-[#EAFBF0] text-[#34A46B]'}`}>
                           {item.type}
                        </span>
-                       <div className="text-xs text-gray-500 font-semibold capitalize">{item.platform}</div>
                     </div>
-                    {/* Date & Time */}
-                    <div className="col-span-2">
-                       <div className="font-medium text-[#2A4939] text-sm">{item.date}</div>
-                       <div className="text-xs text-gray-500 font-semibold mt-1">
-                         {item.time} {item.duration ? `(${item.duration} min)` : ''}
-                       </div>
+                    {/* Qty */}
+                    <div className="col-span-1 font-bold text-[#2A4939]">
+                      {item.quantity}
+                    </div>
+                    {/* Payment */}
+                    <div className="col-span-1 flex justify-center">
+                       <span className={`px-2 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${item.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                          {item.paymentStatus}
+                       </span>
+                    </div>
+                    {/* Delivery Status */}
+                    <div className="col-span-1 flex justify-center">
+                       <span className={`px-2 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${item.deliveryStatus === 'Delivered' ? 'bg-blue-100 text-blue-700' : 'bg-teal-50 text-teal-600 border border-teal-100'}`}>
+                          {item.deliveryStatus}
+                       </span>
+                    </div>
+                    {/* Date */}
+                    <div className="col-span-1 truncate text-[#64C08E] font-medium">
+                       {item.date}
                     </div>
                     {/* Price */}
-                    <div className="col-span-1 font-medium text-gray-800">
+                    <div className="col-span-1 font-bold text-[#1F4131]">
                       ₹{item.price}
                     </div>
                     {/* Actions */}
-                    <div className="col-span-1 flex items-center justify-end pr-2">
+                    <div className="col-span-1 flex items-center justify-end">
                        <ActionMenu
                           variant="booking"
                           onView={() => handleView(item)}
@@ -519,6 +488,26 @@ export function BookingManagementPage() {
                       <p className="font-bold text-[#2A4939] text-xs uppercase tracking-wider mb-1">Duration</p>
                       <p className="text-[#329D66] font-medium">{selectedBooking.duration || 0} minutes</p>
                     </div>
+                    {selectedBooking.type === "Product" && (
+                      <>
+                        <div>
+                          <p className="font-bold text-[#2A4939] text-xs uppercase tracking-wider mb-1">Quantity</p>
+                          <p className="text-[#329D66] font-bold">{selectedBooking.quantity}</p>
+                        </div>
+                        <div>
+                          <p className="font-bold text-[#2A4939] text-xs uppercase tracking-wider mb-1">Payment Status</p>
+                          <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase ${selectedBooking.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                            {selectedBooking.paymentStatus}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-bold text-[#2A4939] text-xs uppercase tracking-wider mb-1">Delivery Status</p>
+                          <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase ${selectedBooking.deliveryStatus === 'Delivered' ? 'bg-blue-100 text-blue-700' : 'bg-teal-50 text-teal-600 border border-teal-100'}`}>
+                            {selectedBooking.deliveryStatus}
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
