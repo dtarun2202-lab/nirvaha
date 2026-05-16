@@ -15,7 +15,16 @@ const bookingSchema = new mongoose.Schema(
     platform: String,
     companionName: String,
     itemName: String,
-    duration: Number,
+    quantity: { type: Number, default: 1 },
+    paymentStatus: { type: String, default: 'Pending' },
+    deliveryStatus: { type: String, default: 'Processing' },
+    shippingDetails: {
+      fullName: String,
+      street: String,
+      city: String,
+      zipCode: String
+    },
+    paymentMethod: String,
   },
   { timestamps: true }
 );

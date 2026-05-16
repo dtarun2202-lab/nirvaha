@@ -21,6 +21,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import BACKEND_CONFIG from "@/config/backend";
 import io from "socket.io-client";
 import AddItemModal from "../marketplace/AddItemModal";
+import CheckoutModal from "../marketplace/CheckoutModal";
 
 type MarketplaceItem = {
   id: string;
@@ -86,9 +87,18 @@ export function MarketplacePage() {
     "session" | "retreat" | "product"
   >("session");
   const [approvedItems, setApprovedItems] = useState<MarketplaceItem[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<ProductCard | null>(null);
+
   const { user } = useAuth();
   const apiBaseUrl = BACKEND_CONFIG.API_BASE_URL;
+
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [checkoutItem, setCheckoutItem] = useState<{
+    name: string;
+    price: string | number;
+    image: string;
+    type: 'product' | 'session' | 'retreat';
+    id?: string;
+  } | null>(null);
 
   const DEFAULT_SESSION_IMAGE =
     "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=600";
@@ -165,28 +175,21 @@ export function MarketplacePage() {
     return await response.json();
   };
 
-  const handleProductPurchase = async (product: ProductCard) => {
-    try {
-      await createBooking({
-        itemId: product.id || `product-${product.name}`,
-        itemName: product.name,
-        type: "product",
-        price: parsePrice(product.price),
-        platform: "Online",
-        date: new Date().toISOString(),
-      });
-      alert("Purchase completed successfully!");
-      setSelectedProduct(null);
-    } catch (error: any) {
-      console.error("Product purchase failed:", error);
-      alert(error.message || "Failed to complete purchase. Please try again.");
-    }
+  const handleProductPurchase = (product: ProductCard) => {
+    setCheckoutItem({
+      id: product.id || product.approvedId,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      type: 'product'
+    });
+    setIsCheckoutOpen(true);
   };
 
   const handleRetreatRequest = async (retreat: RetreatCard) => {
     try {
       await createBooking({
-        itemId: retreat.id || `retreat-${retreat.title}`,
+        itemId: retreat.id || retreat.approvedId || `retreat-${retreat.title}`,
         itemName: retreat.title,
         type: "retreat",
         price: parsePrice(retreat.price),
@@ -204,7 +207,7 @@ export function MarketplacePage() {
   const handleSessionBooking = async (session: SessionCard) => {
     try {
       await createBooking({
-        itemId: session.id || `session-${session.title}`,
+        itemId: session.id || session.approvedId || `session-${session.title}`,
         itemName: session.title,
         type: "session",
         price: parsePrice(session.price),
@@ -216,6 +219,35 @@ export function MarketplacePage() {
     } catch (error: any) {
       console.error("Session booking failed:", error);
       alert(error.message || "Failed to book session. Please try again.");
+    }
+  };
+
+  const onConfirmCheckout = async (checkoutDetails: any) => {
+    if (!checkoutItem) return;
+
+    try {
+      await createBooking({
+        itemId: checkoutItem.id || `${checkoutItem.type}-${checkoutItem.name}`,
+        itemName: checkoutItem.name,
+        type: checkoutItem.type,
+        price: checkoutDetails.totalPrice,
+        platform: checkoutItem.type === 'product' ? 'Online' : 'In-Person',
+        date: new Date().toISOString(),
+        quantity: checkoutDetails.quantity,
+        paymentStatus: checkoutItem.type === 'product' ? 'Paid' : 'Pending',
+        deliveryStatus: checkoutItem.type === 'product' ? 'Processing' : 'N/A',
+        shippingDetails: {
+          fullName: checkoutDetails.fullName,
+          street: checkoutDetails.street,
+          city: checkoutDetails.city,
+          zipCode: checkoutDetails.zipCode
+        },
+        paymentMethod: checkoutDetails.paymentMethod
+      });
+      // success animation is handled within the modal step 3
+    } catch (error: any) {
+      console.error("Booking confirmation failed:", error);
+      throw error; // Re-throw to be caught by modal's error handler
     }
   };
 
@@ -522,7 +554,7 @@ export function MarketplacePage() {
             <button
               onClick={() => {
                 setActiveTab("sessions");
-                setSelectedProduct(null); // 👈 add this
+                
              }}
              className={`px-6 py-3 rounded-[20px] flex items-center gap-2 ${
                activeTab === "sessions"
@@ -537,7 +569,7 @@ export function MarketplacePage() {
             <button
               onClick={() => {
                 setActiveTab("retreats");
-                setSelectedProduct(null); // 👈 add this
+                
               }}
               className={`px-6 py-3 rounded-[20px] flex items-center gap-2 ${
                 activeTab === "retreats"
@@ -552,7 +584,7 @@ export function MarketplacePage() {
               <button
                 onClick={() => {
                   setActiveTab("products");
-                  setSelectedProduct(null);
+                  
                 }}
                 className={`px-6 py-3 rounded-[20px] flex items-center gap-2 ${
                   activeTab === "products"
@@ -575,46 +607,70 @@ export function MarketplacePage() {
           className="mb-6"
         >
           
-          {!selectedProduct && activeTab === "sessions" && (
-            <div className="grid md:grid-cols-2 rounded-[36px] overflow-hidden shadow-2xl bg-white min-h-[604px] md:h-[684px]">
-              <div className="p-10 md:p-14 bg-[#BFE3DC] flex flex-col justify-center">
-                <p className="text-sm uppercase mb-3">Wellness Sessions</p>
-                <h2 className="text-5xl font-bold mb-4">Guided Meditation Live</h2>
-                <p className="mb-6">Heal stress and calm your mind.</p>
-             </div>
-             <img
-               src="https://peacefulsoulquest.com/wp-content/uploads/2023/12/inner_peace-e1702828727196.webp"
-               className="w-full h-full object-cover"
-             />
-           </div>
+          {activeTab === "sessions" && (
+            <div className="grid md:grid-cols-[55%_45%] rounded-[32px] overflow-hidden shadow-xl bg-white h-[550px] hover:shadow-2xl transition-all duration-300 ease-in-out">
+              <div className="relative bg-[#D6EEE9] flex flex-col justify-center h-full px-16 py-20">
+                <div className="max-w-[520px]">
+                  <p className="text-xs uppercase tracking-widest mb-4 text-teal-700 font-semibold">Wellness Sessions</p>
+                  <h2 className="text-6xl font-bold leading-tight mb-6 text-[#0B3B36]">Guided Meditation Live</h2>
+                  <p className="text-xl text-[#215B55] opacity-90 leading-relaxed">Heal stress and calm your mind with guided sessions.</p>
+                </div>
+              </div>
+              <div className="relative bg-emerald-50">
+                <img
+                  src="/session.png"
+                  alt="Guided Meditation"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            </div>
           )}
 
-          {!selectedProduct && activeTab === "retreats" && (
-            <div className="grid md:grid-cols-2 rounded-[36px] overflow-hidden shadow-2xl bg-white min-h-[604px] md:h-[684px]">
-              <div className="p-10 md:p-14 bg-[#C7DFFF] flex flex-col justify-center">
-                <p className="text-sm uppercase mb-3">Retreats</p>
-                <h2 className="text-5xl font-bold mb-4">Escape Into Nature</h2>
-                <p className="mb-6">Relax and reconnect.</p>
-             </div>
-             <img
-               src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200"
-               className="w-full h-full object-cover"
-             />
-           </div>
+          {activeTab === "retreats" && (
+            <div className="grid md:grid-cols-[55%_45%] rounded-[32px] overflow-hidden shadow-xl bg-white h-[550px] hover:shadow-2xl transition-all duration-300 ease-in-out">
+              <div className="relative bg-[#D6EEE9] flex flex-col justify-center h-full px-16 py-20">
+                <div className="max-w-[520px]">
+                  <p className="text-xs uppercase tracking-widest mb-4 text-teal-700 font-semibold">Retreats</p>
+                  <h2 className="text-6xl font-bold leading-tight mb-6 text-[#0B3B36]">Escape Into Nature</h2>
+                  <p className="text-xl text-[#215B55] opacity-90 leading-relaxed">Reconnect with nature, mindfulness, and inner peace.</p>
+                </div>
+              </div>
+              <div className="relative bg-emerald-50">
+                <img
+                  src="/retreats.png"
+                  alt="Escape Into Nature"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            </div>
           )}
-          {!selectedProduct && activeTab === "products" && (
-             <div className="grid md:grid-cols-2 rounded-[36px] overflow-hidden shadow-2xl bg-white min-h-[604px] md:h-[684px]">
-               <div className="p-10 md:p-14 bg-[#E0F7F4] flex flex-col justify-center">
-                 <p className="text-sm uppercase mb-3">Products</p>
-                 <h2 className="text-5xl font-bold mb-4">Explore Wellness Products</h2>
-                 <p className="mb-6">Shop crystals, oils and more.</p>
-               </div>
-               <img
-                 src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=1200"
-                 className="w-full h-full object-cover"
-               />
-             </div>
-            )}
+          {activeTab === "products" && (
+            <div className="grid md:grid-cols-[55%_45%] rounded-[32px] overflow-hidden shadow-xl bg-white h-[550px] hover:shadow-2xl transition-all duration-300 ease-in-out">
+              <div className="relative bg-[#D6EEE9] flex flex-col justify-center h-full px-16 py-20">
+                <div className="max-w-[520px]">
+                  <p className="text-xs uppercase tracking-widest mb-4 text-teal-700 font-semibold">Products</p>
+                  <h2 className="text-6xl font-bold leading-tight mb-6 text-[#0B3B36]">Explore Wellness Products</h2>
+                  <p className="text-xl text-[#215B55] opacity-90 leading-relaxed">Shop crystals, oils, and wellness essentials for your journey.</p>
+                </div>
+              </div>
+              <div className="relative bg-emerald-50">
+                <img
+                  src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=1200"
+                  alt="Explore Wellness Products"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            </div>
+          )}
 
             </motion.div>
 
@@ -635,7 +691,7 @@ export function MarketplacePage() {
               return (
                 <motion.div
                   key={i}
-                  onClick={() => setSelectedProduct(product)}
+                  
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   whileHover={{ y: -8 }}
@@ -958,47 +1014,6 @@ export function MarketplacePage() {
           </div>
         )}
 
-       {/* Product Modal */}
-       {activeTab === "products" && selectedProduct && (
-         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-           <div className="bg-white rounded-3xl p-6 max-w-lg w-full relative">
-
-             <button
-               onClick={() => setSelectedProduct(null)}
-               className="absolute top-4 right-4 text-xl"
-              >
-               ✕
-             </button>
-
-             <img
-               src={selectedProduct.image}
-               className="w-full h-80 object-cover rounded-2xl mb-4"
-             />
-
-             <h2 className="text-2xl font-bold mb-2">
-               {selectedProduct.name}
-             </h2>
-
-             <p className="text-gray-600 mb-4">
-               {selectedProduct.description}
-             </p>
-
-             <div className="text-xl font-semibold text-teal-700">
-               {selectedProduct.price}
-             </div>
-
-             <button
-               onClick={async () => {
-                 await handleProductPurchase(selectedProduct);
-               }}
-               className="mt-4 w-full py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-xl"
-             >
-               Buy Now
-             </button>
-
-            </div>
-         </div>
-        )} 
 
         {/* Trust Badges */}
         <motion.div
@@ -1043,8 +1058,18 @@ export function MarketplacePage() {
             onClose={() => setIsAddOpen(false)}
             selectedAddType={selectedAddType}
             setSelectedAddType={setSelectedAddType}
-         />
-       )}
+          />
+        )}
+
+        <CheckoutModal
+          isOpen={isCheckoutOpen}
+          onClose={() => {
+            setIsCheckoutOpen(false);
+            setCheckoutItem(null);
+          }}
+          item={checkoutItem}
+          onConfirm={onConfirmCheckout}
+        />
       </div>
     </div>
   );

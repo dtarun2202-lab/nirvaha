@@ -109,7 +109,7 @@ export default function RightSidebar({
                         <img src={avatarSrc} alt={m.name} className="w-full h-full object-cover" />
                       ) : (
                         <span className="text-emerald-700 font-bold text-sm">
-                          {m.name.charAt(0)}
+                          {(m.name || "M").charAt(0)}
                         </span>
                       )}
                     </div>

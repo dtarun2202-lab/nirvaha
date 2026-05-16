@@ -271,7 +271,7 @@ export function ProductsContent() {
                     <div className="col-span-2 flex items-center gap-2">
                        <span className={`flex items-center gap-2 px-3 py-1.5 bg-[#EAFBF0] text-[#34A46B] rounded-full text-xs font-bold border border-[#BDE8CE]`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${product.status === 'out-of-stock' ? 'bg-red-500' : 'bg-[#40C381]'}`}></span>
-                          {product.status === 'out-of-stock' ? 'Out of Stock' : product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+                          {product.status === 'out-of-stock' ? 'Out of Stock' : (product.status || 'active').charAt(0).toUpperCase() + (product.status || 'active').slice(1)}
                        </span>
                     </div>
                     <div className="col-span-2 flex items-center justify-end gap-3 pr-2">
