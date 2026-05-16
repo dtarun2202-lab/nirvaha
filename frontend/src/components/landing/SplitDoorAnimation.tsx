@@ -19,7 +19,7 @@ const SplitDoorAnimation: React.FC<SplitDoorAnimationProps> = ({ onDoorOpen, isO
 
   return (
     <motion.div 
-      className="absolute inset-0 z-30 flex items-center justify-center overflow-hidden cursor-pointer"
+      className="absolute inset-0 z-[100] flex items-center justify-center overflow-hidden cursor-pointer"
       animate={{ 
         backgroundColor: open ? "rgba(234, 245, 239, 0)" : "rgba(234, 245, 239, 1)",
         pointerEvents: open ? "none" : "auto" 
@@ -149,10 +149,10 @@ const SplitDoorAnimation: React.FC<SplitDoorAnimationProps> = ({ onDoorOpen, isO
         <motion.div
           className="relative h-full overflow-hidden"
           style={{ 
-            width: 'calc(50% - 60px)',
+            width: '50%',
             transformOrigin: 'left center',
             boxShadow: 'inset -20px 0 50px rgba(0,0,0,0.1)',
-            zIndex: 40
+            zIndex: 110
           }}
           initial={{ rotateY: 0 }}
           animate={open ? { 
@@ -174,7 +174,7 @@ const SplitDoorAnimation: React.FC<SplitDoorAnimationProps> = ({ onDoorOpen, isO
         >
           <div 
             className="absolute top-0 left-0 h-full"
-            style={{ width: 'calc(200% + 120px)' }}
+            style={{ width: '200%' }}
           >
             <img 
               src="/split-door.jpeg" 
@@ -184,19 +184,15 @@ const SplitDoorAnimation: React.FC<SplitDoorAnimationProps> = ({ onDoorOpen, isO
           </div>
         </motion.div>
 
-        {/* Center Gap Background (Visible before opening) */}
-        {!open && (
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120px] h-full bg-[#eaf5ef] z-30" />
-        )}
 
         {/* Right Door Leaf (Modern Tech) */}
         <motion.div
           className="relative h-full overflow-hidden"
           style={{ 
-            width: 'calc(50% - 60px)',
+            width: '50%',
             transformOrigin: 'right center',
             boxShadow: 'inset 20px 0 50px rgba(0,0,0,0.1)',
-            zIndex: 40
+            zIndex: 110
           }}
           initial={{ rotateY: 0 }}
           animate={open ? { 
@@ -218,7 +214,7 @@ const SplitDoorAnimation: React.FC<SplitDoorAnimationProps> = ({ onDoorOpen, isO
         >
           <div 
             className="absolute top-0 right-0 h-full"
-            style={{ width: 'calc(200% + 120px)' }}
+            style={{ width: '200%' }}
           >
             <img 
               src="/split-door.jpeg" 
@@ -240,7 +236,7 @@ const SplitDoorAnimation: React.FC<SplitDoorAnimationProps> = ({ onDoorOpen, isO
 
       {/* Click To Reveal Image */}
       <motion.div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none flex items-center justify-center"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[120] pointer-events-none flex items-center justify-center"
         animate={open ? { opacity: 0, scale: 0.8 } : { opacity: [0.85, 1, 0.85] }}
         transition={{ duration: 2, repeat: open ? 0 : Infinity, ease: "easeInOut" }}
       >

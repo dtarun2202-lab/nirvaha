@@ -9,7 +9,7 @@ import AncientWisdomSection from '../components/landing/AncientWisdomSection';
 import LeadershipHeroSection from '../components/landing/LeadershipHeroSection';
 import DifferentPathsSection from '../components/landing/DifferentPathsSection';
 import CollaboratorsSection from '../components/landing/CollaboratorsSection';
-import AcademyCertificationSection from '../components/landing/AcademyCertificationSection';
+import CertificationCoursesSection from '../components/landing/CertificationCoursesSection';
 import Contact from '../components/landing/Contact';
 import ClosingSection from '../components/landing/ClosingSection';
 import Header from '../components/landing/Header';
@@ -60,7 +60,7 @@ const LandingPage: React.FC = () => {
         <AncientWisdomSection />
         <LeadershipHeroSection />
         <DifferentPathsSection />
-        <AcademyCertificationSection />
+        <CertificationCoursesSection />
         <CollaboratorsSection />
       </main>
       <Contact />

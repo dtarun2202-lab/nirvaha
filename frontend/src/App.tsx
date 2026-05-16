@@ -25,6 +25,12 @@ import { CompanionPage } from "./components/pages/CompanionPage";
 import { ProfilePage } from "./components/ProfilePage";
 import { Navigation } from "./components/Navigation";
 import { DashboardPage } from "./components/pages/DashboardPage";
+import PathwaysPage from './pages/PathwaysPage';
+import PathwayDetailPage from './pages/PathwayDetailPage';
+import PathwayJourney from './pages/PathwayJourney';
+import SyllabusPage from './pages/SyllabusPage';
+import LibraryDetailPage from './pages/LibraryDetailPage';
+import StoryDetailPage from './pages/StoryDetailPage';
 
 import { FeaturesBentoGrid } from "./components/dashboard/FeaturesBentoGrid";
 import { CommonProblems } from "./components/dashboard/CommonProblems";
@@ -81,6 +87,12 @@ function AppInner() {
         <Route path="/stories" element={<StoriesPage />} />
         <Route path="/success-story/:id" element={<SuccessStoryDetail />} />
         <Route path="/journey/:topicId" element={<JourneyPage />} />
+        <Route path="/pathways" element={<PathwaysPage />} />
+        <Route path="/pathways/:id" element={<PathwayDetailPage />} />
+        <Route path="/pathway-journey/:id" element={<PathwayJourney />} />
+        <Route path="/syllabus/:id" element={<SyllabusPage />} />
+        <Route path="/library/:id" element={<LibraryDetailPage />} />
+        <Route path="/story/:id" element={<StoryDetailPage />} />
 
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
