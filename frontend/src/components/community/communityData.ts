@@ -27,6 +27,7 @@ export interface Post {
   comments: Comment[];
   isCertified: boolean;
   isOnline: boolean;
+  expiresAt?: string | Date;
 }
 
 

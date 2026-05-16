@@ -35,6 +35,10 @@ const SEED_POSTS = [
 let seedRunning = false;
 
 async function seedIfEmpty() {
+  // Disabled automatic seeding per user request to ensure old posts 
+  // stay permanently deleted after their 24hr expiration.
+  return;
+  
   if (seedRunning) return;
   seedRunning = true;
   try {
@@ -80,10 +84,14 @@ router.get('/', async (req, res) => {
     const now = new Date();
     let query = { expiresAt: { $gt: now } };
 
-    // Hashtag filter — exact match in hashtags array
+    // Hashtag filter — exact match in hashtags array (supports comma-separated list)
     if (hashtag && hashtag.trim()) {
-      const tag = hashtag.trim().toLowerCase();
-      query.hashtags = tag;
+      const tags = hashtag.split(',').map(t => t.trim().toLowerCase());
+      if (tags.length === 1) {
+        query.hashtags = tags[0];
+      } else {
+        query.hashtags = { $in: tags };
+      }
     }
 
     if (q && q.trim()) {
