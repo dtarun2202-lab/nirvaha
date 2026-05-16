@@ -215,4 +215,48 @@ router.post('/increment-game', async (req, res) => {
   }
 });
 
+// POST /api/profile/daily-checkin — Automatically updates the user's daily streak
+router.post('/daily-checkin', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ error: 'userId required' });
+    const user = await User.findOne({ id: userId });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const today = new Date().toISOString().split('T')[0];
+    const activityLog = user.stats?.activityLog || [];
+    
+    if (!activityLog.includes(today)) {
+      const newLog = [...new Set([...activityLog, today])].sort();
+      const streak = computeStreak(newLog);
+      
+      const updated = await User.findOneAndUpdate(
+        { id: userId },
+        { 
+          $set: { 
+            'stats.activityLog': newLog,
+            'stats.streak': streak,
+            'stats.lastPlayedDate': today
+          } 
+        },
+        { new: true }
+      );
+      
+      const io = req.app.get('io');
+      if (io) {
+        io.emit('profile_updated', {
+          userId: updated.id,
+          stats: updated.stats,
+          sessionHistory: updated.sessionHistory || [],
+        });
+      }
+      return res.json({ success: true, stats: updated.stats });
+    }
+    
+    res.json({ success: false, message: 'Already checked in today' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;

@@ -93,16 +93,16 @@ export default function Feed({
   // NOTE: Hashtag filtering, search, and sorting are all handled by the backend API.
   // Feed just renders whatever posts are passed in.
 
-  // ── Header label ─────────────────────────────────────────
-  let headerLabel = "Latest Posts";
-  let headerRight = `${visible.length} posts`;
-
   if (filter === "Games") {
     return <MemoryMatch currentUser={currentUser} />;
   }
 
+  // ── Header label ─────────────────────────────────────────
+  let headerLabel = "Latest Moments";
+  let headerRight = `${visible.length} posts`;
+
   if (hashtagFilter) {
-    headerLabel = `Posts tagged ${hashtagFilter}`;
+    headerLabel = `Tagged ${hashtagFilter}`;
     const count = hashtagTotal ?? visible.length;
     headerRight = `${count} post${count !== 1 ? "s" : ""}`;
   } else if (searchQuery.trim()) {
@@ -111,28 +111,43 @@ export default function Feed({
   } else if (filter === "Popular") {
     headerLabel = "Most Popular";
     headerRight = "Top liked";
-  } else if (filter === "All") {
-    headerLabel = "All Posts";
-    headerRight = `${visible.length} total`;
+  } else if (filter === "Mindfulness") {
+    headerLabel = "Mindfulness Space";
+    headerRight = `${visible.length} moments`;
+  } else if (filter === "Healing") {
+    headerLabel = "Healing Space";
+    headerRight = `${visible.length} moments`;
   }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-[#0f172a]">{headerLabel}</h3>
-        <span className="text-xs text-[#6b7280]">{headerRight}</span>
+      <div className="flex items-center justify-between mb-4 px-1">
+        <h3 className="text-sm font-bold text-[#0f172a] uppercase tracking-wide opacity-80">{headerLabel}</h3>
+        <span className="text-[13px] font-medium text-[#64748b] bg-white/60 px-3 py-1 rounded-full">{headerRight}</span>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         {visible.length === 0 && (
-          <div className="text-center py-12 text-[#6b7280]">
-            {filter === "Popular"
-              ? <><p className="text-base font-medium text-[#0f172a]">No popular posts yet 🌱</p><p className="text-sm mt-1">Posts with 50+ likes will appear here.</p></>
-              : searchQuery.trim()
-              ? <><p className="text-base font-medium text-[#0f172a]">No posts found for "{searchQuery.trim()}" 🙏</p><p className="text-sm mt-1">Try a different keyword or browse all posts.</p></>
-              : <p className="text-sm">No posts here yet.</p>
-            }
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center py-20 px-4 text-center bg-white/50 backdrop-blur-sm rounded-3xl border border-gray-100 border-dashed"
+          >
+            <div className="w-20 h-20 mb-5 rounded-full bg-emerald-50 flex items-center justify-center shadow-sm">
+              <svg className="w-10 h-10 text-[#16a34a] opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+            </div>
+            <h3 className="text-[17px] font-bold text-[#0f172a] mb-2">No active wellness moments</h3>
+            <p className="text-[14px] text-[#64748b] max-w-[280px] leading-relaxed">
+              {filter === "Popular" ? "There are no highly liked posts right now." : 
+               filter === "Mindfulness" ? "No mindfulness posts right now. Take a deep breath and share your practice 🌿" :
+               filter === "Healing" ? "No healing posts right now. Take small steps and share your journey 💚" :
+               searchQuery.trim() ? `We couldn't find any moments for "${searchQuery.trim()}".` :
+               hashtagFilter ? `No active posts tagged with ${hashtagFilter} today.` :
+               "The community is quiet right now. Be the first to share today's journey."}
+            </p>
+          </motion.div>
         )}
         <AnimatePresence mode="popLayout">
           {visible.map(post => (

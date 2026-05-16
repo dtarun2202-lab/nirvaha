@@ -85,12 +85,12 @@ export default function PostCard({ post, currentUser, onLike, onComment, onProfi
   const totalComments = post.comments.length;
 
   return (
-    <article className="bg-white rounded-lg p-3 border border-[#e2e8f0] hover:shadow-md hover:border-[#52B788]/40 transition-all">
-      <header className="flex items-start gap-3 mb-1">
+    <article className="bg-white/80 backdrop-blur-xl rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(22,163,74,0.08)] hover:border-emerald-100/50 transition-all duration-300">
+      <header className="flex items-start gap-4 mb-1">
         {/* Avatar */}
-        <button onClick={() => onProfileClick(post)} className="relative flex-shrink-0">
+        <button onClick={() => onProfileClick(post)} className="relative flex-shrink-0 group">
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm border-2 border-white shadow-sm overflow-hidden"
+            className="w-12 h-12 rounded-[16px] flex items-center justify-center text-white font-bold text-lg shadow-sm overflow-hidden group-hover:shadow-md transition-shadow"
             style={{ background: post.avatarColor }}
           >
             {post.avatarUrl
@@ -98,37 +98,42 @@ export default function PostCard({ post, currentUser, onLike, onComment, onProfi
               : post.userInitial}
           </div>
           {post.isOnline && (
-            <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#52B788] rounded-full border-2 border-white" />
+            <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-[#16a34a] rounded-full border-2 border-white" />
           )}
         </button>
 
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 pt-0.5">
           {/* Title row */}
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h3 className="text-base font-semibold text-[#0f172a] leading-snug line-clamp-1">{post.title}</h3>
-              <p className="text-xs text-[#6b7280] mt-0.5">
-                {post.userName} · {post.userRole} · {timeLabel}
+              <h3 className="text-[15px] font-bold text-[#0f172a] leading-tight line-clamp-1">{post.title}</h3>
+              <p className="text-[13px] text-[#64748b] mt-1 font-medium flex items-center flex-wrap gap-x-1.5 gap-y-0.5">
+                <span className="text-[#15803d]">{post.userName}</span> 
+                <span className="opacity-40 text-[10px]">•</span> 
+                <span>{post.userRole}</span> 
+                <span className="opacity-40 text-[10px]">•</span> 
+                <span>{timeLabel}</span>
               </p>
             </div>
             {/* ··· menu */}
             <div className="relative flex-shrink-0" ref={menuRef}>
               <button
                 onClick={() => setShowMenu(v => !v)}
-                className="p-1 rounded hover:bg-black/5 text-[#6b7280]"
+                className="p-1.5 rounded-xl hover:bg-[#f8fafc] text-[#94a3b8] hover:text-[#0f172a] transition-colors"
               >
-                <MoreHorizontal className="w-4 h-4" />
+                <MoreHorizontal className="w-5 h-5" />
               </button>
               {showMenu && (
-                <div className="absolute right-0 top-7 z-30 bg-white border border-[#e2e8f0] rounded-xl shadow-lg w-40 py-1 text-sm text-[#1e293b]">
-                  <button onClick={handleSave} className="w-full flex items-center gap-2 px-4 py-2 hover:bg-[#f0fdf4]">
-                    <Bookmark className="w-3.5 h-3.5 text-[#2D6A4F]" /> Save Post
+                <div className="absolute right-0 top-9 z-30 bg-white/90 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] w-44 py-1.5 text-[13px] font-medium text-[#1e293b] overflow-hidden">
+                  <button onClick={handleSave} className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-[#f0fdf4] transition-colors">
+                    <Bookmark className="w-4 h-4 text-[#16a34a]" /> Save Post
                   </button>
-                  <button onClick={handleCopyLink} className="w-full flex items-center gap-2 px-4 py-2 hover:bg-[#f0fdf4]">
-                    <Link className="w-3.5 h-3.5 text-[#2D6A4F]" /> Copy Link
+                  <button onClick={handleCopyLink} className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-[#f0fdf4] transition-colors">
+                    <Link className="w-4 h-4 text-[#16a34a]" /> Copy Link
                   </button>
-                  <button onClick={handleReport} className="w-full flex items-center gap-2 px-4 py-2 hover:bg-red-50 text-red-500">
-                    <Flag className="w-3.5 h-3.5" /> Report
+                  <div className="h-px bg-gray-100 my-1 mx-2"></div>
+                  <button onClick={handleReport} className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-red-50 text-red-600 transition-colors">
+                    <Flag className="w-4 h-4" /> Report
                   </button>
                 </div>
               )}
@@ -136,80 +141,86 @@ export default function PostCard({ post, currentUser, onLike, onComment, onProfi
           </div>
 
           {/* Body */}
-          <p className="text-sm text-[#1e293b] mt-2 line-clamp-2 leading-relaxed">{post.body}</p>
+          <p className="text-[14px] text-[#334155] mt-3 line-clamp-3 leading-[1.6] whitespace-pre-wrap">
+            {post.body}
+          </p>
 
           {/* Action bar */}
-          <footer className="mt-2 flex items-center gap-1 text-[#6b7280]">
+          <footer className="mt-4 flex items-center gap-2 text-[#64748b]">
             {/* Like */}
             <button
               onClick={handleLike}
-              style={{ transform: likeAnim ? "scale(1.2)" : "scale(1)", transition: "transform 200ms ease" }}
-              className={`flex items-center gap-1 px-2 py-1 rounded-full transition-colors ${post.liked ? "text-[#52B788]" : "hover:bg-black/5"}`}
+              style={{ transform: likeAnim ? "scale(1.15)" : "scale(1)", transition: "transform 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275)" }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-300 ${post.liked ? "bg-[#f0fdf4] text-[#16a34a]" : "hover:bg-[#f8fafc] hover:text-[#0f172a]"}`}
             >
-              <Heart className={`w-4 h-4 ${post.liked ? "fill-[#52B788] text-[#52B788]" : ""}`} />
-              <span className="text-xs">{post.likes}</span>
+              <Heart className={`w-[18px] h-[18px] ${post.liked ? "fill-[#16a34a] text-[#16a34a]" : ""}`} />
+              <span className="text-[13px] font-bold">{post.likes}</span>
             </button>
 
             {/* Comment */}
             <button
               onClick={() => setShowComments(v => !v)}
-              className={`flex items-center gap-1 px-2 py-1 rounded-full transition-colors ${showComments ? "text-[#2D6A4F]" : "hover:bg-black/5"}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-300 ${showComments ? "bg-[#f8fafc] text-[#0f172a]" : "hover:bg-[#f8fafc] hover:text-[#0f172a]"}`}
             >
-              <MessageCircle className={`w-4 h-4 ${showComments ? "text-[#2D6A4F]" : ""}`} />
-              <span className="text-xs">{totalComments}</span>
+              <MessageCircle className={`w-[18px] h-[18px] ${showComments ? "text-[#0f172a] fill-[#0f172a]/5" : ""}`} />
+              <span className="text-[13px] font-bold">{totalComments}</span>
             </button>
 
             {/* Share */}
             <button
               onClick={handleShare}
-              className="flex items-center gap-1 px-2 py-1 rounded-full hover:bg-black/5 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-[#f8fafc] hover:text-[#0f172a] transition-all duration-300"
             >
-              <Share2 className="w-4 h-4" />
-              <span className="text-xs">Share</span>
+              <Share2 className="w-[18px] h-[18px]" />
+              <span className="text-[13px] font-bold">Share</span>
             </button>
           </footer>
 
           {/* Inline comment section */}
           {showComments && (
-            <div className="mt-3 border-t border-[#e2e8f0] pt-3 space-y-2">
+            <div className="mt-4 border-t border-gray-100 pt-4 space-y-3">
               {post.comments.map((c: Comment) => (
-                <div key={c.id} className="flex items-start gap-2">
+                <div key={c.id} className="flex items-start gap-2.5">
                   <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
+                    className="w-8 h-8 rounded-[10px] flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm"
                     style={{ background: c.avatarColor }}
                   >
                     {c.userInitial}
                   </div>
-                  <div className="bg-[#f6f7f8] rounded-xl px-3 py-2 flex-1">
-                    <span className="text-xs font-semibold text-[#0f172a]">{c.userName}</span>
-                    <span className="text-xs text-[#6b7280] ml-1">{formatTime(c.createdAt)}</span>
-                    <p className="text-sm text-[#1e293b] mt-0.5">{c.text}</p>
+                  <div className="bg-[#f8fafc] rounded-2xl rounded-tl-sm px-4 py-2.5 flex-1 shadow-sm border border-gray-50">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[13px] font-bold text-[#0f172a]">{c.userName}</span>
+                      <span className="text-[11px] font-medium text-[#94a3b8]">{formatTime(c.createdAt)}</span>
+                    </div>
+                    <p className="text-[13px] text-[#334155] mt-1 leading-relaxed">{c.text}</p>
                   </div>
                 </div>
               ))}
 
               {/* New comment input */}
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-3 mt-4 pt-1">
                 <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
+                  className="w-8 h-8 rounded-[10px] flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm"
                   style={{ background: currentUser.avatarColor }}
                 >
                   {currentUser.initial}
                 </div>
-                <input
-                  value={commentText}
-                  onChange={e => setCommentText(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && handleComment()}
-                  placeholder="Write a comment..."
-                  className="flex-1 text-sm border border-[#e2e8f0] rounded-full px-3 py-1.5 outline-none focus:border-[#52B788] text-[#1e293b] placeholder-[#9ca3af]"
-                />
-                <button
-                  onClick={handleComment}
-                  disabled={!commentText.trim()}
-                  className="px-3 py-1.5 bg-[#2D6A4F] text-white text-xs rounded-full disabled:opacity-40 hover:bg-[#1B4332] transition-colors"
-                >
-                  Post
-                </button>
+                <div className="flex-1 relative">
+                  <input
+                    value={commentText}
+                    onChange={e => setCommentText(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && handleComment()}
+                    placeholder="Add a mindful thought..."
+                    className="w-full text-[13px] font-medium bg-[#f8fafc] border border-gray-200 rounded-full pl-4 pr-20 py-2.5 outline-none focus:bg-white focus:border-[#16a34a] focus:ring-4 focus:ring-[#16a34a]/10 text-[#0f172a] placeholder-[#94a3b8] transition-all duration-300"
+                  />
+                  <button
+                    onClick={handleComment}
+                    disabled={!commentText.trim()}
+                    className="absolute right-1.5 top-1.5 bottom-1.5 px-4 bg-[#16a34a] text-white text-[12px] font-bold rounded-full disabled:opacity-50 disabled:bg-[#94a3b8] hover:bg-[#15803d] transition-colors shadow-sm"
+                  >
+                    Post
+                  </button>
+                </div>
               </div>
             </div>
           )}

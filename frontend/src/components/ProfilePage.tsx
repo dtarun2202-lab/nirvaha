@@ -586,7 +586,21 @@ export function ProfilePage() {
         }
       } catch (e) { console.error('👤 Profile: Load failed', e); }
     };
+
+    const doDailyCheckin = async () => {
+      if (!user?.id) return;
+      const token = localStorage.getItem('token');
+      try {
+        await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/daily-checkin`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+          body: JSON.stringify({ userId: user.id })
+        });
+      } catch (e) { console.error('Daily checkin failed', e); }
+    };
+
     loadProfile();
+    doDailyCheckin();
   }, [user?.id]);
 
   // Handle Mood Update
