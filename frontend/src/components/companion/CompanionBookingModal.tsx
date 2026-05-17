@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { Calendar } from '../ui/calendar';
 import { createBooking } from '@/lib/bookingApi';
+import { toast } from 'react-toastify';
 
 interface Companion {
   id: string;
@@ -127,7 +128,32 @@ const CompanionBookingModal: React.FC<CompanionBookingModalProps> = ({
     timeSlot: timeSlots[3],
   });
 
-  const totalSteps = 5;
+  const [userDetails, setUserDetails] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    notes: ''
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const userRaw = localStorage.getItem('nirvaha_user');
+    if (userRaw) {
+      try {
+        const user = JSON.parse(userRaw);
+        setUserDetails(prev => ({
+          ...prev,
+          name: user.name || user.username || '',
+          email: user.email || ''
+        }));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, []);
+
+  const totalSteps = 6;
 
   const handleEscape = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') onClose();
@@ -140,30 +166,51 @@ const CompanionBookingModal: React.FC<CompanionBookingModalProps> = ({
 
   const nextStep = async () => {
     if (currentStep < totalSteps) {
+      // Input validation for step 5
+      if (currentStep === 5) {
+        if (!userDetails.name.trim()) {
+          toast.warning('Please enter your full name');
+          return;
+        }
+        if (!userDetails.email.trim()) {
+          toast.warning('Please enter your email');
+          return;
+        }
+        if (!userDetails.phone.trim()) {
+          toast.warning('Please enter your phone number');
+          return;
+        }
+      }
       setCurrentStep(currentStep + 1);
     } else {
       try {
+        setLoading(true);
         const userRaw = localStorage.getItem('nirvaha_user');
         const user = userRaw ? JSON.parse(userRaw) : null;
 
         const payload = {
           companionId: bookingData.companion.id,
           companionName: bookingData.companion.name,
-          userName: user?.name || 'Guest User',
-          userEmail: user?.email || 'guest@example.com',
+          userId: user?.id || user?._id || '',
+          userName: userDetails.name,
+          userEmail: userDetails.email,
+          phone: userDetails.phone,
+          sessionNotes: userDetails.notes,
           type: bookingData.sessionType.title,
-          date: bookingData.date,
-          timeSlot: bookingData.timeSlot.label,
-          price: bookingData.sessionType.price,
-          status: 'upcoming'
+          date: bookingData.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
+          time: bookingData.timeSlot.label,
+          price: parseInt(bookingData.sessionType.price.replace('₹', '')) || 0,
+          status: 'Pending Approval'
         };
 
         await createBooking(payload);
-        alert("Booking confirmed! Your session has been scheduled and stored.");
+        toast.success("Booking request submitted! Awaiting admin approval.");
         onClose();
       } catch (error: any) {
         console.error("Booking error:", error);
-        alert(`Failed to complete booking: ${error.message}`);
+        toast.error(`Failed to submit booking: ${error.message}`);
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -249,7 +296,7 @@ const CompanionBookingModal: React.FC<CompanionBookingModalProps> = ({
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs uppercase tracking-[0.2em] font-bold text-emerald-800/40">Step {currentStep} of {totalSteps}</span>
                 <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((s) => (
+                  {[1, 2, 3, 4, 5, 6].map((s) => (
                     <div
                       key={s}
                       className={`w-2 h-2 rounded-full transition-all duration-500 ${
@@ -421,6 +468,67 @@ const CompanionBookingModal: React.FC<CompanionBookingModalProps> = ({
                   exit={{ opacity: 0, x: -20 }}
                 >
                   <div className="mb-8">
+                    <h2 className="text-3xl font-bold text-emerald-950 mb-2">Your Details 🌿</h2>
+                    <p className="text-emerald-800/50">Provide your contact info & let us know what's on your mind.</p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-emerald-800 mb-1.5 ml-1">Full Name</label>
+                        <input
+                          type="text"
+                          placeholder="Your Name"
+                          value={userDetails.name}
+                          onChange={(e) => setUserDetails({ ...userDetails, name: e.target.value })}
+                          className="w-full px-4 py-3 rounded-2xl border border-emerald-100 text-teal-900 bg-emerald-50/20 focus:border-emerald-500 focus:outline-none font-medium"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-emerald-800 mb-1.5 ml-1">Email Address</label>
+                        <input
+                          type="email"
+                          placeholder="your.email@example.com"
+                          value={userDetails.email}
+                          onChange={(e) => setUserDetails({ ...userDetails, email: e.target.value })}
+                          className="w-full px-4 py-3 rounded-2xl border border-emerald-100 text-teal-900 bg-emerald-50/20 focus:border-emerald-500 focus:outline-none font-medium"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-emerald-800 mb-1.5 ml-1">Phone Number</label>
+                      <input
+                        type="tel"
+                        placeholder="e.g. +91 98765 43210"
+                        value={userDetails.phone}
+                        onChange={(e) => setUserDetails({ ...userDetails, phone: e.target.value })}
+                        className="w-full px-4 py-3 rounded-2xl border border-emerald-100 text-teal-900 bg-emerald-50/20 focus:border-emerald-500 focus:outline-none font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-emerald-800 mb-1.5 ml-1">Session Notes (Optional)</label>
+                      <textarea
+                        rows={4}
+                        placeholder="Tell us what you would like to focus on during this session (burnout, stress, overthinking, finding calm...)"
+                        value={userDetails.notes}
+                        onChange={(e) => setUserDetails({ ...userDetails, notes: e.target.value })}
+                        className="w-full px-4 py-3 rounded-2xl border border-emerald-100 text-teal-900 bg-emerald-50/20 focus:border-emerald-500 focus:outline-none font-medium resize-none"
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {currentStep === 6 && (
+                <motion.div
+                  key="step6"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                >
+                  <div className="mb-8">
                     <h2 className="text-3xl font-bold text-emerald-950 mb-2">Booking Summary ✨</h2>
                     <p className="text-emerald-800/50">Review your session details before confirming.</p>
                   </div>
@@ -453,6 +561,15 @@ const CompanionBookingModal: React.FC<CompanionBookingModalProps> = ({
                           <p className="font-bold text-emerald-950">{bookingData.timeSlot.label}</p>
                         </div>
                       </div>
+
+                      <div className="mt-4 pt-4 border-t border-emerald-100 text-sm text-teal-800 space-y-2">
+                        <p><strong className="text-emerald-900 font-bold">Contact Name:</strong> {userDetails.name}</p>
+                        <p><strong className="text-emerald-900 font-bold">Email:</strong> {userDetails.email}</p>
+                        <p><strong className="text-emerald-900 font-bold">Phone:</strong> {userDetails.phone}</p>
+                        {userDetails.notes && (
+                          <p className="bg-white p-3 rounded-xl border border-emerald-50 mt-2 italic text-teal-700/80">"{userDetails.notes}"</p>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-3 p-4 bg-amber-50 rounded-2xl border border-amber-100 text-amber-800 text-xs">
@@ -477,15 +594,19 @@ const CompanionBookingModal: React.FC<CompanionBookingModalProps> = ({
               Back
             </button>
             <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: loading ? 1 : 1.05, y: loading ? 0 : -2 }}
+              whileTap={{ scale: loading ? 1 : 0.95 }}
               onClick={nextStep}
+              disabled={loading}
               className={`
                 px-10 py-5 rounded-2xl font-bold shadow-xl transition-all flex items-center gap-3
                 ${currentStep === totalSteps ? 'bg-emerald-900 text-white' : 'bg-emerald-600 text-white shadow-emerald-200 shadow-lg'}
+                ${loading ? 'opacity-50 cursor-not-allowed' : ''}
               `}
             >
-              {currentStep === totalSteps ? (
+              {loading ? (
+                <>Submitting... <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div></>
+              ) : currentStep === totalSteps ? (
                 <>Confirm Booking <CreditCard className="w-5 h-5" /></>
               ) : (
                 <>Continue <ChevronRight className="w-5 h-5" /></>

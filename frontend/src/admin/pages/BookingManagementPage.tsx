@@ -41,17 +41,19 @@ interface Booking {
   companionId: string;
   companionName: string;
   companionEmail: string;
-  type: "Chat" | "Video";
+  type: string;
   platform: string;
   date: string;
   time: string;
   duration: number; // in minutes
-  status: "upcoming" | "completed" | "cancelled" | "in-progress";
+  status: string;
   price: number;
   quantity: number;
   paymentStatus: string;
   deliveryStatus: string;
   createdAt: string;
+  phone?: string;
+  sessionNotes?: string;
 }
 
 export function BookingManagementPage() {
@@ -63,9 +65,11 @@ export function BookingManagementPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
   const [confirmAction, setConfirmAction] = useState<{
-    type: "cancel" | "complete" | "approve" | "reject";
+    type: "cancel" | "complete" | "accept" | "reject";
     booking: Booking;
   } | null>(null);
 
@@ -77,64 +81,89 @@ export function BookingManagementPage() {
         throw new Error("Unable to load bookings");
       }
       const data = await response.json();
-        setBookings(
-          Array.isArray(data)
-            ? data
-                .map((booking: any) => {
-                  let parsedType = booking.type ? String(booking.type).toLowerCase() : "session";
-                  if (parsedType === "video") parsedType = "Video";
-                  else if (parsedType === "chat") parsedType = "Chat";
-                  else if (parsedType === "retreat") parsedType = "Retreat";
-                  else if (parsedType === "product") parsedType = "Product";
-                  else parsedType = "Session";
+      setBookings(
+        Array.isArray(data)
+          ? data.map((booking: any) => {
+              let parsedType = booking.type
+                ? String(booking.type).toLowerCase()
+                : "session";
 
-                  let parsedPlatform = String(booking.platform || "Online");
-                  let parsedDate = String(booking.date || booking.createdAt || "");
-                  let parsedTime = String(booking.time || "");
+              if (parsedType === "video") parsedType = "Video";
+              else if (parsedType === "chat") parsedType = "Chat";
+              else if (parsedType === "retreat") parsedType = "Retreat";
+              else if (parsedType === "product") parsedType = "Product";
+              else parsedType = "Session";
 
-                  // Fix messy data where platform contains the time
-                  const platformLower = parsedPlatform.toLowerCase();
-                  if (platformLower.includes("ist") || platformLower.includes("am") || platformLower.includes("pm") || platformLower.includes("tomorrow") || platformLower.includes("today")) {
-                    parsedTime = parsedPlatform;
-                    parsedPlatform = "Online";
+              let parsedPlatform = String(booking.platform || "Online");
+              let parsedDate = String(booking.date || booking.createdAt || "");
+              let parsedTime = String(booking.time || "");
+
+              const platformLower = parsedPlatform.toLowerCase();
+
+              if (
+                platformLower.includes("ist") ||
+                platformLower.includes("am") ||
+                platformLower.includes("pm") ||
+                platformLower.includes("tomorrow") ||
+                platformLower.includes("today")
+              ) {
+                parsedTime = parsedPlatform;
+                parsedPlatform = "Online";
+              }
+
+              if (!parsedPlatform) parsedPlatform = "Online";
+
+              if (parsedDate.includes("T") && parsedDate.endsWith("Z")) {
+                const d = new Date(parsedDate);
+
+                if (!isNaN(d.getTime())) {
+                  parsedDate = d.toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  });
+
+                  if (!parsedTime || parsedTime === "Online") {
+                    parsedTime = d.toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
                   }
-                  if (!parsedPlatform) parsedPlatform = "Online";
+                }
+              }
 
-                  // Clean up ISO dates
-                  if (parsedDate.includes("T") && parsedDate.endsWith("Z")) {
-                    const d = new Date(parsedDate);
-                    if (!isNaN(d.getTime())) {
-                      parsedDate = d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
-                      if (!parsedTime || parsedTime === "Online") {
-                        parsedTime = d.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' });
-                      }
-                    }
-                  }
-
-                  return {
-                    id: booking.id || booking._id || "",
-                    userId: booking.userId || "",
-                    userName: booking.userName || booking.name || "Guest",
-                    userEmail: booking.userEmail || booking.email || "N/A",
-                    companionId: booking.companionId || booking.itemId || "",
-                    companionName: booking.companionName || booking.itemName || booking.companion || "Unknown",
-                    companionEmail: booking.companionEmail || "",
-                    type: parsedType,
-                    platform: parsedPlatform,
-                    date: parsedDate,
-                    time: parsedTime,
-                    duration: typeof booking.duration === "number" ? booking.duration : (parseInt(booking.duration) || 0),
-                    status: booking.status || "upcoming",
-                    price: Number(booking.price || 0),
-                    quantity: booking.quantity || 1,
-                    paymentStatus: booking.paymentStatus || "N/A",
-                    deliveryStatus: booking.deliveryStatus || "N/A",
-                    createdAt: booking.createdAt || new Date().toISOString(),
-                  };
-                })
-                .filter((b: any) => b.type === "Product" || b.type === "Retreat")
-            : []
-        );
+              return {
+                id: booking.id || booking._id || "",
+                userId: booking.userId || "",
+                userName: booking.userName || booking.name || "Guest",
+                userEmail: booking.userEmail || booking.email || "N/A",
+                companionId: booking.companionId || booking.itemId || "",
+                companionName:
+                  booking.companionName ||
+                  booking.itemName ||
+                  booking.companion ||
+                  "Unknown",
+                companionEmail: booking.companionEmail || "",
+                type: parsedType,
+                platform: parsedPlatform,
+                date: parsedDate,
+                time: parsedTime,
+                duration:
+                  typeof booking.duration === "number"
+                    ? booking.duration
+                    : parseInt(booking.duration) || 0,
+                status: booking.status || "upcoming",
+                price: Number(booking.price || 0),
+                quantity: booking.quantity || 1,
+                paymentStatus: booking.paymentStatus || "N/A",
+                deliveryStatus: booking.deliveryStatus || "N/A",
+                createdAt: booking.createdAt || new Date().toISOString(),
+                phone: booking.phone || "N/A",
+                sessionNotes: booking.sessionNotes || "",
+              };
+            })
+          : []
+      );
     } catch (error) {
       console.error("Error fetching bookings:", error);
       setBookings([]);
@@ -154,8 +183,13 @@ export function BookingManagementPage() {
       fetchBookings();
     });
 
+    socket.on("booking-updated", () => {
+      fetchBookings();
+    });
+
     return () => {
       socket.off("booking-created");
+      socket.off("booking-updated");
     };
   }, [socket, fetchBookings]);
 
@@ -169,41 +203,41 @@ export function BookingManagementPage() {
           booking.userName.toLowerCase().includes(searchLower) ||
           booking.userEmail.toLowerCase().includes(searchLower) ||
           booking.companionName.toLowerCase().includes(searchLower);
-        
+
         let inRange = true;
         if (dateFrom || dateTo) {
           let bookingDate = new Date(booking.date);
-          
+
           if (isNaN(bookingDate.getTime())) {
-             // Attempt to extract a date from strings like "12 Aug - 18 Aug TBD"
-             const match = booking.date.match(/(\d{1,2}\s+[a-zA-Z]+)/);
-             if (match) {
-                 bookingDate = new Date(`${match[1]} ${new Date().getFullYear()}`);
-             }
-             // Fallback to createdAt if still invalid
-             if (isNaN(bookingDate.getTime())) {
-                bookingDate = new Date(booking.createdAt);
-             }
+            // Attempt to extract a date from strings like "12 Aug - 18 Aug TBD"
+            const match = booking.date.match(/(\d{1,2}\s+[a-zA-Z]+)/);
+            if (match) {
+              bookingDate = new Date(`${match[1]} ${new Date().getFullYear()}`);
+            }
+            // Fallback to createdAt if still invalid
+            if (isNaN(bookingDate.getTime())) {
+              bookingDate = new Date(booking.createdAt);
+            }
           }
 
           if (!isNaN(bookingDate.getTime())) {
             // zero out time for comparison
             const compareDate = new Date(bookingDate.getFullYear(), bookingDate.getMonth(), bookingDate.getDate());
-            
+
             if (dateFrom) {
-               const from = new Date(dateFrom.getFullYear(), dateFrom.getMonth(), dateFrom.getDate());
-               if (compareDate.getTime() < from.getTime()) inRange = false;
+              const from = new Date(dateFrom.getFullYear(), dateFrom.getMonth(), dateFrom.getDate());
+              if (compareDate.getTime() < from.getTime()) inRange = false;
             }
             if (dateTo) {
-               const to = new Date(dateTo.getFullYear(), dateTo.getMonth(), dateTo.getDate());
-               if (compareDate.getTime() > to.getTime()) inRange = false;
+              const to = new Date(dateTo.getFullYear(), dateTo.getMonth(), dateTo.getDate());
+              if (compareDate.getTime() > to.getTime()) inRange = false;
             }
           } else {
             // If we can't parse the date at all and a filter is active, exclude it
             inRange = false;
           }
         }
-        
+
         return matchesFilter && matchesSearch && inRange;
       }),
     [bookings, filter, searchQuery, dateFrom, dateTo]
@@ -215,28 +249,28 @@ export function BookingManagementPage() {
   };
 
   const handleAction = (type: string, booking: Booking) => {
-    setConfirmAction({ type: type as "cancel" | "complete", booking });
+    setConfirmAction({ type: type as "cancel" | "complete" | "accept" | "reject", booking });
   };
 
   const handleExportCSV = () => {
     if (filteredBookings.length === 0) return;
-    
+
     const headers = ["Booking ID", "User Name", "User Email", "Companion Name", "Type", "Platform", "Date", "Time", "Duration (min)", "Status", "Price", "Created At"];
     const csvContent = [
       headers.join(","),
-      ...filteredBookings.map(b => 
+      ...filteredBookings.map(b =>
         [
-          `"${b.id}"`, 
-          `"${b.userName}"`, 
-          `"${b.userEmail}"`, 
-          `"${b.companionName}"`, 
-          `"${b.type}"`, 
-          `"${b.platform}"`, 
-          `"${b.date}"`, 
-          `"${b.time}"`, 
-          b.duration, 
-          `"${b.status}"`, 
-          b.price, 
+          `"${b.id}"`,
+          `"${b.userName}"`,
+          `"${b.userEmail}"`,
+          `"${b.companionName}"`,
+          `"${b.type}"`,
+          `"${b.platform}"`,
+          `"${b.date}"`,
+          `"${b.time}"`,
+          b.duration,
+          `"${b.status}"`,
+          b.price,
           `"${b.createdAt}"`
         ].join(",")
       )
@@ -254,63 +288,43 @@ export function BookingManagementPage() {
 
   const confirmActionHandler = async () => {
     if (!confirmAction) return;
-    
-    let newStatus = "";
-    switch(confirmAction.type) {
-      case "cancel": newStatus = "cancelled"; break;
-      case "complete": newStatus = "completed"; break;
-      case "approve": newStatus = "upcoming"; break;
-      case "reject": newStatus = "cancelled"; break;
+
+    let targetStatus = "Session Confirmed";
+    if (confirmAction.type === "cancel") {
+      targetStatus = "cancelled";
+    } else if (confirmAction.type === "reject") {
+      targetStatus = "rejected";
+    } else if (confirmAction.type === "complete") {
+      targetStatus = "completed";
+    } else if (confirmAction.type === "accept") {
+      targetStatus = "Session Confirmed";
     }
 
     try {
-      const body: any = { status: newStatus };
-      if (confirmAction.booking.type === "Product") {
-        if (newStatus === "upcoming") body.deliveryStatus = "Shipped";
-        else if (newStatus === "completed") body.deliveryStatus = "Delivered";
-        else if (newStatus === "cancelled") body.deliveryStatus = "Cancelled";
-        else if (newStatus === "pending") body.deliveryStatus = "Processing";
-      }
-
-      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/bookings/${confirmAction.booking.id}`, {
+      setActionLoading(true);
+      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/bookings/${confirmAction.booking.id}/status`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: targetStatus }),
       });
 
-      if (!response.ok) throw new Error("Failed to update status");
+      if (!response.ok) {
+        throw new Error("Failed to update booking status");
+      }
 
       setBookings((prev) =>
         prev.map((b) =>
           b.id === confirmAction.booking.id
-            ? { 
-                ...b, 
-                status: newStatus as any, 
-                deliveryStatus: body.deliveryStatus || b.deliveryStatus 
-              }
+            ? { ...b, status: targetStatus }
             : b
         )
       );
-
-      // Notify the marketplace tab to refresh registrations
-      const storageKey = `nirvaha_my_sessions_${confirmAction.booking.userEmail}`;
-      const local = JSON.parse(localStorage.getItem(storageKey) || "[]");
-      const updated = local.map((l: any) => 
-        (l.sessionId === confirmAction.booking.companionId || l.id === confirmAction.booking.id) 
-        ? { 
-            ...l, 
-            status: newStatus === "upcoming" && l.type !== "product" ? "approved" : newStatus,
-            host: body.deliveryStatus || l.host
-          } 
-        : l
-      );
-      localStorage.setItem(storageKey, JSON.stringify(updated));
-      window.dispatchEvent(new CustomEvent("nirvaha-session-status-updated"));
-
-    } catch (err) {
-      console.error("Status update failed:", err);
-      alert("Failed to update booking status. Please try again.");
+    } catch (error) {
+      console.error("Error updating booking status:", error);
     } finally {
+      setActionLoading(false);
       setConfirmAction(null);
     }
   };
@@ -323,14 +337,14 @@ export function BookingManagementPage() {
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-4">
               <div className="bg-[#5ABF88] p-3 rounded-xl text-white shadow-sm">
-                 <CalendarIcon className="w-6 h-6" />
+                <CalendarIcon className="w-6 h-6" />
               </div>
               <div>
-                 <h2 className="text-2xl font-bold text-[#1F4131]">Booking Management</h2>
-                 <p className="text-[#64C08E] text-sm font-semibold">{filteredBookings.length} bookings total</p>
+                <h2 className="text-2xl font-bold text-[#1F4131]">Booking Management</h2>
+                <p className="text-[#64C08E] text-sm font-semibold">{filteredBookings.length} bookings total</p>
               </div>
             </div>
-            <Button 
+            <Button
               onClick={handleExportCSV}
               className="bg-[#4EAA77] hover:bg-[#3C9162] text-white rounded-xl px-6 py-2.5 h-auto font-bold shadow-md"
             >
@@ -383,7 +397,7 @@ export function BookingManagementPage() {
                 <div className="col-span-1">Type</div>
                 <div className="col-span-1">Qty</div>
                 <div className="col-span-1">Payment</div>
-                <div className="col-span-1">Delivery</div>
+                <div className="col-span-1">Status/Delivery</div>
                 <div className="col-span-1">Date</div>
                 <div className="col-span-1">Price</div>
                 <div className="col-span-1 text-right">Actions</div>
@@ -407,9 +421,9 @@ export function BookingManagementPage() {
                     </div>
                     {/* Type */}
                     <div className="col-span-1 flex justify-center">
-                       <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold uppercase ${item.type === 'Product' ? 'bg-[#D1FAE5] text-[#065F46]' : 'bg-[#EAFBF0] text-[#34A46B]'}`}>
-                          {item.type}
-                       </span>
+                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold uppercase ${item.type === 'Product' ? 'bg-[#D1FAE5] text-[#065F46]' : 'bg-[#EAFBF0] text-[#34A46B]'}`}>
+                        {item.type}
+                      </span>
                     </div>
                     {/* Qty */}
                     <div className="col-span-1 font-bold text-[#2A4939]">
@@ -417,34 +431,53 @@ export function BookingManagementPage() {
                     </div>
                     {/* Payment */}
                     <div className="col-span-1 flex justify-center">
-                       <span className={`px-2 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${item.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                          {item.paymentStatus}
-                       </span>
+                      <span className={`px-2 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${item.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                        {item.paymentStatus}
+                      </span>
                     </div>
-                    {/* Delivery Status */}
+                    {/* Delivery Status / Session Status */}
                     <div className="col-span-1 flex justify-center">
-                       <span className={`px-2 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${item.deliveryStatus === 'Delivered' ? 'bg-blue-100 text-blue-700' : 'bg-teal-50 text-teal-600 border border-teal-100'}`}>
+                      {item.type === 'Product' ? (
+                        <span className={`px-2 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${item.deliveryStatus === 'Delivered' ? 'bg-blue-100 text-blue-700' : 'bg-teal-50 text-teal-600 border border-teal-100'}`}>
                           {item.deliveryStatus}
-                       </span>
+                        </span>
+                      ) : (
+                        <StatusBadge status={item.status} variant="booking" />
+                      )}
                     </div>
                     {/* Date */}
                     <div className="col-span-1 truncate text-[#64C08E] font-medium">
-                       {item.date}
+                      {item.date}
                     </div>
                     {/* Price */}
                     <div className="col-span-1 font-bold text-[#1F4131]">
                       ₹{item.price}
                     </div>
-                    {/* Actions */}
                     <div className="col-span-1 flex items-center justify-end">
-                       <ActionMenu
-                          variant="booking"
-                          onView={() => handleView(item)}
-                          onCancel={() => handleAction("cancel", item)}
-                          onComplete={() => handleAction("complete", item)}
-                          onApprove={item.status === "pending" ? () => handleAction("approve", item) : undefined}
-                          onReject={item.status === "pending" ? () => handleAction("reject", item) : undefined}
-                        />
+                      <ActionMenu
+                        variant="booking"
+                        onView={() => handleView(item)}
+                        onApprove={
+                          item.status === "Pending Approval" || item.status === "pending"
+                            ? () => handleAction("accept", item)
+                            : undefined
+                        }
+                        onReject={
+                          item.status === "Pending Approval" || item.status === "pending"
+                            ? () => handleAction("reject", item)
+                            : undefined
+                        }
+                        onCancel={
+                          item.status === "upcoming" || item.status === "Session Confirmed"
+                            ? () => handleAction("cancel", item)
+                            : undefined
+                        }
+                        onComplete={
+                          item.status === "upcoming" || item.status === "Session Confirmed"
+                            ? () => handleAction("complete", item)
+                            : undefined
+                        }
+                      />
                     </div>
                   </div>
                 ))}
@@ -489,14 +522,14 @@ export function BookingManagementPage() {
                   <div className="flex items-center gap-3 shrink-0 ml-1">
                     {(() => {
                       const norm = (selectedBooking.status || "").toLowerCase();
-                      if (norm === "pending") {
+                      if (norm === "pending" || norm === "pending approval") {
                         return (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#fffbeb] text-[#92400e] border border-[#fde68a] shadow-sm">
                             <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                             Review Required
                           </span>
                         );
-                      } else if (norm === "approved" || norm === "upcoming") {
+                      } else if (norm === "approved" || norm === "upcoming" || norm === "session confirmed") {
                         return (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#d6eee9] text-[#0a2e1f] border border-[#b8d8d1] shadow-sm">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
@@ -575,7 +608,7 @@ export function BookingManagementPage() {
                         <div className="flex flex-col">
                           <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Contact Phone</span>
                           <span className="text-[#0a2e1f] font-bold mt-1">
-                            {selectedBooking.companionEmail || selectedBooking.userEmail === 'guest@nirvaha.com' ? '+91 98765 43210' : '+91 98480 22338'}
+                            {selectedBooking.phone && selectedBooking.phone !== "N/A" ? selectedBooking.phone : "+91 98480 22338"}
                           </span>
                         </div>
                         <div className="flex flex-col">
@@ -744,6 +777,21 @@ export function BookingManagementPage() {
                     </div>
                   </div>
 
+                  {/* Session Notes Card */}
+                  {selectedBooking.sessionNotes && selectedBooking.sessionNotes !== "" && (
+                    <div className="bg-[#f8faf9]/80 backdrop-blur-md p-6 rounded-[24px] border border-[#dceae2]/70 shadow-[0_8px_30px_rgb(0,0,0,0.015)] relative overflow-hidden group hover:border-[#b8d8d1] transition-all duration-300">
+                      <h3 className="font-extrabold text-[12px] uppercase tracking-widest text-[#0a2e1f] mb-3 flex items-center gap-2.5">
+                        <span className="bg-[#eff6f3] p-1.5 rounded-lg text-[#2d5a42] border border-[#dceae2]/50">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        </span>
+                        Session Notes / Message
+                      </h3>
+                      <p className="text-teal-900/80 italic text-[13px] bg-white/60 p-4 rounded-xl border border-[#dceae2] font-medium leading-relaxed">
+                        "{selectedBooking.sessionNotes}"
+                      </p>
+                    </div>
+                  )}
+
                   {/* Dynamic Status Progress Timeline */}
                   <div className="bg-[#f8faf9]/80 backdrop-blur-md p-6 rounded-[24px] border border-[#dceae2]/70 shadow-[0_8px_30px_rgb(0,0,0,0.015)] relative overflow-hidden group hover:border-[#b8d8d1] transition-all duration-300">
                     <h3 className="font-extrabold text-[12px] uppercase tracking-widest text-[#0a2e1f] mb-5 flex items-center gap-2.5">
@@ -768,13 +816,13 @@ export function BookingManagementPage() {
 
                       {/* Step 2 (Conditional) */}
                       <div className="relative">
-                        <span className={`absolute -left-[31px] top-0.5 w-4 h-4 rounded-full border-4 border-white shadow-sm flex items-center justify-center ${selectedBooking.status === 'completed' || selectedBooking.status === 'upcoming' ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`} />
+                        <span className={`absolute -left-[31px] top-0.5 w-4 h-4 rounded-full border-4 border-white shadow-sm flex items-center justify-center ${selectedBooking.status === 'completed' || selectedBooking.status === 'upcoming' || selectedBooking.status === 'Session Confirmed' ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`} />
                         <div className="flex flex-col">
                           <span className="font-bold text-[#0a2e1f]">
-                            {selectedBooking.status === 'pending' ? 'Verification in Progress' : 'Approved by Concierge'}
+                            {selectedBooking.status === 'pending' || selectedBooking.status === 'Pending Approval' ? 'Verification in Progress' : 'Approved by Concierge'}
                           </span>
                           <span className="text-[11px] text-[#6a8c7a] mt-0.5 font-medium">
-                            {selectedBooking.status === 'pending' 
+                            {selectedBooking.status === 'pending' || selectedBooking.status === 'Pending Approval'
                               ? 'Admin approval is requested to confirm availability.' 
                               : 'Spot successfully reserved & verified.'}
                           </span>
@@ -818,7 +866,29 @@ export function BookingManagementPage() {
                
                {/* Right Side: Admin Operations */}
                <div className="flex gap-3">
-                 {selectedBooking?.status === "upcoming" && (
+                 {(selectedBooking?.status === "Pending Approval" || selectedBooking?.status === "pending") && (
+                   <>
+                     <Button
+                       onClick={() => {
+                         setIsViewModalOpen(false);
+                         handleAction("reject", selectedBooking);
+                       }}
+                       className="bg-white border border-rose-200 text-rose-500 hover:bg-rose-50 hover:text-rose-600 font-bold rounded-full px-6 h-12 shadow-sm transition-all hover:scale-102 active:scale-98"
+                     >
+                       Reject Session
+                     </Button>
+                     <Button
+                       className="bg-[#4EAA77] hover:bg-[#3C9162] text-white font-bold rounded-full px-8 h-12 shadow-md hover:shadow-[0_0_20px_rgba(90,191,136,0.3)] transition-all duration-300 hover:scale-102 active:scale-98"
+                       onClick={() => {
+                         setIsViewModalOpen(false);
+                         handleAction("accept", selectedBooking);
+                       }}
+                     >
+                       Accept Session
+                     </Button>
+                   </>
+                 )}
+                 {(selectedBooking?.status === "upcoming" || selectedBooking?.status === "Session Confirmed") && (
                    <>
                      <Button
                        onClick={() => {
@@ -870,18 +940,34 @@ export function BookingManagementPage() {
         onOpenChange={(open) => !open && setConfirmAction(null)}
         title={
           confirmAction
-            ? `${confirmAction.type === 'approve' ? 'Approve' : confirmAction.type === 'reject' ? 'Reject' : confirmAction.type.charAt(0).toUpperCase() + confirmAction.type.slice(1)} Booking`
+            ? confirmAction.type === "accept"
+              ? "Accept Session Booking"
+              : confirmAction.type === "reject"
+              ? "Reject Session Booking"
+              : `${confirmAction.type.charAt(0).toUpperCase()}${confirmAction.type.slice(1)} Booking`
             : "Confirm"
         }
         description={
           confirmAction
-            ? `Are you sure you want to ${confirmAction.type} booking ${confirmAction.booking.id}?`
+            ? `Are you sure you want to ${
+                confirmAction.type === "accept"
+                  ? "accept"
+                  : confirmAction.type === "reject"
+                  ? "reject"
+                  : confirmAction.type
+              } booking ${confirmAction.booking.id}?`
             : ""
         }
         confirmText={
-          confirmAction?.type === "complete" ? "Mark Completed" : 
-          confirmAction?.type === "approve" ? "Approve Request" :
-          confirmAction?.type === "reject" ? "Reject Request" : "Confirm"
+          confirmAction?.type === "complete"
+            ? "Mark Completed"
+            : confirmAction?.type === "accept"
+            ? "Accept Session"
+            : confirmAction?.type === "reject"
+            ? "Reject Session"
+            : confirmAction?.type === "cancel"
+            ? "Cancel Booking"
+            : "Confirm"
         }
         onConfirm={confirmActionHandler}
         variant={confirmAction?.type === "cancel" || confirmAction?.type === "reject" ? "destructive" : "default"}
@@ -889,4 +975,3 @@ export function BookingManagementPage() {
     </div>
   );
 }
-

@@ -12,6 +12,7 @@ import { AdminTable } from "@/admin/components/AdminTable";
 import { StatusBadge } from "@/admin/components/StatusBadge";
 import { ConfirmModal } from "@/admin/components/ConfirmModal";
 import { useSocket } from "@/contexts/SocketContext";
+import BACKEND_CONFIG from "@/config/backend";
 import {
   Dialog,
   DialogContent,
@@ -81,6 +82,8 @@ export function CompanionManagementPage() {
     companion: Companion;
   } | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [companionBookings, setCompanionBookings] = useState<any[]>([]);
+  const [bookingsLoading, setBookingsLoading] = useState(false);
 
   const loadApplications = async () => {
     try {
@@ -126,9 +129,29 @@ export function CompanionManagementPage() {
     [companions, filter, debouncedQuery]
   );
 
-  const handleView = (companion: Companion) => {
+  const handleView = async (companion: Companion) => {
     setSelectedCompanion(companion);
     setIsViewModalOpen(true);
+    setBookingsLoading(true);
+    setCompanionBookings([]);
+    try {
+      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/bookings`);
+      if (response.ok) {
+        const bookingsData = await response.json();
+        const filtered = Array.isArray(bookingsData)
+          ? bookingsData.filter((booking: any) => {
+              const matchesName = booking.companionName && booking.companionName.toLowerCase() === companion.name.toLowerCase();
+              const matchesId = booking.companionId === companion.id || booking.itemId === companion.id;
+              return matchesName || matchesId;
+            })
+          : [];
+        setCompanionBookings(filtered);
+      }
+    } catch (err) {
+      console.error("Error loading companion bookings:", err);
+    } finally {
+      setBookingsLoading(false);
+    }
   };
 
   const handleEdit = (companion: Companion) => {
@@ -211,7 +234,14 @@ export function CompanionManagementPage() {
       key: "actions",
       header: "Actions",
       render: (item: Companion) => (
-        <div className="flex gap-2">
+        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+          <button
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-blue-200 text-blue-600 hover:bg-blue-50 transition-all hover:scale-105"
+            onClick={() => handleView(item)}
+            title="View companion details & bookings"
+          >
+            View
+          </button>
           <button
             className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-[#95d5b2] text-[#2d6a4f] hover:bg-[#A8E6CF] transition-all hover:scale-105"
             onClick={() => handleEdit(item)}
@@ -335,7 +365,12 @@ export function CompanionManagementPage() {
         </div>
 
         <div className="med-card overflow-hidden">
-          <AdminTable data={filteredCompanions} columns={columns} emptyMessage="No companions found" />
+          <AdminTable 
+            data={filteredCompanions} 
+            columns={columns} 
+            onRowClick={handleView}
+            emptyMessage="No companions found" 
+          />
         </div>
 
       <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
@@ -399,6 +434,40 @@ export function CompanionManagementPage() {
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   <span className="text-sm font-medium">{selectedCompanion.rating}</span>
                 </div>
+              </div>
+
+              {/* Companion Bookings Section */}
+              <div className="border-t border-[#b7e4c7] pt-4 mt-6">
+                <h3 className="font-bold text-[#1b4332] text-md mb-3">Sessions & Bookings</h3>
+                {bookingsLoading ? (
+                  <p className="text-sm text-[#40916c] animate-pulse">Loading bookings...</p>
+                ) : companionBookings.length === 0 ? (
+                  <p className="text-sm text-gray-500 italic">No session bookings recorded for this companion yet.</p>
+                ) : (
+                  <div className="space-y-3 max-h-[250px] overflow-y-auto pr-1">
+                    {companionBookings.map((booking: any) => {
+                      let parsedDate = String(booking.date || booking.createdAt || "");
+                      if (parsedDate.includes("T") && parsedDate.endsWith("Z")) {
+                        const d = new Date(parsedDate);
+                        if (!isNaN(d.getTime())) {
+                          parsedDate = d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+                        }
+                      }
+                      return (
+                        <div key={booking.id || booking._id} className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-3 flex justify-between items-center text-sm">
+                          <div>
+                            <div className="font-semibold text-[#1b4332]">{booking.userName || 'Guest'}</div>
+                            <div className="text-xs text-gray-500 mt-0.5">{parsedDate} • {booking.time || 'N/A'} ({booking.platform || 'Video'})</div>
+                          </div>
+                          <div className="flex flex-col items-end gap-1.5">
+                            <span className="text-xs font-bold text-[#2d6a4f] bg-emerald-100/70 px-2 py-0.5 rounded-full uppercase tracking-wider">{booking.status}</span>
+                            <span className="text-xs font-bold text-gray-700">₹{booking.price || '1500'}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           )}

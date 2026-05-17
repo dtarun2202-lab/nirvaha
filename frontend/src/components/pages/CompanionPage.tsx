@@ -20,6 +20,9 @@ import {
   Mail,
   ExternalLink,
   ChevronRight,
+  SlidersHorizontal,
+  Filter,
+  RotateCcw,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import CompanionBookingModal from "../companion/CompanionBookingModal";
@@ -214,8 +217,17 @@ export function CompanionPage() {
     }
   };
 
-  const [selectedCategory, setSelectedCategory] = useState("All");
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
+
+  // Advanced Filter States
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [priceSort, setPriceSort] = useState<"none" | "low-to-high" | "high-to-low">("none");
+  const [priceRanges, setPriceRanges] = useState<string[]>([]); // "under1000", "1000-2000", "above2000"
+  const [availabilities, setAvailabilities] = useState<string[]>([]); // "morning", "afternoon", "evening", "night", "today", "week"
+  const [selectedExperience, setSelectedExperience] = useState<string[]>([]); // "beginner", "3plus", "5plus", "10plus"
+  const [minRating, setMinRating] = useState<number | null>(null); // 4, 4.5, 5
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]); // "English", "Hindi", "Telugu", "Malayalam"
 
   const categories = [
     { id: "All", label: "All", icon: Sparkles },
@@ -232,12 +244,23 @@ export function CompanionPage() {
       category: "Meditation",
       title: "Meditation Guide",
       bio: "Helping you find calm through guided meditation and mindfulness techniques.",
+      fullAbout: "Aisha Mehta is a mindfulness and meditation guide focused on helping individuals reconnect with inner calm through breathwork, grounding techniques, and emotional awareness practices. Her sessions are designed for people experiencing stress, burnout, overthinking, or emotional exhaustion.",
+      experience: ["5+ years guiding meditation and mindfulness sessions", "Conducted 120+ personalized wellness sessions", "Specialized in guided relaxation and emotional balance"],
+      sessionStyle: ["Breath-focused meditation", "Calm grounding exercises", "Emotional clarity practices", "Gentle mindfulness coaching"],
+      languages: ["English", "Hindi"],
+      specialties: ["Calm", "Focus", "Balance", "Stress Relief"],
+      availability: "Mon – Sat • 9 AM – 7 PM",
+      quote: "Stillness is not emptiness. It is where clarity begins.",
       rating: 4.8,
       sessions: 120,
       price: "₹800",
+      hourlyRate: "₹800",
+      callRate: "₹400",
       avatar: "/aisha mehta.png",
       energyTags: ["Calm", "Focus", "Balance"],
-      color: "from-emerald-400 to-teal-400"
+      color: "from-emerald-400 to-teal-400",
+      experienceYears: 5,
+      availabilitySlots: ["morning", "afternoon", "evening"]
     },
     {
       id: "c2",
@@ -245,12 +268,23 @@ export function CompanionPage() {
       category: "Counseling",
       title: "Counseling Expert",
       bio: "Navigating life's complexities with compassion and structured guidance.",
+      fullAbout: "Arjun Verma provides compassionate emotional guidance and structured counseling support for individuals navigating anxiety, life transitions, relationship stress, and emotional confusion. His approach combines empathy with practical clarity.",
+      experience: ["8+ years in emotional wellness support", "210+ guided counseling sessions", "Focused on emotional resilience and self-growth"],
+      sessionStyle: ["Reflective conversations", "Structured emotional guidance", "Confidence-building sessions", "Personal growth mapping"],
+      languages: ["English", "Hindi", "Telugu"],
+      specialties: ["Clarity", "Support", "Growth", "Emotional Healing"],
+      availability: "Mon – Sun • 10 AM – 9 PM",
+      quote: "Healing begins when your thoughts finally feel heard.",
       rating: 4.9,
       sessions: 210,
       price: "₹1200",
+      hourlyRate: "₹1200",
+      callRate: "₹600",
       avatar: "/arjun verma.png",
       energyTags: ["Clarity", "Support", "Growth"],
-      color: "from-blue-400 to-indigo-400"
+      color: "from-blue-400 to-indigo-400",
+      experienceYears: 8,
+      availabilitySlots: ["morning", "afternoon", "evening"]
     },
     {
       id: "c3",
@@ -258,12 +292,23 @@ export function CompanionPage() {
       category: "Healing",
       title: "Energy Healer",
       bio: "Restoring balance to your mind, body, and spirit through ancient healing arts.",
+      fullAbout: "Kavya Nair specializes in holistic healing practices rooted in emotional restoration, body awareness, and energy alignment. Her sessions aim to restore peace, reduce emotional heaviness, and create a sense of inner harmony.",
+      experience: ["6+ years in holistic wellness", "95+ healing sessions conducted", "Expertise in energy balancing and emotional restoration"],
+      sessionStyle: ["Energy healing", "Emotional release practices", "Aura cleansing sessions", "Mind-body relaxation guidance"],
+      languages: ["English", "Malayalam", "Hindi"],
+      specialties: ["Restoration", "Peace", "Aura", "Emotional Balance"],
+      availability: "Tue – Sun • 11 AM – 6 PM",
+      quote: "Your energy speaks long before your words do.",
       rating: 4.7,
       sessions: 95,
       price: "₹1500",
+      hourlyRate: "₹1500",
+      callRate: "₹750",
       avatar: "/kavya.png",
       energyTags: ["Restoration", "Peace", "Aura"],
-      color: "from-amber-400 to-orange-400"
+      color: "from-amber-400 to-orange-400",
+      experienceYears: 6,
+      availabilitySlots: ["afternoon", "evening"]
     },
     {
       id: "c4",
@@ -271,12 +316,23 @@ export function CompanionPage() {
       category: "Spiritual",
       title: "Spiritual Guide",
       bio: "Guiding seekers on the path of self-discovery and spiritual awakening.",
+      fullAbout: "Swami Aarav offers spiritual reflection and inner-awareness guidance for seekers exploring meaning, stillness, purpose, and self-understanding. His sessions are calm, reflective, and rooted in conscious living rather than rigid belief systems.",
+      experience: ["15+ years guiding spiritual reflection sessions", "500+ one-on-one guidance interactions", "Focused on mindfulness, awareness, and self-discovery"],
+      sessionStyle: ["Reflective conversations", "Awareness practices", "Conscious living guidance", "Inner stillness exploration"],
+      languages: ["English", "Sanskrit", "Hindi", "Malayalam"],
+      specialties: ["Awakening", "Wisdom", "Zen", "Inner Clarity"],
+      availability: "Daily • 6 AM – 11 AM",
+      quote: "The quieter the mind becomes, the clearer life feels.",
       rating: 5.0,
       sessions: 500,
       price: "₹2000",
+      hourlyRate: "₹2000",
+      callRate: "₹1000",
       avatar: "/swami.png",
       energyTags: ["Awakening", "Wisdom", "Zen"],
-      color: "from-purple-400 to-pink-400"
+      color: "from-purple-400 to-pink-400",
+      experienceYears: 15,
+      availabilitySlots: ["morning"]
     },
     {
       id: "c5",
@@ -284,19 +340,142 @@ export function CompanionPage() {
       category: "Meditation",
       title: "Mindfulness Coach",
       bio: "Deepening your inner silence through traditional Zen meditation practices.",
+      fullAbout: "Riya Kapoor combines mindful movement, breath awareness, and emotional grounding to help individuals reconnect with themselves physically and emotionally. Her sessions are uplifting, calming, and beginner-friendly.",
+      experience: ["4+ years in yoga and mindfulness coaching", "Guided wellness routines for stress reduction and self-care", "Focused on emotional wellness through movement"],
+      sessionStyle: ["Guided yoga flows", "Breathwork sessions", "Relaxation and posture awareness", "Beginner wellness coaching"],
+      languages: ["English", "Hindi", "Telugu"],
+      specialties: ["Flexibility", "Calm", "Energy", "Self-Care"],
+      availability: "Mon – Fri • 7 AM – 5 PM",
+      quote: "Movement becomes healing when done with awareness.",
       rating: 4.9,
       sessions: 180,
       price: "₹900",
+      hourlyRate: "₹900",
+      callRate: "₹450",
       avatar: "/riya.png",
       energyTags: ["Silence", "Presence", "Flow"],
-      color: "from-teal-400 to-cyan-400"
+      color: "from-teal-400 to-cyan-400",
+      experienceYears: 4,
+      availabilitySlots: ["morning", "afternoon"]
     }
   ];
 
+  const hasActiveFilters = 
+    selectedCategories.length > 0 ||
+    priceSort !== "none" ||
+    priceRanges.length > 0 ||
+    availabilities.length > 0 ||
+    selectedExperience.length > 0 ||
+    minRating !== null ||
+    selectedLanguages.length > 0;
+
+  const activeFiltersCount = 
+    (selectedCategories.length > 0 ? 1 : 0) +
+    (priceSort !== "none" ? 1 : 0) +
+    (priceRanges.length > 0 ? 1 : 0) +
+    (availabilities.length > 0 ? 1 : 0) +
+    (selectedExperience.length > 0 ? 1 : 0) +
+    (minRating !== null ? 1 : 0) +
+    (selectedLanguages.length > 0 ? 1 : 0);
+
   const filteredItems = useMemo(() => {
-    if (selectedCategory === "All") return companionsList;
-    return companionsList.filter(c => c.category === selectedCategory);
-  }, [selectedCategory]);
+    let result = [...companionsList];
+
+    // 1. Category Filter
+    if (selectedCategories.length > 0) {
+      result = result.filter(c => {
+        // Normalize "Spiritual" vs "Spiritual Guidance" category naming
+        const checkCategory = c.category === "Spiritual" ? "Spiritual" : c.category;
+        return selectedCategories.includes(checkCategory);
+      });
+    }
+
+    // 2. Price Tier Range Filter
+    if (priceRanges.length > 0) {
+      result = result.filter(c => {
+        const numericPrice = parseInt(c.price.replace("₹", "")) || 0;
+        return priceRanges.some(range => {
+          if (range === "under1000") return numericPrice < 1000;
+          if (range === "1000-2000") return numericPrice >= 1000 && numericPrice <= 2000;
+          if (range === "above2000") return numericPrice > 2000;
+          return true;
+        });
+      });
+    }
+
+    // 3. Availability Filter
+    if (availabilities.length > 0) {
+      result = result.filter(c => {
+        const slots = c.availabilitySlots || [];
+        return availabilities.some(avail => {
+          if (["morning", "afternoon", "evening", "night"].includes(avail)) {
+            return slots.includes(avail);
+          }
+          if (avail === "today") {
+            // Static mock logic: Swami Aarav and Aisha Mehta are available today
+            return ["c1", "c4"].includes(c.id);
+          }
+          if (avail === "week") {
+            return true; // All are available this week
+          }
+          return true;
+        });
+      });
+    }
+
+    // 4. Experience Filter
+    if (selectedExperience.length > 0) {
+      result = result.filter(c => {
+        const expYrs = c.experienceYears || 0;
+        return selectedExperience.some(exp => {
+          if (exp === "beginner") return expYrs < 3;
+          if (exp === "3plus") return expYrs >= 3;
+          if (exp === "5plus") return expYrs >= 5;
+          if (exp === "10plus") return expYrs >= 10;
+          return true;
+        });
+      });
+    }
+
+    // 5. Rating Filter
+    if (minRating !== null) {
+      result = result.filter(c => c.rating >= minRating);
+    }
+
+    // 6. Language Filter
+    if (selectedLanguages.length > 0) {
+      result = result.filter(c => {
+        const langs = c.languages || [];
+        return selectedLanguages.some(lang => langs.includes(lang));
+      });
+    }
+
+    // 7. Price Sorting
+    if (priceSort === "low-to-high") {
+      result.sort((a, b) => {
+        const priceA = parseInt(a.price.replace("₹", "")) || 0;
+        const priceB = parseInt(b.price.replace("₹", "")) || 0;
+        return priceA - priceB;
+      });
+    } else if (priceSort === "high-to-low") {
+      result.sort((a, b) => {
+        const priceA = parseInt(a.price.replace("₹", "")) || 0;
+        const priceB = parseInt(b.price.replace("₹", "")) || 0;
+        return priceB - priceA;
+      });
+    }
+
+    return result;
+  }, [
+    companionsList,
+    selectedCategories,
+    priceRanges,
+    availabilities,
+    selectedExperience,
+    minRating,
+    selectedLanguages,
+    priceSort
+  ]);
 
 
   return (
@@ -350,28 +529,7 @@ export function CompanionPage() {
               guides, and wellness coaches. Pay per hour or per call.
             </p>
 
-            {/* Trust Info Bar */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="flex flex-wrap items-center justify-center gap-8 py-4 px-8 bg-white/40 backdrop-blur-md rounded-full border border-emerald-100/50 shadow-sm max-w-fit mx-auto"
-            >
-              <div className="flex items-center gap-2 text-emerald-800/80 text-sm font-medium">
-                <Star className="w-4 h-4 text-emerald-500 fill-emerald-500" />
-                <span>500+ sessions completed</span>
-              </div>
-              <div className="w-1 h-1 rounded-full bg-emerald-200" />
-              <div className="flex items-center gap-2 text-emerald-800/80 text-sm font-medium">
-                <Check className="w-4 h-4 text-emerald-500" />
-                <span>Verified companions</span>
-              </div>
-              <div className="w-1 h-1 rounded-full bg-emerald-200" />
-              <div className="flex items-center gap-2 text-emerald-800/80 text-sm font-medium">
-                <Heart className="w-4 h-4 text-emerald-500" />
-                <span>Safe & private conversations</span>
-              </div>
-            </motion.div>
+
 
             {/* Interactive CTA Section */}
             <div className="mt-16 flex flex-col items-center justify-center gap-6 w-full max-w-4xl mx-auto relative z-10">
@@ -452,24 +610,338 @@ export function CompanionPage() {
           </motion.div>
 
 
-          {/* Category Selection */}
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-20">
-            {categories.map((cat) => (
+          {/* Category Selection & Advanced Filter Toggle */}
+          <div className="flex flex-col gap-6 mb-16">
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              {categories.map((cat) => {
+                const isCatSelected = cat.id === "All"
+                  ? selectedCategories.length === 0
+                  : selectedCategories.includes(cat.id);
+                return (
+                  <motion.button
+                    key={cat.id}
+                    layout
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      if (cat.id === "All") {
+                        setSelectedCategories([]);
+                      } else {
+                        setSelectedCategories([cat.id]);
+                      }
+                    }}
+                    className={`px-8 py-4 rounded-full flex items-center gap-3 transition-all duration-300 font-bold border-2 ${
+                      isCatSelected 
+                      ? "bg-[#1B4332] border-[#1B4332] text-white shadow-xl shadow-[#1B4332]/20" 
+                      : "bg-white border-emerald-100 text-emerald-800 hover:border-emerald-300 hover:bg-emerald-50/50"
+                    }`}
+                  >
+                    {cat.label}
+                  </motion.button>
+                );
+              })}
+
               <motion.button
-                key={cat.id}
-                layout
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setSelectedCategory(cat.id)}
+                onClick={() => setIsFiltersOpen(!isFiltersOpen)}
                 className={`px-8 py-4 rounded-full flex items-center gap-3 transition-all duration-300 font-bold border-2 ${
-                  selectedCategory === cat.id 
-                  ? "bg-emerald-600 border-emerald-600 text-white shadow-xl shadow-emerald-200" 
-                  : "bg-white border-emerald-100 text-emerald-800 hover:border-emerald-300 hover:bg-emerald-50/50"
+                  isFiltersOpen || hasActiveFilters
+                  ? "bg-[#52B788] border-[#52B788] text-white shadow-xl shadow-[#52B788]/20"
+                  : "bg-white border-emerald-100 text-emerald-800 hover:border-emerald-300"
                 }`}
               >
-                {cat.label}
+                <SlidersHorizontal className="w-5 h-5" />
+                Advanced Filters
+                {hasActiveFilters && (
+                  <span className="bg-emerald-800 text-white text-xs px-2.5 py-0.5 rounded-full font-extrabold shadow-sm animate-pulse">
+                    {activeFiltersCount}
+                  </span>
+                )}
               </motion.button>
-            ))}
+            </div>
+
+            {/* Collapsible Advanced Filters Section */}
+            <AnimatePresence>
+              {isFiltersOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.4, ease: "easeInOut" }}
+                  className="overflow-hidden w-full max-w-6xl mx-auto"
+                >
+                  <div className="bg-white/70 backdrop-blur-xl border border-emerald-100/80 rounded-[32px] p-6 sm:p-8 mt-2 shadow-2xl shadow-emerald-900/5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-[#1b4332] relative">
+                    
+                    {/* 1. Category Filter Column */}
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-emerald-800/60 mb-2">Category Filters</h4>
+                      <div className="flex flex-col gap-2">
+                        {["Meditation", "Counseling", "Healing", "Spiritual"].map((catName) => {
+                          const actualLabel = catName === "Spiritual" ? "Spiritual Guidance 🕉️" : catName;
+                          const isChecked = selectedCategories.includes(catName);
+                          return (
+                            <button
+                              key={catName}
+                              onClick={() => {
+                                setSelectedCategories(prev => 
+                                  prev.includes(catName) ? prev.filter(c => c !== catName) : [...prev, catName]
+                                );
+                              }}
+                              className={`flex items-center justify-between px-4 py-3 rounded-2xl border text-sm font-semibold transition-all ${
+                                isChecked 
+                                ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm shadow-emerald-100" 
+                                : "bg-white/50 border-gray-100 hover:border-emerald-100 text-emerald-950/70"
+                              }`}
+                            >
+                              <span>{actualLabel}</span>
+                              <div className={`w-4 h-4 rounded-md border flex items-center justify-center transition-colors ${isChecked ? "bg-emerald-600 border-emerald-600 text-white" : "border-gray-300"}`}>
+                                {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 2. Price / Rate Filters Column */}
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-emerald-800/60 mb-2">Price & Sorting</h4>
+                      
+                      {/* Sort Toggle */}
+                      <div className="flex gap-2 mb-3">
+                        <button
+                          onClick={() => setPriceSort(priceSort === "low-to-high" ? "none" : "low-to-high")}
+                          className={`flex-1 py-2.5 rounded-xl border text-xs font-bold transition-all ${
+                            priceSort === "low-to-high"
+                            ? "bg-emerald-600 border-emerald-600 text-white shadow-sm"
+                            : "bg-white/50 border-gray-100 text-emerald-900/70 hover:border-emerald-100"
+                          }`}
+                        >
+                          ₹ Low to High
+                        </button>
+                        <button
+                          onClick={() => setPriceSort(priceSort === "high-to-low" ? "none" : "high-to-low")}
+                          className={`flex-1 py-2.5 rounded-xl border text-xs font-bold transition-all ${
+                            priceSort === "high-to-low"
+                            ? "bg-emerald-600 border-emerald-600 text-white shadow-sm"
+                            : "bg-white/50 border-gray-100 text-emerald-900/70 hover:border-emerald-100"
+                          }`}
+                        >
+                          ₹ High to Low
+                        </button>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        {[
+                          { id: "under1000", label: "Under ₹1000" },
+                          { id: "1000-2000", label: "₹1000 – ₹2000" },
+                          { id: "above2000", label: "Above ₹2000" }
+                        ].map((range) => {
+                          const isChecked = priceRanges.includes(range.id);
+                          return (
+                            <button
+                              key={range.id}
+                              onClick={() => {
+                                setPriceRanges(prev => 
+                                  prev.includes(range.id) ? prev.filter(r => r !== range.id) : [...prev, range.id]
+                                );
+                              }}
+                              className={`flex items-center justify-between px-4 py-3 rounded-2xl border text-sm font-semibold transition-all ${
+                                isChecked 
+                                ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm" 
+                                : "bg-white/50 border-gray-100 hover:border-emerald-100 text-emerald-950/70"
+                              }`}
+                            >
+                              <span>{range.label}</span>
+                              <div className={`w-4 h-4 rounded-md border flex items-center justify-center transition-colors ${isChecked ? "bg-emerald-600 border-emerald-600 text-white" : "border-gray-300"}`}>
+                                {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 3. Availability / Time Filters Column */}
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-emerald-800/60 mb-2">Availability & Time</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { id: "morning", label: "🌅 Morning" },
+                          { id: "afternoon", label: "☀️ Afternoon" },
+                          { id: "evening", label: "🌙 Evening" },
+                          { id: "night", label: "🌌 Night" }
+                        ].map((slot) => {
+                          const isChecked = availabilities.includes(slot.id);
+                          return (
+                            <button
+                              key={slot.id}
+                              onClick={() => {
+                                setAvailabilities(prev => 
+                                  prev.includes(slot.id) ? prev.filter(a => a !== slot.id) : [...prev, slot.id]
+                                );
+                              }}
+                              className={`py-3 rounded-2xl border text-xs font-bold transition-all text-center ${
+                                isChecked 
+                                ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm" 
+                                : "bg-white/50 border-gray-100 hover:border-emerald-100 text-emerald-950/70"
+                              }`}
+                            >
+                              {slot.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div className="flex flex-col gap-2 mt-2">
+                        {[
+                          { id: "today", label: "Available Today ⚡" },
+                          { id: "week", label: "Available This Week 📅" }
+                        ].map((dayOption) => {
+                          const isChecked = availabilities.includes(dayOption.id);
+                          return (
+                            <button
+                              key={dayOption.id}
+                              onClick={() => {
+                                  setAvailabilities(prev => 
+                                    prev.includes(dayOption.id) ? prev.filter(a => a !== dayOption.id) : [...prev, dayOption.id]
+                                  );
+                              }}
+                              className={`flex items-center justify-between px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all ${
+                                isChecked 
+                                ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm" 
+                                : "bg-white/50 border-gray-100 hover:border-emerald-100 text-emerald-950/70"
+                              }`}
+                            >
+                              <span>{dayOption.label}</span>
+                              <div className={`w-4 h-4 rounded-md border flex items-center justify-center transition-colors ${isChecked ? "bg-emerald-600 border-emerald-600 text-white" : "border-gray-300"}`}>
+                                {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 4. Experience Filters Column */}
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-emerald-800/60 mb-2">Experience Level</h4>
+                      <div className="flex flex-col gap-2">
+                        {[
+                          { id: "beginner", label: "Beginner Friendly (< 3 Yrs)" },
+                          { id: "3plus", label: "3+ Years Experience" },
+                          { id: "5plus", label: "5+ Years Experience" },
+                          { id: "10plus", label: "10+ Years Experience" }
+                        ].map((exp) => {
+                          const isChecked = selectedExperience.includes(exp.id);
+                          return (
+                            <button
+                              key={exp.id}
+                              onClick={() => {
+                                setSelectedExperience(prev => 
+                                  prev.includes(exp.id) ? prev.filter(e => e !== exp.id) : [...prev, exp.id]
+                                );
+                              }}
+                              className={`flex items-center justify-between px-4 py-3 rounded-2xl border text-sm font-semibold transition-all ${
+                                isChecked 
+                                ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm" 
+                                : "bg-white/50 border-gray-100 hover:border-emerald-100 text-emerald-950/70"
+                              }`}
+                            >
+                              <span>{exp.label}</span>
+                              <div className={`w-4 h-4 rounded-md border flex items-center justify-center transition-colors ${isChecked ? "bg-emerald-600 border-emerald-600 text-white" : "border-gray-300"}`}>
+                                {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 5. Rating Filters Column */}
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-emerald-800/60 mb-2">Ratings & Feedback</h4>
+                      <div className="flex flex-col gap-2">
+                        {[
+                          { id: 4, label: "4.0 ★ & Above" },
+                          { id: 4.5, label: "4.5 ★ & Above" },
+                          { id: 5, label: "5.0 ★ Rated Only" }
+                        ].map((ratingOption) => {
+                          const isSelected = minRating === ratingOption.id;
+                          return (
+                            <button
+                              key={ratingOption.id}
+                              onClick={() => {
+                                setMinRating(minRating === ratingOption.id ? null : ratingOption.id);
+                              }}
+                              className={`flex items-center justify-between px-4 py-3 rounded-2xl border text-sm font-semibold transition-all ${
+                                isSelected 
+                                ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm shadow-emerald-100" 
+                                : "bg-white/50 border-gray-100 hover:border-emerald-100 text-emerald-950/70"
+                              }`}
+                            >
+                              <span className="flex items-center gap-1">
+                                {ratingOption.label}
+                              </span>
+                              <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${isSelected ? "bg-emerald-600 border-emerald-600 text-white" : "border-gray-300"}`}>
+                                {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 6. Language Filters Column */}
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-emerald-800/60 mb-2">Fluent Languages</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        {["English", "Hindi", "Telugu", "Malayalam"].map((lang) => {
+                          const isChecked = selectedLanguages.includes(lang);
+                          return (
+                            <button
+                              key={lang}
+                              onClick={() => {
+                                setSelectedLanguages(prev => 
+                                  prev.includes(lang) ? prev.filter(l => l !== lang) : [...prev, lang]
+                                );
+                              }}
+                              className={`py-3 rounded-2xl border text-xs font-bold transition-all text-center ${
+                                isChecked 
+                                ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm" 
+                                : "bg-white/50 border-gray-100 hover:border-emerald-100 text-emerald-950/70"
+                              }`}
+                            >
+                              {lang}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      {/* Clear Filters Action Row */}
+                      <div className="pt-4 flex justify-end">
+                        <button
+                          onClick={() => {
+                            setSelectedCategories([]);
+                            setPriceSort("none");
+                            setPriceRanges([]);
+                            setAvailabilities([]);
+                            setSelectedExperience([]);
+                            setMinRating(null);
+                            setSelectedLanguages([]);
+                          }}
+                          className="flex items-center gap-1.5 text-xs text-rose-600 hover:text-rose-700 font-bold transition-colors"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          Clear All Filters
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Main Marketplace Area */}
@@ -542,23 +1014,32 @@ export function CompanionPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
-                    className="text-center py-20 flex flex-col items-center"
+                    className="text-center py-20 flex flex-col items-center w-full col-span-full"
                   >
                     <div className="w-24 h-24 bg-emerald-50 rounded-[40px] flex items-center justify-center mb-8 border border-emerald-100">
                       <Sparkles className="w-10 h-10 text-emerald-300" />
                     </div>
-                    <h2 className="text-4xl font-bold text-emerald-950 mb-4">No {selectedCategory.toLowerCase()} guides available right now 🌿</h2>
-                    <p className="text-xl text-emerald-800/50 max-w-lg mx-auto mb-10">Try another category or connect instantly with our available guides through 24/7 support.</p>
+                    <h2 className="text-4xl font-bold text-[#1B4332] mb-4">No guides match your active filters 🌿</h2>
+                    <p className="text-xl text-emerald-800/60 max-w-lg mx-auto mb-10">Try relaxing your search terms or clear your filters to explore our full network of spiritual guides.</p>
                     <button 
-                      onClick={() => setSelectedCategory("All")}
-                      className="px-10 py-4 bg-emerald-900 text-white rounded-2xl font-bold shadow-lg"
+                      onClick={() => {
+                        setSelectedCategories([]);
+                        setPriceSort("none");
+                        setPriceRanges([]);
+                        setAvailabilities([]);
+                        setSelectedExperience([]);
+                        setMinRating(null);
+                        setSelectedLanguages([]);
+                      }}
+                      className="px-10 py-4 bg-[#1B4332] hover:bg-emerald-900 text-white rounded-2xl font-bold shadow-lg transition-all flex items-center gap-2 mx-auto"
                     >
-                      View All Guides
+                      <RotateCcw className="w-5 h-5" />
+                      Clear All Filters
                     </button>
                   </motion.div>
                 ) : (
                   <motion.div 
-                    key={selectedCategory}
+                    key={selectedCategories.join("-") || "all"}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -591,11 +1072,19 @@ export function CompanionPage() {
 
                         <div className="flex-1 text-center mb-8">
                           <p className="text-emerald-800/70 text-sm leading-relaxed mb-6 italic line-clamp-2">"{companion.bio}"</p>
-                          <div className="flex flex-wrap justify-center gap-2 mb-6">
+                          <div className="flex flex-wrap justify-center gap-2 mb-4">
                             {companion.energyTags.map((tag) => (
                               <span key={tag} className="px-4 py-1.5 bg-white border border-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full shadow-sm">{tag}</span>
                             ))}
                           </div>
+
+                          <motion.button
+                            onClick={() => setSelectedCompanion(companion)}
+                            whileHover={{ x: 5 }}
+                            className="inline-flex items-center justify-center gap-2 text-xs font-bold text-emerald-600 hover:text-emerald-500 transition-colors mb-6 group/link"
+                          >
+                            View Full Profile <ChevronRight className="w-3 h-3 group-hover/link:translate-x-1 transition-transform" />
+                          </motion.button>
                           <div className="grid grid-cols-3 gap-2 py-4 bg-emerald-50/40 rounded-3xl border border-emerald-50">
                             <div className="flex flex-col items-center border-r border-emerald-100">
                               <div className="flex items-center gap-1 mb-0.5">
@@ -715,65 +1204,54 @@ export function CompanionPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+              className="bg-white rounded-[32px] max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl relative flex flex-col"
             >
-              {/* Modal Cover */}
-              <div className="relative h-40 rounded-t-3xl overflow-hidden flex-shrink-0">
-                <img
-                  src={selectedCompanion.coverImage || "/meditation/wellness2.jpeg"}
-                  alt={selectedCompanion.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40" />
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setSelectedCompanion(null)}
-                  className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-xl rounded-full flex items-center justify-center shadow-lg"
+              {/* Close Button */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setSelectedCompanion(null)}
+                className="absolute top-6 right-6 z-50 w-10 h-10 bg-emerald-50 text-emerald-900 rounded-full flex items-center justify-center hover:bg-emerald-100 transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
-                  <svg
-                    className="w-5 h-5 text-teal-800"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </motion.button>
-              </div>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </motion.button>
 
               {/* Modal Content */}
-              <div className="p-0">
-                {/* Avatar positioned at left bottom of banner - NO additional cover image */}
-                {/* Avatar positioned with proper spacing */}
-                <div className="px-8 -mt-12 mb-4 relative z-20">
+              <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-emerald-300 scrollbar-track-emerald-50 p-8 sm:p-10">
+                {/* Avatar positioned prominently */}
+                <div className="mb-8 flex justify-center">
                   <div className="inline-block relative">
                     <img
                       src={selectedCompanion.avatar || selectedCompanion.profileImage || "/meditation/wellness1.jpeg"}
                       alt={selectedCompanion.name}
-                      className="w-28 h-28 rounded-2xl shadow-2xl object-cover border-4 border-white bg-white"
+                      className="w-40 h-40 sm:w-48 sm:h-48 rounded-[2rem] shadow-2xl object-cover border-4 border-white bg-white"
                     />
-                    <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-emerald-500 border-4 border-white rounded-full shadow-lg" />
+                    <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 border-4 border-white rounded-full shadow-lg" />
                   </div>
                 </div>
 
-                <div className="px-8 pb-8 max-h-[60vh] overflow-y-auto pr-3 scrollbar-thin scrollbar-thumb-emerald-300 scrollbar-track-emerald-50">
-                  {/* Profile Info */}
-                  <div className="mb-8">
-                    <h2 className="text-3xl font-black text-teal-950 mb-1">
-                      {selectedCompanion.name}
-                    </h2>
-                    <p className="text-teal-600 font-bold mb-4 flex items-center gap-2">
+                <div className="mb-8 text-center">
+                  <h2 className="text-3xl sm:text-4xl font-black text-teal-950 mb-2">
+                    {selectedCompanion.name}
+                  </h2>
+                    <p className="text-teal-600 font-bold mb-4 flex items-center justify-center gap-2">
                       <Sparkles className="w-4 h-4" />
                       {selectedCompanion.title}
                     </p>
                     
-                    <div className="flex flex-wrap items-center gap-6 text-sm">
+                    <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
                       <div className="flex items-center gap-1.5 px-3 py-1 bg-lime-50 rounded-lg border border-lime-100">
                         <Star className="w-4 h-4 fill-lime-500 text-lime-500" />
                         <span className="text-teal-900 font-black">
@@ -793,11 +1271,40 @@ export function CompanionPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-6">
+                    {/* Quote */}
+                    {selectedCompanion.quote && (
+                      <div className="p-4 bg-teal-50 border-l-4 border-teal-500 rounded-r-xl">
+                        <p className="text-teal-800 italic font-medium">"{selectedCompanion.quote}"</p>
+                      </div>
+                    )}
+
                     <div>
                       <h4 className="text-sm font-semibold text-teal-800 mb-2">About</h4>
-                      <p className="text-sm text-teal-700">{selectedCompanion.bio}</p>
+                      <p className="text-sm text-teal-700 leading-relaxed">{selectedCompanion.fullAbout || selectedCompanion.bio}</p>
                     </div>
+
+                    {selectedCompanion.experience && selectedCompanion.experience.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-teal-800 mb-2">Experience</h4>
+                        <ul className="list-disc pl-5 space-y-1">
+                          {selectedCompanion.experience.map((exp: string, idx: number) => (
+                            <li key={idx} className="text-sm text-teal-700">{exp}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {selectedCompanion.sessionStyle && selectedCompanion.sessionStyle.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-teal-800 mb-2">Session Style</h4>
+                        <ul className="list-disc pl-5 space-y-1">
+                          {selectedCompanion.sessionStyle.map((style: string, idx: number) => (
+                            <li key={idx} className="text-sm text-teal-700">{style}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
                     <div>
                       <h4 className="text-sm font-semibold text-teal-800 mb-2">Specialties</h4>
@@ -806,7 +1313,7 @@ export function CompanionPage() {
                           (specialty: string, j: number) => (
                             <span
                               key={j}
-                              className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full"
+                              className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium"
                             >
                               {specialty}
                             </span>
@@ -822,7 +1329,7 @@ export function CompanionPage() {
                           (language: string, j: number) => (
                             <span
                               key={j}
-                              className="px-3 py-1 bg-teal-100 text-teal-700 text-xs rounded-full"
+                              className="px-3 py-1 bg-teal-100 text-teal-700 text-xs rounded-full font-medium"
                             >
                               {language}
                             </span>
@@ -830,6 +1337,16 @@ export function CompanionPage() {
                         )}
                       </div>
                     </div>
+
+                    {selectedCompanion.availability && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-teal-800 mb-2">Availability</h4>
+                        <div className="flex items-center gap-2 text-sm text-teal-700">
+                          <Clock className="w-4 h-4 text-emerald-500" />
+                          <span>{selectedCompanion.availability}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-4 mt-6 mb-6">
@@ -900,7 +1417,6 @@ export function CompanionPage() {
                     )}
                   </motion.button>
                 </div>
-              </div>
             </motion.div>
           </motion.div>
         )}

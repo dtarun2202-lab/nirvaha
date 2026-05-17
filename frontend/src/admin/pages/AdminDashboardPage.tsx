@@ -432,7 +432,7 @@ export function AdminDashboardPage() {
             </div>
           </Card>
 
-          {/* Recent Bookings */}
+           {/* Recent Bookings */}
           <Card className="bg-white border-[#D5EEDD] rounded-2xl shadow-sm overflow-hidden flex flex-col">
             <div className="p-6 border-b border-[#EAFBF0] flex items-center justify-between bg-white">
               <h2 className="text-xl font-bold text-[#1F4131]">Recent Bookings</h2>
@@ -447,24 +447,24 @@ export function AdminDashboardPage() {
             </div>
             <div className="overflow-x-auto flex-1">
                <div className="grid grid-cols-12 gap-2 bg-gradient-to-r from-[#B9EBD1] to-[#D5F2D9] p-3 text-[10px] font-bold text-[#1A4F35] tracking-widest uppercase">
-                  <div className="col-span-2 pl-2">ID</div>
-                  <div className="col-span-3">User</div>
+                  <div className="col-span-1 pl-2">ID</div>
+                  <div className="col-span-2">User</div>
                   <div className="col-span-3">Target</div>
-                  <div className="col-span-2">Status</div>
-                  <div className="col-span-2">Date</div>
+                  <div className="col-span-3">Status</div>
+                  <div className="col-span-3">Date</div>
                </div>
                <div className="divide-y divide-[#E6F5EB]">
                   {recentBookings.map((item) => (
                      <div key={item.id} className="grid grid-cols-12 gap-2 p-3 items-center hover:bg-[#F6FDF8] transition-colors">
-                        <div className="col-span-2 pl-2">
+                        <div className="col-span-1 pl-2">
                            <span className="font-mono text-[10px] font-medium text-[#295641] bg-[#EAFBF0] px-1.5 py-0.5 rounded border border-[#BDE8CE] truncate block" title={item.id}>{item.id.substring(0, 6)}</span>
                         </div>
-                        <div className="col-span-3 font-medium text-[#2A4939] text-sm truncate pr-2" title={item.userName}>{item.userName}</div>
+                        <div className="col-span-2 font-medium text-[#2A4939] text-sm truncate pr-2" title={item.userName}>{item.userName}</div>
                         <div className="col-span-3 text-xs text-[#64C08E] font-medium truncate pr-2">{item.companionName || item.itemName || item.type}</div>
-                        <div className="col-span-2">
+                        <div className="col-span-3">
                            <StatusBadge status={item.status} variant="booking" />
                         </div>
-                        <div className="col-span-2">
+                        <div className="col-span-3">
                            <div className="font-medium text-[#2A4939] text-xs truncate">{item.date}</div>
                            <div className="text-[10px] text-gray-500 font-semibold truncate">{item.time}</div>
                         </div>
@@ -476,6 +476,7 @@ export function AdminDashboardPage() {
                </div>
             </div>
           </Card>
+
 
           {/* Recent Registrations */}
           <Card className="bg-white border-[#D5EEDD] rounded-2xl shadow-sm overflow-hidden flex flex-col md:col-span-2 lg:col-span-1">
