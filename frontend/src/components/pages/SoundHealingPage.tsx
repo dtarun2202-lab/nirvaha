@@ -673,7 +673,7 @@ export function SoundHealingPage() {
     const handleTimeUpdate = () => {
       setCurrentTime(audio.currentTime);
       setPlayProgress(audio.duration ? (audio.currentTime / audio.duration) * 100 : 0);
-      if (audio.currentTime >= 60) void postSoundSession(audio.currentTime);
+      if (audio.currentTime >= 5) void postSoundSession(audio.currentTime);
     };
     const handleLoadedMetadata = () => {
       setDuration(audio.duration);
@@ -706,9 +706,9 @@ export function SoundHealingPage() {
         }
       }
 
-      // Full track finished: log if listened ≥60s (and not already logged at 60s milestone)
-      if (listenedAtEnd >= 60 && user?.id) {
-        await postSoundSession(Math.max(listenedAtEnd, 60));
+      // Full track finished: log if listened ≥5s (and not already logged at 5s milestone)
+      if (listenedAtEnd >= 5 && user?.id) {
+        await postSoundSession(Math.max(listenedAtEnd, 5));
       }
     };
 
@@ -1793,13 +1793,6 @@ export function SoundHealingPage() {
                     <Bookmark className={`w-4 h-4 ${isTrackSaved(activeCard) ? 'fill-current' : ''}`} />
                     {isTrackSaved(activeCard) ? 'Saved' : 'Save'}
                   </motion.button>
-                  <button className="flex items-center gap-2 px-5 py-2.5 bg-green-200/60 text-green-800 rounded-full text-sm font-medium hover:bg-green-300/60 transition-colors">
-                    <ListPlus className="w-4 h-4" />
-                    Add to Playlist
-                  </button>
-                  <button className="w-10 h-10 bg-green-200/60 rounded-full flex items-center justify-center text-green-800 hover:bg-green-300/60 transition-colors">
-                    <Share2 className="w-4 h-4" />
-                  </button>
                 </div>
               </div>
             </motion.div>

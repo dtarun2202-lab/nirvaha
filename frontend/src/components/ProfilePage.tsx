@@ -290,8 +290,18 @@ function mergeStatsForDisplay(profileStats: unknown, userStats: unknown): Record
   const uS = Number(u.sessionsPlayed ?? 0);
   const pM = Number(p.totalMinutes ?? 0);
   const uM = Number(u.totalMinutes ?? 0);
-  if (uS > pS || (uS === pS && uM >= pM)) return { ...p, ...u };
-  return { ...u, ...p };
+  
+  const merged = uS > pS || (uS === pS && uM >= pM) ? { ...p, ...u } : { ...u, ...p };
+  
+  const finalSessions = Number(merged.sessionsPlayed ?? 0);
+  if (finalSessions === 0) {
+    merged.sessionsPlayed = 0;
+    merged.streak = 0;
+    merged.totalMinutes = 0;
+    merged.wellnessScore = 50;
+  }
+  
+  return merged;
 }
 
 export function ProfilePage() {
@@ -456,6 +466,12 @@ export function ProfilePage() {
   }, [moodHistory]);
 
   const { profileMeditationMinutes, profileSoundMinutes } = useMemo(() => {
+    if ((stats.sessionsPlayed ?? 0) === 0 || sessionHistoryList.length === 0) {
+      return {
+        profileMeditationMinutes: 0,
+        profileSoundMinutes: 0,
+      };
+    }
     let medMins = 0;
     let soundMins = 0;
     for (const e of sessionHistoryList) {
@@ -475,7 +491,7 @@ export function ProfilePage() {
       profileMeditationMinutes: totalCat <= 0 ? totalMinutesAgg : medMins,
       profileSoundMinutes: soundMins,
     };
-  }, [sessionHistoryList, stats.totalMinutes]);
+  }, [sessionHistoryList, stats.totalMinutes, stats.sessionsPlayed]);
 
   const emotionalLandscape = useMemo(
     () => buildEmotionalLandscapeAnalytics(sessionHistoryList, weeklyMinutes, stats.streak ?? 0),
@@ -567,8 +583,13 @@ export function ProfilePage() {
   };
 
   useEffect(() => {
+    if (!user?.id) {
+      setProfileData(null);
+      return;
+    }
+    setProfileData(null); // Reset immediately on user change to prevent previous user data leak
+
     const loadProfile = async () => {
-      if (!user?.id) return;
       const token = localStorage.getItem('token');
       try {
         const profRes = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/users/profile?userId=${user.id}`, {
@@ -588,7 +609,6 @@ export function ProfilePage() {
     };
 
     const doDailyCheckin = async () => {
-      if (!user?.id) return;
       const token = localStorage.getItem('token');
       try {
         await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/profile/daily-checkin`, {

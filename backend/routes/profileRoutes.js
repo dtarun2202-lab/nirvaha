@@ -68,9 +68,29 @@ router.get('/', async (req, res) => {
   try {
     const { userId } = req.query;
     if (!userId) return res.status(400).json({ error: 'userId required' });
-    const user = await User.findOne({ id: userId }).lean();
+    const user = await User.findOne({ id: userId });
     if (!user) return res.status(404).json({ error: 'User not found' });
-    const { password: _pw, ...safe } = user;
+
+    // Clean up any false streak if no actual activity exists
+    const totalSessions = (user.stats?.sessionsPlayed || 0) + (user.sessionHistory || []).length;
+    if (totalSessions === 0 && user.stats) {
+      user.stats.streak = 0;
+      user.stats.sessionsPlayed = 0;
+      user.stats.totalMinutes = 0;
+      await User.findOneAndUpdate(
+        { id: userId },
+        { 
+          $set: { 
+            'stats.streak': 0,
+            'stats.sessionsPlayed': 0,
+            'stats.totalMinutes': 0,
+            'stats.activityLog': []
+          } 
+        }
+      );
+    }
+
+    const { password: _pw, ...safe } = user.toObject ? user.toObject() : user;
     res.json(safe);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -222,6 +242,12 @@ router.post('/daily-checkin', async (req, res) => {
     if (!userId) return res.status(400).json({ error: 'userId required' });
     const user = await User.findOne({ id: userId });
     if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // If new user with no activity, keep streak at 0
+    const totalSessions = (user.stats?.sessionsPlayed || 0) + (user.sessionHistory || []).length;
+    if (totalSessions === 0) {
+      return res.json({ success: false, message: 'No activity yet to count streak' });
+    }
 
     const today = new Date().toISOString().split('T')[0];
     const activityLog = user.stats?.activityLog || [];

@@ -3,6 +3,7 @@ import SessionForm from './forms/SessionForm';
 import RetreatForm from './forms/RetreatForm';
 import ProductForm from './forms/ProductForm';
 import { v4 as uuidv4 } from 'uuid';
+import { Plus, X, MapPin, BookOpen, ShoppingBag } from 'lucide-react';
 import BACKEND_CONFIG from '../../config/backend';
 
 type AddItemType = "session" | "retreat" | "product";
@@ -116,51 +117,53 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a1a14]/60 backdrop-blur-md">
       <div
         ref={modalRef}
-        className="bg-white rounded-[32px] shadow-xl p-10 w-full max-w-5xl mx-4 relative max-h-[90vh] overflow-y-auto"
+        className={`bg-white rounded-[40px] shadow-2xl p-10 w-full ${step === 1 ? 'max-w-lg' : 'max-w-2xl'} mx-4 relative max-h-[90vh] overflow-y-auto border border-white/20`}
       >
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 text-gray-500 hover:text-gray-700 text-3xl font-bold"
+          className="absolute top-8 right-8 text-[#1a5d47]/40 hover:text-[#1a5d47] transition-colors p-2 hover:bg-[#1a5d47]/5 rounded-full"
         >
-          &times;
+          <X className="w-5 h-5" />
         </button>
 
         {step === 1 && (
-          <div>
-            <h2 className="text-3xl font-bold mb-4 text-center" style={{ color: "#0f131a" }}>Add to Marketplace</h2>
-            <p className="text-center text-gray-600 mb-8">Choose what you want to publish first.</p>
-            <div className="flex flex-col items-center space-y-4">
-              <button
-                onClick={() => handleTypeSelect("retreat")}
-                className="w-80 py-4 rounded-2xl font-semibold hover:shadow-md transition-all text-lg border-2 hover:border-opacity-80"
-                style={{ color: "#1a5d47", borderColor: "#1a5d47", backgroundColor: "transparent" }}
-              >
-                Retreat
-              </button>
-              <button
-                onClick={() => handleTypeSelect("session")}
-                className="w-80 py-4 rounded-2xl font-semibold hover:shadow-md transition-all text-lg border-2 hover:border-opacity-80"
-                style={{ color: "#1a5d47", borderColor: "#1a5d47", backgroundColor: "transparent" }}
-              >
-                Session
-              </button>
-              <button
-                onClick={() => handleTypeSelect("product")}
-                className="w-80 py-4 rounded-2xl font-semibold hover:shadow-md transition-all text-lg border-2 hover:border-opacity-80"
-                style={{ color: "#1a5d47", borderColor: "#1a5d47", backgroundColor: "transparent" }}
-              >
-                Product
-              </button>
+          <div className="py-4">
+            <div className="text-center mb-10">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#1a5d47] to-[#2d8a6a] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-900/20 text-white">
+                <Plus className="w-8 h-8" />
+              </div>
+              <h2 className="text-3xl font-bold tracking-tight text-[#0f131a]">Add to Marketplace</h2>
+              <p className="text-[#1a5d47]/60 font-medium mt-2">What would you like to publish today?</p>
+            </div>
+
+            <div className="flex flex-col items-center space-y-4 px-6">
+              {[
+                { id: "retreat", label: "Retreat", icon: MapPin },
+                { id: "session", label: "Session", icon: BookOpen },
+                { id: "product", label: "Product", icon: ShoppingBag },
+              ].map((opt) => (
+                <button
+                  key={opt.id}
+                  onClick={() => handleTypeSelect(opt.id as AddItemType)}
+                  className="w-full py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all duration-300 border-2 border-[#D1FAE5] bg-[#F0F9F4] text-[#1a5d47] hover:border-[#1a5d47] hover:bg-[#E6F5EB] hover:shadow-lg hover:shadow-emerald-900/5 group"
+                >
+                  <opt.icon className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+                  <span className="transition-colors">{opt.label}</span>
+                </button>
+              ))}
             </div>
           </div>
         )}
 
         {step === 2 && (
-          <div>
-            <h2 className="text-3xl font-bold mb-8 text-center" style={{ color: "#0f131a" }}>Add New {selectedAddType.charAt(0).toUpperCase() + selectedAddType.slice(1)}</h2>
+          <div className="py-2">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold tracking-tight text-[#0f131a]">New {selectedAddType.charAt(0).toUpperCase() + selectedAddType.slice(1)}</h2>
+              <div className="w-12 h-1 bg-[#1a5d47] rounded-full mx-auto mt-4 opacity-20"></div>
+            </div>
             {selectedAddType === "session" && <SessionForm onSubmit={handleFormSubmit} />}
             {selectedAddType === "retreat" && <RetreatForm onSubmit={handleFormSubmit} />}
             {selectedAddType === "product" && <ProductForm onSubmit={handleFormSubmit} />}

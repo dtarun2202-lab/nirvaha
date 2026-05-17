@@ -33,6 +33,8 @@ export function StatusBadge({ status, variant = "default", className }: StatusBa
             return { label: "Cancelled", className: "bg-red-100 text-red-800 border-red-300" };
           case "in-progress":
             return { label: "In Progress", className: "bg-gray-100 text-gray-800 border-gray-300" };
+          case "pending":
+            return { label: "Pending Approval", className: "bg-amber-100 text-amber-800 border-amber-300" };
           default:
             return { label: status, className: "bg-gray-100 text-gray-800 border-gray-300" };
         }

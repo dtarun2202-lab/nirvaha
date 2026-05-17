@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  X, 
-  Minus, 
-  Plus, 
-  Truck, 
-  ShieldCheck, 
-  CreditCard, 
-  MapPin, 
+import {
+  X,
+  Minus,
+  Plus,
+  Truck,
+  ShieldCheck,
+  CreditCard,
+  MapPin,
   CheckCircle2,
   ArrowRight,
-  ChevronLeft
+  ChevronLeft,
+  Loader2,
+  QrCode,
+  Smartphone,
+  Lock
 } from 'lucide-react';
 
 interface CheckoutModalProps {
@@ -36,7 +40,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, item, on
     city: '',
     zipCode: ''
   });
-  const [paymentMethod, setPaymentMethod] = useState('card');
+  const [paymentMethod, setPaymentMethod] = useState('upi');
 
   useEffect(() => {
     if (isOpen) {
@@ -72,93 +76,88 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, item, on
     }
   };
 
-  const backdropVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 }
-  };
-
-  const modalVariants = {
-    hidden: { opacity: 0, scale: 0.9, y: 20 },
-    visible: { opacity: 1, scale: 1, y: 0 }
-  };
-
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
         {/* Backdrop */}
         <motion.div
-          variants={backdropVariants}
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-teal-950/40 backdrop-blur-md"
+          className="absolute inset-0 bg-[#0a1f14]/15 backdrop-blur-xl"
         />
 
         {/* Modal */}
         <motion.div
-          variants={modalVariants}
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
-          className="relative w-full max-w-2xl bg-white/80 backdrop-blur-2xl rounded-[40px] shadow-2xl border border-white/20 overflow-hidden"
+          initial={{ opacity: 0, scale: 0.98, y: 15 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.98, y: 15 }}
+          transition={{ type: "spring", damping: 30, stiffness: 450 }}
+          className={`relative w-full ${step === 3 ? 'max-w-md' : 'max-w-3xl'} bg-white rounded-[32px] shadow-[0_30px_80px_-15px_rgba(0,40,20,0.18)] overflow-hidden border border-[#d1e0d9] transition-all duration-500`}
+          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
           {/* Header */}
-          <div className="p-8 pb-4 flex justify-between items-center border-b border-teal-100/30">
+          <div className="px-8 py-5 flex justify-between items-center border-b border-[#d1e0d9] bg-[#f8faf9]/50">
             <div className="flex items-center gap-3">
               {step === 2 && (
-                <button 
+                <button
                   onClick={() => setStep(1)}
-                  className="p-2 hover:bg-teal-50 rounded-full transition-colors"
+                  className="p-2.5 hover:bg-emerald-50 rounded-full transition-all hover:scale-110 active:scale-90 bg-white shadow-sm border border-[#d1e0d9]"
                 >
-                  <ChevronLeft className="w-6 h-6 text-teal-800" />
+                  <ChevronLeft className="w-5 h-5 text-[#2d5a42]" />
                 </button>
               )}
-              <h2 className="text-2xl font-bold text-teal-950">
-                {step === 1 ? 'Order Summary' : step === 2 ? 'Checkout Details' : 'Success!'}
-              </h2>
+              <div>
+                <h2 className="text-2xl font-extrabold text-[#0a2e1f] tracking-tight leading-tight">
+                  {step === 1 ? 'Order Summary' : step === 2 ? 'Checkout Details' : 'Purchase Complete'}
+                </h2>
+                {step < 3 && <p className="text-[12px] text-[#7a9c8a] font-bold uppercase tracking-widest mt-0.5">Nirvaha Wellness</p>}
+              </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-teal-50 rounded-full transition-colors text-teal-800"
+              className="w-10 h-10 rounded-full bg-[#f5f8f6] text-[#4a7c65] text-sm font-bold hover:bg-[#eef3f1] transition-all hover:scale-110 active:scale-90 flex items-center justify-center border border-[#d1e0d9]/30"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="p-8">
+          <div className="p-7">
             {step === 1 && (
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
+              <motion.div
+                initial={{ opacity: 0, x: -15 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="space-y-8"
+                className="space-y-6"
               >
                 {/* Product Detail Card */}
-                <div className="flex gap-6 bg-teal-50/50 p-6 rounded-3xl border border-teal-100/50">
-                  <div className="w-32 h-32 rounded-2xl overflow-hidden shadow-lg flex-shrink-0">
+                <div className="flex gap-7 bg-[#f8faf9] p-6 rounded-[28px] border border-[#d1e0d9] shadow-sm">
+                  <div className="w-32 h-32 rounded-[22px] overflow-hidden shadow-md flex-shrink-0 border border-white/50">
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 flex flex-col justify-between py-1">
                     <div>
-                      <h3 className="text-xl font-bold text-teal-900">{item.name}</h3>
-                      <p className="text-teal-600 mt-1 capitalize">{item.type}</p>
+                      <h3 className="text-[20px] font-extrabold text-[#0a2e1f] leading-tight">{item.name}</h3>
+                      <div className="inline-flex mt-2 px-3 py-1 rounded-full bg-[#d6eee9] text-[#0a2e1f] text-[10px] font-extrabold uppercase tracking-wider border border-[#b8d8d1]">
+                        {item.type}
+                      </div>
                     </div>
                     <div className="flex justify-between items-end">
-                      <div className="text-2xl font-bold text-teal-900">₹{unitPrice.toLocaleString()}</div>
-                      
+                      <div className="text-[22px] font-black text-[#0a2e1f]">₹{unitPrice.toLocaleString()}</div>
+
                       {/* Quantity Selector */}
                       {item.type === 'product' && (
-                        <div className="flex items-center gap-4 bg-white rounded-full p-1 border border-teal-100">
-                          <button 
+                        <div className="flex items-center gap-4 bg-white rounded-2xl p-1.5 border border-[#d1e0d9] shadow-sm">
+                          <button
                             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-teal-50 text-teal-800 transition-colors"
+                            className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-emerald-50 text-[#4a7c65] transition-all active:scale-90"
                           >
                             <Minus className="w-4 h-4" />
                           </button>
-                          <span className="w-6 text-center font-bold text-teal-950">{quantity}</span>
-                          <button 
+                          <span className="w-6 text-center font-extrabold text-[#0a2e1f] text-[15px]">{quantity}</span>
+                          <button
                             onClick={() => setQuantity(quantity + 1)}
-                            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-teal-50 text-teal-800 transition-colors"
+                            className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-emerald-50 text-[#4a7c65] transition-all active:scale-90"
                           >
                             <Plus className="w-4 h-4" />
                           </button>
@@ -170,182 +169,253 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, item, on
 
                 {/* Features */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3 p-4 bg-white/50 rounded-2xl border border-teal-100/30 text-teal-800">
-                    <Truck className="w-5 h-5 text-teal-500" />
-                    <span className="text-sm font-medium">Free Express Delivery</span>
+                  <div className="flex items-center gap-3.5 p-5 bg-[#fcfdfd] rounded-[22px] border border-[#d1e0d9] shadow-sm">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                      <Truck className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <span className="text-[13px] font-bold text-[#2d5a42]">Free Express Delivery</span>
                   </div>
-                  <div className="flex items-center gap-3 p-4 bg-white/50 rounded-2xl border border-teal-100/30 text-teal-800">
-                    <ShieldCheck className="w-5 h-5 text-teal-500" />
-                    <span className="text-sm font-medium">Authenticity Guaranteed</span>
+                  <div className="flex items-center gap-3.5 p-5 bg-[#fcfdfd] rounded-[22px] border border-[#d1e0d9] shadow-sm">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                      <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <span className="text-[13px] font-bold text-[#2d5a42]">Authenticity Verified</span>
                   </div>
                 </div>
 
                 {/* Total */}
-                <div className="pt-6 border-t border-teal-100/30 flex justify-between items-center">
+                <div className="pt-7 border-t border-[#d1e0d9] flex justify-between items-center">
                   <div>
-                    <p className="text-teal-600 text-sm">Total Amount</p>
-                    <p className="text-3xl font-bold text-teal-950">₹{totalPrice.toLocaleString()}</p>
+                    <p className="text-[#7a9c8a] text-[12px] font-bold uppercase tracking-widest">Grand Total</p>
+                    <p className="text-[32px] font-black text-[#0a2e1f]">₹{totalPrice.toLocaleString()}</p>
                   </div>
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => setStep(2)}
-                    className="px-8 py-4 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-2xl font-bold flex items-center gap-2 shadow-xl shadow-teal-900/10"
+                    className="h-[64px] px-10 bg-[#0a2e1f] text-white rounded-full font-extrabold text-[16px] flex items-center gap-3 shadow-[0_12px_25px_-5px_rgba(10,46,31,0.25)] transition-all"
                   >
-                    Continue to Payment <ArrowRight className="w-5 h-5" />
+                    Continue to Shipping <ArrowRight className="w-5 h-5" />
                   </motion.button>
                 </div>
               </motion.div>
             )}
 
             {step === 2 && (
-              <motion.div 
-                initial={{ opacity: 0, x: 20 }}
+              <motion.div
+                initial={{ opacity: 0, x: 15 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="space-y-6"
+                className="space-y-8"
               >
-                {/* Shipping Form */}
-                <div className="space-y-4">
-                  <h4 className="font-bold text-teal-900 flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-teal-600" /> Shipping Address
-                  </h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <input 
-                      type="text" 
-                      placeholder="Full Name" 
-                      className="col-span-2 px-6 py-4 rounded-2xl bg-white/50 border border-teal-100 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all"
-                      value={address.fullName}
-                      onChange={(e) => setAddress({...address, fullName: e.target.value})}
-                    />
-                    <input 
-                      type="text" 
-                      placeholder="Street Address" 
-                      className="col-span-2 px-6 py-4 rounded-2xl bg-white/50 border border-teal-100 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all"
-                      value={address.street}
-                      onChange={(e) => setAddress({...address, street: e.target.value})}
-                    />
-                    <input 
-                      type="text" 
-                      placeholder="City" 
-                      className="px-6 py-4 rounded-2xl bg-white/50 border border-teal-100 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all"
-                      value={address.city}
-                      onChange={(e) => setAddress({...address, city: e.target.value})}
-                    />
-                    <input 
-                      type="text" 
-                      placeholder="Zip Code" 
-                      className="px-6 py-4 rounded-2xl bg-white/50 border border-teal-100 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all"
-                      value={address.zipCode}
-                      onChange={(e) => setAddress({...address, zipCode: e.target.value})}
-                    />
+                <div className="grid grid-cols-[1fr_1.1fr] gap-10 items-start">
+                  {/* Left Column: Shipping */}
+                  <div className="space-y-5">
+                    <h4 className="text-[12px] font-bold text-[#96b0a4] uppercase tracking-[0.2em] flex items-center gap-2 px-1">
+                      <MapPin className="w-4 h-4 text-emerald-500" /> Shipping Details
+                    </h4>
+                    <div className="space-y-4">
+                      <input
+                        type="text"
+                        placeholder="Full Name"
+                        className="w-full px-6 py-4 rounded-2xl bg-[#f8faf9] border border-[#d1e0d9] focus:border-emerald-500 outline-none text-[15px] font-bold text-[#0a2e1f]"
+                        value={address.fullName}
+                        onChange={(e) => setAddress({...address, fullName: e.target.value})}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Street Address & Area"
+                        className="w-full px-6 py-4 rounded-2xl bg-[#f8faf9] border border-[#d1e0d9] focus:border-emerald-500 outline-none text-[15px] font-bold text-[#0a2e1f]"
+                        value={address.street}
+                        onChange={(e) => setAddress({...address, street: e.target.value})}
+                      />
+                      <div className="grid grid-cols-2 gap-4">
+                        <input
+                          type="text"
+                          placeholder="City"
+                          className="w-full px-6 py-4 rounded-2xl bg-[#f8faf9] border border-[#d1e0d9] focus:border-emerald-500 outline-none text-[15px] font-bold text-[#0a2e1f]"
+                          value={address.city}
+                          onChange={(e) => setAddress({...address, city: e.target.value})}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Zip"
+                          className="w-full px-6 py-4 rounded-2xl bg-[#f8faf9] border border-[#d1e0d9] focus:border-emerald-500 outline-none text-[15px] font-bold text-[#0a2e1f]"
+                          value={address.zipCode}
+                          onChange={(e) => setAddress({...address, zipCode: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Payment */}
+                  <div className="space-y-5">
+                    <h4 className="text-[12px] font-bold text-[#96b0a4] uppercase tracking-[0.2em] flex items-center gap-2 px-1">
+                      <CreditCard className="w-4 h-4 text-emerald-500" /> Choose Payment
+                    </h4>
+                    <div className="flex gap-3">
+                      {[
+                        { id: 'upi', label: 'UPI / QR' },
+                        { id: 'card', label: 'Credit Card' }
+                      ].map((method) => (
+                        <button
+                          key={method.id}
+                          onClick={() => setPaymentMethod(method.id)}
+                          className={`flex-1 py-4 rounded-2xl border-2 transition-all text-center text-[13px] font-extrabold tracking-wider ${
+                            paymentMethod === method.id
+                              ? 'border-[#0a2e1f] bg-[#f0faf7] text-[#0a2e1f]'
+                              : 'border-[#d1e0d9] bg-[#f8faf9]/50 text-[#96b0a4]'
+                          }`}
+                        >
+                          {method.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <AnimatePresence mode="wait">
+                      {paymentMethod === 'upi' ? (
+                        <motion.div
+                          key="upi-med"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="p-6 bg-[#fcfdfd] rounded-[24px] border border-[#d1e0d9] space-y-5 shadow-sm"
+                        >
+                          <div className="flex gap-6 items-center">
+                            <div className="flex flex-col items-center">
+                              <div className="w-28 h-28 bg-white rounded-2xl border-2 border-[#0a2e1f]/5 flex items-center justify-center p-2 flex-shrink-0 shadow-[0_8px_20px_-5px_rgba(0,40,20,0.08)] overflow-hidden">
+                                 <img
+                                   src="/upi_qr.png"
+                                   onError={(e) => {
+                                     e.currentTarget.style.display = 'none';
+                                     const fallback = e.currentTarget.parentElement?.querySelector('.qr-fallback');
+                                     if (fallback) (fallback as HTMLElement).style.display = 'flex';
+                                   }}
+                                   alt="UPI QR Code"
+                                   className="w-full h-full object-contain"
+                                 />
+                                  <div className="qr-fallback hidden w-full h-full flex-col items-center justify-center bg-[#f0faf5] rounded-xl text-[#2d5a42] border border-[#c8e6d8]">
+                                    <QrCode className="w-10 h-10 text-[#2d5a42]" />
+                                    <span className="text-[8px] font-extrabold mt-1 tracking-wider uppercase text-[#1a5d3a]">Scan to Pay</span>
+                                  </div>
+                              </div>
+                            </div>
+                            <div className="flex-1 space-y-4">
+                              <div className="relative">
+                                <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
+                                <input
+                                  type="text"
+                                  placeholder="Enter UPI ID"
+                                  className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-[#f8faf9] border border-[#d1e0d9] text-[14px] font-bold text-[#0a2e1f] outline-none"
+                                />
+                              </div>
+                              <div className="flex gap-2">
+                                {['GPay', 'PhonePe', 'Paytm'].map(a => (
+                                  <div key={a} className="px-2.5 py-1 rounded-lg bg-[#d6eee9] border border-[#b8d8d1] text-[9px] font-extrabold text-[#0a2e1f] uppercase tracking-tighter">
+                                    {a}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="card-med"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="p-6 bg-[#fcfdfd] rounded-[24px] border border-[#d1e0d9] space-y-4 shadow-sm"
+                        >
+                          <div className="space-y-3">
+                            <div className="relative">
+                               <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
+                               <input
+                                type="text"
+                                autoComplete="cc-name"
+                                placeholder="Card Holder Name"
+                                className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-[#f8faf9] border border-[#d1e0d9] text-[14px] font-bold text-[#0a2e1f] outline-none"
+                              />
+                            </div>
+                            <div className="relative">
+                               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
+                               <input
+                                type="text"
+                                autoComplete="cc-number"
+                                placeholder="XXXX XXXX XXXX XXXX"
+                                className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-[#f8faf9] border border-[#d1e0d9] text-[14px] font-bold text-[#0a2e1f] outline-none tracking-[0.2em]"
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <input
+                                type="text"
+                                autoComplete="cc-exp"
+                                placeholder="MM / YY"
+                                className="w-full px-5 py-3.5 rounded-xl bg-[#f8faf9] border border-[#d1e0d9] text-[14px] font-bold text-[#0a2e1f] outline-none text-center"
+                              />
+                              <input
+                                type="password"
+                                autoComplete="cc-csc"
+                                placeholder="CVV"
+                                className="w-full px-5 py-3.5 rounded-xl bg-[#f8faf9] border border-[#d1e0d9] text-[14px] font-bold text-[#0a2e1f] outline-none text-center"
+                              />
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
 
-                {/* Payment Methods */}
-                <div className="space-y-4">
-                  <h4 className="font-bold text-teal-900 flex items-center gap-2">
-                    <CreditCard className="w-5 h-5 text-teal-600" /> Payment Method
-                  </h4>
-                  <div className="flex gap-4">
-                    {['card', 'upi', 'cod'].map((method) => (
-                      <button
-                        key={method}
-                        onClick={() => setPaymentMethod(method)}
-                        className={`flex-1 py-4 rounded-2xl border-2 transition-all uppercase text-sm font-bold tracking-wider ${
-                          paymentMethod === method 
-                            ? 'border-teal-600 bg-teal-50 text-teal-800' 
-                            : 'border-teal-100 bg-white/50 text-teal-400 hover:border-teal-200'
-                        }`}
-                      >
-                        {method === 'card' ? 'Credit Card' : method}
-                      </button>
-                    ))}
+                {/* Footer Action */}
+                <div className="pt-8 border-t border-[#d1e0d9] flex items-center justify-between gap-10">
+                  <div>
+                    <p className="text-[11px] font-bold text-[#96b0a4] uppercase tracking-[0.25em]">Total Amount</p>
+                    <p className="text-[32px] font-black text-[#0a2e1f]">₹{totalPrice.toLocaleString()}</p>
                   </div>
-                </div>
-
-                {/* Final Button */}
-                <div className="pt-6 border-t border-teal-100/30">
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     disabled={loading || !address.fullName || !address.street}
                     onClick={handleConfirm}
-                    className="w-full py-5 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-2xl font-bold text-lg shadow-xl shadow-teal-900/10 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 max-w-[320px] h-[72px] bg-[#0a2e1f] text-white rounded-full font-extrabold text-[18px] shadow-[0_15px_35px_-5px_rgba(10,46,31,0.25)] disabled:opacity-40 flex items-center justify-center gap-3"
                   >
-                    {loading ? (
-                      <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <>Confirm & Pay ₹{totalPrice.toLocaleString()}</>
-                    )}
+                    {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <>Pay Secured</>}
                   </motion.button>
                 </div>
               </motion.div>
             )}
 
             {step === 3 && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                className="relative py-10 px-6 flex flex-col items-center text-center"
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="relative py-12 px-6 flex flex-col items-center text-center"
               >
-                {/* Decorative Background Glows */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-400/20 rounded-full blur-[80px] pointer-events-none" />
-                
                 {/* Glowing Success Icon */}
-                <motion.div 
+                <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1, rotate: [0, 10, -10, 0] }}
                   transition={{ type: "spring", damping: 12, stiffness: 200, delay: 0.2 }}
-                  className="relative mb-8"
+                  className="relative mb-10"
                 >
-                  <div className="absolute inset-0 bg-emerald-400 rounded-full blur-xl opacity-40 animate-pulse" />
-                  <div className="relative w-24 h-24 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center text-white shadow-2xl shadow-emerald-500/40 border-4 border-white/30">
+                  <div className="absolute inset-0 bg-emerald-400 rounded-full blur-[40px] opacity-20 animate-pulse" />
+                  <div className="relative w-28 h-28 bg-gradient-to-br from-emerald-500 to-[#0a2e1f] rounded-[40px] flex items-center justify-center text-white shadow-[0_20px_50px_-15px_rgba(16,185,129,0.4)] border-4 border-white">
                     <CheckCircle2 className="w-14 h-14" />
                   </div>
                 </motion.div>
 
                 {/* Text Content */}
                 <div className="relative space-y-4 max-w-sm mx-auto">
-                  <motion.h3 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                    className="text-4xl font-black text-teal-950 tracking-tight"
-                  >
-                    Pure Bliss!
-                  </motion.h3>
-                  <motion.p 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    className="text-lg text-teal-800/80 font-medium leading-relaxed"
-                  >
-                    Your order for <span className="text-emerald-600 font-bold">{item.name}</span> has been harmoniously placed.
-                  </motion.p>
+                  <h3 className="text-[32px] font-black text-[#0a2e1f] tracking-tight">Pure Bliss!</h3>
+                  <p className="text-[16px] text-[#4a7c65] font-medium leading-relaxed">
+                    Your order for <span className="text-[#0a2e1f] font-bold underline decoration-emerald-200 underline-offset-4">{item.name}</span> has been harmoniously placed.
+                  </p>
                 </div>
-
-                {/* Compact Info Card */}
-                <motion.div 
-                   initial={{ opacity: 0, scale: 0.95 }}
-                   animate={{ opacity: 1, scale: 1 }}
-                   transition={{ delay: 0.6 }}
-                   className="mt-8 p-4 bg-white/40 backdrop-blur-md rounded-3xl border border-white/50 shadow-lg flex items-center gap-4 w-full max-w-xs"
-                >
-                  <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600">
-                    <ShieldCheck className="w-6 h-6" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[10px] uppercase tracking-widest font-bold text-teal-900/50">Secure Order</p>
-                    <p className="text-sm font-bold text-teal-900">ID: #{(Math.random() * 1000000).toFixed(0)}</p>
-                  </div>
-                </motion.div>
 
                 {/* Action Button */}
                 <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: "0 20px 40px -10px rgba(16, 185, 129, 0.3)" }}
+                  whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={onClose}
-                  className="mt-10 px-12 py-4 bg-gradient-to-r from-teal-900 to-teal-800 text-white rounded-2xl font-bold text-lg shadow-xl transition-all border border-white/10"
+                  className="mt-12 px-14 h-[64px] bg-[#0a2e1f] text-white rounded-full font-extrabold text-[16px] shadow-xl transition-all"
                 >
                   Continue Exploring
                 </motion.button>

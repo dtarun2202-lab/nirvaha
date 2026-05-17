@@ -24,6 +24,26 @@ router.get("/profile", async (req, res) => {
     const user = await User.findOne({ id: userId });
     if (!user) return res.status(404).json({ error: "User not found" });
 
+    // Clean up any false streak if no actual activity exists
+    const totalSessions = (user.stats?.sessionsPlayed || 0) + (user.sessionHistory || []).length;
+    if (totalSessions === 0 && user.stats) {
+      user.stats.streak = 0;
+      user.stats.sessionsPlayed = 0;
+      user.stats.totalMinutes = 0;
+      user.stats.activityLog = [];
+      await User.findOneAndUpdate(
+        { id: userId },
+        { 
+          $set: { 
+            'stats.streak': 0,
+            'stats.sessionsPlayed': 0,
+            'stats.totalMinutes': 0,
+            'stats.activityLog': []
+          } 
+        }
+      );
+    }
+
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });

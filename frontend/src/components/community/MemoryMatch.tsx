@@ -36,15 +36,6 @@ export default function MemoryMatch({ currentUser }: { currentUser: any }) {
     lastPlayedDate: null
   });
 
-  // Load stats on mount
-  useEffect(() => {
-    const saved = localStorage.getItem("nirvaha_memory_stats");
-    if (saved) {
-      setStats(JSON.parse(saved));
-    }
-    initGame("4x4");
-  }, []);
-
   const initGame = useCallback((diff: "4x4" | "6x6") => {
     const pairsCount = diff === "4x4" ? 8 : 18;
     const selectedEmojis = EMOJIS.slice(0, pairsCount);
@@ -63,6 +54,25 @@ export default function MemoryMatch({ currentUser }: { currentUser: any }) {
     setMoves(0);
     setIsWon(false);
   }, []);
+
+  // Load stats dynamically when user ID changes
+  useEffect(() => {
+    const activeUserId = user?.id || currentUser?.id || "guest";
+    const statsKey = `nirvaha_memory_stats_${activeUserId}`;
+    const saved = localStorage.getItem(statsKey);
+    if (saved) {
+      setStats(JSON.parse(saved));
+    } else {
+      // Reset display correctly for new users with no activity
+      setStats({
+        sessionsPlayed: 0,
+        bestScore: null,
+        currentStreak: 0,
+        lastPlayedDate: null
+      });
+    }
+    initGame("4x4");
+  }, [user?.id, currentUser?.id, initGame]);
 
   const handleCardClick = (index: number) => {
     if (flippedIndices.length === 2 || cards[index].isFlipped || cards[index].isMatched) return;
@@ -113,6 +123,9 @@ export default function MemoryMatch({ currentUser }: { currentUser: any }) {
   }, [cards, isWon]);
 
   const updateStatsOnWin = async () => {
+    const activeUserId = user?.id || currentUser?.id || "guest";
+    const statsKey = `nirvaha_memory_stats_${activeUserId}`;
+
     // 1. Update localStorage-based stats (existing)
     setStats(prev => {
       const today = new Date().toISOString().split("T")[0];
@@ -136,7 +149,7 @@ export default function MemoryMatch({ currentUser }: { currentUser: any }) {
         currentStreak: newStreak,
         lastPlayedDate: today
       };
-      localStorage.setItem("nirvaha_memory_stats", JSON.stringify(newStats));
+      localStorage.setItem(statsKey, JSON.stringify(newStats));
       return newStats;
     });
 
@@ -162,6 +175,9 @@ export default function MemoryMatch({ currentUser }: { currentUser: any }) {
     }
   };
 
+  const displaySessions = user?.id ? (user?.stats?.sessionsPlayed ?? 0) : stats.sessionsPlayed;
+  const displayStreak = user?.id ? (user?.stats?.streak ?? 0) : stats.currentStreak;
+
   return (
     <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
       {/* Header & Stats */}
@@ -176,7 +192,7 @@ export default function MemoryMatch({ currentUser }: { currentUser: any }) {
         <div className="flex gap-4 items-center bg-[#f0fdf4] px-5 py-3 rounded-2xl border border-[#bbf7d0]">
           <div className="text-center">
             <p className="text-xs text-[#16a34a] font-bold uppercase tracking-wider">Sessions</p>
-            <p className="text-xl font-bold text-[#14532d]">{stats.sessionsPlayed}</p>
+            <p className="text-xl font-bold text-[#14532d]">{displaySessions}</p>
           </div>
           <div className="w-px h-8 bg-[#16a34a]/20"></div>
           <div className="text-center">
@@ -187,7 +203,7 @@ export default function MemoryMatch({ currentUser }: { currentUser: any }) {
           <div className="text-center">
             <p className="text-xs text-[#16a34a] font-bold uppercase tracking-wider">Streak</p>
             <p className="text-xl font-bold text-[#14532d] flex items-center justify-center gap-1">
-              🔥 {stats.currentStreak}
+              🔥 {displayStreak}
             </p>
           </div>
         </div>
