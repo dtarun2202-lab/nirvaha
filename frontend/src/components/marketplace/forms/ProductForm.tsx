@@ -44,10 +44,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {/* Product Name */}
       <div>
-        <label htmlFor="name" className="block text-sm font-semibold mb-2" style={{ color: "#0f131a" }}>
+        <label htmlFor="name" className="block text-[11px] font-black mb-2 uppercase tracking-widest text-[#1a5d47]/60 px-1">
           Product Name *
         </label>
         <input
@@ -57,20 +57,17 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
           value={formData.name}
           onChange={handleChange}
           placeholder="e.g., Crystal Healing Set"
-          className={`w-full px-4 py-3 border rounded-[20px] focus:outline-none focus:ring-2 focus:border-transparent ${
-            errors.name ? 'border-red-500' : ''
+          className={`w-full px-5 py-3.5 border-2 rounded-[22px] focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all ${
+            errors.name ? 'border-red-400 bg-red-50' : 'border-[#D1FAE5] bg-[#F0F9F4] focus:border-[#1a5d47]'
           }`}
-          style={{
-            borderColor: errors.name ? undefined : "#1a5d47",
-            color: "#0f131a"
-          }}
+          style={{ color: "#0f131a" }}
         />
-        {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+        {errors.name && <p className="text-red-500 text-[10px] font-bold mt-1 px-1 uppercase">{errors.name}</p>}
       </div>
 
       {/* Description */}
       <div>
-        <label htmlFor="description" className="block text-sm font-semibold mb-2" style={{ color: "#0f131a" }}>
+        <label htmlFor="description" className="block text-[11px] font-black mb-2 uppercase tracking-widest text-[#1a5d47]/60 px-1">
           Description *
         </label>
         <textarea
@@ -80,20 +77,17 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
           onChange={handleChange}
           placeholder="Describe the product features and benefits..."
           rows={3}
-          className={`w-full px-4 py-3 border rounded-[20px] focus:outline-none focus:ring-2 focus:border-transparent ${
-            errors.description ? 'border-red-500' : ''
+          className={`w-full px-5 py-3.5 border-2 rounded-[22px] focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all ${
+            errors.description ? 'border-red-400 bg-red-50' : 'border-[#D1FAE5] bg-[#F0F9F4] focus:border-[#1a5d47]'
           }`}
-          style={{
-            borderColor: errors.description ? undefined : "#1a5d47",
-            color: "#0f131a"
-          }}
+          style={{ color: "#0f131a" }}
         />
-        {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+        {errors.description && <p className="text-red-500 text-[10px] font-bold mt-1 px-1 uppercase">{errors.description}</p>}
       </div>
 
       {/* Images Upload */}
       <div>
-        <label htmlFor="images" className="block text-sm font-semibold mb-2" style={{ color: "#0f131a" }}>
+        <label htmlFor="images" className="block text-[11px] font-black mb-2 uppercase tracking-widest text-[#1a5d47]/60 px-1">
           Images Upload (URL) *
         </label>
         <input
@@ -103,20 +97,17 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
           value={formData.images}
           onChange={handleChange}
           placeholder="Image URL or multiple URLs separated by commas"
-          className={`w-full px-4 py-3 border rounded-[20px] focus:outline-none focus:ring-2 focus:border-transparent ${
-            errors.images ? 'border-red-500' : ''
+          className={`w-full px-5 py-3.5 border-2 rounded-[22px] focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all ${
+            errors.images ? 'border-red-400 bg-red-50' : 'border-[#D1FAE5] bg-[#F0F9F4] focus:border-[#1a5d47]'
           }`}
-          style={{
-            borderColor: errors.images ? undefined : "#1a5d47",
-            color: "#0f131a"
-          }}
+          style={{ color: "#0f131a" }}
         />
-        {errors.images && <p className="text-red-500 text-sm mt-1">{errors.images}</p>}
+        {errors.images && <p className="text-red-500 text-[10px] font-bold mt-1 px-1 uppercase">{errors.images}</p>}
       </div>
 
       {/* Price */}
       <div>
-        <label htmlFor="price" className="block text-sm font-semibold mb-2" style={{ color: "#0f131a" }}>
+        <label htmlFor="price" className="block text-[11px] font-black mb-2 uppercase tracking-widest text-[#1a5d47]/60 px-1">
           Price (INR ₹) *
         </label>
         <input
@@ -125,22 +116,18 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
           name="price"
           value={formData.price}
           onChange={handleChange}
-          placeholder="e.g., 89"
-          step="0.01"
-          className={`w-full px-4 py-3 border rounded-[20px] focus:outline-none focus:ring-2 focus:border-transparent ${
-            errors.price ? 'border-red-500' : ''
+          placeholder="e.g., 899"
+          className={`w-full px-5 py-3.5 border-2 rounded-[22px] focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all ${
+            errors.price ? 'border-red-400 bg-red-50' : 'border-[#D1FAE5] bg-[#F0F9F4] focus:border-[#1a5d47]'
           }`}
-          style={{
-            borderColor: errors.price ? undefined : "#1a5d47",
-            color: "#0f131a"
-          }}
+          style={{ color: "#0f131a" }}
         />
-        {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+        {errors.price && <p className="text-red-500 text-[10px] font-bold mt-1 px-1 uppercase">{errors.price}</p>}
       </div>
 
       {/* Certification Details */}
       <div>
-        <label htmlFor="certification" className="block text-sm font-semibold mb-2" style={{ color: "#0f131a" }}>
+        <label htmlFor="certification" className="block text-[11px] font-black mb-2 uppercase tracking-widest text-[#1a5d47]/60 px-1">
           Certification Details (optional)
         </label>
         <textarea
@@ -150,17 +137,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
           onChange={handleChange}
           placeholder="e.g., Certified organic, Fair trade, etc."
           rows={2}
-          className="w-full px-4 py-3 border rounded-[20px] focus:outline-none focus:ring-2 focus:border-transparent"
-          style={{
-            borderColor: "#1a5d47",
-            color: "#0f131a"
-          }}
+          className="w-full px-5 py-3.5 border-2 border-[#D1FAE5] bg-[#F0F9F4] rounded-[22px] focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-[#1a5d47] transition-all"
+          style={{ color: "#0f131a" }}
         />
       </div>
 
       {/* Manufacturing Details */}
       <div>
-        <label htmlFor="manufacturingDetails" className="block text-sm font-semibold mb-2" style={{ color: "#0f131a" }}>
+        <label htmlFor="manufacturingDetails" className="block text-[11px] font-black mb-2 uppercase tracking-widest text-[#1a5d47]/60 px-1">
           Manufacturing Details (optional)
         </label>
         <textarea
@@ -170,72 +154,65 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit }) => {
           onChange={handleChange}
           placeholder="e.g., Handcrafted in Bali, Eco-friendly materials..."
           rows={2}
-          className="w-full px-4 py-2 border rounded-[12px] focus:outline-none focus:ring-2 focus:border-transparent"
-          style={{
-            borderColor: "#1a5d47",
-            color: "#0f131a"
-          }}
+          className="w-full px-5 py-3.5 border-2 border-[#D1FAE5] bg-[#F0F9F4] rounded-[22px] focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-[#1a5d47] transition-all"
+          style={{ color: "#0f131a" }}
         />
       </div>
 
-      {/* Category */}
-      <div>
-        <label htmlFor="category" className="block text-sm font-semibold mb-2" style={{ color: "#0f131a" }}>
-          Category
-        </label>
-        <select
-          id="category"
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-          className="w-full px-4 py-3 border rounded-[20px] focus:outline-none focus:ring-2 focus:border-transparent"
-          style={{
-            borderColor: "#1a5d47",
-            color: "#0f131a"
-          }}
-        >
-          <option value="Crystals">Crystals</option>
-          <option value="Sound Healing">Sound Healing</option>
-          <option value="Meditation">Meditation</option>
-          <option value="Aromatherapy">Aromatherapy</option>
-          <option value="Spiritual Tools">Spiritual Tools</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
+      {/* Category & Stock */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label htmlFor="category" className="block text-[11px] font-black mb-2 uppercase tracking-widest text-[#1a5d47]/60 px-1">
+            Category
+          </label>
+          <select
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            className="w-full px-5 py-3.5 border-2 border-[#D1FAE5] bg-[#F0F9F4] rounded-[22px] focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-[#1a5d47] transition-all appearance-none"
+            style={{ color: "#0f131a" }}
+          >
+            <option value="Crystals">Crystals</option>
+            <option value="Sound Healing">Sound Healing</option>
+            <option value="Meditation">Meditation</option>
+            <option value="Aromatherapy">Aromatherapy</option>
+            <option value="Spiritual Tools">Spiritual Tools</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
 
-      {/* Stock Availability */}
-      <div>
-        <label htmlFor="stockAvailability" className="block text-sm font-semibold mb-2" style={{ color: "#0f131a" }}>
-          Stock Availability
-        </label>
-        <select
-          id="stockAvailability"
-          name="stockAvailability"
-          value={formData.stockAvailability}
-          onChange={handleChange}
-          className="w-full px-4 py-3 border rounded-[20px] focus:outline-none focus:ring-2 focus:border-transparent"
-          style={{
-            borderColor: "#1a5d47",
-            color: "#0f131a"
-          }}
-        >
-          <option value="In Stock">In Stock</option>
-          <option value="Limited Stock">Limited Stock</option>
-          <option value="Pre-Order">Pre-Order</option>
-          <option value="Out of Stock">Out of Stock</option>
-        </select>
+        <div>
+          <label htmlFor="stockAvailability" className="block text-[11px] font-black mb-2 uppercase tracking-widest text-[#1a5d47]/60 px-1">
+            Availability
+          </label>
+          <select
+            id="stockAvailability"
+            name="stockAvailability"
+            value={formData.stockAvailability}
+            onChange={handleChange}
+            className="w-full px-5 py-3.5 border-2 border-[#D1FAE5] bg-[#F0F9F4] rounded-[22px] focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-[#1a5d47] transition-all appearance-none"
+            style={{ color: "#0f131a" }}
+          >
+            <option value="In Stock">In Stock</option>
+            <option value="Limited Stock">Limited Stock</option>
+            <option value="Pre-Order">Pre-Order</option>
+            <option value="Out of Stock">Out of Stock</option>
+          </select>
+        </div>
       </div>
 
       {/* Submit Button */}
-      <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        type="submit"
-        className="w-full mt-6 py-3 text-white font-semibold rounded-[20px] hover:shadow-xl transition-all text-lg"
-        style={{ backgroundColor: "#1a5d47" }}
-      >
-        Create Product
-      </motion.button>
+      <div className="pt-4">
+        <motion.button
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
+          type="submit"
+          className="w-full py-4 bg-gradient-to-r from-[#1a5d47] to-[#2d8a6a] text-white font-black uppercase tracking-[0.2em] rounded-[24px] shadow-xl shadow-emerald-900/10 hover:shadow-2xl hover:shadow-emerald-900/20 transition-all text-sm"
+        >
+          Publish Product
+        </motion.button>
+      </div>
     </form>
   );
 };

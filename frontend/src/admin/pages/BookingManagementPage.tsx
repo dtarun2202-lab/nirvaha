@@ -65,7 +65,7 @@ export function BookingManagementPage() {
   const [loading, setLoading] = useState(true);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{
-    type: "cancel" | "complete";
+    type: "cancel" | "complete" | "approve" | "reject";
     booking: Booking;
   } | null>(null);
 
@@ -77,62 +77,64 @@ export function BookingManagementPage() {
         throw new Error("Unable to load bookings");
       }
       const data = await response.json();
-      setBookings(
-        Array.isArray(data)
-          ? data.map((booking: any) => {
-              let parsedType = booking.type ? String(booking.type).toLowerCase() : "session";
-              if (parsedType === "video") parsedType = "Video";
-              else if (parsedType === "chat") parsedType = "Chat";
-              else if (parsedType === "retreat") parsedType = "Retreat";
-              else if (parsedType === "product") parsedType = "Product";
-              else parsedType = "Session";
+        setBookings(
+          Array.isArray(data)
+            ? data
+                .map((booking: any) => {
+                  let parsedType = booking.type ? String(booking.type).toLowerCase() : "session";
+                  if (parsedType === "video") parsedType = "Video";
+                  else if (parsedType === "chat") parsedType = "Chat";
+                  else if (parsedType === "retreat") parsedType = "Retreat";
+                  else if (parsedType === "product") parsedType = "Product";
+                  else parsedType = "Session";
 
-              let parsedPlatform = String(booking.platform || "Online");
-              let parsedDate = String(booking.date || booking.createdAt || "");
-              let parsedTime = String(booking.time || "");
+                  let parsedPlatform = String(booking.platform || "Online");
+                  let parsedDate = String(booking.date || booking.createdAt || "");
+                  let parsedTime = String(booking.time || "");
 
-              // Fix messy data where platform contains the time
-              const platformLower = parsedPlatform.toLowerCase();
-              if (platformLower.includes("ist") || platformLower.includes("am") || platformLower.includes("pm") || platformLower.includes("tomorrow") || platformLower.includes("today")) {
-                parsedTime = parsedPlatform;
-                parsedPlatform = "Online";
-              }
-              if (!parsedPlatform) parsedPlatform = "Online";
-
-              // Clean up ISO dates
-              if (parsedDate.includes("T") && parsedDate.endsWith("Z")) {
-                const d = new Date(parsedDate);
-                if (!isNaN(d.getTime())) {
-                  parsedDate = d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
-                  if (!parsedTime || parsedTime === "Online") {
-                    parsedTime = d.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' });
+                  // Fix messy data where platform contains the time
+                  const platformLower = parsedPlatform.toLowerCase();
+                  if (platformLower.includes("ist") || platformLower.includes("am") || platformLower.includes("pm") || platformLower.includes("tomorrow") || platformLower.includes("today")) {
+                    parsedTime = parsedPlatform;
+                    parsedPlatform = "Online";
                   }
-                }
-              }
+                  if (!parsedPlatform) parsedPlatform = "Online";
 
-              return {
-                id: booking.id || booking._id || "",
-                userId: booking.userId || "",
-                userName: booking.userName || booking.name || "Guest",
-                userEmail: booking.userEmail || booking.email || "N/A",
-                companionId: booking.companionId || booking.itemId || "",
-                companionName: booking.companionName || booking.itemName || booking.companion || "Unknown",
-                companionEmail: booking.companionEmail || "",
-                type: parsedType,
-                platform: parsedPlatform,
-                date: parsedDate,
-                time: parsedTime,
-                duration: typeof booking.duration === "number" ? booking.duration : (parseInt(booking.duration) || 0),
-                status: booking.status || "upcoming",
-                price: Number(booking.price || 0),
-                quantity: booking.quantity || 1,
-                paymentStatus: booking.paymentStatus || "N/A",
-                deliveryStatus: booking.deliveryStatus || "N/A",
-                createdAt: booking.createdAt || new Date().toISOString(),
-              };
-            })
-          : []
-      );
+                  // Clean up ISO dates
+                  if (parsedDate.includes("T") && parsedDate.endsWith("Z")) {
+                    const d = new Date(parsedDate);
+                    if (!isNaN(d.getTime())) {
+                      parsedDate = d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+                      if (!parsedTime || parsedTime === "Online") {
+                        parsedTime = d.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' });
+                      }
+                    }
+                  }
+
+                  return {
+                    id: booking.id || booking._id || "",
+                    userId: booking.userId || "",
+                    userName: booking.userName || booking.name || "Guest",
+                    userEmail: booking.userEmail || booking.email || "N/A",
+                    companionId: booking.companionId || booking.itemId || "",
+                    companionName: booking.companionName || booking.itemName || booking.companion || "Unknown",
+                    companionEmail: booking.companionEmail || "",
+                    type: parsedType,
+                    platform: parsedPlatform,
+                    date: parsedDate,
+                    time: parsedTime,
+                    duration: typeof booking.duration === "number" ? booking.duration : (parseInt(booking.duration) || 0),
+                    status: booking.status || "upcoming",
+                    price: Number(booking.price || 0),
+                    quantity: booking.quantity || 1,
+                    paymentStatus: booking.paymentStatus || "N/A",
+                    deliveryStatus: booking.deliveryStatus || "N/A",
+                    createdAt: booking.createdAt || new Date().toISOString(),
+                  };
+                })
+                .filter((b: any) => b.type === "Product" || b.type === "Retreat")
+            : []
+        );
     } catch (error) {
       console.error("Error fetching bookings:", error);
       setBookings([]);
@@ -250,16 +252,67 @@ export function BookingManagementPage() {
     document.body.removeChild(link);
   };
 
-  const confirmActionHandler = () => {
+  const confirmActionHandler = async () => {
     if (!confirmAction) return;
-    setBookings((prev) =>
-      prev.map((b) =>
-        b.id === confirmAction.booking.id
-          ? { ...b, status: confirmAction.type === "cancel" ? "cancelled" : "completed" }
-          : b
-      )
-    );
-    setConfirmAction(null);
+    
+    let newStatus = "";
+    switch(confirmAction.type) {
+      case "cancel": newStatus = "cancelled"; break;
+      case "complete": newStatus = "completed"; break;
+      case "approve": newStatus = "upcoming"; break;
+      case "reject": newStatus = "cancelled"; break;
+    }
+
+    try {
+      const body: any = { status: newStatus };
+      if (confirmAction.booking.type === "Product") {
+        if (newStatus === "upcoming") body.deliveryStatus = "Shipped";
+        else if (newStatus === "completed") body.deliveryStatus = "Delivered";
+        else if (newStatus === "cancelled") body.deliveryStatus = "Cancelled";
+        else if (newStatus === "pending") body.deliveryStatus = "Processing";
+      }
+
+      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/bookings/${confirmAction.booking.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) throw new Error("Failed to update status");
+
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.id === confirmAction.booking.id
+            ? { 
+                ...b, 
+                status: newStatus as any, 
+                deliveryStatus: body.deliveryStatus || b.deliveryStatus 
+              }
+            : b
+        )
+      );
+
+      // Notify the marketplace tab to refresh registrations
+      const storageKey = `nirvaha_my_sessions_${confirmAction.booking.userEmail}`;
+      const local = JSON.parse(localStorage.getItem(storageKey) || "[]");
+      const updated = local.map((l: any) => 
+        (l.sessionId === confirmAction.booking.companionId || l.id === confirmAction.booking.id) 
+        ? { 
+            ...l, 
+            status: newStatus === "upcoming" && l.type !== "product" ? "approved" : newStatus,
+            host: body.deliveryStatus || l.host
+          } 
+        : l
+      );
+      localStorage.setItem(storageKey, JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent("nirvaha-session-status-updated"));
+
+    } catch (err) {
+      console.error("Status update failed:", err);
+      alert("Failed to update booking status. Please try again.");
+    } finally {
+      setConfirmAction(null);
+    }
   };
 
   return (
@@ -389,6 +442,8 @@ export function BookingManagementPage() {
                           onView={() => handleView(item)}
                           onCancel={() => handleAction("cancel", item)}
                           onComplete={() => handleAction("complete", item)}
+                          onApprove={item.status === "pending" ? () => handleAction("approve", item) : undefined}
+                          onReject={item.status === "pending" ? () => handleAction("reject", item) : undefined}
                         />
                     </div>
                   </div>
@@ -406,130 +461,363 @@ export function BookingManagementPage() {
 
       {/* View Booking Details Modal */}
       <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-        <DialogContent className="max-w-2xl bg-[#F4FAF6] border-[#D5EEDD] rounded-3xl p-0 overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
-          <div className="bg-gradient-to-r from-[#B9EBD1] to-[#D5F2D9] px-6 py-5 border-b border-[#A7E2C3]">
-             <DialogHeader>
-               <DialogTitle className="text-xl font-bold text-[#1F4131]">Booking Details</DialogTitle>
-               <DialogDescription className="text-[#2A4939] font-medium text-xs font-mono bg-[#EAFBF0] self-start px-2 py-0.5 rounded border border-[#BDE8CE] mt-2">
-                 ID: {selectedBooking?.id}
-               </DialogDescription>
-             </DialogHeader>
+        <DialogContent className="max-w-5xl bg-white/95 backdrop-blur-3xl border border-[#dceae2]/70 shadow-[0_30px_80px_-15px_rgba(10,46,31,0.22)] rounded-[32px] p-0 overflow-hidden max-h-[90vh] flex flex-col font-['Plus_Jakarta_Sans'] transition-all duration-300">
+          
+          {/* Header */}
+          <div className="px-8 py-6 bg-gradient-to-r from-[#f8faf9] to-white border-b border-[#d1e0d9]/60 flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-4 flex-1">
+              <div className="w-12 h-12 shrink-0 rounded-[20px] bg-[#eff6f3] flex items-center justify-center border border-emerald-200/50 shadow-sm">
+                <CalendarIcon className="w-6 h-6 text-[#2d5a42]" />
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-3 md:gap-4">
+                <DialogTitle className="text-[22px] font-extrabold text-[#0a2e1f] tracking-tight leading-none m-0">
+                  Booking Overview
+                </DialogTitle>
+                
+                <div className="h-5 w-px bg-[#d1e0d9] hidden sm:block"></div>
+                
+                <DialogDescription className="text-[11px] text-[#7a9c8a] font-black uppercase tracking-widest m-0 flex items-center gap-2 whitespace-nowrap">
+                  <span>ID:</span>
+                  <span className="font-mono text-[#2d5a42] bg-[#eff6f3] px-2.5 py-1 rounded-md border border-[#d1e0d9]/60">
+                    {selectedBooking?.id}
+                  </span>
+                </DialogDescription>
+
+                {/* Custom Status Badge Next to ID */}
+                {selectedBooking && (
+                  <div className="flex items-center gap-3 shrink-0 ml-1">
+                    {(() => {
+                      const norm = (selectedBooking.status || "").toLowerCase();
+                      if (norm === "pending") {
+                        return (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#fffbeb] text-[#92400e] border border-[#fde68a] shadow-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                            Review Required
+                          </span>
+                        );
+                      } else if (norm === "approved" || norm === "upcoming") {
+                        return (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#d6eee9] text-[#0a2e1f] border border-[#b8d8d1] shadow-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            Approved & Active
+                          </span>
+                        );
+                      } else if (norm === "completed") {
+                        return (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#e7f5ef] text-[#065f46] border border-[#34d399]/40 shadow-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+                            Fully Completed
+                          </span>
+                        );
+                      } else if (norm === "cancelled" || norm === "rejected") {
+                        return (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 shadow-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                            Cancelled
+                          </span>
+                        );
+                      } else {
+                        return (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-50 text-gray-700 border border-gray-200 shadow-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-gray-500" />
+                            {selectedBooking.status}
+                          </span>
+                        );
+                      }
+                    })()}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
           
+          {/* Main Body */}
           {selectedBooking && (
-            <div className="px-6 py-5 overflow-y-auto space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                {/* User Information */}
-                <div className="bg-white p-5 rounded-2xl border border-[#D5EEDD] shadow-sm">
-                  <h3 className="font-bold text-[#1F4131] mb-3 flex items-center gap-2 border-b border-[#EAFBF0] pb-2">
-                     <span className="bg-[#EAFBF0] p-1.5 rounded-lg text-[#34A46B]">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                     </span>
-                     User Information
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    <p><span className="font-bold text-[#2A4939] mr-1">Name:</span> <span className="text-[#329D66] font-medium">{selectedBooking.userName}</span></p>
-                    <p><span className="font-bold text-[#2A4939] mr-1">Email:</span> <span className="text-[#329D66] font-medium break-all">{selectedBooking.userEmail}</span></p>
-                    <p><span className="font-bold text-[#2A4939] mr-1">User ID:</span> <span className="text-[#329D66] font-medium font-mono text-xs">{selectedBooking.userId}</span></p>
-                  </div>
-                </div>
+            <div className="flex-1 px-8 py-8 overflow-y-auto space-y-6 custom-modal-scrollbar" style={{ maxHeight: "calc(90vh - 160px)" }}>
+              
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                
+                {/* LEFT COLUMN: User Info & Payment Details */}
+                <div className="md:col-span-6 space-y-6">
+                  
+                  {/* User Information Card */}
+                  <div className="bg-[#f8faf9]/80 backdrop-blur-md p-6 rounded-[24px] border border-[#dceae2]/70 shadow-[0_8px_30px_rgb(0,0,0,0.015)] relative overflow-hidden group hover:border-[#b8d8d1] transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+                    
+                    <h3 className="font-extrabold text-[12px] uppercase tracking-widest text-[#0a2e1f] mb-5 flex items-center gap-2.5">
+                      <span className="bg-[#eff6f3] p-1.5 rounded-lg text-[#2d5a42] border border-[#dceae2]/50">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                      </span>
+                      User Information
+                    </h3>
+                    
+                    <div className="space-y-4 text-[13px]">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Full Name</span>
+                          <span className="text-[#0a2e1f] font-extrabold mt-1 text-[14px]">{selectedBooking.userName}</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">User Type</span>
+                          <span className="text-[#2d5a42] font-semibold mt-1">
+                            {selectedBooking.userEmail === 'guest@nirvaha.com' ? 'Walk-in Guest' : 'Registered Member'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Email Address</span>
+                        <span className="text-[#0a2e1f] font-bold mt-1 break-all">{selectedBooking.userEmail}</span>
+                      </div>
 
-                {/* Companion Information */}
-                <div className="bg-white p-5 rounded-2xl border border-[#D5EEDD] shadow-sm">
-                  <h3 className="font-bold text-[#1F4131] mb-3 flex items-center gap-2 border-b border-[#EAFBF0] pb-2">
-                     <span className="bg-[#EAFBF0] p-1.5 rounded-lg text-[#34A46B]">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                     </span>
-                     Companion Info
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    <p><span className="font-bold text-[#2A4939] mr-1">Name:</span> <span className="text-[#329D66] font-medium">{selectedBooking.companionName || "-"}</span></p>
-                    {selectedBooking.companionEmail && (
-                      <p><span className="font-bold text-[#2A4939] mr-1">Email:</span> <span className="text-[#329D66] font-medium break-all">{selectedBooking.companionEmail}</span></p>
-                    )}
-                    {selectedBooking.companionId && (
-                      <p><span className="font-bold text-[#2A4939] mr-1">ID:</span> <span className="text-[#329D66] font-medium font-mono text-xs">{selectedBooking.companionId}</span></p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Session Details */}
-              <div className="bg-white p-5 rounded-2xl border border-[#D5EEDD] shadow-sm">
-                <h3 className="font-bold text-[#1F4131] mb-3 flex items-center gap-2 border-b border-[#EAFBF0] pb-2">
-                   <span className="bg-[#EAFBF0] p-1.5 rounded-lg text-[#34A46B]">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
-                   </span>
-                   Session Details
-                </h3>
-                <div className="grid grid-cols-2 gap-4 text-sm mt-4">
-                  <div className="space-y-3">
-                    <div>
-                      <p className="font-bold text-[#2A4939] text-xs uppercase tracking-wider mb-1">Type & Platform</p>
-                      <div className="flex items-center gap-2">
-                         <span className={`inline-block px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${selectedBooking.type === 'video' ? 'bg-[#EAFBF0] text-[#34A46B]' : selectedBooking.type === 'chat' ? 'bg-[#EBF5FF] text-[#3B82F6]' : selectedBooking.type === 'retreat' ? 'bg-[#FAF2CD] text-[#9A7D11]' : 'bg-[#F3E8FF] text-[#9333EA]'}`}>
-                            {selectedBooking.type}
-                         </span>
-                         <span className="text-[#64C08E] font-semibold bg-[#F6FDF8] px-2 py-0.5 rounded border border-[#EAFBF0] capitalize">{selectedBooking.platform}</span>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Contact Phone</span>
+                          <span className="text-[#0a2e1f] font-bold mt-1">
+                            {selectedBooking.companionEmail || selectedBooking.userEmail === 'guest@nirvaha.com' ? '+91 98765 43210' : '+91 98480 22338'}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Primary Goal</span>
+                          <span className="text-[#2d5a42] font-semibold mt-1">Stress & Sleep Support</span>
+                        </div>
                       </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-[#2A4939] text-xs uppercase tracking-wider mb-1">Price</p>
-                      <p className="text-xl font-bold text-[#1F4131]">₹{selectedBooking.price}</p>
+                  </div>
+
+                  {/* Companion Information (Render only if session/retreat has companion name or exists) */}
+                  {selectedBooking.type !== "Product" && (
+                    <div className="bg-[#f8faf9]/80 backdrop-blur-md p-6 rounded-[24px] border border-[#dceae2]/70 shadow-[0_8px_30px_rgb(0,0,0,0.015)] relative overflow-hidden group hover:border-[#b8d8d1] transition-all duration-300">
+                      <h3 className="font-extrabold text-[12px] uppercase tracking-widest text-[#0a2e1f] mb-5 flex items-center gap-2.5">
+                        <span className="bg-[#eff6f3] p-1.5 rounded-lg text-[#2d5a42] border border-[#dceae2]/50">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        </span>
+                        Companion Information
+                      </h3>
+                      
+                      <div className="space-y-4 text-[13px]">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="flex flex-col">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Companion Name</span>
+                            <span className="text-[#0a2e1f] font-extrabold mt-1 text-[14px]">
+                              {selectedBooking.companionName || "No companion assigned"}
+                            </span>
+                          </div>
+                          {selectedBooking.companionEmail && (
+                            <div className="flex flex-col">
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Companion Email</span>
+                              <span className="text-[#2d5a42] font-semibold mt-1 break-all">{selectedBooking.companionEmail}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Payment Details Card */}
+                  <div className="bg-[#f8faf9]/80 backdrop-blur-md p-6 rounded-[24px] border border-[#dceae2]/70 shadow-[0_8px_30px_rgb(0,0,0,0.015)] relative overflow-hidden group hover:border-[#b8d8d1] transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+                    
+                    <h3 className="font-extrabold text-[12px] uppercase tracking-widest text-[#0a2e1f] mb-5 flex items-center gap-2.5">
+                      <span className="bg-[#eff6f3] p-1.5 rounded-lg text-[#2d5a42] border border-[#dceae2]/50">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                      </span>
+                      Payment Details
+                    </h3>
+                    
+                    <div className="space-y-4 text-[13px]">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Unit Price</span>
+                          <span className="text-[#0a2e1f] font-bold mt-1">₹{selectedBooking.price}</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Quantity</span>
+                          <span className="text-[#0a2e1f] font-bold mt-1">{selectedBooking.quantity || 1}</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-3 border-t border-[#d1e0d9]/40 flex justify-between items-center">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Total Amount</span>
+                          <span className="text-[#0a2e1f] text-[22px] font-black mt-0.5">₹{(selectedBooking.price || 0) * (selectedBooking.quantity || 1)}</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4] mb-1.5">Payment Status</span>
+                          {(() => {
+                            const norm = (selectedBooking.paymentStatus || "").toLowerCase();
+                            if (norm === "paid") {
+                              return (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#d6eee9] text-[#0a2e1f] border border-[#b8d8d1]">
+                                  Paid ✓
+                                </span>
+                              );
+                            } else {
+                              return (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-600 border border-amber-200">
+                                  {selectedBooking.paymentStatus || "Pending"}
+                                </span>
+                              );
+                            }
+                          })()}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 pt-1">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Payment Method</span>
+                          <span className="text-[#2d5a42] font-semibold mt-1">UPI QR Code</span>
+                        </div>
+                        {selectedBooking.type === "Product" && (
+                          <div className="flex flex-col">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Delivery Status</span>
+                            <span className="inline-flex items-center gap-1 mt-1 text-[11px] font-black uppercase text-[#2d9f68]">
+                              🚚 {selectedBooking.deliveryStatus || "Processing"}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="font-bold text-[#2A4939] text-xs uppercase tracking-wider mb-1">Date & Time</p>
-                      <p className="text-[#329D66] font-bold">{selectedBooking.date}</p>
-                      <p className="text-[#64C08E] font-medium text-xs mt-0.5">{selectedBooking.time}</p>
-                    </div>
-                    <div>
-                      <p className="font-bold text-[#2A4939] text-xs uppercase tracking-wider mb-1">Duration</p>
-                      <p className="text-[#329D66] font-medium">{selectedBooking.duration || 0} minutes</p>
-                    </div>
-                    {selectedBooking.type === "Product" && (
-                      <>
-                        <div>
-                          <p className="font-bold text-[#2A4939] text-xs uppercase tracking-wider mb-1">Quantity</p>
-                          <p className="text-[#329D66] font-bold">{selectedBooking.quantity}</p>
-                        </div>
-                        <div>
-                          <p className="font-bold text-[#2A4939] text-xs uppercase tracking-wider mb-1">Payment Status</p>
-                          <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase ${selectedBooking.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                            {selectedBooking.paymentStatus}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-bold text-[#2A4939] text-xs uppercase tracking-wider mb-1">Delivery Status</p>
-                          <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase ${selectedBooking.deliveryStatus === 'Delivered' ? 'bg-blue-100 text-blue-700' : 'bg-teal-50 text-teal-600 border border-teal-100'}`}>
-                            {selectedBooking.deliveryStatus}
-                          </span>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                  
                 </div>
+
+                {/* RIGHT COLUMN: Booking Information & Timeline */}
+                <div className="md:col-span-6 space-y-6">
+                  
+                  {/* Booking Specifications Card */}
+                  <div className="bg-[#f8faf9]/80 backdrop-blur-md p-6 rounded-[24px] border border-[#dceae2]/70 shadow-[0_8px_30px_rgb(0,0,0,0.015)] relative overflow-hidden group hover:border-[#b8d8d1] transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+                    
+                    <h3 className="font-extrabold text-[12px] uppercase tracking-widest text-[#0a2e1f] mb-5 flex items-center gap-2.5">
+                      <span className="bg-[#eff6f3] p-1.5 rounded-lg text-[#2d5a42] border border-[#dceae2]/50">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                      </span>
+                      Booking Information
+                    </h3>
+
+                    <div className="space-y-4 text-[13px]">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Reserved Item / Companion</span>
+                        <span className="text-[#0a2e1f] font-extrabold mt-1 text-[16px] leading-tight">
+                          {selectedBooking.companionName}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4] mb-1.5">Booking Type</span>
+                          <span className={`inline-flex w-fit px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-widest border shadow-sm ${selectedBooking.type === 'video' ? 'bg-[#f0f9f4] text-[#2d9f68] border-[#c2e5d3]' : selectedBooking.type === 'chat' ? 'bg-[#f0f7ff] text-[#3b82f6] border-[#bfdbfe]' : selectedBooking.type === 'retreat' ? 'bg-[#fffbf0] text-[#b4890c] border-[#fde68a]' : 'bg-[#fbf7ff] text-[#9333ea] border-[#e9d5ff]'}`}>
+                            {selectedBooking.type}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4] mb-1.5">Access Platform</span>
+                          <span className="w-fit text-[#4a7c65] font-semibold bg-white px-2 py-0.5 rounded-md border border-[#dceae2] shadow-sm text-[11px] capitalize">
+                            {selectedBooking.platform || "Online"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="pt-3 border-t border-[#d1e0d9]/40 grid grid-cols-2 gap-4">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Scheduled Date</span>
+                          <span className="text-[#0a2e1f] font-bold mt-1">{selectedBooking.date}</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Scheduled Time</span>
+                          <span className="text-[#2d5a42] font-semibold mt-1">{selectedBooking.time}</span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Session Duration</span>
+                          <span className="text-[#0a2e1f] font-bold mt-1">{selectedBooking.duration || 60} minutes</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#96b0a4]">Timezone</span>
+                          <span className="text-[#2d5a42] font-semibold mt-1">Indian Standard Time (IST)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Dynamic Status Progress Timeline */}
+                  <div className="bg-[#f8faf9]/80 backdrop-blur-md p-6 rounded-[24px] border border-[#dceae2]/70 shadow-[0_8px_30px_rgb(0,0,0,0.015)] relative overflow-hidden group hover:border-[#b8d8d1] transition-all duration-300">
+                    <h3 className="font-extrabold text-[12px] uppercase tracking-widest text-[#0a2e1f] mb-5 flex items-center gap-2.5">
+                      <span className="bg-[#eff6f3] p-1.5 rounded-lg text-[#2d5a42] border border-[#dceae2]/50">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                      </span>
+                      Tracking Timeline
+                    </h3>
+
+                    <div className="relative pl-6 border-l border-emerald-200/60 ml-3 space-y-5 text-[13px]">
+                      
+                      {/* Step 1 */}
+                      <div className="relative">
+                        <span className="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full bg-emerald-500 border-4 border-white shadow-sm flex items-center justify-center" />
+                        <div className="flex flex-col">
+                          <span className="font-bold text-[#0a2e1f]">Booking Registered</span>
+                          <span className="text-[10px] text-[#7a9c8a] mt-0.5 font-bold uppercase tracking-wide">
+                            {new Date(selectedBooking.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Step 2 (Conditional) */}
+                      <div className="relative">
+                        <span className={`absolute -left-[31px] top-0.5 w-4 h-4 rounded-full border-4 border-white shadow-sm flex items-center justify-center ${selectedBooking.status === 'completed' || selectedBooking.status === 'upcoming' ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`} />
+                        <div className="flex flex-col">
+                          <span className="font-bold text-[#0a2e1f]">
+                            {selectedBooking.status === 'pending' ? 'Verification in Progress' : 'Approved by Concierge'}
+                          </span>
+                          <span className="text-[11px] text-[#6a8c7a] mt-0.5 font-medium">
+                            {selectedBooking.status === 'pending' 
+                              ? 'Admin approval is requested to confirm availability.' 
+                              : 'Spot successfully reserved & verified.'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Step 3 (Completed) */}
+                      {selectedBooking.status === 'completed' && (
+                        <div className="relative">
+                          <span className="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full bg-emerald-600 border-4 border-white shadow-sm flex items-center justify-center" />
+                          <div className="flex flex-col">
+                            <span className="font-bold text-[#065f46]">Fully Completed</span>
+                            <span className="text-[11px] text-[#6a8c7a] mt-0.5 font-medium">
+                              Wellness session has finished and reports logged.
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                </div>
+
               </div>
 
-              {/* Status Section */}
-              <div className="flex items-center justify-between bg-[#F6FDF8] p-4 rounded-xl border border-[#D5EEDD]">
-                <h3 className="font-bold text-[#2A4939]">Current Status</h3>
-                <StatusBadge status={selectedBooking.status} variant="booking" />
-              </div>
             </div>
           )}
 
-          <div className="bg-white border-t border-[#D5EEDD] p-5">
-             <DialogFooter className="flex w-full justify-between sm:justify-between items-center">
+          {/* Footer Actions */}
+          <div className="bg-[#f8faf9] border-t border-[#dceae2]/70 px-8 py-5">
+             <DialogFooter className="flex w-full justify-between sm:justify-between items-center gap-4">
+               
+               {/* Left Side: Close */}
                <Button 
                   variant="outline" 
                   onClick={() => setIsViewModalOpen(false)}
-                  className="bg-white border-[#BEE4CD] text-[#295641] hover:bg-[#F6FDF8] font-bold rounded-xl"
+                  className="bg-white border-[#dceae2] text-[#4a7c65] hover:bg-[#f0f9f4] hover:text-[#1a3d2f] font-bold rounded-full px-8 h-12 shadow-sm transition-all hover:scale-102 active:scale-98"
                >
                  Close
                </Button>
-               <div className="flex gap-2">
+               
+               {/* Right Side: Admin Operations */}
+               <div className="flex gap-3">
                  {selectedBooking?.status === "upcoming" && (
                    <>
                      <Button
@@ -537,12 +825,12 @@ export function BookingManagementPage() {
                          setIsViewModalOpen(false);
                          handleAction("cancel", selectedBooking);
                        }}
-                       className="bg-white border border-[#F8CACA] text-[#E76E6E] hover:bg-red-50 hover:border-red-200 font-bold rounded-xl"
+                       className="bg-white border border-rose-200 text-rose-500 hover:bg-rose-50 hover:text-rose-600 font-bold rounded-full px-6 h-12 shadow-sm transition-all hover:scale-102 active:scale-98"
                      >
                        Cancel Booking
                      </Button>
                      <Button
-                       className="bg-[#4EAA77] hover:bg-[#3C9162] text-white font-bold rounded-xl shadow-sm"
+                       className="bg-gradient-to-r from-[#0a2e1f] to-[#124530] hover:from-[#0d3b28] hover:to-[#165a3f] text-white font-bold rounded-full px-8 h-12 shadow-md hover:shadow-[0_0_20px_rgba(90,191,136,0.3)] transition-all duration-300 hover:scale-102 active:scale-98"
                        onClick={() => {
                          setIsViewModalOpen(false);
                          handleAction("complete", selectedBooking);
@@ -553,8 +841,26 @@ export function BookingManagementPage() {
                    </>
                  )}
                </div>
+               
              </DialogFooter>
           </div>
+          
+          {/* Custom Inner Thin Scrollbar Styles */}
+          <style>{`
+            .custom-modal-scrollbar::-webkit-scrollbar {
+              width: 5px;
+            }
+            .custom-modal-scrollbar::-webkit-scrollbar-track {
+              background: transparent;
+            }
+            .custom-modal-scrollbar::-webkit-scrollbar-thumb {
+              background: #e1ede6;
+              border-radius: 10px;
+            }
+            .custom-modal-scrollbar::-webkit-scrollbar-thumb:hover {
+              background: #d1e0d7;
+            }
+          `}</style>
         </DialogContent>
       </Dialog>
 
@@ -564,7 +870,7 @@ export function BookingManagementPage() {
         onOpenChange={(open) => !open && setConfirmAction(null)}
         title={
           confirmAction
-            ? `${confirmAction.type.charAt(0).toUpperCase()}${confirmAction.type.slice(1)} Booking`
+            ? `${confirmAction.type === 'approve' ? 'Approve' : confirmAction.type === 'reject' ? 'Reject' : confirmAction.type.charAt(0).toUpperCase() + confirmAction.type.slice(1)} Booking`
             : "Confirm"
         }
         description={
@@ -572,9 +878,13 @@ export function BookingManagementPage() {
             ? `Are you sure you want to ${confirmAction.type} booking ${confirmAction.booking.id}?`
             : ""
         }
-        confirmText={confirmAction?.type === "complete" ? "Mark Completed" : "Confirm"}
+        confirmText={
+          confirmAction?.type === "complete" ? "Mark Completed" : 
+          confirmAction?.type === "approve" ? "Approve Request" :
+          confirmAction?.type === "reject" ? "Reject Request" : "Confirm"
+        }
         onConfirm={confirmActionHandler}
-        variant={confirmAction?.type === "cancel" ? "destructive" : "default"}
+        variant={confirmAction?.type === "cancel" || confirmAction?.type === "reject" ? "destructive" : "default"}
       />
     </div>
   );

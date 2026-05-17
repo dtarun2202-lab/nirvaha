@@ -54,6 +54,7 @@ import { SoundHealingContent } from "./admin/pages/content/SoundHealingContent";
 import { ProductsContent } from "./admin/pages/content/ProductsContent";
 import { ContentUpdatePage } from "./admin/pages/ContentUpdatePage";
 import { MarketplaceManagementPage } from "./admin/pages/MarketplaceManagementPage";
+import { ProductManagementPage } from "./admin/pages/ProductManagementPage";
 import { ContactManagementPage } from "./admin/pages/ContactManagementPage";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { SuccessStoriesManager } from "./components/admin/SuccessStoriesManager";
@@ -127,6 +128,7 @@ function AppInner() {
           <Route path="companions" element={<CompanionManagementPage />} />
           <Route path="inquiries" element={<ContactManagementPage />} />
           <Route path="marketplace" element={<MarketplaceManagementPage />} />
+          <Route path="products" element={<ProductManagementPage />} />
           <Route path="content-update" element={<ContentUpdatePage />} />
           <Route path="content" element={<ContentManagementPage />} />
           <Route path="content/meditation" element={<MeditationContent />} />

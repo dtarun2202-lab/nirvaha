@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { QuickAddButton } from "../components/QuickAddButton";
 
 interface AdminLayoutProps {
   children?: React.ReactNode;
@@ -99,10 +100,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           path: "/admin/bookings",
         },
         {
-          title: "Marketplace Requests",
-          icon: ShoppingBag,
+          title: "Session Registrations",
+          icon: Calendar,
           path: "/admin/marketplace",
         },
+
         {
           title: "Landing Page Updates",
           icon: Palette,

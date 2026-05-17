@@ -10,7 +10,7 @@ const marketplaceItemSchema = new mongoose.Schema(
       enum: ['session', 'retreat', 'product'],
       required: true,
     },
-    status: { type: String, enum: ['active', 'completed'], default: 'active' },
+    status: { type: String, enum: ['active', 'completed', 'out-of-stock', 'inactive'], default: 'active' },
     data: { type: mongoose.Schema.Types.Mixed, required: true },
     approvedAt: { type: Date, default: null },
     approvedBy: { type: String, default: null },
