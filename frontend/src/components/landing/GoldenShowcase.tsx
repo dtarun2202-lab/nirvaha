@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import SplitDoorAnimation from './SplitDoorAnimation';
+import { useAuth } from '../../contexts/AuthContext';
 
 const GoldenShowcase: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [isRevealed, setIsRevealed] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -14,35 +16,40 @@ const GoldenShowcase: React.FC = () => {
       title: "About Us",
       subtitle: "Ancient Wisdom, Modern Science",
       desc: "Nirvaha is more than a platform—it's a sanctuary where timeless spiritual practices meet modern tools to find your inner balance.",
-      btn: "Read Our Stories"
+      btn: "Read Our Stories",
+      route: "/stories"
     },
     {
       image: "/image 02.png",
       title: "Our Vision",
       subtitle: "Neuroscience Meets Spirit",
       desc: "We leverage cutting-edge tech to quantify spiritual growth, making the intangible measurable for modern seekers.",
-      btn: "Explore Tech"
+      btn: "Explore Tech",
+      route: "/pathways"
     },
     {
       image: "/image 03.png",
       subtitle: "Personalized AI Guidance",
       title: "AI Guide",
       desc: "Experience the convergence of technology and tranquility with an AI guide that learns and grows with your spirit.",
-      btn: "Meet Your Guide"
+      btn: "Meet Your Guide",
+      route: "/dashboard/chatbot"
     },
     {
       image: "/image 04.png",
       title: "Harmony",
       subtitle: "A Sanctuary for the Soul",
       desc: "Find your center in a chaotic world. Our guided sessions are designed to align your mind, body, and breath.",
-      btn: "Start Healing"
+      btn: "Start Healing",
+      route: "/dashboard/meditation"
     },
     {
       image: "/image 05.png",
       title: "Growth",
       subtitle: "The Power of Together",
       desc: "Join a global circle of seekers and healers. Together, we create a resonance that heals the world.",
-      btn: "Join the Circle"
+      btn: "Join the Circle",
+      route: "/dashboard/community"
     }
   ];
 
@@ -161,7 +168,16 @@ const GoldenShowcase: React.FC = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate('/stories');
+                  const targetRoute = slideData[currentSlide].route;
+                  
+                  // Check if this route requires protection (most of these do, like dashboard)
+                  // For safety, we can just protect all of them since the user requested these specific buttons.
+                  if (!user) {
+                    sessionStorage.setItem("redirectUrl", targetRoute);
+                    navigate("/login");
+                  } else {
+                    navigate(targetRoute);
+                  }
                 }}
                 className="group relative px-12 py-5 rounded-full bg-[#1a442f] text-white font-semibold text-xl overflow-hidden border border-[#23583e] transition-all duration-500 shadow-2xl hover:shadow-[0_20px_40px_rgba(26,68,47,0.4)] hover:-translate-y-1"
                 style={{ fontFamily: "'Poppins', sans-serif" }}

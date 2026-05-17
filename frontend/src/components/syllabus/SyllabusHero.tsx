@@ -1,16 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Pathway } from '../../data/pathwaysData';
 import { PlayCircle, ShieldCheck, Clock, Users, Star } from 'lucide-react';
+import axios from 'axios';
+import { BACKEND_CONFIG } from '../../config/backend';
 
 interface SyllabusHeroProps {
     pathway: Pathway;
     onStart: () => void;
+    isEnrolled: boolean;
 }
 
-const SyllabusHero: React.FC<SyllabusHeroProps> = ({ pathway, onStart }) => {
+const SyllabusHero: React.FC<SyllabusHeroProps> = ({ pathway, onStart, isEnrolled }) => {
+    const [studentCount, setStudentCount] = useState<number>(0);
+
+    useEffect(() => {
+        const fetchStudentCount = async () => {
+            try {
+                const res = await axios.get(`${BACKEND_CONFIG.API_BASE_URL}/api/users/pathway/${pathway.id}/students`);
+                setStudentCount(res.data.count);
+            } catch (err) {
+                console.error("Failed to fetch student count", err);
+            }
+        };
+        fetchStudentCount();
+    }, [pathway.id]);
+
     return (
-        <section className="relative w-full h-[90vh] flex items-center justify-center overflow-hidden">
+        <section className="relative w-full min-h-[90vh] py-24 flex items-center justify-center overflow-hidden mt-12 rounded-3xl border border-white/5">
             {/* Background Image with Deep Gradient */}
             <div className="absolute inset-0 z-0">
                 <img 
@@ -18,10 +35,10 @@ const SyllabusHero: React.FC<SyllabusHeroProps> = ({ pathway, onStart }) => {
                     alt={pathway.title}
                     className="w-full h-full object-cover opacity-40 grayscale"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-[#050705]/50 via-[#050705] to-[#050705]" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#050705]/80 via-[#050705]/50 to-[#050705]" />
             </div>
 
-            <div className="relative z-10 max-w-5xl mx-auto px-6 text-center space-y-12">
+            <div className="relative z-20 max-w-5xl mx-auto px-6 text-center space-y-12">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -35,7 +52,7 @@ const SyllabusHero: React.FC<SyllabusHeroProps> = ({ pathway, onStart }) => {
                     </div>
                     
                     <h1 
-                        className="text-6xl md:text-9xl font-bold leading-tight text-white drop-shadow-2xl"
+                        className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight text-white drop-shadow-2xl"
                         style={{ fontFamily: "'Cinzel', serif" }}
                     >
                         {pathway.title}
@@ -69,7 +86,7 @@ const SyllabusHero: React.FC<SyllabusHeroProps> = ({ pathway, onStart }) => {
                         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 flex items-center justify-center gap-2">
                             <Users size={12} className="text-emerald-500" /> Students
                         </p>
-                        <p className="text-xl font-bold text-white/90">1,240+</p>
+                        <p className="text-xl font-bold text-white/90">{studentCount.toLocaleString()}</p>
                     </div>
                     <div className="space-y-2">
                         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 flex items-center justify-center gap-2">
@@ -87,11 +104,11 @@ const SyllabusHero: React.FC<SyllabusHeroProps> = ({ pathway, onStart }) => {
                 >
                     <button 
                         onClick={onStart}
-                        className="group relative px-12 py-5 bg-white text-black rounded-full font-bold text-lg flex items-center gap-3 overflow-hidden shadow-[0_0_40px_rgba(255,255,255,0.1)] hover:scale-105 transition-all"
+                        className="flex items-center gap-3 bg-white/10 backdrop-blur-xl border border-white/20 px-10 py-5 rounded-full hover:bg-white hover:text-black hover:scale-105 transition-all group pointer-events-auto"
                     >
-                        <div className="absolute inset-0 bg-emerald-500 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                        <span className="relative z-10 flex items-center gap-2 group-hover:text-black">
-                            <PlayCircle size={24} /> Start Your Journey
+                        <PlayCircle className="w-6 h-6 text-emerald-400 group-hover:text-black" />
+                        <span className="text-sm font-bold uppercase tracking-widest">
+                            {isEnrolled ? "Continue Your Journey" : "Start Your Journey"}
                         </span>
                     </button>
                     <p className="text-[10px] uppercase tracking-[0.4em] text-white/20 animate-bounce">Scroll to Explore Curriculum</p>
@@ -99,7 +116,7 @@ const SyllabusHero: React.FC<SyllabusHeroProps> = ({ pathway, onStart }) => {
             </div>
 
             {/* Atmosphere overlay */}
-            <div className="absolute bottom-0 left-0 w-full h-64 bg-gradient-to-t from-[#050705] to-transparent z-10" />
+            <div className="absolute bottom-0 left-0 w-full h-64 bg-gradient-to-t from-[#050705] to-transparent z-0 pointer-events-none" />
         </section>
     );
 };

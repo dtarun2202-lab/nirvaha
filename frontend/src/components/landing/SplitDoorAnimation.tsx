@@ -237,8 +237,8 @@ const SplitDoorAnimation: React.FC<SplitDoorAnimationProps> = ({ onDoorOpen, isO
       {/* Click To Reveal Image */}
       <motion.div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[120] pointer-events-none flex items-center justify-center"
-        animate={open ? { opacity: 0, scale: 0.8 } : { opacity: [0.85, 1, 0.85] }}
-        transition={{ duration: 2, repeat: open ? 0 : Infinity, ease: "easeInOut" }}
+        animate={open ? { opacity: 0, scale: 0.5 } : { opacity: [0.85, 1, 0.85] }}
+        transition={open ? { duration: 0.15, ease: "easeOut" } : { duration: 2, repeat: Infinity, ease: "easeInOut" }}
       >
         <img 
           src="/image copy 2.png" 

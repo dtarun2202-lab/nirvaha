@@ -5,8 +5,10 @@ import { MeditationContent } from "./content/MeditationContent";
 import { SoundHealingContent } from "./content/SoundHealingContent";
 import { ProductsContent } from "./content/ProductsContent";
 import { ContentEditor } from "../components/ContentEditor";
+import { LandingPageManager } from "../components/LandingPageManager";
 
 const TAB_TO_PATH: Record<string, string> = {
+  landing: "/admin/content/landing",
   meditation: "/admin/content/meditation",
   sound: "/admin/content/sound",
   products: "/admin/content/products",
@@ -14,6 +16,7 @@ const TAB_TO_PATH: Record<string, string> = {
 };
 
 const PATH_TO_TAB: Record<string, string> = {
+  "/admin/content/landing": "landing",
   "/admin/content/meditation": "meditation",
   "/admin/content/sound": "sound",
   "/admin/content/products": "products",
@@ -26,17 +29,17 @@ export function ContentManagementPage() {
 
   const activeTab = useMemo(() => {
     const path = location.pathname.replace(/\/$/, "");
-    return PATH_TO_TAB[path] || "meditation";
+    return PATH_TO_TAB[path] || "landing";
   }, [location.pathname]);
 
   useEffect(() => {
     if (location.pathname === "/admin/content" || location.pathname === "/admin/content/") {
-      navigate("/admin/content/meditation", { replace: true });
+      navigate("/admin/content/landing", { replace: true });
     }
   }, [location.pathname, navigate]);
 
   const handleTabChange = (value: string) => {
-    const target = TAB_TO_PATH[value] || "/admin/content/meditation";
+    const target = TAB_TO_PATH[value] || "/admin/content/landing";
     navigate(target);
   };
 
@@ -44,11 +47,14 @@ export function ContentManagementPage() {
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-black mb-2">Content Management</h1>
-        <p className="text-gray-700">Manage meditations, sound healing sessions, and marketplace products</p>
+        <p className="text-gray-700">Manage landing page, meditations, sound healing sessions, and marketplace products</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="bg-white border-b border-gray-200">
+          <TabsTrigger value="landing" className="data-[state=active]:bg-gray-50 text-black data-[state=active]:text-gray-700">
+            Landing Page
+          </TabsTrigger>
           <TabsTrigger value="meditation" className="data-[state=active]:bg-gray-50 text-black data-[state=active]:text-gray-700">
             Meditation
           </TabsTrigger>
@@ -62,6 +68,9 @@ export function ContentManagementPage() {
             Dynamic Content
           </TabsTrigger>
         </TabsList>
+        <TabsContent value="landing" className="mt-6">
+          <LandingPageManager />
+        </TabsContent>
         <TabsContent value="meditation" className="mt-6">
           <MeditationContent />
         </TabsContent>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface SlideData {
     image: string;
@@ -51,6 +52,7 @@ const slides: SlideData[] = [
 
 const AboutSection: React.FC = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [direction, setDirection] = useState(0);
 
@@ -101,7 +103,20 @@ const AboutSection: React.FC = () => {
                                             animate={{ scale: 1, opacity: 1 }}
                                             exit={{ scale: 0, opacity: 0 }}
                                             transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 15 }}
-                                            onClick={() => navigate('/stories')}
+                                            onClick={() => {
+                                                let targetRoute = '/stories'; // Default
+                                                if (activeSlide.buttonText === 'Explore Tech') targetRoute = '/pathways';
+                                                if (activeSlide.buttonText === 'Meet Your Guide') targetRoute = '/dashboard/chatbot';
+                                                if (activeSlide.buttonText === 'Start Healing') targetRoute = '/dashboard/meditation';
+                                                if (activeSlide.buttonText === 'Join the Circle') targetRoute = '/dashboard/community';
+
+                                                if (!user) {
+                                                    sessionStorage.setItem("redirectUrl", targetRoute);
+                                                    navigate("/login");
+                                                } else {
+                                                    navigate(targetRoute);
+                                                }
+                                            }}
                                             className="pointer-events-auto w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-[#1a5d47] text-white flex items-center justify-center text-center p-4 shadow-[0_0_40px_rgba(26,93,71,0.5)] border-2 border-white/30 backdrop-blur-sm transition-transform hover:scale-110 active:scale-95 group/btn"
                                         >
                                             <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] leading-tight group-hover/btn:scale-110 transition-transform">
@@ -175,7 +190,20 @@ const AboutSection: React.FC = () => {
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        onClick={() => navigate('/stories')}
+                                        onClick={() => {
+                                            let targetRoute = '/stories'; // Default
+                                            if (activeSlide.buttonText === 'Explore Tech') targetRoute = '/pathways';
+                                            if (activeSlide.buttonText === 'Meet Your Guide') targetRoute = '/dashboard/chatbot';
+                                            if (activeSlide.buttonText === 'Start Healing') targetRoute = '/dashboard/meditation';
+                                            if (activeSlide.buttonText === 'Join the Circle') targetRoute = '/dashboard/community';
+
+                                            if (!user) {
+                                                sessionStorage.setItem("redirectUrl", targetRoute);
+                                                navigate("/login");
+                                            } else {
+                                                navigate(targetRoute);
+                                            }
+                                        }}
                                         className="px-10 py-4 bg-[#1a5d47] text-white rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all"
                                     >
                                         {activeSlide.buttonText}

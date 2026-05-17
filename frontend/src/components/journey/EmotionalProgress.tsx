@@ -2,17 +2,30 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Activity, Zap, Wind } from 'lucide-react';
 
-const EmotionalProgress: React.FC = () => {
-    // Mock data for the visualization
-    const points = [
-        { day: 'Mon', calm: 45, focus: 30 },
-        { day: 'Tue', calm: 52, focus: 45 },
-        { day: 'Wed', calm: 48, focus: 60 },
-        { day: 'Thu', calm: 65, focus: 55 },
-        { day: 'Fri', calm: 70, focus: 75 },
-        { day: 'Sat', calm: 85, focus: 80 },
-        { day: 'Sun', calm: 92, focus: 88 },
-    ];
+interface EmotionalProgressProps {
+    stats?: {
+        weeklyMinutes?: number[];
+        wellnessScore?: number;
+    };
+}
+
+const EmotionalProgress: React.FC<EmotionalProgressProps> = ({ stats }) => {
+    // Generate points from weeklyMinutes or fallback to default growth curve
+    const defaultCalm = [45, 52, 48, 65, 70, 85, 92];
+    const defaultFocus = [30, 45, 60, 55, 75, 80, 88];
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    const points = days.map((day, i) => {
+        // If we have weeklyMinutes, use them to scale the calm/focus values
+        const mins = stats?.weeklyMinutes?.[i] || 0;
+        const multiplier = mins > 0 ? 1.2 : 1;
+        
+        return {
+            day,
+            calm: Math.min(100, (stats?.weeklyMinutes ? (mins * 5 + 30) : defaultCalm[i])),
+            focus: Math.min(100, (stats?.weeklyMinutes ? (mins * 4 + 25) : defaultFocus[i]))
+        };
+    });
 
     const maxVal = 100;
     const height = 150;
@@ -40,14 +53,14 @@ const EmotionalProgress: React.FC = () => {
                 <div className="space-y-1">
                     <p className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Calmness</p>
                     <div className="flex items-center gap-2">
-                        <span className="text-2xl font-bold text-emerald-400">92%</span>
+                        <span className="text-2xl font-bold text-emerald-400">{stats?.wellnessScore || 92}%</span>
                         <span className="text-[10px] text-emerald-500/60 font-bold">+12%</span>
                     </div>
                 </div>
                 <div className="space-y-1">
                     <p className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Focus</p>
                     <div className="flex items-center gap-2">
-                        <span className="text-2xl font-bold text-teal-400">88%</span>
+                        <span className="text-2xl font-bold text-teal-400">{Math.max(0, (stats?.wellnessScore || 88) - 4)}%</span>
                         <span className="text-[10px] text-teal-500/60 font-bold">+8%</span>
                     </div>
                 </div>

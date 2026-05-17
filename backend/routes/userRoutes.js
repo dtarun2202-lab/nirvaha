@@ -15,6 +15,17 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/users/pathway/:id/students - Fetch student count for a pathway
+router.get('/pathway/:id/students', async (req, res) => {
+  try {
+    const pathwayId = req.params.id;
+    const count = await User.countDocuments({ enrolledPathways: pathwayId });
+    res.json({ count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET /api/users/profile - Fetch user profile & stats
 router.get("/profile", async (req, res) => {
   try {

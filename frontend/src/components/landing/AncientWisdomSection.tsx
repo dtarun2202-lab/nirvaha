@@ -8,35 +8,35 @@ const defaultGoals = [
         id: 1,
         title: "INNER PEACE",
         subtitle: "I'm looking to find",
-        image: "/inner peace.png",
+        image: "/nirvaha1.png",
         desc: "Calm the mind and soothe the soul through mindful meditation and breathwork."
     },
     {
         id: 2,
         title: "EMOTIONAL HEALING",
         subtitle: "I'm looking for",
-        image: "/emotional.png",
+        image: "/nirvaha2.png",
         desc: "Process emotions and find balance with ancient healing practices."
     },
     {
         id: 3,
         title: "PHYSICAL VITALITY",
         subtitle: "I'm looking to boost",
-        image: "/physical.png",
+        image: "/nirvaha3.png",
         desc: "Energize the body and spirit with holistic wellness techniques."
     },
     {
         id: 4,
         title: "SPIRITUAL CONNECTION",
         subtitle: "I'm looking for a",
-        image: "/spiritual.png",
+        image: "/nirvaha4.png",
         desc: "Deepen connection to self and universe through sacred wisdom."
     },
     {
         id: 5,
         title: "STRESS RELIEF",
         subtitle: "I'm seeking",
-        image: "/stress relief.png",
+        image: "/nirvaha5.png",
         desc: "Release tension and restore harmony with proven relaxation methods."
     }
 ];

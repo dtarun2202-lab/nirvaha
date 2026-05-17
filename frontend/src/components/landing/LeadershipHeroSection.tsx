@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import DecorativeShapes from './DecorativeShapes';
 import CompanionApplicationModal from '../companion/CompanionApplicationModal';
@@ -6,6 +8,16 @@ import CompanionApplicationModal from '../companion/CompanionApplicationModal';
 export function LeadershipHeroSection() {
     const { ref: sectionRef, inView } = useScrollAnimation();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { user } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        if (searchParams.get('action') === 'coach') {
+            setIsModalOpen(true);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }, []);
 
     return (
         <section
@@ -85,7 +97,14 @@ export function LeadershipHeroSection() {
                             {/* Desktop CTA */}
                             <div className={`mt-10 hidden lg:block transition-all duration-1000 ease-out delay-600 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                                 <button
-                                    onClick={() => setIsModalOpen(true)}
+                                    onClick={() => {
+                                        if (!user) {
+                                            sessionStorage.setItem("redirectUrl", "/?action=coach");
+                                            navigate('/login');
+                                        } else {
+                                            setIsModalOpen(true);
+                                        }
+                                    }}
                                     className="group relative inline-flex px-10 py-5 rounded-full font-semibold text-lg text-white overflow-hidden transition-all duration-500 hover:shadow-[0_20px_50px_rgba(26,93,71,0.3)] hover:-translate-y-2 no-underline"
                                     style={{
                                         background: 'linear-gradient(135deg, #1a5d47 0%, #2d8a6b 100%)',
@@ -113,7 +132,14 @@ export function LeadershipHeroSection() {
                             {/* Mobile CTA */}
                             <div className="mt-10 lg:hidden text-left">
                                 <button
-                                    onClick={() => setIsModalOpen(true)}
+                                    onClick={() => {
+                                        if (!user) {
+                                            sessionStorage.setItem("redirectUrl", "/?action=coach");
+                                            navigate('/login');
+                                        } else {
+                                            setIsModalOpen(true);
+                                        }
+                                    }}
                                     className="inline-block px-8 py-4 rounded-full font-semibold text-white bg-[#1a5d47] shadow-lg no-underline"
                                     style={{ fontFamily: "'Poppins', sans-serif" }}
                                 >

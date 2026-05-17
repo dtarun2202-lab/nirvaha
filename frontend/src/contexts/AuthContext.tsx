@@ -36,6 +36,12 @@ interface User {
   profile?: UserProfile;
   stats?: UserStats;
   sessionHistory?: Array<Record<string, unknown>>;
+  pathwayProgress?: Record<string, {
+    completedLessons: number[];
+    startedAt: string;
+    lastAccessedAt: string;
+  }>;
+  enrolledPathways?: string[];
 }
 
 interface AuthContextType {
@@ -144,13 +150,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       if (res.ok) {
         const data = await res.json();
-        const payload = data as { bio?: string; location?: string; stats?: UserStats; sessionHistory?: User["sessionHistory"] };
+        // The backend /api/profile?userId= returns the full safe user object
         const updated: User = {
           ...user,
-          bio: payload.bio,
-          location: payload.location,
-          stats: payload.stats,
-          ...(Array.isArray(payload.sessionHistory) ? { sessionHistory: payload.sessionHistory } : {}),
+          ...data,
+          // Ensure nested objects are merged correctly if needed, 
+          // but since /api/profile returns the full user, this simple spread should work
         };
         setUser(updated);
         localStorage.setItem('user', JSON.stringify(updated));

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Quote, Info, Link as LinkIcon, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Quote, BookOpen, CheckCircle, Sparkles, Flame, Star, Sun } from 'lucide-react';
 import { defaultLibraryItems, LibraryItem } from '../data/libraryData';
 
 const LibraryDetailPage: React.FC = () => {
@@ -10,166 +10,231 @@ const LibraryDetailPage: React.FC = () => {
 
     const item: LibraryItem | undefined = defaultLibraryItems.find(i => i.id === id);
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, [id]);
+    useEffect(() => { window.scrollTo(0, 0); }, [id]);
 
-    if (!item) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-[#1a1c1a]">
-                <div className="text-center">
-                    <h2 className="text-4xl text-[#d4af37] font-bold mb-4" style={{ fontFamily: "'Cinzel', serif" }}>Item Not Found</h2>
-                    <button 
-                        onClick={() => navigate('/')}
-                        className="px-6 py-2 border border-[#d4af37] text-[#d4af37] rounded-full hover:bg-[#d4af37] hover:text-black transition-colors"
-                    >
-                        Return Home
-                    </button>
-                </div>
+    if (!item) return (
+        <div className="min-h-screen flex items-center justify-center bg-[#0d1410]">
+            <div className="text-center space-y-4">
+                <h2 className="text-4xl text-[#d4af37] font-bold" style={{ fontFamily: "'Cinzel', serif" }}>Item Not Found</h2>
+                <button onClick={() => navigate(-1)} className="px-8 py-3 border border-[#d4af37] text-[#d4af37] rounded-full hover:bg-[#d4af37] hover:text-black transition-all">Back to Library</button>
             </div>
-        );
-    }
+        </div>
+    );
+
+    const storyLines = item.story.split('\n').filter(l => l.trim());
 
     return (
-        <div className="min-h-screen bg-[#0d1410] text-[#e8e6df] overflow-x-hidden selection:bg-[#d4af37] selection:text-black">
-            
-            {/* Ancient Theme Background Accents */}
-            <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full opacity-10"
-                     style={{ background: 'radial-gradient(circle at center, #d4af37 0%, transparent 60%)', filter: 'blur(120px)' }} />
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 mix-blend-overlay"></div>
+        <div className="min-h-screen bg-[#0a0f0c] text-[#e8e6df] overflow-x-hidden selection:bg-[#d4af37]/30 selection:text-[#d4af37]">
+
+            {/* Fixed ambient background */}
+            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+                <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-[#d4af37]/5 rounded-full blur-[120px]" />
+                <div className="absolute top-1/2 -right-48 w-[500px] h-[500px] bg-emerald-900/20 rounded-full blur-[100px]" />
+                <div className="absolute bottom-0 -left-32 w-[400px] h-[400px] bg-[#d4af37]/5 rounded-full blur-[100px]" />
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10" />
+                {/* Floating gold particles */}
+                {[...Array(10)].map((_, i) => (
+                    <motion.div key={i}
+                        className="absolute w-px h-px rounded-full bg-[#d4af37]"
+                        style={{ left: `${10 + i * 9}%`, top: `${20 + (i % 4) * 20}%`, boxShadow: '0 0 6px 2px rgba(212,175,55,0.3)' }}
+                        animate={{ y: [0, -30, 0], opacity: [0.2, 0.8, 0.2] }}
+                        transition={{ duration: 5 + i * 0.6, repeat: Infinity, delay: i * 0.5, ease: 'easeInOut' }}
+                    />
+                ))}
             </div>
 
-            {/* Navigation Bar */}
-            <nav className="relative z-50 p-6 md:p-10 flex items-center justify-between max-w-7xl mx-auto">
-                <button 
+            {/* Sticky Nav */}
+            <nav className="sticky top-0 z-50 px-6 md:px-12 py-5 flex items-center justify-between backdrop-blur-xl bg-[#0a0f0c]/80 border-b border-[#d4af37]/10">
+                <motion.button
+                    initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
                     onClick={() => navigate(-1)}
-                    className="flex items-center gap-3 text-[#d4af37] hover:text-[#fff] transition-colors group"
+                    className="flex items-center gap-3 text-[#d4af37] hover:text-white transition-colors group"
                 >
-                    <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                    <span className="font-semibold tracking-wider text-sm md:text-base" style={{ fontFamily: "'Cinzel', serif" }}>Back to Library</span>
-                </button>
-                <div className="hidden md:block text-[#8c8c88] text-sm tracking-[0.3em] uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
-                    Wisdom Treasury
+                    <div className="w-9 h-9 rounded-full border border-[#d4af37]/40 flex items-center justify-center group-hover:bg-[#d4af37] group-hover:border-[#d4af37] group-hover:text-black transition-all">
+                        <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" />
+                    </div>
+                    <span className="text-xs font-bold uppercase tracking-[0.3em] hidden md:block" style={{ fontFamily: "'Cinzel', serif" }}>Back to Library</span>
+                </motion.button>
+                <div className="flex items-center gap-2">
+                    <Flame size={12} className="text-[#d4af37]/60" />
+                    <span className="text-[10px] uppercase tracking-[0.4em] text-[#d4af37]/50 font-bold hidden md:block" style={{ fontFamily: "'Cinzel', serif" }}>Wisdom Treasury</span>
                 </div>
             </nav>
 
-            {/* Hero Section */}
-            <main className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 pb-24">
-                
-                <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 mt-4 md:mt-12">
-                    
-                    {/* Left Column: Image & Quick Stats */}
-                    <motion.div 
-                        initial={{ opacity: 0, x: -40 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="w-full lg:w-5/12 shrink-0 space-y-8"
+            {/* Typography-focused Hero (No Image) */}
+            <header className="relative w-full min-h-[70vh] flex flex-col items-center justify-center text-center overflow-hidden px-6 pt-24 pb-16">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: [0.22,1,0.36,1] }}
+                    className="relative z-10 flex flex-col items-center max-w-4xl mx-auto"
+                >
+                    {/* Category badge */}
+                    <motion.span initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
+                        className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/8 text-[10px] font-bold uppercase tracking-[0.5em] text-[#d4af37] mb-8"
                     >
-                        <div className="relative rounded-3xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(212,175,55,0.15)] border border-[#d4af37]/20 bg-black/40">
-                            <img 
-                                src={item.image} 
-                                alt={item.title}
-                                className="w-full h-auto object-contain"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                            
-                            <div className="absolute bottom-0 left-0 w-full p-8 text-center">
-                                <span className="inline-block px-4 py-1.5 rounded-full border border-[#d4af37]/50 bg-black/40 backdrop-blur-md text-[#d4af37] text-xs font-bold uppercase tracking-[0.2em] mb-4">
-                                    {item.category}
-                                </span>
-                            </div>
-                        </div>
+                        <Sparkles size={10} /> {item.category} · {item.duration}
+                    </motion.span>
 
-                        {/* Story Short Lines (The old modal content) */}
-                        <div className="p-8 rounded-3xl bg-[#141b16] border border-[#d4af37]/10 relative overflow-hidden group hover:border-[#d4af37]/30 transition-colors">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#d4af37] to-transparent opacity-50"></div>
-                            <div className="space-y-4">
-                                {item.story.split('\n').filter(l => l.trim()).map((line, idx) => (
-                                    <p key={idx} className="text-[#a0a5a1] italic text-lg leading-relaxed font-light" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                                        "{line}"
-                                    </p>
-                                ))}
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Right Column: Detailed Info */}
-                    <motion.div 
-                        initial={{ opacity: 0, x: 40 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-                        className="w-full lg:w-7/12"
+                    {/* Title */}
+                    <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.2 }}
+                        className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white leading-tight mb-8"
+                        style={{ fontFamily: "'Cinzel', serif", textShadow: '0 4px 24px rgba(212,175,55,0.2)' }}
                     >
-                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-[#f2efe9] mb-8 leading-tight tracking-wide drop-shadow-md" style={{ fontFamily: "'Cinzel', serif" }}>
-                            {item.title}
-                        </h1>
+                        {item.title}
+                    </motion.h1>
 
-                        {/* Description */}
-                        <div className="mb-12">
-                            <div className="flex items-center gap-3 mb-4">
-                                <Info className="w-6 h-6 text-[#d4af37]" />
-                                <h3 className="text-2xl font-bold text-[#d4af37] tracking-wider" style={{ fontFamily: "'Cinzel', serif" }}>The Essence</h3>
-                            </div>
-                            <p className="text-[#c1c6c2] text-lg md:text-xl leading-relaxed font-light" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                                {item.description}
+                    {/* Gold divider */}
+                    <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.9, delay: 0.4 }}
+                        className="w-40 h-[2px] bg-gradient-to-r from-transparent via-[#d4af37]/70 to-transparent mb-8"
+                    />
+
+                    {/* Subtitle */}
+                    <motion.p initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5 }}
+                        className="text-lg md:text-xl text-[#a0a89e] leading-relaxed italic mb-10 max-w-2xl mx-auto"
+                        style={{ fontFamily: "'Poppins', sans-serif" }}
+                    >
+                        Ancient wisdom meets modern understanding
+                    </motion.p>
+
+                    {/* Story first line preview */}
+                    <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.65 }}
+                        className="text-lg text-[#c8b97a]/80 italic max-w-xl mx-auto"
+                        style={{ fontFamily: "'Georgia', serif" }}
+                    >
+                        "{item.story.split('\n')[0].trim()}"
+                    </motion.p>
+                </motion.div>
+
+                {/* Background glow centered behind text */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="w-[800px] h-[400px] bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.06)_0%,transparent_70%)]" />
+                </div>
+            </header>
+
+            {/* Main Content */}
+            <main className="relative z-10 max-w-4xl mx-auto px-6 md:px-12 pb-32 -mt-10">
+
+                {/* Ancient Verse / Story lines */}
+                <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}
+                    className="relative mb-20 p-10 md:p-14 rounded-[2.5rem] border border-[#d4af37]/20 overflow-hidden"
+                    style={{ background: 'linear-gradient(135deg, #1a1e1a 0%, #0f1610 100%)' }}
+                >
+                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#d4af37] via-[#d4af37]/40 to-transparent rounded-full" />
+                    <div className="absolute -top-8 -right-8 w-32 h-32 text-[#d4af37]/5"><Sun size={128} /></div>
+                    <p className="text-[9px] uppercase tracking-[0.5em] text-[#d4af37]/40 font-bold mb-8 pl-2" style={{ fontFamily: "'Cinzel', serif" }}>Ancient Verses</p>
+                    <div className="space-y-4 pl-2">
+                        {storyLines.map((line, i) => (
+                            <motion.p key={i}
+                                initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.15, duration: 0.6 }}
+                                className="text-xl md:text-2xl text-[#c8b97a] italic leading-relaxed font-light"
+                                style={{ fontFamily: "'Georgia', serif" }}
+                            >
+                                {line}
+                            </motion.p>
+                        ))}
+                    </div>
+                </motion.div>
+
+                {/* The Essence / Detailed Description */}
+                <motion.section initial={{ opacity: 0, y: 25 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="mb-16">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-8 h-8 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 flex items-center justify-center">
+                            <BookOpen size={14} className="text-[#d4af37]" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-[#d4af37] tracking-wider" style={{ fontFamily: "'Cinzel', serif" }}>The Essence</h2>
+                    </div>
+                    <p className="text-lg md:text-xl text-[#b0b8b3] leading-[1.9] font-light" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                        {item.description}
+                    </p>
+                </motion.section>
+
+                {/* Ancient Wisdom + Modern Interpretation */}
+                <motion.section initial={{ opacity: 0, y: 25 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="mb-16">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="p-8 rounded-3xl border border-[#d4af37]/15 bg-gradient-to-br from-[#161d17] to-[#0d1410] relative overflow-hidden group hover:border-[#d4af37]/30 transition-all">
+                            <div className="absolute top-4 right-4 opacity-5 text-[#d4af37]"><Flame size={64} /></div>
+                            <p className="text-[9px] uppercase tracking-[0.4em] text-[#d4af37]/50 font-bold mb-4" style={{ fontFamily: "'Cinzel', serif" }}>Ancient Wisdom</p>
+                            <h3 className="text-lg font-bold text-[#c8b97a] mb-4" style={{ fontFamily: "'Cinzel', serif" }}>Timeless Teaching</h3>
+                            <p className="text-[#8a9490] leading-relaxed font-light text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                                {storyLines[0]} The ancient sages encoded this wisdom across generations to guide the seeker toward liberation and inner peace.
                             </p>
                         </div>
-
-                        {/* Why They Matter */}
-                        <div className="mb-12 p-8 rounded-2xl bg-gradient-to-br from-[#1a231d] to-[#0d1410] border border-[#d4af37]/20 relative">
-                            <div className="absolute -top-3 -right-3 text-[#d4af37]/10">
-                                <SparkleIcon className="w-24 h-24" />
-                            </div>
-                            <h3 className="text-2xl font-bold text-[#d4af37] mb-4 tracking-wider relative z-10" style={{ fontFamily: "'Cinzel', serif" }}>Why It Matters Today</h3>
-                            <p className="text-[#c1c6c2] text-lg leading-relaxed relative z-10" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                        <div className="p-8 rounded-3xl border border-emerald-800/30 bg-gradient-to-br from-[#0e1a12] to-[#0a0f0c] relative overflow-hidden group hover:border-emerald-700/40 transition-all">
+                            <div className="absolute top-4 right-4 opacity-5 text-emerald-400"><Star size={64} /></div>
+                            <p className="text-[9px] uppercase tracking-[0.4em] text-emerald-500/50 font-bold mb-4" style={{ fontFamily: "'Cinzel', serif" }}>Modern Application</p>
+                            <h3 className="text-lg font-bold text-emerald-400/80 mb-4" style={{ fontFamily: "'Cinzel', serif" }}>Today's Relevance</h3>
+                            <p className="text-[#8a9490] leading-relaxed font-light text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>
                                 {item.whyTheyMatter}
                             </p>
                         </div>
+                    </div>
+                </motion.section>
 
-                        {/* Quotes */}
-                        <div className="mb-12">
-                            <div className="flex items-center gap-3 mb-6">
-                                <Quote className="w-6 h-6 text-[#d4af37]" />
-                                <h3 className="text-2xl font-bold text-[#d4af37] tracking-wider" style={{ fontFamily: "'Cinzel', serif" }}>Words of Wisdom</h3>
-                            </div>
-                            <div className="grid gap-6">
-                                {item.quotes.map((quote, idx) => (
-                                    <div key={idx} className="pl-6 border-l-2 border-[#d4af37]/40 py-2">
-                                        <p className="text-[#e8e6df] text-xl font-light italic leading-relaxed" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                                            "{quote}"
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Impact Points */}
-                        <div className="mb-16">
-                            <h3 className="text-2xl font-bold text-[#d4af37] mb-6 tracking-wider" style={{ fontFamily: "'Cinzel', serif" }}>Profound Impact</h3>
-                            <div className="grid sm:grid-cols-2 gap-4">
-                                {item.impact.map((point, idx) => (
-                                    <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-[#141b16] border border-[#d4af37]/10 hover:border-[#d4af37]/30 transition-colors">
-                                        <CheckCircle className="w-6 h-6 text-[#d4af37] shrink-0 mt-0.5" />
-                                        <span className="text-[#c1c6c2]" style={{ fontFamily: "'Poppins', sans-serif" }}>{point}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                {/* Quotes of Wisdom */}
+                <motion.section initial={{ opacity: 0, y: 25 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="mb-16">
+                    <div className="flex items-center gap-3 mb-8">
+                        <Quote size={18} className="text-[#d4af37]" />
+                        <h2 className="text-2xl font-bold text-[#d4af37] tracking-wider" style={{ fontFamily: "'Cinzel', serif" }}>Words of Wisdom</h2>
+                    </div>
+                    <div className="space-y-5">
+                        {item.quotes.map((quote, i) => (
+                            <motion.figure key={i}
+                                initial={{ opacity: 0, x: -15 }} whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.1 }}
+                                className="group flex gap-6 items-start p-7 rounded-2xl border border-[#d4af37]/10 bg-[#111713] hover:border-[#d4af37]/25 hover:bg-[#141c16] transition-all"
+                            >
+                                <span className="text-4xl text-[#d4af37]/20 font-serif leading-none mt-1 shrink-0 group-hover:text-[#d4af37]/40 transition-colors">"</span>
+                                <blockquote className="text-lg md:text-xl text-[#c8c4b4] font-light italic leading-relaxed" style={{ fontFamily: "'Georgia', serif" }}>
+                                    {quote}
+                                </blockquote>
+                            </motion.figure>
+                        ))}
+                    </div>
+                </motion.section>
 
 
 
-                    </motion.div>
-                </div>
+                {/* Reflection / Emotional highlight */}
+                <motion.div initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.9 }}
+                    className="relative mb-20 p-12 md:p-16 rounded-[3rem] text-center overflow-hidden"
+                    style={{ background: 'linear-gradient(135deg, #1c1600 0%, #1a1200 40%, #0e1a0e 100%)' }}
+                >
+                    <div className="absolute inset-0 border border-[#d4af37]/10 rounded-[3rem] pointer-events-none" />
+                    <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-80 h-40 bg-[#d4af37]/8 blur-[60px] rounded-full" />
+                    {/* Gold stars */}
+                    {[...Array(5)].map((_, i) => (
+                        <motion.div key={i} className="absolute"
+                            style={{ left: `${15 + i * 18}%`, top: `${12 + (i % 2) * 60}%` }}
+                            animate={{ opacity: [0.1, 0.4, 0.1], scale: [0.8, 1.2, 0.8] }}
+                            transition={{ duration: 3 + i, repeat: Infinity, delay: i * 0.6 }}
+                        >
+                            <Star size={i === 2 ? 16 : 10} className="text-[#d4af37]/30 fill-[#d4af37]/20" />
+                        </motion.div>
+                    ))}
+                    <div className="relative z-10 space-y-5">
+                        <p className="text-[9px] uppercase tracking-[0.5em] text-[#d4af37]/40 font-bold" style={{ fontFamily: "'Cinzel', serif" }}>Reflection</p>
+                        <Quote size={28} className="text-[#d4af37]/20 mx-auto" />
+                        <p className="text-2xl md:text-3xl text-[#c8b97a] italic font-light leading-relaxed max-w-2xl mx-auto" style={{ fontFamily: "'Georgia', serif" }}>
+                            {item.quotes[0]}
+                        </p>
+                        <div className="w-16 h-[1px] bg-[#d4af37]/30 mx-auto" />
+                        <p className="text-[#6a7a72] text-sm uppercase tracking-widest font-medium">Ancient Teaching · Nirvaha Library</p>
+                    </div>
+                </motion.div>
+
+                {/* Back CTA */}
+                <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="group inline-flex items-center gap-3 px-10 py-5 border border-[#d4af37]/40 text-[#d4af37] rounded-full font-bold text-sm uppercase tracking-widest hover:bg-[#d4af37] hover:text-black hover:border-[#d4af37] hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(212,175,55,0.1)]"
+                        style={{ fontFamily: "'Cinzel', serif" }}
+                    >
+                        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                        Back to Library
+                    </button>
+                </motion.div>
             </main>
         </div>
     );
 };
-
-const SparkleIcon = ({ className }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 22C12 22 12 16 18 12C12 8 12 2 12 2C12 2 12 8 6 12C12 16 12 22 12 22Z" />
-    </svg>
-);
 
 export default LibraryDetailPage;

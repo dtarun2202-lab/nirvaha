@@ -1,15 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, ShieldCheck, GraduationCap, Users, PlayCircle, BookOpen, Star, Target } from 'lucide-react';
 import { pathwaysData, Pathway } from '../data/pathwaysData';
 import SEOHead from '../components/common/SEOHead';
+import { useAuth } from '../contexts/AuthContext';
+import EnrollmentModal from '../components/syllabus/EnrollmentModal';
+import { AnimatePresence } from 'framer-motion';
 
 const PathwayDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const [showEnrollModal, setShowEnrollModal] = useState(false);
 
     const pathway: Pathway | undefined = pathwaysData.find(p => p.id === id);
+    const isEnrolled = user?.enrolledPathways?.includes(id || '');
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -25,6 +31,14 @@ const PathwayDetailPage: React.FC = () => {
             </div>
         );
     }
+
+    const handleStartJourney = () => {
+        if (!isEnrolled) {
+            setShowEnrollModal(true);
+        } else {
+            navigate(`/pathways/${id}/journey?start=true`);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-[#1a5d47] selection:text-white font-sans overflow-x-hidden">
@@ -86,10 +100,10 @@ const PathwayDetailPage: React.FC = () => {
 
                         <div className="flex flex-wrap items-center gap-4">
                             <button 
-                                onClick={() => navigate(`/pathways/${id}/journey`)}
-                                className="bg-white text-black px-8 py-4 rounded-lg font-bold flex items-center gap-2 hover:bg-gray-200 transition-colors shadow-lg shadow-white/10"
+                                onClick={handleStartJourney}
+                                className={`${isEnrolled ? 'bg-white text-black' : 'bg-emerald-500 text-black'} px-8 py-4 rounded-lg font-bold flex items-center gap-2 hover:bg-emerald-400 transition-colors shadow-lg shadow-white/10`}
                             >
-                                <PlayCircle className="w-6 h-6" /> Start Pathway
+                                <PlayCircle className="w-6 h-6" /> {isEnrolled ? 'Continue Journey' : 'Enroll Now'}
                             </button>
                             <button 
                                 onClick={() => navigate(`/pathways/${id}/syllabus`)}
@@ -141,59 +155,46 @@ const PathwayDetailPage: React.FC = () => {
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto px-6 md:px-12 py-16 grid grid-cols-1 lg:grid-cols-3 gap-16">
+            <main className="max-w-4xl mx-auto px-6 md:px-12 py-16">
                 
-                {/* Left Column: Outcomes */}
-                <div className="lg:col-span-1 space-y-12">
-                    <div>
-                        <h3 className="text-2xl font-bold mb-6 font-serif">Learning Outcomes</h3>
-                        <ul className="space-y-4">
-                            {pathway.outcomes.map((outcome, idx) => (
-                                <li key={idx} className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/5">
-                                    <div className="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center shrink-0">
-                                        <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
-                                    </div>
-                                    <p className="text-gray-300 text-sm leading-relaxed">{outcome}</p>
-                                </li>
-                            ))}
-                        </ul>
+                {/* Outcomes Section - Centered and Refined */}
+                <div className="space-y-12">
+                    <div className="text-center mb-12">
+                        <h3 className="text-3xl font-bold mb-4 font-serif">Learning Outcomes</h3>
+                        <p className="text-gray-400 font-light">What you will gain from this immersive experience</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {pathway.outcomes.map((outcome, idx) => (
+                            <motion.li 
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: idx * 0.1 }}
+                                key={idx} 
+                                className="flex items-start gap-4 p-6 rounded-2xl bg-white/[0.03] border border-white/[0.05] hover:bg-white/[0.05] transition-colors group list-none"
+                            >
+                                <div className="mt-1 w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0 group-hover:border-emerald-500/60 transition-colors">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+                                </div>
+                                <p className="text-gray-300 leading-relaxed font-light">{outcome}</p>
+                            </motion.li>
+                        ))}
                     </div>
                 </div>
-
-                {/* Right Column: Glowing Timeline */}
-                <div className="lg:col-span-2">
-                    <h3 className="text-2xl font-bold mb-8 font-serif">Your Learning Journey</h3>
-                    
-                    <div className="relative border-l-2 border-white/10 ml-6 md:ml-8 space-y-12 pb-12">
-                        {pathway.timeline.map((step, idx) => {
-                            const isLast = idx === pathway.timeline.length - 1;
-                            return (
-                                <motion.div 
-                                    initial={{ opacity: 0, x: -20 }}
-                                    whileInView={{ opacity: 1, x: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.5, delay: idx * 0.1 }}
-                                    key={idx} 
-                                    className="relative pl-10 md:pl-16 group"
-                                >
-                                    {/* Glowing Node */}
-                                    <div className={`absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-[#0a0a0a] z-10 transition-colors duration-300 ${isLast ? 'bg-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.6)]' : 'bg-emerald-500 group-hover:bg-emerald-400 group-hover:shadow-[0_0_15px_rgba(16,185,129,0.5)]'}`}></div>
-                                    
-                                    {/* Content Card */}
-                                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 hover:bg-white/10 transition-colors duration-300">
-                                        <span className={`text-xs font-bold uppercase tracking-widest mb-2 block ${isLast ? 'text-amber-400' : 'text-emerald-400'}`}>
-                                            {isLast ? 'Final Milestone' : `Step 0${idx + 1}`}
-                                        </span>
-                                        <h4 className="text-xl md:text-2xl font-bold mb-3 text-white">{step.title}</h4>
-                                        <p className="text-gray-400 leading-relaxed font-light">{step.description}</p>
-                                    </div>
-                                </motion.div>
-                            );
-                        })}
-                    </div>
-                </div>
-
             </main>
+
+            <AnimatePresence>
+                {showEnrollModal && (
+                    <EnrollmentModal 
+                        pathway={pathway} 
+                        onClose={() => setShowEnrollModal(false)}
+                        onSuccess={() => {
+                            setShowEnrollModal(false);
+                            navigate(`/pathways/${id}/journey`);
+                        }}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };

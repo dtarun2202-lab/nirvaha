@@ -21,8 +21,8 @@ export interface Pathway {
 export const pathwaysData: Pathway[] = [
     {
         "id": "mindfulness-meditation-certification",
-        "title": "Mindfulness Meditation Certification",
-        "desc": "An immersive journey designed to help you master mindfulness meditation certification and elevate your daily experience.",
+        "title": "Mindfulness Journey",
+        "desc": "An immersive path designed to help you master mindfulness and elevate your daily experience.",
         "feel": "Calm & Aligned",
         "image": "/CALM1.png",
         "bgColor": "bg-[#a3b19b]",
@@ -30,17 +30,17 @@ export const pathwaysData: Pathway[] = [
             "Calm"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Achieve consistent present-moment awareness in high-stress environments.",
+            "Deconstruct the mental narratives that fuel chronic anxiety.",
+            "Cultivate a deep, non-judgmental relationship with your internal state.",
+            "Establish a lifetime anchor for mental stability and emotional peace."
         ],
         "instructor": "Dr. Alara Chen",
         "duration": "5 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -72,17 +72,17 @@ export const pathwaysData: Pathway[] = [
             "Calm"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Unlock the full capacity of your respiratory system for vitality.",
+            "Regulate your autonomic nervous system through conscious breathing.",
+            "Master specialized techniques for instant focus and energy shifts.",
+            "Use the breath as a bridge to deep meditative states."
         ],
         "instructor": "Elena Rodriguez",
         "duration": "6 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -114,17 +114,17 @@ export const pathwaysData: Pathway[] = [
             "Calm"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Master the art of 'active rest' to recover from mental fatigue.",
+            "Implement progressive relaxation to dissolve physical tension.",
+            "Understand the biofeedback loops of deep cellular recovery.",
+            "Create a sanctuary of stillness within your daily schedule."
         ],
         "instructor": "Priya Sharma",
         "duration": "10 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -156,17 +156,17 @@ export const pathwaysData: Pathway[] = [
             "Calm"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Cultivate the discipline of silence to amplify inner intuition.",
+            "Navigate the internal landscape without external distractions.",
+            "Develop a profound sense of self-reliance and mental independence.",
+            "Listen to the subtle wisdom of the soul that noise drowns out."
         ],
         "instructor": "Elena Rodriguez",
         "duration": "10 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -198,17 +198,17 @@ export const pathwaysData: Pathway[] = [
             "Calm"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Identify and neutralize emotional triggers before they escalate.",
+            "Reset your emotional baseline after periods of intense stress.",
+            "Cultivate emotional agility to navigate complex life changes.",
+            "Build a resilient heart that processes rather than represses."
         ],
         "instructor": "Dr. Alara Chen",
         "duration": "6 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -240,17 +240,17 @@ export const pathwaysData: Pathway[] = [
             "Calm"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Optimize your circadian rhythm for natural, restorative sleep.",
+            "Balance your nervous system to exit 'fight or flight' mode.",
+            "Master evening rituals that signal safety and rest to the brain.",
+            "Wake up with sustained energy and natural cognitive clarity."
         ],
         "instructor": "Elena Rodriguez",
         "duration": "7 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -282,17 +282,17 @@ export const pathwaysData: Pathway[] = [
             "Focused"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Dissolve mental fog to achieve razor-sharp cognitive focus.",
+            "Optimize decision-making processes under high-pressure conditions.",
+            "Increase your mental processing speed and information retention.",
+            "Develop the clarity needed to see through complex life problems."
         ],
         "instructor": "Priya Sharma",
         "duration": "8 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -324,17 +324,17 @@ export const pathwaysData: Pathway[] = [
             "Focused"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Extend your focus span through neuroplasticity-based training.",
+            "Master the 'Flow State' on demand for peak productivity.",
+            "Minimize the cognitive cost of task-switching and distractions.",
+            "Gain absolute command over where your attention resides."
         ],
         "instructor": "Dr. Alara Chen",
         "duration": "7 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -366,17 +366,17 @@ export const pathwaysData: Pathway[] = [
             "Focused"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Develop the mental stamina for 4+ hours of uninterrupted work.",
+            "Build self-discipline that bypasses the need for motivation.",
+            "Create an environment and mindset that repels distractions.",
+            "Master the psychology of deep focus in a shallow world."
         ],
         "instructor": "Dr. Samuel Vance",
         "duration": "7 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -408,17 +408,17 @@ export const pathwaysData: Pathway[] = [
             "Focused"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Harness the neurobiology of peak mental performance.",
+            "Optimize your brain chemistry through lifestyle and mindset.",
+            "Eliminate cognitive waste and energy leaks in your routine.",
+            "Achieve a state of 'effortless high-performance' daily."
         ],
         "instructor": "Dr. Alara Chen",
         "duration": "7 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -450,17 +450,17 @@ export const pathwaysData: Pathway[] = [
             "Focused"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Establish a high-output routine that protects your mental energy.",
+            "Identify and dismantle the early warning signs of chronic burnout.",
+            "Master the art of 'active recovery' to sustain long-term performance.",
+            "Align your professional goals with your personal well-being."
         ],
         "instructor": "Dr. Alara Chen",
         "duration": "4 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -492,17 +492,17 @@ export const pathwaysData: Pathway[] = [
             "Focused"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Master Attention Restoration Theory (ART) to recover from focus fatigue.",
+            "Implement digital boundaries that protect your cognitive space.",
+            "Use sensory-based techniques to ground your focus instantly.",
+            "Build a lifestyle that naturally fosters deep concentration."
         ],
         "instructor": "Priya Sharma",
         "duration": "9 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -534,17 +534,17 @@ export const pathwaysData: Pathway[] = [
             "Balanced"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Design a holistic lifestyle that supports mental and physical vitality.",
+            "Integrate movement, nutrition, and mindset into a unified practice.",
+            "Develop the skills to guide others toward their wellness potential.",
+            "Master the bio-psychosocial model of personal health."
         ],
         "instructor": "Marcus Thorne",
         "duration": "9 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -576,17 +576,17 @@ export const pathwaysData: Pathway[] = [
             "Balanced"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Synchronize your physical sensations with your mental state.",
+            "Master somatic techniques to release stored stress and tension.",
+            "Develop a deep intuitive sense of your body's needs.",
+            "Achieve a state of total alignment between mind and form."
         ],
         "instructor": "Dr. Alara Chen",
         "duration": "8 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -609,8 +609,8 @@ export const pathwaysData: Pathway[] = [
     },
     {
         "id": "lifestyle-alignment-certification",
-        "title": "Lifestyle Alignment Certification",
-        "desc": "An immersive journey designed to help you master lifestyle alignment certification and elevate your daily experience.",
+        "title": "Lifestyle Alignment Journey",
+        "desc": "An immersive path designed to help you master lifestyle alignment and elevate your daily experience.",
         "feel": "Balanced & Aligned",
         "image": "/balanced3.png",
         "bgColor": "bg-[#e0e7ff]",
@@ -618,17 +618,17 @@ export const pathwaysData: Pathway[] = [
             "Balanced"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Architect your daily habits to reflect your highest values.",
+            "Design your environment to make healthy choices effortless.",
+            "Master the psychology of long-term behavioral change.",
+            "Achieve a life that feels authentic, intentional, and aligned."
         ],
         "instructor": "Elena Rodriguez",
         "duration": "11 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -660,17 +660,17 @@ export const pathwaysData: Pathway[] = [
             "Balanced"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Develop a robust toolkit for managing intense emotional states.",
+            "Master distress tolerance techniques for life's difficult moments.",
+            "Build psychological flexibility to adapt to internal and external stress.",
+            "Establish a core sense of stability that isn't shaken by external events."
         ],
         "instructor": "Dr. Alara Chen",
         "duration": "7 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -702,17 +702,17 @@ export const pathwaysData: Pathway[] = [
             "Balanced"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Identify and eliminate the 'energy leaks' in your mental routine.",
+            "Master bioenergetic practices for sustained daily vitality.",
+            "Balance your output with deep, restorative energy management.",
+            "Achieve a consistent state of high-vibrancy living."
         ],
         "instructor": "Elena Rodriguez",
         "duration": "8 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -744,17 +744,17 @@ export const pathwaysData: Pathway[] = [
             "Balanced"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Align your schedule with your natural circadian and ultradian rhythms.",
+            "Master the science of morning and evening ritual architecture.",
+            "Design a daily flow that maximizes focus and minimizes friction.",
+            "Live in sync with your body's internal clock for peak health."
         ],
         "instructor": "Dr. Alara Chen",
         "duration": "6 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -786,17 +786,17 @@ export const pathwaysData: Pathway[] = [
             "Connected"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Master Non-Violent Communication (NVC) for authentic expression.",
+            "Navigate difficult conversations with grace and clarity.",
+            "Develop the ability to listen with full presence and empathy.",
+            "Build relationships based on radical honesty and mutual respect."
         ],
         "instructor": "Dr. Alara Chen",
         "duration": "11 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -828,17 +828,17 @@ export const pathwaysData: Pathway[] = [
             "Connected"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Understand your attachment style and how it shapes your connections.",
+            "Establish healthy boundaries that foster intimacy and safety.",
+            "Master the tools for deep interpersonal connection and growth.",
+            "Build a more conscious, loving relationship with yourself and others."
         ],
         "instructor": "Marcus Thorne",
         "duration": "9 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -870,17 +870,17 @@ export const pathwaysData: Pathway[] = [
             "Connected"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Master the art of 'holding space' for others through deep listening.",
+            "Develop the empathic resonance needed for true connection.",
+            "Validate others' experiences without losing your own perspective.",
+            "Use the heart as your primary tool for understanding the world."
         ],
         "instructor": "Priya Sharma",
         "duration": "10 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -912,17 +912,17 @@ export const pathwaysData: Pathway[] = [
             "Connected"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Master the psychology of social intelligence and tribal connection.",
+            "Navigate complex social dynamics with ease and authenticity.",
+            "Develop the vulnerability needed to build lasting human bonds.",
+            "Understand the hidden currents that drive human interaction."
         ],
         "instructor": "Dr. Samuel Vance",
         "duration": "4 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -954,17 +954,17 @@ export const pathwaysData: Pathway[] = [
             "Connected"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Lead with empathy to create high-trust, high-performance cultures.",
+            "Master the art of servant leadership for meaningful impact.",
+            "Build psychological safety within groups and organizations.",
+            "Inspire others through compassionate and authentic presence."
         ],
         "instructor": "Priya Sharma",
         "duration": "9 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -996,17 +996,17 @@ export const pathwaysData: Pathway[] = [
             "Connected"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Master the skills needed to facilitate collective healing and growth.",
+            "Hold safe and sacred space for diverse groups of people.",
+            "Understand the dynamics of group resonance and collective flow.",
+            "Guide communities through transformative shared experiences."
         ],
         "instructor": "Elena Rodriguez",
         "duration": "10 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1038,17 +1038,17 @@ export const pathwaysData: Pathway[] = [
             "Confident"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Identify and dismantle the core beliefs that limit your self-worth.",
+            "Cultivate radical self-acceptance and compassionate self-talk.",
+            "Overcome imposter syndrome through authentic self-recognition.",
+            "Build an unshakeable foundation of inner value and confidence."
         ],
         "instructor": "Marcus Thorne",
         "duration": "10 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1080,17 +1080,17 @@ export const pathwaysData: Pathway[] = [
             "Confident"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Master the art of authentic presence and public expression.",
+            "Overcome stage fright by grounding your voice in your truth.",
+            "Develop the impactful communication skills needed for leadership.",
+            "Express your ideas with clarity, passion, and unshakeable confidence."
         ],
         "instructor": "Dr. Alara Chen",
         "duration": "11 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1122,17 +1122,17 @@ export const pathwaysData: Pathway[] = [
             "Confident"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Build the mental toughness needed to bounce back from any setback.",
+            "Master adversity training to find strength in life's challenges.",
+            "Cultivate an optimistic and proactive mindset during crisis.",
+            "Develop a resilient heart that thrives under pressure."
         ],
         "instructor": "Dr. Samuel Vance",
         "duration": "7 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1164,17 +1164,17 @@ export const pathwaysData: Pathway[] = [
             "Confident"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Navigate the most difficult conversations with total fearlessness.",
+            "Master assertive speaking without losing your compassionate edge.",
+            "Practice radical honesty to build high-trust connections.",
+            "Empower your voice to speak your truth in any situation."
         ],
         "instructor": "Dr. Samuel Vance",
         "duration": "7 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1206,17 +1206,17 @@ export const pathwaysData: Pathway[] = [
             "Confident"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Develop an inner core of strength that isn't dependent on external validation.",
+            "Master the resilience training needed for long-term emotional stability.",
+            "Align your inner world with a deep sense of purpose and mission.",
+            "Build the mental fortitude to lead yourself and others with integrity."
         ],
         "instructor": "Elena Rodriguez",
         "duration": "8 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1248,17 +1248,17 @@ export const pathwaysData: Pathway[] = [
             "Confident"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Deconstruct the social masks that hide your authentic self.",
+            "Align your daily actions with your core identity and values.",
+            "Master the art of 'Identity Shifting' for personal transformation.",
+            "Live with a profound sense of self-congruence and integrity."
         ],
         "instructor": "Dr. Samuel Vance",
         "duration": "11 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1290,17 +1290,17 @@ export const pathwaysData: Pathway[] = [
             "Grounded"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Integrate the core tenets of Stoicism and Taoism into modern life.",
+            "Apply Vedic principles to achieve mental and emotional balance.",
+            "Understand the perennial truths that have guided humanity for millennia.",
+            "Bridge the gap between ancient ritual and contemporary reality."
         ],
         "instructor": "Dr. Samuel Vance",
         "duration": "8 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1332,17 +1332,17 @@ export const pathwaysData: Pathway[] = [
             "Grounded"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Harness the psychological benefits of 'Biophilia' and nature immersion.",
+            "Practice advanced reflection techniques in natural environments.",
+            "Align your personal energy with the seasonal and lunar cycles.",
+            "Develop a deep, restorative connection with the living world."
         ],
         "instructor": "Priya Sharma",
         "duration": "6 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1374,17 +1374,17 @@ export const pathwaysData: Pathway[] = [
             "Grounded"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Create a life foundation that provides absolute emotional stability.",
+            "Design your home and lifestyle as a sanctuary for the soul.",
+            "Connect with your lineage and 'roots' to find personal strength.",
+            "Master the art of grounded, sustainable, and intentional living."
         ],
         "instructor": "Dr. Samuel Vance",
         "duration": "7 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1416,17 +1416,17 @@ export const pathwaysData: Pathway[] = [
             "Grounded"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Cultivate 'The Eye of the Storm'—perfect peace amidst chaos.",
+            "Master physical stillness to mirror and influence mental stability.",
+            "Develop the equanimity needed to handle life's extreme highs and lows.",
+            "Establish a core of stability that is unshakeable by external events."
         ],
         "instructor": "Marcus Thorne",
         "duration": "11 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1458,17 +1458,17 @@ export const pathwaysData: Pathway[] = [
             "Grounded"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Master the biological protocols for clearing chronic cortisol.",
+            "Implement a 'Stress-Recovery Cycle' into your daily workflow.",
+            "Use somatic release techniques to clear physical stress memory.",
+            "Achieve a state of high-resilience and rapid mental recovery."
         ],
         "instructor": "Dr. Alara Chen",
         "duration": "10 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1500,17 +1500,17 @@ export const pathwaysData: Pathway[] = [
             "Grounded"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Master advanced Pranayama for energy movement and focus.",
+            "Use the breath as a direct dial to your state of consciousness.",
+            "Navigate your internal landscape through breath-based inquiry.",
+            "Achieve a state of physiological and energetic mastery."
         ],
         "instructor": "Marcus Thorne",
         "duration": "5 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1542,17 +1542,17 @@ export const pathwaysData: Pathway[] = [
             "Inspired"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Unlock your natural creative flow by removing mental barriers.",
+            "Master divergent thinking techniques for innovative problem solving.",
+            "Use mindfulness to access the deeper layers of your creative soul.",
+            "Turn self-awareness into a primary source of creative inspiration."
         ],
         "instructor": "Dr. Alara Chen",
         "duration": "7 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1584,17 +1584,17 @@ export const pathwaysData: Pathway[] = [
             "Inspired"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Identify your 'Ikigai'—the intersection of passion, skill, and need.",
+            "Map out your life's purpose through deep, guided self-inquiry.",
+            "Align your daily mission with your long-term soul's purpose.",
+            "Gain absolute clarity on the impact you are meant to make."
         ],
         "instructor": "Dr. Samuel Vance",
         "duration": "10 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1626,17 +1626,17 @@ export const pathwaysData: Pathway[] = [
             "Inspired"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Craft a compelling vision for your life's legacy and impact.",
+            "Find deep meaning in your current circumstances and challenges.",
+            "Use symbolic meaning to enrich your daily experiences.",
+            "Build a life that is defined by significance rather than success."
         ],
         "instructor": "Dr. Alara Chen",
         "duration": "10 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1668,17 +1668,17 @@ export const pathwaysData: Pathway[] = [
             "Inspired"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Merge introspective practices with your creative expression.",
+            "Learn to 'listen' to your creative intuition with full presence.",
+            "Develop a reflective workflow that prevents creative burnout.",
+            "Express the subtle layers of your soul through your unique craft."
         ],
         "instructor": "Dr. Alara Chen",
         "duration": "8 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1710,17 +1710,17 @@ export const pathwaysData: Pathway[] = [
             "Inspired"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Master the daily rituals that maintain a high-vibrancy state.",
+            "Cultivate consistent inspiration that isn't dependent on mood.",
+            "Build a life that serves as a source of light for others.",
+            "Achieve a state of soulful living that celebrates every moment."
         ],
         "instructor": "Elena Rodriguez",
         "duration": "10 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1752,17 +1752,17 @@ export const pathwaysData: Pathway[] = [
             "Inspired"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Leverage neuroplasticity for rapid personal and professional growth.",
+            "Master high-speed learning and skill acquisition techniques.",
+            "Implement habit stacking for compound personal improvement.",
+            "Achieve quantum shifts in your mindset and capabilities."
         ],
         "instructor": "Priya Sharma",
         "duration": "5 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1794,17 +1794,17 @@ export const pathwaysData: Pathway[] = [
             "Uplifted"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Cultivate joy as a deliberate skill rather than a random emotion.",
+            "Master the science of positive affect and emotional radiance.",
+            "Elevate your energetic frequency through targeted mental shifts.",
+            "Develop a presence that naturally uplifts everyone around you."
         ],
         "instructor": "Marcus Thorne",
         "duration": "4 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1836,17 +1836,17 @@ export const pathwaysData: Pathway[] = [
             "Uplifted"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Rewire your brain for happiness through radical gratitude.",
+            "Master the art of 'Savoring' to extract more joy from life.",
+            "Identify and dismantle the 'negativity bias' in your perception.",
+            "Establish a permanent state of deep appreciation for existence."
         ],
         "instructor": "Marcus Thorne",
         "duration": "4 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1878,17 +1878,17 @@ export const pathwaysData: Pathway[] = [
             "Uplifted"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Clear past emotional baggage to create space for new growth.",
+            "Master the protocols for deep emotional heart-healing.",
+            "Emerge from life's challenges with a fresh, renewed perspective.",
+            "Achieve a state of emotional purity and radiant optimism."
         ],
         "instructor": "Elena Rodriguez",
         "duration": "5 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1920,17 +1920,17 @@ export const pathwaysData: Pathway[] = [
             "Uplifted"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Identify and amplify your unique 'Inner Light' and vitality.",
+            "Master spiritual-emotional practices that radiate from within.",
+            "Align your internal spark with your external daily actions.",
+            "Live as a beacon of positivity and clarity in a complex world."
         ],
         "instructor": "Marcus Thorne",
         "duration": "7 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -1962,17 +1962,17 @@ export const pathwaysData: Pathway[] = [
             "Uplifted"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Master the core frameworks of Positive Psychology.",
+            "Differentiate between hedonic pleasure and eudaimonic well-being.",
+            "Implement science-backed strategies for lasting life satisfaction.",
+            "Understand the psychological architecture of a happy life."
         ],
         "instructor": "Dr. Alara Chen",
         "duration": "9 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -2004,17 +2004,17 @@ export const pathwaysData: Pathway[] = [
             "Uplifted"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Overcome the limiting narratives that hold back your potential.",
+            "Master a Growth Mindset that sees every challenge as fuel.",
+            "Elevate your mental perspective to see new levels of possibility.",
+            "Adopt the empowering beliefs of high-performing, happy individuals."
         ],
         "instructor": "Elena Rodriguez",
         "duration": "5 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -2046,17 +2046,17 @@ export const pathwaysData: Pathway[] = [
             "Aware"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Master the core components of high Emotional Intelligence (EQ).",
+            "Develop the self-regulation needed to handle complex social situations.",
+            "Cultivate deep empathy and social awareness in your daily interactions.",
+            "Master the art of emotional literacy and authentic expression."
         ],
         "instructor": "Elena Rodriguez",
         "duration": "7 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -2088,17 +2088,17 @@ export const pathwaysData: Pathway[] = [
             "Aware"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Identify and integrate your psychological 'Shadow' and blind spots.",
+            "Master the art of radical self-honesty and introspective inquiry.",
+            "Understand the hidden patterns that drive your behavior and reactions.",
+            "Achieve a state of profound and unshakeable self-knowledge."
         ],
         "instructor": "Dr. Samuel Vance",
         "duration": "5 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -2130,17 +2130,17 @@ export const pathwaysData: Pathway[] = [
             "Aware"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Master the frameworks of critical and meta-cognitive reflection.",
+            "Identify and neutralize cognitive biases in your thinking process.",
+            "Develop the ability to observe your thoughts with objective clarity.",
+            "Build a mental framework for wisdom-based problem solving."
         ],
         "instructor": "Priya Sharma",
         "duration": "11 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -2172,17 +2172,17 @@ export const pathwaysData: Pathway[] = [
             "Aware"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Balance intuitive wisdom with analytical reasoning for better choices.",
+            "Make decisions that are perfectly aligned with your core values.",
+            "Identify and avoid impulsive or fear-based decision patterns.",
+            "Achieve total clarity and confidence in your life's major choices."
         ],
         "instructor": "Dr. Samuel Vance",
         "duration": "9 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -2214,17 +2214,17 @@ export const pathwaysData: Pathway[] = [
             "Aware"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Master advanced mindfulness and non-dual awareness practices.",
+            "Achieve a state of consistent presence in every area of life.",
+            "Deconstruct the barriers between 'self' and 'experience'.",
+            "Establish a permanent anchor in the peace of the present moment."
         ],
         "instructor": "Priya Sharma",
         "duration": "10 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {
@@ -2256,17 +2256,17 @@ export const pathwaysData: Pathway[] = [
             "Aware"
         ],
         "outcomes": [
-            "Master the fundamental techniques to integrate this into your daily life.",
-            "Understand the science and ancient philosophy behind the practice.",
-            "Develop practical skills for immediate implementation.",
-            "Build a sustainable personal routine for long-term growth."
+            "Understand the psychological currents that drive human behavior.",
+            "Identify and anticipate behavioral patterns in yourself and others.",
+            "Develop a compassionate and objective perspective on human interaction.",
+            "Master the social intelligence needed to lead and connect effectively."
         ],
         "instructor": "Elena Rodriguez",
         "duration": "10 Weeks",
         "level": "All Levels",
         "timeline": [
             {
-                "title": "Module 1: Foundations",
+                "title": "Chapter 1: Foundations",
                 "description": "Exploring the core concepts and establishing a baseline."
             },
             {

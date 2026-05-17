@@ -55,7 +55,13 @@ const Login: React.FC = () => {
       if (data.user.role === "admin") {
         navigate("/admin");
       } else {
-        navigate("/dashboard");
+        const redirectUrl = sessionStorage.getItem("redirectUrl");
+        if (redirectUrl) {
+          sessionStorage.removeItem("redirectUrl");
+          navigate(redirectUrl);
+        } else {
+          navigate("/dashboard");
+        }
       }
     } catch (err: any) {
       console.error(err);

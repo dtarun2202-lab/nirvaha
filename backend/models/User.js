@@ -45,6 +45,19 @@ const userSchema = new mongoose.Schema(
       ],
       default: [],
     },
+    pathwayProgress: {
+      type: Map,
+      of: {
+        completedLessons: { type: [Number], default: [] },
+        startedAt: { type: Date, default: Date.now },
+        lastAccessedAt: { type: Date, default: Date.now }
+      },
+      default: {}
+    },
+    enrolledPathways: {
+      type: [String],
+      default: []
+    }
   },
   { timestamps: true }
 );

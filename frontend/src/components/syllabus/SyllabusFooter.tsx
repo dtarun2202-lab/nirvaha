@@ -14,11 +14,37 @@ import { useNavigate } from 'react-router-dom';
 
 interface SyllabusFooterProps {
     pathway: Pathway;
+    onStart: () => void;
+    isEnrolled: boolean;
 }
 
-const SyllabusFooter: React.FC<SyllabusFooterProps> = ({ pathway }) => {
+const SyllabusFooter: React.FC<SyllabusFooterProps> = ({ pathway, onStart, isEnrolled }) => {
     const navigate = useNavigate();
     const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+
+    const handleDownloadSyllabus = () => {
+        const content = `
+NIRVAHA ACADEMY - OFFICIAL SYLLABUS
+Pathway: ${pathway.title}
+Level: ${pathway.level}
+Duration: ${pathway.duration}
+
+CURRICULUM OVERVIEW:
+${pathway.timeline.map((item, i) => `\nWeek ${i + 1}: ${item.title}\n${item.description}`).join('\n')}
+
+LEARNING OUTCOMES:
+${pathway.learningOutcomes?.map(o => `- ${o}`).join('\n')}
+
+© 2026 Nirvaha Academy. All rights reserved.
+        `;
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${pathway.title.replace(/\s+/g, '_')}_Syllabus.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
 
     const testimonials = [
         {
@@ -128,10 +154,13 @@ const SyllabusFooter: React.FC<SyllabusFooterProps> = ({ pathway }) => {
                     </div>
                     <div className="space-y-2">
                         <h4 className="text-2xl font-serif">Comprehensive Prospectus</h4>
-                        <p className="text-white/40 font-light px-8">Download the detailed 40-page syllabus including all reading lists and faculty bios.</p>
+                        <p className="text-white/40 font-light px-8">Download the detailed syllabus including all modules and outcomes.</p>
                     </div>
-                    <button className="px-8 py-4 bg-white text-black rounded-full font-bold hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,255,255,0.1)]">
-                        Download Full Syllabus (PDF)
+                    <button 
+                        onClick={handleDownloadSyllabus}
+                        className="px-8 py-4 bg-white text-black rounded-full font-bold hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+                    >
+                        Download Full Syllabus (TXT)
                     </button>
                 </div>
             </section>
@@ -177,10 +206,10 @@ const SyllabusFooter: React.FC<SyllabusFooterProps> = ({ pathway }) => {
                     Transform your understanding of internal clarity. Join a cohort of mindful seekers today.
                 </p>
                 <button 
-                    onClick={() => navigate(`/pathways/${pathway.id}/journey`)}
+                    onClick={onStart}
                     className="flex items-center gap-3 mx-auto text-xl font-serif text-white hover:text-emerald-400 transition-colors group"
                 >
-                    Begin Enrollment <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
+                    {isEnrolled ? "Continue Your Journey" : "Begin Your Enrollment"} <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
                 </button>
             </section>
         </footer>

@@ -10,56 +10,20 @@ interface CurriculumTimelineProps {
 const CurriculumTimeline: React.FC<CurriculumTimelineProps> = ({ pathway }) => {
     const [expandedModule, setExpandedModule] = useState<number | null>(0);
 
-    const curriculumData = [
-        {
-            module: "Module 1",
-            title: "Foundations of Mindfulness",
-            desc: "Understanding the neurobiology of attention and the history of meditative presence.",
-            lessons: ["The Evolution of Awareness", "Modern Neuroplasticity", "Setting the Intention"],
-            exercises: "Daily 5-min Awareness Log",
-            duration: "Week 1"
-        },
-        {
-            module: "Module 2",
-            title: "Breath & Body Awareness",
-            desc: "Exploring the somatic connection through advanced pranayama and body scanning.",
-            lessons: ["The Rhythmic Breath", "Vagal Nerve Stimulation", "Body Scan Mastery"],
-            exercises: "3-Stage Breathing Series",
-            duration: "Week 2"
-        },
-        {
-            module: "Module 3",
-            title: "Reflection Practices",
-            desc: "Internalizing growth through guided introspective journaling and silence.",
-            lessons: ["The Art of Inquiry", "Navigating Inner Resistance", "Silent Reflection Skills"],
-            exercises: "Guided Journaling Session",
-            duration: "Week 3"
-        },
-        {
-            module: "Module 4",
-            title: "Focus & Clarity",
-            desc: "Reclaiming the mind from digital fragmentation and building laser-sharp concentration.",
-            lessons: ["Focused Attention (Samatha)", "Digital Detox Protocol", "Sustaining Presence"],
-            exercises: "Deep Focus Challenge",
-            duration: "Week 4"
-        },
-        {
-            module: "Module 5",
-            title: "Advanced Integration",
-            desc: "Applying mindfulness to complex emotional states and social interactions.",
-            lessons: ["Emotional Regulation", "Conscious Communication", "The Nirvaha Mindset"],
-            exercises: "Real-world Flow Scenario",
-            duration: "Week 5"
-        },
-        {
-            module: "Assessment",
-            title: "Final Certification Assessment",
-            desc: "A comprehensive evaluation of your theoretical knowledge and practical mastery.",
-            lessons: ["Theory Exam", "Guided Demonstration", "Ethics & Practice"],
-            exercises: "Capstone Reflection Essay",
-            duration: "Final Stage"
-        }
-    ];
+    // Map real-time pathway timeline data to the curriculum display format
+    const curriculumData = pathway.timeline.map((item, index) => ({
+        module: `Module ${index + 1}`,
+        title: item.title,
+        desc: item.description,
+        lessons: [
+            "Introduction to " + item.title,
+            "Core Principles & Practice",
+            "Advanced Techniques",
+            "Practical Integration"
+        ],
+        exercises: index === pathway.timeline.length - 1 ? "Final Capstone Project" : "Weekly Reflection & Practice",
+        duration: `Week ${index + 1}`
+    }));
 
     return (
         <section className="space-y-16">

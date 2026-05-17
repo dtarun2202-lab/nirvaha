@@ -89,8 +89,8 @@ function AppInner() {
         <Route path="/journey/:topicId" element={<JourneyPage />} />
         <Route path="/pathways" element={<PathwaysPage />} />
         <Route path="/pathways/:id" element={<PathwayDetailPage />} />
-        <Route path="/pathway-journey/:id" element={<PathwayJourney />} />
-        <Route path="/syllabus/:id" element={<SyllabusPage />} />
+        <Route path="/pathways/:id/journey" element={<PathwayJourney />} />
+        <Route path="/pathways/:id/syllabus" element={<SyllabusPage />} />
         <Route path="/library/:id" element={<LibraryDetailPage />} />
         <Route path="/story/:id" element={<StoryDetailPage />} />
 
@@ -132,6 +132,7 @@ function AppInner() {
           <Route path="content/meditation" element={<MeditationContent />} />
           <Route path="content/sound" element={<SoundHealingContent />} />
           <Route path="content/products" element={<ProductsContent />} />
+          <Route path="content/landing" element={<ContentManagementPage />} />
           <Route path="content/dynamic" element={<ContentManagementPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="users" element={<UserManagementPage />} />

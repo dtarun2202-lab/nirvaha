@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 import DecorativeShapes from './DecorativeShapes';
-import LibraryModal from '../library/LibraryModal';
 
 const defaultLibraryItems = [
     { 
@@ -80,8 +80,8 @@ const defaultLibraryItems = [
 
 
 const LibraryCarousel: React.FC = () => {
+    const navigate = useNavigate();
     const [libraryItems, setLibraryItems] = useState(defaultLibraryItems);
-    const [selectedItem, setSelectedItem] = useState<any>(null);
 
     // Load library items from localStorage
     useEffect(() => {
@@ -147,7 +147,7 @@ const LibraryCarousel: React.FC = () => {
                             whileHover={{ scale: 1.02, y: -5 }}
                             transition={{ duration: 0.3 }}
                             className="relative flex-shrink-0 w-[425px] h-[225px] rounded-2xl overflow-hidden shadow-md cursor-pointer group"
-                            onClick={() => setSelectedItem(item)}
+                            onClick={() => navigate(`/library/${item.id}`)}
                         >
                             <img
                                 src={item.image}
@@ -177,7 +177,7 @@ const LibraryCarousel: React.FC = () => {
                             whileHover={{ scale: 1.02, y: -5 }}
                             transition={{ duration: 0.3 }}
                             className="relative flex-shrink-0 w-[425px] h-[225px] rounded-2xl overflow-hidden shadow-md cursor-pointer group"
-                            onClick={() => setSelectedItem(item)}
+                            onClick={() => navigate(`/library/${item.id}`)}
                         >
                             <img
                                 src={item.image}
@@ -198,13 +198,7 @@ const LibraryCarousel: React.FC = () => {
                 </div>
             </div>
 
-            <LibraryModal 
-                isOpen={!!selectedItem}
-                onClose={() => setSelectedItem(null)}
-                title={selectedItem?.title || ""}
-                story={selectedItem?.story || ""}
-                journeyId={selectedItem?.id}
-            />
+
 
         </section>
     );

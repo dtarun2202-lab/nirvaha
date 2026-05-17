@@ -235,7 +235,7 @@ const Contact = () => {
                           className="w-full px-0 py-2 focus:outline-none transition-all duration-300 text-xl lg:text-2xl font-semibold border-b-2 border-dotted border-[#333333] focus:border-solid bg-transparent text-left placeholder:opacity-30"
                           style={{ color: '#333333', fontFamily: "'Poppins', sans-serif" }}
                           rows={1}
-                          autoFocus
+                          autoFocus={currentStep > 0}
                         />
                       ) : (
                         <input
@@ -246,7 +246,7 @@ const Contact = () => {
                           placeholder={currentQuestion.placeholder}
                           className="w-full px-0 py-2 focus:outline-none transition-all duration-300 text-xl lg:text-2xl font-semibold border-b-2 border-dotted border-[#333333] focus:border-solid bg-transparent text-left placeholder:opacity-30"
                           style={{ color: '#333333', fontFamily: "'Poppins', sans-serif" }}
-                          autoFocus
+                          autoFocus={currentStep > 0}
                         />
                       )}
                     </div>

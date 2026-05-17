@@ -108,7 +108,8 @@ const CertificationCoursesSection: React.FC = () => {
     const displayCourses = (academyData?.courses && academyData.courses.length > 0) ? academyData.courses : courses;
 
     const handleExploreClick = () => {
-        if (academyData?.isLoginRequired && !user) {
+        if (!user) {
+            sessionStorage.setItem("redirectUrl", "/pathways");
             navigate('/login');
             return;
         }

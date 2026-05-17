@@ -76,6 +76,8 @@ router.post('/register', async (req, res) => {
         email: newUser.email,
         role: newUser.role,
         profile: newUser.profile,
+        enrolledPathways: [],
+        pathwayProgress: {}
       },
     });
   } catch (error) {
@@ -123,7 +125,9 @@ router.post('/login', async (req, res) => {
         email: user.email,
         role: user.role,
         profile: user.profile,
-        stats: user.stats
+        stats: user.stats,
+        enrolledPathways: user.enrolledPathways || [],
+        pathwayProgress: user.pathwayProgress ? Object.fromEntries(user.pathwayProgress) : {}
       },
     });
   } catch (error) {
@@ -162,7 +166,9 @@ router.get('/user', async (req, res) => {
         profile: user.profile,
         stats: user.stats,
         bio: user.bio,
-        location: user.location
+        location: user.location,
+        enrolledPathways: user.enrolledPathways || [],
+        pathwayProgress: user.pathwayProgress ? Object.fromEntries(user.pathwayProgress) : {}
       }
     });
   } catch (error) {
