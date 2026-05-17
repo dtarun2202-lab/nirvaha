@@ -8,7 +8,6 @@ import {
   BarChart3,
   TrendingUp,
   Activity,
-  AlertCircle,
   Clock,
   CheckCircle2,
   XCircle,
@@ -26,6 +25,8 @@ type Companion = {
   rating: number;
   status: string;
   appliedDate: string;
+  email?: string;
+  profileImage?: string;
 };
 
 type Booking = {
@@ -60,7 +61,7 @@ export function AdminDashboardPage() {
   const [totalUsers, setTotalUsers] = useState("0");
   const [totalBookings, setTotalBookings] = useState("0");
   const [activeSessions, setActiveSessions] = useState("0");
-  const [revenue, setRevenue] = useState("$0");
+  const [revenue, setRevenue] = useState("₹0");
   const [loading, setLoading] = useState(true);
   const apiBaseUrl = BACKEND_CONFIG.API_BASE_URL;
 
@@ -74,14 +75,15 @@ export function AdminDashboardPage() {
           fetch(`${apiBaseUrl}/api/admin/stats`),
           fetch(`${apiBaseUrl}/api/bookings`),
           fetch(`${apiBaseUrl}/api/users?limit=5`),
-          fetch(`${apiBaseUrl}/api/companion-applications?status=all`),
+          fetch(`${apiBaseUrl}/api/companion/applications`),
         ]);
 
         if (statsResponse.ok) {
           const statsData = await statsResponse.json();
           setTotalUsers(statsData.totalUsers.toString());
           setTotalBookings(statsData.totalBookings.toString());
-          setRevenue(`$${statsData.revenue}`);
+          setActiveSessions(statsData.activeSessions.toString());
+          setRevenue(`₹${statsData.revenue}`);
         }
 
         if (bookingsResponse.ok) {
@@ -112,11 +114,6 @@ export function AdminDashboardPage() {
               })
             : [];
           setRecentBookings(normalizedBookings.slice(0, 5));
-          
-          const inProgressCount = normalizedBookings.filter(
-            (b: any) => b.status === "in-progress" || b.status === "In Progress" || b.status === "in progress"
-          ).length;
-          setActiveSessions(inProgressCount.toString());
         }
 
         if (usersResponse.ok) {
@@ -136,9 +133,11 @@ export function AdminDashboardPage() {
             ? companionsData.map((companion: any) => ({
                 id: companion.id,
                 name: companion.name || companion.fullName || "Unknown",
+                email: companion.email || "",
                 expertise: companion.expertise || companion.title || "N/A",
                 status: companion.status || "pending",
                 appliedDate: companion.appliedDate || companion.submittedAt || companion.createdAt || "",
+                profileImage: companion.profileImage || "",
               }))
             : [];
           setRecentCompanions(normalizedCompanions.slice(0, 3));
@@ -193,14 +192,15 @@ export function AdminDashboardPage() {
             fetch(`${apiBaseUrl}/api/admin/stats`),
             fetch(`${apiBaseUrl}/api/bookings`),
             fetch(`${apiBaseUrl}/api/users?limit=5`),
-            fetch(`${apiBaseUrl}/api/companion-applications?status=all`),
+            fetch(`${apiBaseUrl}/api/companion/applications`),
           ]);
 
           if (statsResponse.ok) {
             const statsData = await statsResponse.json();
             setTotalUsers(statsData.totalUsers.toString());
             setTotalBookings(statsData.totalBookings.toString());
-            setRevenue(`$${statsData.revenue}`);
+            setActiveSessions(statsData.activeSessions.toString());
+            setRevenue(`₹${statsData.revenue}`);
           }
 
           if (bookingsResponse.ok) {
@@ -231,11 +231,6 @@ export function AdminDashboardPage() {
                 })
               : [];
             setRecentBookings(normalizedBookings.slice(0, 5));
-            
-            const inProgressCount = normalizedBookings.filter(
-              (b: any) => b.status === "in-progress" || b.status === "In Progress" || b.status === "in progress"
-            ).length;
-            setActiveSessions(inProgressCount.toString());
           }
 
           if (usersResponse.ok) {
@@ -255,9 +250,11 @@ export function AdminDashboardPage() {
               ? companionsData.map((companion: any) => ({
                   id: companion.id,
                   name: companion.name || companion.fullName || "Unknown",
+                  email: companion.email || "",
                   expertise: companion.expertise || companion.title || "N/A",
                   status: companion.status || "pending",
                   appliedDate: companion.appliedDate || companion.submittedAt || companion.createdAt || "",
+                  profileImage: companion.profileImage || "",
                 }))
               : [];
             setRecentCompanions(normalizedCompanions.slice(0, 3));
@@ -309,7 +306,7 @@ export function AdminDashboardPage() {
     },
   ];
 
-  const pendingApprovals = recentCompanions.filter((c) => c.status === "pending").length;
+
 
   if (loading) {
     return (
@@ -368,30 +365,7 @@ export function AdminDashboardPage() {
           })}
         </div>
 
-        {/* Alerts / Pending Approvals */}
-        {pendingApprovals > 0 && (
-          <Card className="bg-[#FFFDF0] border-[#FCE181] rounded-2xl shadow-sm">
-            <div className="p-6 flex items-center gap-4">
-              <div className="bg-[#FFF5CC] p-3 rounded-xl text-[#B38D19]">
-                 <AlertCircle className="w-6 h-6" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-[#66500F] font-bold text-lg mb-1">
-                  {pendingApprovals} Companion Application{pendingApprovals > 1 ? "s" : ""} Pending Approval
-                </h3>
-                <p className="text-[#997917] text-sm font-medium">
-                  Review and approve companion applications to expand your network
-                </p>
-              </div>
-              <Button
-                onClick={() => navigate("/admin/companions?filter=pending")}
-                className="bg-[#D9AC26] hover:bg-[#B38D19] text-white rounded-xl px-6 font-bold shadow-sm border-none"
-              >
-                Review Now
-              </Button>
-            </div>
-          </Card>
-        )}
+
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Companion Applications */}
@@ -409,24 +383,52 @@ export function AdminDashboardPage() {
             </div>
             <div className="overflow-x-auto flex-1">
                <div className="grid grid-cols-12 gap-2 bg-gradient-to-r from-[#B9EBD1] to-[#D5F2D9] p-3 text-[10px] font-bold text-[#1A4F35] tracking-widest uppercase">
-                  <div className="col-span-4 pl-2">Name</div>
-                  <div className="col-span-3">Expertise</div>
+                  <div className="col-span-5 pl-2">Applicant</div>
+                  <div className="col-span-4">Expertise & Applied</div>
                   <div className="col-span-3">Status</div>
-                  <div className="col-span-2">Applied</div>
                </div>
                <div className="divide-y divide-[#E6F5EB]">
-                  {recentCompanions.map((item) => (
-                     <div key={item.id} className="grid grid-cols-12 gap-2 p-3 items-center hover:bg-[#F6FDF8] transition-colors">
-                        <div className="col-span-4 pl-2 font-medium text-[#2A4939] text-sm truncate pr-2" title={item.name}>{item.name}</div>
-                        <div className="col-span-3 text-xs text-[#64C08E] font-medium truncate pr-2">{item.expertise}</div>
-                        <div className="col-span-3">
-                           <StatusBadge status={item.status} variant="companion" />
+                  {recentCompanions.map((item) => {
+                     const initials = item.name
+                       ? item.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
+                       : "??";
+                     return (
+                        <div key={item.id} className="grid grid-cols-12 gap-2 p-4 items-center hover:bg-[#F6FDF8] transition-colors">
+                           <div className="col-span-5 pl-2 flex items-center gap-3 pr-2 truncate">
+                              {item.profileImage ? (
+                                 <img
+                                    src={`${apiBaseUrl}${item.profileImage}`}
+                                    alt={item.name}
+                                    className="w-9 h-9 rounded-full object-cover border border-[#B9EBD1]"
+                                 />
+                              ) : (
+                                 <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#34A46B] to-[#B9EBD1] text-[#1F4131] font-bold text-xs flex items-center justify-center shadow-inner">
+                                    {initials}
+                                 </div>
+                              )}
+                              <div className="truncate">
+                                 <div className="font-bold text-[#1F4131] text-sm truncate" title={item.name}>{item.name}</div>
+                                 <div className="text-[10px] text-[#5C846E] font-medium truncate" title={item.email}>{item.email}</div>
+                              </div>
+                           </div>
+                           <div className="col-span-4 pr-2 truncate">
+                              <div className="text-xs font-bold text-[#34A46B] truncate" title={item.expertise}>{item.expertise}</div>
+                              <div className="text-[10px] text-gray-400 font-semibold mt-0.5">{item.appliedDate}</div>
+                           </div>
+                           <div className="col-span-3">
+                              <StatusBadge status={item.status} variant="companion" />
+                           </div>
                         </div>
-                        <div className="col-span-2 text-xs text-gray-500 font-semibold">{item.appliedDate}</div>
-                     </div>
-                  ))}
+                     );
+                  })}
                   {recentCompanions.length === 0 && (
-                     <div className="p-8 text-center text-[#64C08E] font-bold text-sm">No recent applications</div>
+                     <div className="p-10 flex flex-col items-center justify-center text-center">
+                        <div className="w-12 h-12 rounded-full bg-[#F4FAF6] flex items-center justify-center text-[#34A46B] mb-3">
+                           <Star className="w-6 h-6" />
+                        </div>
+                        <p className="text-sm font-bold text-[#1F4131]">No pending applications</p>
+                        <p className="text-xs text-[#5C846E] mt-1">All companion applications have been processed.</p>
+                     </div>
                   )}
                </div>
             </div>
@@ -447,31 +449,39 @@ export function AdminDashboardPage() {
             </div>
             <div className="overflow-x-auto flex-1">
                <div className="grid grid-cols-12 gap-2 bg-gradient-to-r from-[#B9EBD1] to-[#D5F2D9] p-3 text-[10px] font-bold text-[#1A4F35] tracking-widest uppercase">
-                  <div className="col-span-1 pl-2">ID</div>
+                  <div className="col-span-1 pl-1">ID</div>
                   <div className="col-span-2">User</div>
-                  <div className="col-span-3">Target</div>
+                  <div className="col-span-3">Target / Item</div>
                   <div className="col-span-3">Status</div>
-                  <div className="col-span-3">Date</div>
+                  <div className="col-span-3">Schedule</div>
                </div>
                <div className="divide-y divide-[#E6F5EB]">
                   {recentBookings.map((item) => (
-                     <div key={item.id} className="grid grid-cols-12 gap-2 p-3 items-center hover:bg-[#F6FDF8] transition-colors">
-                        <div className="col-span-1 pl-2">
-                           <span className="font-mono text-[10px] font-medium text-[#295641] bg-[#EAFBF0] px-1.5 py-0.5 rounded border border-[#BDE8CE] truncate block w-fit" title={item.id}>{item.id.substring(0, 6)}</span>
+                     <div key={item.id} className="grid grid-cols-12 gap-2 p-4 items-center hover:bg-[#F6FDF8] transition-colors">
+                        <div className="col-span-1 pl-1">
+                           <span className="font-mono text-[10px] font-bold text-[#295641] bg-[#EAFBF0] px-2 py-0.5 rounded border border-[#BDE8CE] truncate block w-fit" title={item.id}>{item.id.substring(0, 6)}</span>
                         </div>
-                        <div className="col-span-2 font-medium text-[#2A4939] text-sm truncate pr-2" title={item.userName}>{item.userName}</div>
-                        <div className="col-span-3 text-xs text-[#64C08E] font-medium truncate pr-2">{item.companionName || item.itemName || item.type}</div>
+                        <div className="col-span-2 font-bold text-[#1F4131] text-sm truncate pr-2" title={item.userName}>{item.userName}</div>
+                        <div className="col-span-3 text-xs text-[#34A46B] font-semibold truncate pr-2" title={item.companionName || item.itemName || item.type}>
+                           {item.companionName || item.itemName || item.type}
+                        </div>
                         <div className="col-span-3">
                            <StatusBadge status={item.status} variant="booking" />
                         </div>
-                        <div className="col-span-3">
-                           <div className="font-medium text-[#2A4939] text-xs truncate">{item.date}</div>
-                           <div className="text-[10px] text-gray-500 font-semibold truncate">{item.time}</div>
+                        <div className="col-span-3 pr-1 truncate">
+                           <div className="font-bold text-[#1F4131] text-xs truncate">{item.date}</div>
+                           <div className="text-[10px] text-gray-400 font-semibold truncate mt-0.5">{item.time}</div>
                         </div>
                      </div>
                   ))}
                   {recentBookings.length === 0 && (
-                     <div className="p-8 text-center text-[#64C08E] font-bold text-sm">No recent bookings</div>
+                     <div className="p-10 flex flex-col items-center justify-center text-center">
+                        <div className="w-12 h-12 rounded-full bg-[#F4FAF6] flex items-center justify-center text-[#34A46B] mb-3">
+                           <ArrowRight className="w-6 h-6 rotate-45" />
+                        </div>
+                        <p className="text-sm font-bold text-[#1F4131]">No recent bookings</p>
+                        <p className="text-xs text-[#5C846E] mt-1">There are no bookings recorded on the platform yet.</p>
+                     </div>
                   )}
                </div>
             </div>

@@ -83,7 +83,13 @@ export function BookingManagementPage() {
       const data = await response.json();
       setBookings(
         Array.isArray(data)
-          ? data.map((booking: any) => {
+          ? data
+              .filter((booking: any) => {
+                const rawType = String(booking.type || "").toLowerCase();
+                // Exclude marketplace sessions (they have type: "session")
+                return rawType !== "session";
+              })
+              .map((booking: any) => {
               let parsedType = booking.type
                 ? String(booking.type).toLowerCase()
                 : "session";
