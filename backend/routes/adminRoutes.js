@@ -29,16 +29,30 @@ router.get('/stats', async (req, res) => {
     const allBookings = await Booking.find();
 
     const activeSessions = allBookings.filter(
-      (b) => ['session', 'video', 'chat'].includes(b.type) && ['upcoming', 'pending', 'in-progress'].includes(b.status)
+      (b) => {
+        const typeLower = String(b.type || '').toLowerCase();
+        const statusLower = String(b.status || '').toLowerCase();
+        
+        // Exclude products and retreats from being counted as active sessions
+        if (typeLower === 'product' || typeLower === 'retreat') return false;
+        
+        // Include companion sessions, video/chat/audio sessions
+        const isSession = typeLower.includes('session') || typeLower.includes('dive') || typeLower.includes('support') || ['video', 'chat', 'audio'].includes(typeLower);
+        
+        // Count upcoming, pending, in-progress, approved, and session confirmed as active
+        const isActiveStatus = ['upcoming', 'pending', 'in-progress', 'session confirmed', 'pending approval', 'approved'].includes(statusLower);
+        
+        return isSession && isActiveStatus;
+      }
     ).length;
 
     const totalBookings = allBookings.length;
     const revenue = allBookings.reduce(
-      (sum, booking) => sum + Number(booking.price || 0),
+      (sum, booking) => sum + Number(booking.price || 0) * Number(booking.quantity || 1),
       0
     );
-    const totalProducts = allBookings.filter((b) => b.type === 'product').length;
-    const totalRetreats = allBookings.filter((b) => b.type === 'retreat').length;
+    const totalProducts = allBookings.filter((b) => String(b.type || '').toLowerCase() === 'product').length;
+    const totalRetreats = allBookings.filter((b) => String(b.type || '').toLowerCase() === 'retreat').length;
 
     res.json({
       totalUsers,
