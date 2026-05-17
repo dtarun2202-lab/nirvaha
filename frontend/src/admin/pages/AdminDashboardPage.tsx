@@ -457,7 +457,7 @@ export function AdminDashboardPage() {
                   {recentBookings.map((item) => (
                      <div key={item.id} className="grid grid-cols-12 gap-2 p-3 items-center hover:bg-[#F6FDF8] transition-colors">
                         <div className="col-span-1 pl-2">
-                           <span className="font-mono text-[10px] font-medium text-[#295641] bg-[#EAFBF0] px-1.5 py-0.5 rounded border border-[#BDE8CE] truncate block" title={item.id}>{item.id.substring(0, 6)}</span>
+                           <span className="font-mono text-[10px] font-medium text-[#295641] bg-[#EAFBF0] px-1.5 py-0.5 rounded border border-[#BDE8CE] truncate block w-fit" title={item.id}>{item.id.substring(0, 6)}</span>
                         </div>
                         <div className="col-span-2 font-medium text-[#2A4939] text-sm truncate pr-2" title={item.userName}>{item.userName}</div>
                         <div className="col-span-3 text-xs text-[#64C08E] font-medium truncate pr-2">{item.companionName || item.itemName || item.type}</div>
