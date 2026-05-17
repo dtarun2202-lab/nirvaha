@@ -8,7 +8,6 @@ import {
   Users,
   Truck,
   Shield,
-  Filter,
   Search,
   Award,
   MapPin,
@@ -941,14 +940,7 @@ export function MarketplacePage() {
               <Plus className="w-5 h-5" />
               Add
             </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="px-6 py-4 bg-white/80 backdrop-blur-xl rounded-[24px] border border-emerald-200/30 shadow-lg text-teal-800 flex items-center gap-2 hover:bg-emerald-50 transition-colors"
-            >
-              <Filter className="w-5 h-5" />
-              Filters
-            </motion.button>
+
           </div>
         </motion.div>
 
