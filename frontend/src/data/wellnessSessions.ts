@@ -56,57 +56,43 @@ export const wellnessSessions: WellnessSession[] = [
                 episodes: [
                     {
                         id: "1",
-                        title: "Morning Awakening",
+                        title: "Sunrise Breathing",
                         duration: "15 min",
                         thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
                         description: "Connect with your breath and set a strong positive intention for the day ahead.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/eposide 1 mind waves.mp3.mp3"
                     },
                     {
                         id: "2",
-                        title: "Breath Reset",
+                        title: "Peaceful Mind",
                         duration: "20 min",
                         thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=600&auto=format&fit=crop",
                         description: "Clear out stale energy with a dynamic deep breathing rhythm that resets the nervous system.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/eposide 2 root cause.mp3.mp3"
                     },
                     {
                         id: "3",
-                        title: "Mind Relaxation",
+                        title: "Focus Energy",
                         duration: "18 min",
                         thumbnail: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=600&auto=format&fit=crop",
                         description: "Settle into silent presence and release lingering mental worries or busy chatter.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/eposide 3 stillness ladder.mp3.mp3"
                     },
                     {
                         id: "4",
-                        title: "Deep Sleep Recovery",
+                        title: "Calm Reset",
                         duration: "25 min",
                         thumbnail: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=600&auto=format&fit=crop",
                         description: "A gentle wind-down session guiding your awareness into deeply restorative delta wave sleep.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
-                    }
-                ]
-            },
-            {
-                seasonNumber: 2,
-                level: 'Intermediate',
-                episodes: [
-                    {
-                        id: "5",
-                        title: "Vipassana Insight",
-                        duration: "20 min",
-                        thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop",
-                        description: "Cultivate objective self-observation by noticing bodily sensations without attachment.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/eposide 4 Abhyas engine.mp3.mp3"
                     },
                     {
-                        id: "6",
-                        title: "Somatic Grounding",
-                        duration: "22 min",
-                        thumbnail: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop",
-                        description: "Anchor your nervous system inside muscle contractions and breath holds to relieve heavy anxiety.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        id: "5",
+                        title: "Deep Presence",
+                        duration: "20 min",
+                        thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop",
+                        description: "Settle into silent, deep presence, cultivating ultimate awareness of the present moment.",
+                        videoUrl: "/audio/eposide 5 Vairagya Method.mp3.mp3"
                     }
                 ]
             }
@@ -126,7 +112,55 @@ export const wellnessSessions: WellnessSession[] = [
         match: "95% Match",
         year: "2026",
         rating: "TV-PG",
-        type: 'Film'
+        type: 'Series',
+        seasons: [
+            {
+                seasonNumber: 1,
+                level: 'Beginner',
+                episodes: [
+                    {
+                        id: "1",
+                        title: "Sunset Wind-down",
+                        duration: "15 min",
+                        thumbnail: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop",
+                        description: "Unwind your body from the day's stress with gentle box breathing and mindfulness.",
+                        videoUrl: "/audio/eposide 1 gita 3.mp3.mp3"
+                    },
+                    {
+                        id: "2",
+                        title: "Ocean Sleep Waves",
+                        duration: "20 min",
+                        thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
+                        description: "Drift away to the soothing sound of rolling ocean waves recorded live at high tide.",
+                        videoUrl: "/audio/eposide 2 gita ch 2.mp3.mp3"
+                    },
+                    {
+                        id: "3",
+                        title: "Celestial Journey",
+                        duration: "25 min",
+                        thumbnail: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=600&auto=format&fit=crop",
+                        description: "A cosmic visualization guiding your mind through the quiet depths of the night sky.",
+                        videoUrl: "/audio/eposiode 3 gita ch 4.mp3.mp3"
+                    },
+                    {
+                        id: "4",
+                        title: "Whispering Pines",
+                        duration: "30 min",
+                        thumbnail: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=600&auto=format&fit=crop",
+                        description: "Listen to a peaceful forest tale designed to trigger deep delta sleep cycles.",
+                        videoUrl: "/audio/eposide 4 gita ch 5.mp3.mp3"
+                    },
+                    {
+                        id: "5",
+                        title: "Midnight Harmony",
+                        duration: "45 min",
+                        thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop",
+                        description: "Settle into final restorative sleep with smooth binaural soundscapes and soft rain.",
+                        videoUrl: "/audio/eposide 5 gita ch 6.mp3.mp3"
+                    }
+                ]
+            }
+        ]
     },
     {
         id: "3",
@@ -154,7 +188,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "15 min",
                         thumbnail: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=600&auto=format&fit=crop",
                         description: "A quick emergency anchor session to lower high levels of acute nervous adrenaline.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/Mind Reset 1 when mind stops.mp3.mp3"
                     },
                     {
                         id: "2",
@@ -162,7 +196,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "18 min",
                         thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=600&auto=format&fit=crop",
                         description: "Gentle physical releases designed to open tightness in the chest, throat, and shoulders.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/Mind Reset 2 Worst Case.mp3.mp3"
                     },
                     {
                         id: "3",
@@ -170,7 +204,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "20 min",
                         thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
                         description: "Synchronize your breathing with positive heart affirmations to generate deep safety.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/Mind reset 3 Small decision big pressure.mp3.mp3"
                     },
                     {
                         id: "4",
@@ -178,7 +212,15 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "22 min",
                         thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop",
                         description: "A meditation session engaging the 5-4-3-2-1 sensory technique for absolute presence.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/Mind reset 4 Repeat repeat thinking.mp3.mp3"
+                    },
+                    {
+                        id: "5",
+                        title: "Panic De-escalation",
+                        duration: "15 min",
+                        thumbnail: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop",
+                        description: "An emergency grounding technique for sudden waves of intense worry or overwhelming panic.",
+                        videoUrl: "/audio/mind reser 5 what is clarity.mp3.mp3"
                     }
                 ]
             }
@@ -211,7 +253,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "10 min",
                         thumbnail: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop",
                         description: "Tune your focus to absolute stillness, blocking out exterior distractions.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/Lifestyle OS - Dinacharya episode 1.mp3"
                     },
                     {
                         id: "2",
@@ -219,7 +261,31 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "12 min",
                         thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop",
                         description: "Ignite mental sharpness with focused, rapid inhalation techniques.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/Lifestyle OS 2 - Guna Santulan episode 2.mp3"
+                    },
+                    {
+                        id: "3",
+                        title: "The Flow Trigger",
+                        duration: "15 min",
+                        thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
+                        description: "Utilize specific sensory blocks to drop straight into effortless focus states.",
+                        videoUrl: "/audio/Lifestyle OS 3 - Sync Food & Mind episode 3.mp3"
+                    },
+                    {
+                        id: "4",
+                        title: "Digital Detox Reset",
+                        duration: "18 min",
+                        thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=600&auto=format&fit=crop",
+                        description: "Cleanse your working memory of digital fatigue and reset attention span.",
+                        videoUrl: "/audio/Lifestyle OS 4 - Art of sleep episode 4.mp3"
+                    },
+                    {
+                        id: "5",
+                        title: "Peak Performance Focus",
+                        duration: "20 min",
+                        thumbnail: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=600&auto=format&fit=crop",
+                        description: "Elevate task performance with high-vibration focus breathing techniques.",
+                        videoUrl: "/audio/Lifestyle OS 5 - Control your senses episode 5.mp3"
                     }
                 ]
             }
@@ -239,7 +305,55 @@ export const wellnessSessions: WellnessSession[] = [
         match: "88% Match",
         year: "2024",
         rating: "TV-PG",
-        type: 'Film'
+        type: 'Series',
+        seasons: [
+            {
+                seasonNumber: 1,
+                level: 'Beginner',
+                episodes: [
+                    {
+                        id: "1",
+                        title: "Root Alignment",
+                        duration: "10 min",
+                        thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop",
+                        description: "Root your energy into stability, safety, and deep connection with the earth.",
+                        videoUrl: "/audio/Career anxiety and overthinking eposide 1.mp3"
+                    },
+                    {
+                        id: "2",
+                        title: "Sacred Fire",
+                        duration: "12 min",
+                        thumbnail: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop",
+                        description: "Stoke your internal solar fire to balance confidence and emotional power.",
+                        videoUrl: "/audio/Fear of Failure & Rejection eposide 2.mp3"
+                    },
+                    {
+                        id: "3",
+                        title: "Heart Awakening",
+                        duration: "15 min",
+                        thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
+                        description: "Open your energetic heart center to compassion, love, and unconditional joy.",
+                        videoUrl: "/audio/Healing After Heartbreak eposide 3.mp3"
+                    },
+                    {
+                        id: "4",
+                        title: "Truth & Expression",
+                        duration: "15 min",
+                        thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=600&auto=format&fit=crop",
+                        description: "Clear your throat chakra to communicate your absolute truth and inner expression.",
+                        videoUrl: "/audio/Identity — “Who am I really” eposide 4.mp3"
+                    },
+                    {
+                        id: "5",
+                        title: "Third Eye Sight",
+                        duration: "20 min",
+                        thumbnail: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=600&auto=format&fit=crop",
+                        description: "Awaken spiritual intuition and cosmic vision with pineal activation exercises.",
+                        videoUrl: "/audio/Jealousy, comparison, insecurity eposide 5.mp3"
+                    }
+                ]
+            }
+        ]
     },
     {
         id: "6",
@@ -267,7 +381,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "12 min",
                         thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=600&auto=format&fit=crop",
                         description: "Optimize belly expansion for maximum vagus nerve activation.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/meditation.mp3"
                     },
                     {
                         id: "2",
@@ -275,7 +389,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "15 min",
                         thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
                         description: "A 4-4-4-4 holding sequence designed by Navy SEALs to secure complete stress regulation.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/meditation.mp3"
                     }
                 ]
             }
@@ -340,7 +454,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "18 min",
                         thumbnail: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=600&auto=format&fit=crop",
                         description: "Understand the biological mechanisms of burnout and learn how to immediately downshift.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/focus.mp3"
                     },
                     {
                         id: "2",
@@ -348,7 +462,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "22 min",
                         thumbnail: "https://images.unsplash.com/photo-1524863479829-916d8e77f114?q=80&w=600&auto=format&fit=crop",
                         description: "Re-ignite deep mitochondrial energy through targeted progressive physical relaxation.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/focus.mp3"
                     }
                 ]
             }
@@ -380,7 +494,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "15 min",
                         thumbnail: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop",
                         description: "Flowing movements designed to decompress vertebrae and stimulate cerebrospinal fluid.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/energy.mp3"
                     },
                     {
                         id: "2",
@@ -388,7 +502,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "20 min",
                         thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=600&auto=format&fit=crop",
                         description: "A seamless dynamic sequence to activate core energy hubs and build early sweat.",
-                        videoUrl: "https://vjs.zencdn.net/v/oceans.mp4"
+                        videoUrl: "/audio/energy.mp3"
                     }
                 ]
             }

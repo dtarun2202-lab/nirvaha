@@ -14,18 +14,14 @@ export const WellnessOTT = () => {
         e.preventDefault();
         e.stopPropagation();
         setIsAnimating(true);
-        setTimeout(() => {
-            navigate(`/wellness-ott/${item.id}`);
-        }, 2800);
+        navigate(`/wellness-ott-intro?seriesId=${item.id}`, { replace: false });
     };
 
     const handleViewMore = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         setIsAnimating(true);
-        setTimeout(() => {
-            navigate('/wellness-ott');
-        }, 2800);
+        navigate('/wellness-ott-intro', { replace: false });
     };
 
     return (

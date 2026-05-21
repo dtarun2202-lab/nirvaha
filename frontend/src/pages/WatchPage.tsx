@@ -18,7 +18,7 @@ export default function WatchPage() {
     const { seriesId, episodeId } = useParams();
     const navigate = useNavigate();
     
-    const videoRef = useRef<HTMLAudioElement>(null);
+    const videoRef = useRef<HTMLVideoElement>(null);
     const playerContainerRef = useRef<HTMLDivElement>(null);
 
     // Playback States
@@ -385,34 +385,13 @@ export default function WatchPage() {
                 <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/45 to-black/95" />
             </div>
 
-            {/* Central Immersive Ambient Sanctuary Artwork */}
-            <div className="absolute z-10 flex flex-col items-center justify-center select-none pointer-events-none p-4 max-w-full">
-                <div className="relative flex items-center justify-center">
-                    {/* Pulsing soundwave rings */}
-                    {isPlaying && (
-                        <>
-                            <div className="absolute -inset-12 rounded-[2.5rem] bg-[#2ed899]/5 animate-ping opacity-60 border border-[#2ed899]/20" />
-                            <div className="absolute -inset-24 rounded-[3.5rem] bg-[#2ed899]/3 animate-pulse opacity-40 border border-[#2ed899]/10" />
-                        </>
-                    )}
-                    
-                    {/* Glowing rounded Album art */}
-                    <div className="w-68 h-68 sm:w-84 sm:h-84 md:w-[28rem] md:h-[28rem] rounded-[2.5rem] overflow-hidden border border-white/10 shadow-[0_25px_60px_rgba(46,216,153,0.18)] transition-all duration-700 hover:scale-[1.03] hover:shadow-[0_30px_70px_rgba(46,216,153,0.28)] select-none">
-                        <img 
-                            src={episode.thumbnail || session.banner} 
-                            alt={episode.title}
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
-                </div>
-            </div>
-
-            {/* Continuous Audio Pipeline */}
-            <audio
+            {/* Video Player */}
+            <video
                 ref={videoRef}
-                src={session.audioSource}
+                src={episode.videoUrl}
                 autoPlay
-                className="hidden"
+                className="absolute inset-0 w-full h-full object-cover z-10"
+                onClick={handlePlayPause}
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
                 onTimeUpdate={handleTimeUpdate}
@@ -422,7 +401,7 @@ export default function WatchPage() {
                         setIsPlaying(true);
                     }
                 }}
-                key={session.audioSource}
+                key={episode.videoUrl}
             />
 
             {/* Backlights overlay grids */}

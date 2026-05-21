@@ -87,7 +87,7 @@ export default function WellnessOTTLibrary() {
                                 >
                                     <div 
                                         className="aspect-video relative cursor-pointer overflow-hidden"
-                                        onClick={() => navigate(`/wellness-ott/${session.id}`)}
+                                        onClick={() => navigate(`/wellness-ott/series/${session.id}`)}
                                     >
                                         <img 
                                             src={session.thumbnail} 
@@ -116,7 +116,7 @@ export default function WellnessOTTLibrary() {
                                         
                                         <div className="flex items-center justify-between mt-auto">
                                             <button 
-                                                onClick={() => navigate(`/wellness-ott/${session.id}`)}
+                                                onClick={() => navigate(`/wellness-ott/series/${session.id}`)}
                                                 className="text-sm font-bold text-white hover:text-[#2ed899] transition-colors flex items-center gap-2"
                                             >
                                                 Continue <ArrowLeft className="w-4 h-4 rotate-180" />

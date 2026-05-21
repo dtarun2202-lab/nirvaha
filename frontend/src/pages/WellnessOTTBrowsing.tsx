@@ -112,7 +112,7 @@ const SessionRow = ({
                                             e.stopPropagation();
                                             if (hasSeasons && firstEpisode) {
                                                 const sSlug = item.title.toLowerCase().replace(/ /g, '-');
-                                                navigate(`/watch/${sSlug}/episode-${firstEpisode.id}`);
+                                                navigate(`/wellness-ott/player/${sSlug}/episode-${firstEpisode.id}`);
                                             } else {
                                                 navigate(`/wellness-ott/series/${item.id}`);
                                             }
@@ -508,7 +508,7 @@ export default function WellnessOTTBrowsing() {
                                         const firstEp = featured.seasons?.[0]?.episodes?.[0];
                                         if (firstEp) {
                                             const sSlug = featured.title.toLowerCase().replace(/ /g, '-');
-                                            navigate(`/watch/${sSlug}/episode-${firstEp.id}`);
+                                            navigate(`/wellness-ott/player/${sSlug}/episode-${firstEp.id}`);
                                         } else {
                                             navigate(`/wellness-ott/series/${featured.id}`);
                                         }
@@ -543,7 +543,7 @@ export default function WellnessOTTBrowsing() {
                             {continueWatchingList.map((item, idx) => (
                                 <motion.div
                                     key={`cw-${item.seriesId}`}
-                                    onClick={() => navigate(`/watch/${item.seriesId}/${item.episodeId}`)}
+                                    onClick={() => navigate(`/wellness-ott/player/${item.seriesId}/${item.episodeId}`)}
                                     className="group relative flex-none w-[260px] md:w-[320px] aspect-video rounded-xl overflow-hidden cursor-pointer bg-[#0c0c0c] border border-white/5 shadow-2xl snap-start transition-all hover:border-[#2ed899]/30"
                                 >
                                     <img src={item.thumbnail} alt={item.episodeTitle} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103" />

@@ -14,9 +14,12 @@ import SuccessStoryDetail from './pages/SuccessStoryDetail';
 import WellnessOTTDetail from './pages/WellnessOTTDetail';
 import WellnessOTTBrowsing from './pages/WellnessOTTBrowsing';
 import WellnessOTTLibrary from './pages/WellnessOTTLibrary';
-import WatchPage from './pages/WatchPage';
 import JourneyPage from './pages/JourneyPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import WellnessOTTHome from './pages/WellnessOTTHome';
+import WellnessOTTSeriesDetails from './pages/WellnessOTTSeriesDetails';
+import WellnessOTTAudioPlayer from './components/wellness-ott/WellnessOTTAudioPlayer';
+import NirvahaStreamIntro from './components/wellness-ott/NirvahaStreamIntro';
 import MeditationPage from "./components/pages/MeditationPage";
 import { SoundHealingPage } from "./components/pages/SoundHealingPage";
 import { CommunityPage } from "./components/pages/CommunityPage";
@@ -144,11 +147,14 @@ function AppInner() {
         </Route>
 
         {/* Wellness OTT Routes */}
-        <Route path="/wellness-ott" element={<WellnessOTTBrowsing />} />
+        <Route path="/wellness-ott-intro" element={<NirvahaStreamIntro />} />
+        <Route path="/wellness-ott" element={<WellnessOTTHome />} />
+        <Route path="/wellness-ott/home" element={<WellnessOTTHome />} />
+        <Route path="/wellness-ott/series/:seriesId" element={<WellnessOTTSeriesDetails />} />
+        <Route path="/wellness-ott/player/:seriesId/:episodeId" element={<WellnessOTTAudioPlayer />} />
         <Route path="/wellness-ott/library" element={<WellnessOTTLibrary />} />
-        <Route path="/wellness-ott/series/:id" element={<WellnessOTTDetail />} />
-        <Route path="/wellness-ott/:id" element={<WellnessOTTDetail />} />
-        <Route path="/watch/:seriesId/:episodeId" element={<WatchPage />} />
+        <Route path="/wellness-ott/browsing" element={<WellnessOTTBrowsing />} />
+        <Route path="/watch/:seriesId/:episodeId" element={<WellnessOTTAudioPlayer />} />
 
         {/* Catch-all redirect to landing */}
         <Route path="*" element={<Navigate to="/" replace />} />
