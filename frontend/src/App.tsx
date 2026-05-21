@@ -14,6 +14,7 @@ import SuccessStoryDetail from './pages/SuccessStoryDetail';
 import WellnessOTTDetail from './pages/WellnessOTTDetail';
 import WellnessOTTBrowsing from './pages/WellnessOTTBrowsing';
 import WellnessOTTLibrary from './pages/WellnessOTTLibrary';
+import WatchPage from './pages/WatchPage';
 import JourneyPage from './pages/JourneyPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import MeditationPage from "./components/pages/MeditationPage";
@@ -25,7 +26,6 @@ import { CompanionPage } from "./components/pages/CompanionPage";
 import { ProfilePage } from "./components/ProfilePage";
 import { Navigation } from "./components/Navigation";
 import { DashboardPage } from "./components/pages/DashboardPage";
-import { MySessionsPage } from "./components/pages/MySessionsPage";
 import PathwaysPage from './pages/PathwaysPage';
 import PathwayDetailPage from './pages/PathwayDetailPage';
 import PathwayJourney from './pages/PathwayJourney';
@@ -74,7 +74,6 @@ const DashboardRoutes = () => (
     <Route path="marketplace" element={<><MarketplacePage /><DashboardFooter /></>} />
     <Route path="companion" element={<><CompanionPage /><DashboardFooter /></>} />
     <Route path="profile" element={<><ProfilePage /><DashboardFooter /></>} />
-    <Route path="sessions" element={<><MySessionsPage /><DashboardFooter /></>} />
   </Routes>
 );
 
@@ -147,7 +146,9 @@ function AppInner() {
         {/* Wellness OTT Routes */}
         <Route path="/wellness-ott" element={<WellnessOTTBrowsing />} />
         <Route path="/wellness-ott/library" element={<WellnessOTTLibrary />} />
+        <Route path="/wellness-ott/series/:id" element={<WellnessOTTDetail />} />
         <Route path="/wellness-ott/:id" element={<WellnessOTTDetail />} />
+        <Route path="/watch/:seriesId/:episodeId" element={<WatchPage />} />
 
         {/* Catch-all redirect to landing */}
         <Route path="*" element={<Navigate to="/" replace />} />

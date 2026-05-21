@@ -352,6 +352,247 @@ Nirvaha Team`;
   }
 };
 
+/**
+ * Send Session Rejection Email to the user
+ * @param {Object} booking - Booking/Session information
+ */
+const sendSessionRejectedEmail = async (booking) => {
+  const { userName, userEmail, email, date, time, companionName, itemName, type } = booking;
+  const targetEmail = userEmail || email;
+  const sessionTitle = companionName || itemName || type || 'Wellness Session';
+
+  const subject = 'Session Request Update – Nirvaha';
+
+  const textContent = `Hello ${userName},
+
+We regret to inform you that your session request has been rejected.
+
+Session Details:
+* Session: ${sessionTitle}
+* Date: ${date}
+* Time: ${time}
+* Status: Rejected
+
+If you have any questions or would like to book a different companion or timing, please visit our sanctuary portal.
+
+Best regards,
+Nirvaha Team`;
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Session Request Update – Nirvaha</title>
+      <style>
+        body {
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          background-color: #FAF4F4;
+          color: #431B1B;
+          margin: 0;
+          padding: 0;
+          -webkit-font-smoothing: antialiased;
+        }
+        .wrapper {
+          background-color: #FAF4F4;
+          padding: 40px 20px;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          border-radius: 24px;
+          overflow: hidden;
+          box-shadow: 0 12px 30px rgba(67, 27, 27, 0.04);
+          border: 1px solid #EED5D5;
+        }
+        .header {
+          background: linear-gradient(135deg, #431B1B 0%, #6A2D2D 100%);
+          padding: 40px 30px;
+          text-align: center;
+          color: #ffffff;
+        }
+        .logo {
+          font-size: 24px;
+          font-weight: 800;
+          letter-spacing: 2px;
+          margin-bottom: 12px;
+          text-transform: uppercase;
+          color: #E07A7A;
+        }
+        .header h1 {
+          margin: 0;
+          font-size: 26px;
+          font-weight: 700;
+          letter-spacing: -0.5px;
+          color: #ffffff;
+        }
+        .content {
+          padding: 40px 35px;
+        }
+        .greeting {
+          font-size: 18px;
+          font-weight: 700;
+          margin-bottom: 16px;
+          color: #431B1B;
+        }
+        .intro-text {
+          font-size: 15px;
+          line-height: 1.6;
+          color: #6A2D2D;
+          margin-bottom: 30px;
+        }
+        .details-card {
+          background-color: #FAF4F4;
+          border: 1px solid #EED5D5;
+          border-radius: 20px;
+          padding: 24px;
+          margin-bottom: 30px;
+        }
+        .details-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-bottom: 1px solid #EED5D5;
+          padding-bottom: 12px;
+          margin-bottom: 16px;
+          width: 100%;
+        }
+        .details-title {
+          font-size: 12px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
+          color: #6A2D2D;
+        }
+        .badge {
+          background-color: #fee2e2;
+          color: #991b1b;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 4px 12px;
+          border-radius: 100px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          display: inline-block;
+        }
+        .detail-row {
+          display: flex;
+          justify-content: space-between;
+          padding: 10px 0;
+          font-size: 14px;
+        }
+        .detail-label {
+          font-weight: 600;
+          color: #6B5555;
+        }
+        .detail-value {
+          font-weight: 700;
+          color: #431B1B;
+          text-align: right;
+        }
+        .footer {
+          background-color: #431B1B;
+          padding: 40px 30px;
+          text-align: center;
+          color: #EED5D5;
+          border-top: 1px solid #EED5D5;
+        }
+        .footer-brand {
+          font-weight: 800;
+          color: #ffffff;
+          font-size: 18px;
+          margin-bottom: 12px;
+          letter-spacing: 1px;
+        }
+        .footer p {
+          margin: 6px 0;
+          font-size: 13px;
+          line-height: 1.5;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="wrapper">
+        <div class="container">
+          <div class="header">
+            <div class="logo">Nirvaha</div>
+            <h1>Session Update</h1>
+          </div>
+          <div class="content">
+            <div class="greeting">Hello ${userName},</div>
+            <div class="intro-text">
+              We regret to inform you that your session request has been rejected. 
+            </div>
+            
+            <div class="details-card">
+              <div class="details-header">
+                <span class="details-title">Booking Details</span>
+                <span class="badge">Rejected</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Session Guide / Item</span>
+                <span class="detail-value">${sessionTitle}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Date</span>
+                <span class="detail-value">${date}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Time</span>
+                <span class="detail-value">${time}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="footer">
+            <div class="footer-brand">Nirvaha</div>
+            <p>Thank you for choosing Nirvaha.</p>
+            <p>If you have any questions or would like to book a different session, please visit our sanctuary portal.</p>
+            <p style="margin-top: 24px; font-size: 11px; opacity: 0.7;">
+              © ${new Date().getFullYear()} Nirvaha Wellness. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const mailOptions = {
+    from: `"Nirvaha" <${process.env.SMTP_USER}>`,
+    to: targetEmail,
+    subject: subject,
+    text: textContent,
+    html: htmlContent,
+  };
+
+  const transporter = getTransporter();
+
+  if (transporter) {
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log('✅ Rejection email sent successfully');
+      return { success: true, messageId: info.messageId };
+    } catch (error) {
+      console.error('❌ Failed to send rejection email via SMTP:', error.message);
+      return { success: false, error: error.message };
+    }
+  } else {
+    // Simulated delivery log
+    console.log(`✉️  [SIMULATION] Sending Email Rejection:`);
+    console.log(`====================================================`);
+    console.log(`TO:       ${targetEmail}`);
+    console.log(`SUBJECT:  ${subject}`);
+    console.log(`BODY:\n${textContent}`);
+    console.log(`====================================================`);
+    console.log(`✅ Simulated email delivery successful.`);
+    return { success: true, simulated: true };
+  }
+};
+
 module.exports = {
   sendSessionConfirmationEmail,
+  sendSessionRejectedEmail,
 };

@@ -1,10 +1,18 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, Pause, Plus, ArrowLeft, Info, X, Volume2, Check, Library } from 'lucide-react';
-import { useEffect, useState, useRef } from 'react';
-import { wellnessSessions as videos } from '../data/wellnessSessions';
+import { Play, Plus, ArrowLeft, Info, X, Check, Library, Sparkles, AlertCircle, Tv, Calendar, Tag } from 'lucide-react';
+import { useEffect, useState, useMemo } from 'react';
+import { wellnessSessions as videos, WellnessSession, Episode, Season } from '../data/wellnessSessions';
 
-
+interface ContinueWatchingItem {
+    seriesId: string;
+    episodeId: string;
+    progress: number;
+    timestamp: number;
+    seriesTitle: string;
+    episodeTitle: string;
+    thumbnail: string;
+}
 
 export default function WellnessOTTDetail() {
     const { id } = useParams();
@@ -12,82 +20,49 @@ export default function WellnessOTTDetail() {
     
     const [isSaved, setIsSaved] = useState(false);
     const [showToast, setShowToast] = useState(false);
+    const [activeSeasonNum, setActiveSeasonNum] = useState<number>(1);
+    const [continueWatchingList, setContinueWatchingList] = useState<ContinueWatchingItem[]>([]);
 
-    // Scroll to top and check saved status on mount/id change
+    // Scroll to top and load saved status + progress records
     useEffect(() => {
         window.scrollTo(0, 0);
         const savedSessions = JSON.parse(localStorage.getItem('savedOTTSessions') || '[]');
         setIsSaved(savedSessions.some((s: any) => s.id === id));
+
+        // Load continue watching list for progress rendering
+        const cwData = localStorage.getItem("ott_continue_watching");
+        if (cwData) {
+            try {
+                setContinueWatchingList(JSON.parse(cwData));
+            } catch (e) {
+                console.error(e);
+            }
+        }
     }, [id]);
 
-    const [activeTag, setActiveTag] = useState<string | null>(null);
+    const session = useMemo(() => {
+        return videos.find(v => v.id === id) || videos[0];
+    }, [id]);
 
-    const session = videos.find(v => v.id === id) || videos[0];
-    
+    // Active season structure
+    const activeSeason = useMemo(() => {
+        if (!session.seasons || session.seasons.length === 0) return null;
+        return session.seasons.find(s => s.seasonNumber === activeSeasonNum) || session.seasons[0];
+    }, [session, activeSeasonNum]);
+
+    // Default to the first season on session change
+    useEffect(() => {
+        if (session.seasons && session.seasons.length > 0) {
+            setActiveSeasonNum(session.seasons[0].seasonNumber);
+        }
+    }, [session]);
+
     // Dynamic 'More Like This' logic
-    const recommended = videos.filter(v => v.id !== id);
-    const filteredRecommended = activeTag 
-        ? recommended.filter(v => v.tags.includes(activeTag))
-        : recommended.filter(v => v.category === session.category || v.tags.some(t => session.tags.includes(t)));
-    
-    const displayRecommended = filteredRecommended.length > 0 ? filteredRecommended : recommended;
-
-    // Audio Player State
-    const audioRef = useRef<HTMLAudioElement>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [showPlayer, setShowPlayer] = useState(false);
-    const [progress, setProgress] = useState(0);
-    const [currentTime, setCurrentTime] = useState("0:00");
-    const [durationStr, setDurationStr] = useState("0:00");
-
-    const formatTime = (timeInSeconds: number) => {
-        if (isNaN(timeInSeconds)) return "0:00";
-        const minutes = Math.floor(timeInSeconds / 60);
-        const seconds = Math.floor(timeInSeconds % 60);
-        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-    };
-
-    const handleTimeUpdate = () => {
-        if (audioRef.current) {
-            const current = audioRef.current.currentTime;
-            const duration = audioRef.current.duration;
-            setCurrentTime(formatTime(current));
-            if (duration) {
-                setProgress((current / duration) * 100);
-            }
-        }
-    };
-
-    const handleLoadedMetadata = () => {
-        if (audioRef.current) {
-            setDurationStr(formatTime(audioRef.current.duration));
-        }
-    };
-
-    const togglePlay = () => {
-        if (!showPlayer) {
-            setShowPlayer(true);
-        }
-        
-        if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.pause();
-            } else {
-                audioRef.current.play().catch(e => console.log("Audio play blocked:", e));
-            }
-            setIsPlaying(!isPlaying);
-        }
-    };
-
-    const handleProgressBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (audioRef.current) {
-            const bar = e.currentTarget;
-            const rect = bar.getBoundingClientRect();
-            const clickPosition = e.clientX - rect.left;
-            const percentage = clickPosition / rect.width;
-            audioRef.current.currentTime = percentage * audioRef.current.duration;
-        }
-    };
+    const displayRecommended = useMemo(() => {
+        const recommended = videos.filter(v => v.id !== session.id);
+        const matchCategory = recommended.filter(v => v.category === session.category);
+        return matchCategory.length > 0 ? matchCategory : recommended.slice(0, 6);
+    }, [session]);
 
     const handleWatchLater = () => {
         const savedSessions = JSON.parse(localStorage.getItem('savedOTTSessions') || '[]');
@@ -104,39 +79,39 @@ export default function WellnessOTTDetail() {
         }
     };
 
-    return (
-        <div className="min-h-screen bg-[#050505] text-white font-sans overflow-x-hidden selection:bg-[#1a5d47] selection:text-white pb-20">
-            {/* Audio Element */}
-            <audio
-                ref={audioRef}
-                src={session.audioSource}
-                onTimeUpdate={handleTimeUpdate}
-                onLoadedMetadata={handleLoadedMetadata}
-                onEnded={() => setIsPlaying(false)}
-            />
+    // Helper to get continue watching progress for a specific episode
+    const getEpisodeProgress = (episodeId: string) => {
+        const cwItem = continueWatchingList.find(
+            item => item.seriesId === session.id && item.episodeId === episodeId
+        );
+        return cwItem ? cwItem.progress : 0;
+    };
 
-            {/* Navigation / Back Button */}
-            <div className="fixed top-0 left-0 w-full p-6 md:p-10 z-[100] bg-gradient-to-b from-[#050505]/80 to-transparent pointer-events-none flex justify-between items-center">
+    return (
+        <div className="min-h-screen bg-[#050505] text-white font-sans overflow-x-hidden selection:bg-[#1a5d47] selection:text-white pb-24">
+            
+            {/* Header / Back Action Bar */}
+            <div className="fixed top-0 left-0 w-full p-6 md:p-10 z-[100] bg-gradient-to-b from-[#050505]/95 via-[#050505]/60 to-transparent pointer-events-none flex justify-between items-center">
                 <button 
-                    onClick={() => navigate(-1)}
-                    className="flex items-center gap-2 text-white/80 hover:text-white transition-colors group pointer-events-auto"
+                    onClick={() => navigate('/wellness-ott')}
+                    className="flex items-center gap-2 text-white/80 hover:text-[#2ed899] transition-all group pointer-events-auto"
                 >
-                    <ArrowLeft className="w-6 h-6 transform group-hover:-translate-x-1 transition-transform" />
-                    <span className="font-semibold tracking-wider text-sm uppercase">Back</span>
+                    <ArrowLeft className="w-5 h-5 transform group-hover:-translate-x-1.5 transition-transform" />
+                    <span className="font-extrabold tracking-widest text-xs uppercase">Back to Browse</span>
                 </button>
                 
                 <button 
                     onClick={() => navigate('/wellness-ott/library')}
-                    className="flex items-center gap-2 text-white/80 hover:text-[#2ed899] transition-colors group pointer-events-auto bg-[#050505]/40 backdrop-blur-md border border-white/10 hover:border-[#2ed899]/50 px-4 py-2 rounded-full"
+                    className="flex items-center gap-2 text-white/80 hover:text-[#2ed899] transition-all group pointer-events-auto bg-[#070809]/80 backdrop-blur-xl border border-white/10 hover:border-[#2ed899]/50 px-5 py-2.5 rounded-2xl shadow-xl"
                 >
-                    <Library className="w-4 h-4" />
-                    <span className="font-semibold tracking-wider text-xs uppercase hidden sm:block">My Library</span>
+                    <Library className="w-4 h-4 text-[#2ed899]" />
+                    <span className="font-bold tracking-widest text-xs uppercase hidden sm:block">My List</span>
                 </button>
             </div>
 
-            {/* Hero Section */}
-            <div className="relative h-[85vh] min-h-[600px] w-full">
-                {/* Hero Background Image */}
+            {/* Immersive Cinematic Split-Grid Hero Section */}
+            <div className="relative h-[85vh] min-h-[600px] w-full flex items-end">
+                {/* Hero Background Image with glowing ambient filters */}
                 <motion.div 
                     initial={{ scale: 1.05, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -144,85 +119,91 @@ export default function WellnessOTTDetail() {
                     className="absolute inset-0 w-full h-full"
                 >
                     <img 
-                        src={session.thumbnail} 
+                        src={session.banner || session.thumbnail} 
                         alt={session.title} 
                         className="w-full h-full object-cover object-center"
                     />
                 </motion.div>
 
-                {/* Gradients for OTT Feel */}
+                {/* Dense High-End Overlay Gradients */}
                 <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/60 to-transparent z-10" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent z-10" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/30 to-transparent z-10" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-[#050505]/40 to-[#050505] z-10" />
                 
-                {/* Subtle Emerald Glow */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#1a5d47]/20 to-transparent z-10 mix-blend-screen" />
+                {/* Emerald Ambient Lighting */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#1a5d47]/20 to-transparent z-10 mix-blend-screen pointer-events-none" />
 
-                {/* Hero Content */}
+                {/* Hero Details Grid */}
                 <div className="absolute inset-0 z-20 flex flex-col justify-end p-6 md:p-16 lg:p-24 max-w-[1440px] mx-auto w-full">
                     <motion.div 
-                        initial={{ y: 30, opacity: 0 }}
+                        initial={{ y: 35, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+                        transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
                         className="max-w-3xl"
                     >
-                        {/* Netflix-style metadata row */}
-                        <div className="flex items-center gap-4 text-sm md:text-base font-semibold tracking-wide mb-4 text-white/80">
-                            <span className="text-[#2ed899] font-bold">{session.match}</span>
-                            <span>{session.year}</span>
-                            <span className="border border-white/40 px-2 py-0.5 rounded text-xs">{session.rating}</span>
+                        {/* Netflix-style badges */}
+                        <div className="flex items-center gap-3.5 text-xs md:text-sm font-semibold mb-4 text-white/80">
+                            {session.isOriginal && (
+                                <span className="bg-[#2ed899]/15 text-[#2ed899] text-[10px] font-black px-2 py-0.5 rounded border border-[#2ed899]/30 uppercase tracking-widest shadow-[0_0_10px_rgba(46,216,153,0.2)]">
+                                    Original
+                                </span>
+                            )}
+                            <span className="text-[#2ed899] font-black">{session.match}</span>
+                            <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {session.year}</span>
+                            <span className="border border-white/30 px-2 py-0.5 rounded text-[10px] font-black bg-white/5">{session.rating}</span>
                             <span>{session.duration}</span>
                         </div>
 
                         <h1 
-                            className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-6 leading-none"
+                            className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-5 leading-none text-white drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]"
                             style={{ fontFamily: "'Cinzel', serif" }}
                         >
                             {session.title}
                         </h1>
 
-                        <p className="text-lg md:text-xl text-white/90 font-light leading-relaxed mb-8 max-w-2xl drop-shadow-md">
+                        <p className="text-base md:text-lg text-white/70 font-medium leading-relaxed mb-8 max-w-2xl drop-shadow-md">
                             {session.description}
                         </p>
 
-                        {/* Action Buttons */}
+                        {/* Action Triggers */}
                         <div className="flex flex-wrap items-center gap-4 mb-8">
                             <button 
-                                onClick={togglePlay}
-                                className="flex items-center gap-3 bg-white text-[#050505] px-8 py-3 md:py-4 rounded font-bold text-lg hover:bg-white/90 transition-colors"
+                                onClick={() => {
+                                    const sSlug = session.title.toLowerCase().replace(/ /g, '-');
+                                    if (session.seasons && session.seasons.length > 0) {
+                                        const firstEp = session.seasons[0].episodes[0];
+                                        navigate(`/watch/${sSlug}/episode-${firstEp.id}`);
+                                    } else {
+                                        // Film format triggers standard player
+                                        navigate(`/watch/${sSlug}/film`);
+                                    }
+                                }}
+                                className="flex items-center gap-3 bg-[#2ed899] text-black px-8 py-3.5 md:py-4 rounded-xl font-extrabold text-sm uppercase tracking-widest hover:bg-white transition-all shadow-[0_0_20px_rgba(46,216,153,0.3)] hover:shadow-2xl"
                             >
-                                {isPlaying ? <Pause className="w-6 h-6 fill-[#050505]" /> : <Play className="w-6 h-6 fill-[#050505]" />}
-                                {isPlaying ? "Pause Session" : "Play Session"}
+                                <Play className="w-5 h-5 fill-black ml-0.5" /> 
+                                {session.type === 'Series' ? 'Play Episode 1' : 'Play Full Film'}
                             </button>
+                            
                             <button 
                                 onClick={handleWatchLater}
-                                className={`flex items-center gap-3 backdrop-blur-md border px-8 py-3 md:py-4 rounded font-bold text-lg transition-all ${
+                                className={`flex items-center gap-3 backdrop-blur-md border px-8 py-3.5 md:py-4 rounded-xl font-extrabold text-sm uppercase tracking-widest transition-all ${
                                     isSaved 
-                                        ? 'bg-[#1a5d47]/30 border-[#2ed899]/50 text-[#2ed899] shadow-[0_0_15px_rgba(46,216,153,0.3)] hover:bg-[#1a5d47]/50' 
-                                        : 'bg-white/20 border-white/30 text-white hover:bg-white/30 hover:border-white/50'
+                                        ? 'bg-[#1a5d47]/20 border-[#2ed899]/40 text-[#2ed899] shadow-[0_0_15px_rgba(46,216,153,0.2)] hover:bg-[#1a5d47]/35' 
+                                        : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
                                 }`}
                             >
-                                {isSaved ? <Check className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
-                                {isSaved ? "Saved to Library" : "Watch Later"}
-                            </button>
-                            <button className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-white/10 backdrop-blur-md border border-white/20 rounded-full hover:bg-white/20 transition-colors group">
-                                <Info className="w-6 h-6 text-white group-hover:text-[#2ed899] transition-colors" />
+                                {isSaved ? <Check className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                                {isSaved ? "Saved to List" : "Add to List"}
                             </button>
                         </div>
 
-                        {/* Tags */}
+                        {/* Category & Tags */}
                         <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-white/50 text-sm font-semibold mr-2 tracking-wider uppercase">Tags:</span>
+                            <span className="text-white/40 text-xs font-extrabold uppercase tracking-widest flex items-center gap-1.5"><Tag className="w-3.5 h-3.5" /> Category & Tags:</span>
+                            <span className="text-sm font-bold text-[#2ed899] bg-[#2ed899]/10 px-2.5 py-0.5 rounded border border-[#2ed899]/20">{session.category}</span>
                             {session.tags.map((tag, idx) => (
-                                <span key={idx} className="flex items-center">
-                                    <span 
-                                        onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-                                        className={`cursor-pointer text-sm font-medium transition-colors border-b border-transparent hover:border-current ${
-                                            activeTag === tag ? 'text-[#2ed899] border-[#2ed899]' : 'text-white/80 hover:text-white'
-                                        }`}
-                                    >
-                                        {tag}
-                                    </span>
-                                    {idx < session.tags.length - 1 ? <span className="mx-2 text-white/30">•</span> : ''}
+                                <span key={idx} className="text-sm font-semibold text-white/60 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full hover:text-white transition-colors cursor-pointer">
+                                    {tag}
                                 </span>
                             ))}
                         </div>
@@ -230,161 +211,191 @@ export default function WellnessOTTDetail() {
                 </div>
             </div>
 
-            {/* Recommended Sessions Row */}
-            <div className="max-w-[1440px] mx-auto px-6 md:px-16 lg:px-24 relative z-20 -mt-10 md:-mt-20">
-                <motion.h3 
-                    key={activeTag || 'default'}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="text-xl md:text-2xl font-semibold mb-6 tracking-wide flex items-center gap-2"
-                >
-                    {activeTag ? `More in "${activeTag}"` : 'More Like This'}
-                    {activeTag && (
-                        <button 
-                            onClick={() => setActiveTag(null)}
-                            className="text-xs text-white/50 hover:text-white ml-2 border border-white/20 rounded px-2 py-0.5"
-                        >
-                            Clear
-                        </button>
-                    )}
-                </motion.h3>
+            {/* Main Interactive Details / Episode Listing Section */}
+            <div className="max-w-[1440px] mx-auto px-6 md:px-16 lg:px-24 py-12 relative z-20 bg-gradient-to-b from-transparent to-[#050505]">
                 
-                <div className="flex gap-4 md:gap-6 overflow-x-auto pb-8 snap-x hide-scrollbar">
-                    <AnimatePresence mode="popLayout">
+                {session.type === 'Series' && session.seasons && session.seasons.length > 0 ? (
+                    <div>
+                        {/* Seasons Selector / Switcher */}
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-white/10 pb-5 gap-6">
+                            <div>
+                                <h3 className="text-2xl md:text-3xl font-extrabold tracking-wide text-white">Episodes</h3>
+                                <p className="text-white/40 text-sm mt-1 font-semibold">Select difficulty level and watch your wellness sessions sequentially.</p>
+                            </div>
+                            
+                            {/* Season tab selection pills */}
+                            <div className="flex gap-2.5 p-1 bg-white/5 rounded-2xl border border-white/10">
+                                {session.seasons.map(szn => (
+                                    <button
+                                        key={szn.seasonNumber}
+                                        onClick={() => setActiveSeasonNum(szn.seasonNumber)}
+                                        className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                                            activeSeasonNum === szn.seasonNumber
+                                                ? 'bg-[#2ed899] text-black shadow-[0_0_15px_rgba(46,216,153,0.3)]'
+                                                : 'text-white/60 hover:text-white hover:bg-white/5'
+                                        }`}
+                                    >
+                                        Season {szn.seasonNumber} ({szn.level})
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Episodes Grid Card Layout */}
+                        {activeSeason && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <AnimatePresence mode="wait">
+                                    {activeSeason.episodes.map((episode, idx) => {
+                                        const progress = getEpisodeProgress(episode.id);
+
+                                        return (
+                                            <motion.div
+                                                key={episode.id}
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.4, delay: idx * 0.05 }}
+                                                onClick={() => {
+                                                    const sSlug = session.title.toLowerCase().replace(/ /g, '-');
+                                                    navigate(`/watch/${sSlug}/episode-${episode.id}`);
+                                                }}
+                                                className="group relative bg-[#0c0c0c] border border-white/5 hover:border-[#2ed899]/30 rounded-2xl p-4 flex gap-4 cursor-pointer transition-all hover:shadow-[0_0_20px_rgba(46,216,153,0.1)] hover:-translate-y-1"
+                                            >
+                                                {/* Left Episode Thumbnail */}
+                                                <div className="relative w-[130px] md:w-[170px] aspect-video rounded-xl overflow-hidden flex-shrink-0 bg-white/5">
+                                                    <img 
+                                                        src={episode.thumbnail} 
+                                                        alt={episode.title} 
+                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                    />
+                                                    
+                                                    {/* Custom Play Button Overlay */}
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                                        <div className="w-9 h-9 bg-[#2ed899] rounded-full flex items-center justify-center shadow-lg">
+                                                            <Play className="w-4 h-4 text-black fill-black ml-0.5" />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Progress bar overlay if playing */}
+                                                    {progress > 0 && (
+                                                        <div className="absolute bottom-0 left-0 w-full h-[4px] bg-white/20">
+                                                            <div 
+                                                                className="h-full bg-gradient-to-r from-[#1a5d47] to-[#2ed899]" 
+                                                                style={{ width: `${progress}%` }} 
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Right Episode description */}
+                                                <div className="flex flex-col flex-1 justify-center min-w-0">
+                                                    <div className="flex items-center justify-between mb-1.5 gap-2">
+                                                        <h4 className="font-extrabold text-sm md:text-base text-white group-hover:text-[#2ed899] transition-colors truncate">
+                                                            {idx + 1}. {episode.title}
+                                                        </h4>
+                                                        <span className="text-[10px] md:text-xs font-extrabold text-[#2ed899] bg-[#2ed899]/10 px-2 py-0.5 rounded flex-shrink-0">
+                                                            {episode.duration}
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <p className="text-[11px] md:text-xs text-white/50 line-clamp-2 leading-relaxed">
+                                                        {episode.description}
+                                                    </p>
+
+                                                    {progress > 0 && (
+                                                        <span className="text-[9px] text-white/40 mt-2 font-bold uppercase tracking-wider">
+                                                            Played: {Math.round(progress)}%
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </motion.div>
+                                        );
+                                    })}
+                                </AnimatePresence>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    // Film Format Details
+                    <div className="border border-white/5 rounded-3xl p-6 md:p-10 bg-[#0c0c0c] flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                        <div className="relative w-full md:w-[360px] aspect-video rounded-2xl overflow-hidden shadow-2xl flex-shrink-0 group cursor-pointer"
+                             onClick={() => {
+                                 const sSlug = session.title.toLowerCase().replace(/ /g, '-');
+                                 navigate(`/watch/${sSlug}/film`);
+                             }}>
+                            <img src={session.thumbnail} alt={session.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <div className="w-14 h-14 bg-[#2ed899] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(46,216,153,0.5)] transform scale-90 group-hover:scale-100 transition-transform">
+                                    <Play className="w-6 h-6 text-black fill-black ml-0.5" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex-1">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[#2ed899] bg-[#2ed899]/10 px-3 py-1 rounded border border-[#2ed899]/20">Featured Film</span>
+                            <h3 className="text-2xl md:text-3xl font-extrabold mt-3.5 mb-2.5 text-white">{session.title}</h3>
+                            <p className="text-white/60 text-sm md:text-base leading-relaxed mb-6 font-medium">{session.description}</p>
+                            
+                            <div className="flex gap-4">
+                                <button 
+                                    onClick={() => {
+                                        const sSlug = session.title.toLowerCase().replace(/ /g, '-');
+                                        navigate(`/watch/${sSlug}/film`);
+                                    }}
+                                    className="bg-white hover:bg-[#2ed899] text-black px-6 py-3 rounded-xl font-extrabold text-xs uppercase tracking-widest transition-colors flex items-center gap-2"
+                                >
+                                    <Play className="w-4 h-4 fill-black" /> Play Film
+                                </button>
+                                <button 
+                                    onClick={handleWatchLater}
+                                    className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-3 rounded-xl font-extrabold text-xs uppercase tracking-widest transition-colors"
+                                >
+                                    {isSaved ? "Saved to List" : "Add to List"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* More Like This (Related spiritual Originals) */}
+                <div className="mt-16 md:mt-24">
+                    <h3 className="text-xl md:text-2xl font-bold mb-6 tracking-wide flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-[#2ed899]" />
+                        More Like This
+                    </h3>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                         {displayRecommended.map((rec, idx) => (
                             <motion.div
                                 layout
                                 key={rec.id}
-                                initial={{ opacity: 0, scale: 0.8 }}
+                                initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.8 }}
                                 transition={{ duration: 0.3 }}
-                            onClick={() => {
-                                // If playing, pause current before navigating
-                                if (isPlaying && audioRef.current) {
-                                    audioRef.current.pause();
-                                    setIsPlaying(false);
-                                }
-                                setShowPlayer(false);
-                                navigate(`/wellness-ott/${rec.id}`);
-                            }}
-                            className="group relative flex-none w-[260px] md:w-[320px] aspect-video rounded-md overflow-hidden cursor-pointer snap-start bg-[#111]"
-                        >
-                            <img 
-                                src={rec.thumbnail} 
-                                alt={rec.title}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                            
-                            {/* Hover Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                                            <Play className="w-4 h-4 text-[#050505] fill-[#050505] ml-0.5" />
-                                        </div>
-                                        <span className="text-[#2ed899] font-bold text-xs">{rec.match}</span>
-                                        <span className="border border-white/40 px-1.5 py-0.5 rounded text-[10px]">{rec.rating}</span>
-                                    </div>
-                                    <h4 className="font-bold text-lg leading-tight mb-1">{rec.title}</h4>
-                                    <div className="flex items-center gap-2 text-xs text-white/70">
-                                        <span>{rec.duration}</span>
-                                        <span>•</span>
-                                        <span>{rec.category}</span>
+                                onClick={() => navigate(`/wellness-ott/series/${rec.id}`)}
+                                className="group relative aspect-video rounded-xl overflow-hidden cursor-pointer bg-[#0c0c0c] border border-white/5 hover:border-[#2ed899]/30 transition-all duration-300 hover:shadow-[0_0_25px_rgba(46,216,153,0.1)]"
+                            >
+                                <img 
+                                    src={rec.thumbnail} 
+                                    alt={rec.title}
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                />
+                                
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/30 to-transparent flex flex-col justify-end p-4 z-10">
+                                    <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                                        <span className="text-[9px] uppercase font-black tracking-widest text-[#2ed899] bg-[#2ed899]/10 px-2 py-0.5 rounded border border-[#2ed899]/20">{rec.category}</span>
+                                        <h4 className="font-extrabold text-sm text-white mt-1.5 leading-snug truncate">{rec.title}</h4>
+                                        <div className="text-[10px] text-white/50 font-bold mt-0.5">{rec.duration}</div>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Emerald Border on Hover */}
-                            <div className="absolute inset-0 border-2 border-transparent group-hover:border-[#1a5d47] transition-colors duration-300 rounded-md pointer-events-none" />
-                        </motion.div>
+                                <div className="absolute inset-0 border-[2px] border-transparent group-hover:border-[#2ed899]/30 transition-colors duration-300 rounded-xl pointer-events-none" />
+                            </motion.div>
                         ))}
-                    </AnimatePresence>
+                    </div>
                 </div>
             </div>
 
-            {/* Floating Audio Player */}
-            <AnimatePresence>
-                {showPlayer && (
-                    <motion.div
-                        initial={{ y: 100, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: 100, opacity: 0 }}
-                        transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-                        className="fixed bottom-0 left-0 w-full z-[110] bg-[#050505]/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.8)]"
-                    >
-                        {/* Emerald glow line on top of player */}
-                        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#2ed899]/50 to-transparent shadow-[0_0_15px_rgba(46,216,153,0.6)]" />
-                        
-                        <div className="max-w-[1440px] mx-auto px-6 md:px-10 py-4 flex flex-col md:flex-row items-center gap-6">
-                            
-                            {/* Player Info */}
-                            <div className="flex items-center gap-4 flex-1 w-full md:w-auto">
-                                <div className="w-12 h-12 rounded-sm overflow-hidden flex-shrink-0 relative">
-                                    <img src={session.thumbnail} alt="thumbnail" className="w-full h-full object-cover" />
-                                    {isPlaying && (
-                                        <div className="absolute inset-0 bg-[#1a5d47]/40 mix-blend-overlay flex items-center justify-center">
-                                            <div className="w-full h-full bg-[#2ed899]/20 animate-pulse" />
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="flex flex-col">
-                                    <h4 className="text-white font-bold text-sm md:text-base leading-tight">{session.title}</h4>
-                                    <p className="text-[#2ed899] font-medium text-xs mt-0.5">{session.category}</p>
-                                </div>
-                            </div>
-
-                            {/* Controls & Progress */}
-                            <div className="flex flex-col items-center flex-[2] w-full gap-2">
-                                <div className="flex items-center gap-6">
-                                    <button 
-                                        onClick={togglePlay}
-                                        className="w-10 h-10 rounded-full bg-white flex items-center justify-center hover:scale-105 transition-transform shadow-[0_0_15px_rgba(255,255,255,0.15)]"
-                                    >
-                                        {isPlaying ? <Pause className="w-5 h-5 text-black fill-black" /> : <Play className="w-5 h-5 text-black fill-black ml-1" />}
-                                    </button>
-                                </div>
-
-                                <div className="flex items-center w-full gap-4 text-xs text-white/50 font-medium">
-                                    <span className="w-8 text-right">{currentTime}</span>
-                                    <div 
-                                        className="flex-1 h-1.5 bg-white/10 rounded-full cursor-pointer relative overflow-hidden group"
-                                        onClick={handleProgressBarClick}
-                                    >
-                                        <div 
-                                            className="absolute top-0 left-0 h-full bg-[#2ed899] rounded-full transition-all duration-100 ease-linear relative"
-                                            style={{ width: `${progress}%` }}
-                                        >
-                                            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-white rounded-full opacity-0 group-hover:opacity-100 shadow-[0_0_5px_rgba(46,216,153,0.8)]" />
-                                        </div>
-                                    </div>
-                                    <span className="w-8">{durationStr}</span>
-                                </div>
-                            </div>
-
-                            {/* Extra Controls */}
-                            <div className="flex-1 flex justify-end items-center gap-4 hidden md:flex">
-                                <Volume2 className="w-5 h-5 text-white/50 hover:text-white cursor-pointer transition-colors" />
-                                <button 
-                                    onClick={() => {
-                                        setShowPlayer(false);
-                                        if (audioRef.current) {
-                                            audioRef.current.pause();
-                                            setIsPlaying(false);
-                                        }
-                                    }}
-                                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
-                                >
-                                    <X className="w-5 h-5 text-white/50 hover:text-white" />
-                                </button>
-                            </div>
-
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Premium Toast Notification */}
+            {/* Premium Saved Toast Overlay */}
             <AnimatePresence>
                 {showToast && (
                     <motion.div
@@ -392,15 +403,15 @@ export default function WellnessOTTDetail() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                        className="fixed bottom-32 left-1/2 -translate-x-1/2 z-[120] flex items-center gap-3 bg-[#050505]/90 backdrop-blur-xl border border-[#2ed899]/30 px-6 py-4 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.8),0_0_20px_rgba(46,216,153,0.2)]"
+                        className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[120] flex items-center gap-3 bg-[#070809]/95 backdrop-blur-2xl border border-[#2ed899]/30 px-6 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_20px_rgba(46,216,153,0.15)]"
                     >
                         <div className="w-8 h-8 rounded-full bg-[#1a5d47]/30 flex items-center justify-center border border-[#2ed899]/50">
                             <Check className="w-4 h-4 text-[#2ed899]" />
                         </div>
-                        <span className="text-white font-medium tracking-wide">Saved to Your Library</span>
+                        <span className="text-xs md:text-sm font-bold tracking-wider text-white">SUCCESSFULLY SAVED TO YOUR LIST</span>
                         <button 
                             onClick={() => navigate('/wellness-ott/library')}
-                            className="ml-2 text-xs font-bold text-[#2ed899] hover:text-white underline underline-offset-2 transition-colors pointer-events-auto"
+                            className="ml-2 text-xs font-black uppercase text-[#2ed899] hover:text-white underline underline-offset-2 transition-colors"
                         >
                             View
                         </button>

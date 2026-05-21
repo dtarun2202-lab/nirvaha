@@ -21,8 +21,16 @@ import {
   Edit2,
   Download,
   Share2,
+  ChevronRight,
+  Sparkles,
+  Users,
+  Calendar as CalendarIcon,
+  BarChart2,
+  ClipboardList,
+  CheckCircle,
 } from "lucide-react";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { ShareProfileCard } from "./ShareProfileCard";
 import { MeditationSessionModal } from "./MeditationSessionModal";
 import { useAuth } from "../contexts/AuthContext";
@@ -305,7 +313,7 @@ function mergeStatsForDisplay(profileStats: unknown, userStats: unknown): Record
 }
 
 export function ProfilePage() {
-  const { user, refreshProfile } = useAuth();
+  const { user, loading: authLoading, syncUserFromServer, refreshProfile } = useAuth();
   const { socket } = useSocket();
   const { getWeeklyData, getTodayMinutes } = useProfileSync();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -347,7 +355,249 @@ export function ProfilePage() {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [sessionsLoading, setSessionsLoading] = useState(true);
+  const [userBookings, setUserBookings] = useState<any[]>([]);
+  const [companionBookings, setCompanionBookings] = useState<any[]>([]);
+  const [activeSessionView, setActiveSessionView] = useState<'my-sessions' | 'as-companion'>('my-sessions');
+
+  const isApprovedCompanion =
+    user?.isApprovedCompanion === true ||
+    user?.companionStatus === "approved";
+
+  useEffect(() => {
+    console.log("FULL USER:", user);
+    console.log("logged-in email:", user?.email);
+    console.log("isApprovedCompanion:", user?.isApprovedCompanion);
+    console.log("companionStatus:", user?.companionStatus);
+    console.log("computed isApprovedCompanion:", isApprovedCompanion);
+    if (user?.email && !isApprovedCompanion) {
+      console.warn(
+        "[My Sessions] Switch hidden: log in with the SAME email used on the approved companion application."
+      );
+    }
+  }, [user, isApprovedCompanion]);
+
+  const showCompanionView = isApprovedCompanion && activeSessionView === "as-companion";
+
+  const fetchMySessions = useCallback(async () => {
+    if (!user?.email) return;
+    try {
+      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/bookings`);
+      if (!response.ok) {
+        console.warn('[PROFILE] Failed to fetch my sessions:', response.status);
+        setUserBookings([]);
+        return;
+      }
+      const data = await response.json();
+      const allBookings = Array.isArray(data) ? data : [];
+      const mySessions = allBookings.filter(
+        (b: any) =>
+          (b.userEmail && b.userEmail.toLowerCase() === user.email.toLowerCase()) ||
+          (b.email && b.email.toLowerCase() === user.email.toLowerCase())
+      );
+      setUserBookings(mySessions);
+    } catch (error) {
+      console.error('[PROFILE] Error fetching my sessions:', error);
+      setUserBookings([]);
+    }
+  }, [user?.email]);
+
+  const fetchCompanionSessions = useCallback(async () => {
+    if (!user?.email || !isApprovedCompanion) {
+      setCompanionBookings([]);
+      return;
+    }
+    try {
+      setSessionsLoading(true);
+      console.log(`[PROFILE] Fetching companion sessions for ${user?.email}`);
+      console.log(`  - isApprovedCompanion: ${isApprovedCompanion}`);
+      console.log(`  - user._id: ${user?._id}`);
+      console.log(`  - user.id: ${user?.id}`);
+
+      const token = localStorage.getItem('token');
+      const companionResponse = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/companion/sessions`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!companionResponse.ok) {
+        if (companionResponse.status === 403) {
+          console.warn('[PROFILE] User is not an approved companion');
+        } else {
+          console.warn('[PROFILE] Failed to fetch companion sessions:', companionResponse.status);
+        }
+        setCompanionBookings([]);
+        return;
+      }
+
+      const companionData = await companionResponse.json();
+      console.log('[PROFILE] Companion sessions response:', companionData);
+      setCompanionBookings(Array.isArray(companionData.data) ? companionData.data : []);
+    } catch (error) {
+      console.error('[PROFILE] Error fetching companion sessions:', error);
+      setCompanionBookings([]);
+    } finally {
+      setSessionsLoading(false);
+    }
+  }, [user?.email, user?._id, isApprovedCompanion]);
+
+  const companionSessionStats = useMemo(() => {
+    const pending = companionBookings.filter((b) => {
+      const s = (b.status || "").toLowerCase();
+      return s.includes("pending") || s === "";
+    }).length;
+    const completed = companionBookings.filter(
+      (b) => (b.status || "").toLowerCase() === "completed"
+    ).length;
+    const confirmed = companionBookings.filter(
+      (b) => (b.status || "").toLowerCase() === "session confirmed"
+    ).length;
+    return {
+      total: companionBookings.length,
+      pending,
+      completed,
+      confirmed,
+    };
+  }, [companionBookings]);
+
+  useEffect(() => {
+    if (!isApprovedCompanion && activeSessionView === "as-companion") {
+      setActiveSessionView("my-sessions");
+    }
+  }, [isApprovedCompanion, activeSessionView]);
+
+  useEffect(() => {
+    if (!socket || !user?.email) return;
+
+    const handleBookingUpdated = (updatedBooking: any) => {
+      console.log('[PROFILE-SOCKET] booking-updated event:', updatedBooking);
+      
+      const isUserBooking =
+        (updatedBooking.userEmail && updatedBooking.userEmail.toLowerCase() === user.email.toLowerCase()) ||
+        (updatedBooking.email && updatedBooking.email.toLowerCase() === user.email.toLowerCase());
+
+      if (isUserBooking) {
+        console.log('[PROFILE-SOCKET] Updating user booking:', updatedBooking.id);
+        setUserBookings((prev) => {
+          const matchIndex = prev.findIndex((b) => (b.id === updatedBooking.id || b._id === updatedBooking._id || b.id === updatedBooking._id));
+          if (matchIndex !== -1) {
+            const updated = [...prev];
+            updated[matchIndex] = {
+              ...updated[matchIndex],
+              ...updatedBooking,
+              id: updatedBooking.id || updatedBooking._id,
+            };
+            return updated;
+          } else {
+            return [
+              {
+                ...updatedBooking,
+                id: updatedBooking.id || updatedBooking._id,
+              },
+              ...prev,
+            ];
+          }
+        });
+      }
+
+      // Check if this is a companion session
+      if (isApprovedCompanion) {
+        console.log('[PROFILE-SOCKET] Checking if booking is for companion...');
+        console.log(`  - companionId in booking: ${updatedBooking.companionId}`);
+        console.log(`  - user._id: ${user?._id}`);
+        console.log(`  - user.id: ${user?.id}`);
+        
+        const isCompanionBooking =
+          (updatedBooking.companionId && (updatedBooking.companionId === user?._id || updatedBooking.companionId === user?.id)) ||
+          (updatedBooking.companionName && user.name && updatedBooking.companionName.toLowerCase() === user.name.toLowerCase());
+
+        if (isCompanionBooking) {
+          console.log('[PROFILE-SOCKET] This is a companion session, updating companion bookings');
+          setCompanionBookings((prev) => {
+            const matchIndex = prev.findIndex((b) => (b.id === updatedBooking.id || b._id === updatedBooking._id || b.id === updatedBooking._id));
+            if (matchIndex !== -1) {
+              const updated = [...prev];
+              updated[matchIndex] = {
+                ...updated[matchIndex],
+                ...updatedBooking,
+                id: updatedBooking.id || updatedBooking._id,
+              };
+              return updated;
+            } else {
+              return [
+                {
+                  ...updatedBooking,
+                  id: updatedBooking.id || updatedBooking._id,
+                },
+                ...prev,
+              ];
+            }
+          });
+          fetchCompanionSessions();
+        }
+      }
+    };
+
+    socket.on("booking-updated", handleBookingUpdated);
+    return () => {
+      socket.off("booking-updated", handleBookingUpdated);
+    };
+  }, [socket, user?.email, user?.id, user?._id, user?.name, isApprovedCompanion, fetchCompanionSessions]);
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      if (!user?.email) return;
+      try {
+        setSessionsLoading(true);
+        await fetchMySessions();
+
+        if (isApprovedCompanion) {
+          await fetchCompanionSessions();
+        } else {
+          console.log(`[PROFILE] Skipping companion sessions fetch - not approved`);
+          setCompanionBookings([]);
+        }
+      } catch (error) {
+        console.error("[PROFILE] Failed to load sessions:", error);
+      } finally {
+        setSessionsLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, [user?.email, user?.id, user?.name, isApprovedCompanion, activeSessionView, fetchCompanionSessions, fetchMySessions]);
+
+  useEffect(() => {
+    if (authLoading) return;
+    void syncUserFromServer();
+  }, [authLoading, syncUserFromServer]);
+
+  useEffect(() => {
+    if (!socket || !user?.email) return;
+
+    const handleCompanionStatusUpdated = (payload: {
+      email?: string;
+      status?: string;
+      isApprovedCompanion?: boolean;
+    }) => {
+      const payloadEmail = (payload.email || "").toLowerCase();
+      const myEmail = user.email.toLowerCase();
+      if (payloadEmail && payloadEmail !== myEmail) return;
+
+      void syncUserFromServer();
+    };
+
+    socket.on("request-status-updated", handleCompanionStatusUpdated);
+    return () => {
+      socket.off("request-status-updated", handleCompanionStatusUpdated);
+    };
+  }, [socket, user?.email, syncUserFromServer]);
+
 
   const getInitials = (name: string) => {
     if (!name) return "UN";
@@ -1259,6 +1509,262 @@ export function ProfilePage() {
           <p className="mt-4 text-xs text-[#2D6A4F]/55 font-medium">
             Today&apos;s calm thought
           </p>
+        </motion.section>
+
+        {/* My Sessions Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 1.2, ease: "easeOut" }}
+          className="mt-8 mb-8 bg-white rounded-[24px] p-6 shadow-sm border border-[#D5EEDD]"
+        >
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-[#D5EEDD]/50">
+            <div>
+              <h3 className="text-xl font-bold text-[#1B4332]">My Sessions</h3>
+              <p className="text-sm text-[#556B5D] mt-1">Track and manage your upcoming wellness sessions.</p>
+            </div>
+            {isApprovedCompanion && (
+              <div
+                className="relative flex shrink-0 items-center rounded-full border border-[#C3E6CC]/80 bg-[#EBF5EE]/90 p-1 shadow-[inset_0_1px_2px_rgba(27,67,50,0.06)]"
+                role="tablist"
+                aria-label="Session view"
+              >
+                <motion.div
+                  layoutId="profile-sessions-segment"
+                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  className="absolute top-1 bottom-1 rounded-full bg-[#1B4332] shadow-[0_2px_8px_rgba(27,67,50,0.22)]"
+                  style={{
+                    width: "calc(50% - 4px)",
+                    left: activeSessionView === "my-sessions" ? "4px" : "calc(50%)",
+                  }}
+                />
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeSessionView === "my-sessions"}
+                  onClick={() => setActiveSessionView("my-sessions")}
+                  className={`relative z-10 min-w-[7.5rem] rounded-full px-5 py-2 text-xs font-bold tracking-wide transition-colors duration-300 ${
+                    activeSessionView === "my-sessions" ? "text-white" : "text-[#1B4332] hover:text-[#2D6A4F]"
+                  }`}
+                >
+                  My Sessions
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeSessionView === "as-companion"}
+                  onClick={() => setActiveSessionView("as-companion")}
+                  className={`relative z-10 min-w-[7.5rem] rounded-full px-5 py-2 text-xs font-bold tracking-wide transition-colors duration-300 ${
+                    activeSessionView === "as-companion" ? "text-white" : "text-[#1B4332] hover:text-[#2D6A4F]"
+                  }`}
+                >
+                  As Companion
+                </button>
+              </div>
+            )}
+          </div>
+
+          {isApprovedCompanion && showCompanionView && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-3"
+            >
+              {[
+                { label: "Assigned", value: companionSessionStats.total, icon: ClipboardList },
+                { label: "Pending", value: companionSessionStats.pending, icon: Clock },
+                { label: "Confirmed", value: companionSessionStats.confirmed, icon: CheckCircle },
+                { label: "Completed", value: companionSessionStats.completed, icon: BarChart2 },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-2xl border border-[#D5EEDD]/80 bg-[#F4FAF6]/80 px-4 py-3"
+                >
+                  <div className="flex items-center gap-2 text-[#2D6A4F] mb-1">
+                    <item.icon className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>
+                  </div>
+                  <p className="text-xl font-black text-[#1B4332] tabular-nums">{item.value}</p>
+                </div>
+              ))}
+            </motion.div>
+          )}
+
+          {/* Dynamic Loading Shimmer */}
+          {sessionsLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[1, 2].map((i) => (
+                <div key={i} className="h-48 bg-[#F4FAF6]/50 border border-[#D5EEDD] rounded-[20px] p-6 animate-pulse space-y-4">
+                  <div className="h-5 w-1/3 bg-[#D5EEDD] rounded-md" />
+                  <div className="h-8 w-2/3 bg-[#EBF5EE] rounded-md" />
+                  <div className="h-3 w-1/2 bg-[#EBF5EE] rounded-md" />
+                  <div className="h-10 w-full bg-[#D5EEDD]/50 rounded-xl mt-4" />
+                </div>
+              ))}
+            </div>
+          ) : showCompanionView ? (
+            /* AS COMPANION VIEW — approved companions only */
+            <AnimatePresence mode="wait">
+              {companionBookings.length === 0 ? (
+                <motion.div
+                  key="companion-empty"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  className="text-center py-12 bg-[#F4FAF6] border border-[#D5EEDD] rounded-[24px] px-8"
+                >
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#EAFBF0] to-[#D5F2D9] flex items-center justify-center text-[#1B4332] mx-auto mb-4 shadow-inner">
+                    <Users className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-lg font-bold text-[#1B4332] mb-2">
+                    No companion sessions assigned yet.
+                  </h4>
+                  <p className="text-sm text-[#556B5D] leading-relaxed max-w-md mx-auto">
+                    Once users book sessions with you, they&apos;ll appear here.
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="companion-grid"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+                >
+                  {companionBookings.map((booking) => (
+                    <div key={booking.id || booking._id} className="bg-white border border-[#D5EEDD] hover:border-[#52B788] shadow-sm hover:shadow-md transition-all rounded-[20px] p-5 flex flex-col justify-between group relative overflow-hidden">
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <span className="text-[9px] font-bold tracking-widest text-[#64C08E] uppercase block mb-1">{booking.type || "Wellness Session"}</span>
+                            <h4 className="text-base font-bold text-[#1B4332] line-clamp-1">{booking.userName || booking.userEmail || "Guest"}</h4>
+                          </div>
+                          <span className={`px-2 py-1 rounded-full text-[10px] font-bold whitespace-nowrap ${
+                            (booking.status || "").toLowerCase() === "completed" ? "bg-[#E8F4F8] text-[#1A4F66]" :
+                            (booking.status || "").toLowerCase().includes("pending") ? "bg-[#FFFDF0] text-[#997917]" :
+                            "bg-[#EAFBF0] text-[#1B4332]"
+                          }`}>
+                            {booking.status || "Confirmed"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4 bg-[#F4FAF6]/70 border border-[#D5EEDD]/50 rounded-xl p-2.5 text-xs text-[#2d6a4f]">
+                          <div className="flex items-center gap-1.5">
+                            <CalendarIcon className="w-3.5 h-3.5 text-[#52B788]" />
+                            <span className="font-semibold">{booking.date}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 border-l border-[#D5EEDD]/40 pl-4">
+                            <Clock className="w-3.5 h-3.5 text-[#52B788]" />
+                            <span className="font-semibold">{booking.time}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          ) : (
+            /* MY SESSIONS VIEW */
+            <AnimatePresence mode="wait">
+              {userBookings.length === 0 ? (
+                <motion.div
+                  key="user-empty"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  className="text-center py-12 bg-[#F4FAF6] border border-[#D5EEDD] rounded-[24px] px-8"
+                >
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#EAFBF0] to-[#D5F2D9] flex items-center justify-center text-[#1B4332] mx-auto mb-4 shadow-inner">
+                    <Sparkles className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-lg font-bold text-[#1B4332] mb-2">Your Journey Starts Here</h4>
+                  <p className="text-sm text-[#556B5D] leading-relaxed max-w-md mx-auto mb-6">
+                    No sessions have been scheduled yet. Embark on a path of reflection and growth.
+                  </p>
+                  <button
+                    onClick={() => navigate("/dashboard/companion")}
+                    className="bg-[#1B4332] hover:bg-[#2d6a4f] text-white rounded-xl px-6 py-2.5 text-sm font-bold shadow-md transition-transform hover:scale-105"
+                  >
+                    Explore Companions
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="user-grid"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+                >
+                  {userBookings.map((booking) => {
+                    const statusVal = (booking.status || "").toLowerCase();
+                    const isApproved = statusVal === "session confirmed";
+                    const isRejected = statusVal === "rejected";
+                    const isPending = statusVal.includes("pending") || statusVal === "";
+                    
+                    const getStatusLabel = () => {
+                      if (isApproved) return "Approved";
+                      if (isRejected) return "Rejected";
+                      if (isPending) return "Pending";
+                      if (statusVal === "completed") return "Completed";
+                      return booking.status;
+                    };
+
+                    const getStatusBadgeClass = () => {
+                      if (isApproved) return "bg-[#EAFBF0] text-[#1B4332] border border-[#BDE8CE]";
+                      if (isRejected) return "bg-rose-50 text-rose-700 border border-rose-100";
+                      if (isPending) return "bg-[#FFFDF0] text-[#997917] border border-[#FCE181]";
+                      if (statusVal === "completed") return "bg-[#E8F4F8] text-[#1A4F66] border border-[#B3D6E4]";
+                      return "bg-gray-50 text-gray-700 border border-gray-200";
+                    };
+
+                    return (
+                      <div key={booking.id || booking._id} className="bg-white border border-[#D5EEDD] hover:border-[#52B788] shadow-sm hover:shadow-md transition-all rounded-[20px] p-5 flex flex-col justify-between group relative overflow-hidden">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <span className="text-[9px] font-bold tracking-widest text-[#64C08E] uppercase block mb-1">{booking.type || "Wellness Session"}</span>
+                              <h4 className="text-base font-bold text-[#1B4332] line-clamp-1">{booking.companionName || booking.itemName || "Guide"}</h4>
+                            </div>
+                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold whitespace-nowrap ${getStatusBadgeClass()}`}>
+                              {getStatusLabel()}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center gap-4 bg-[#F4FAF6]/70 border border-[#D5EEDD]/50 rounded-xl p-2.5 text-xs text-[#2d6a4f]">
+                            <div className="flex items-center gap-1.5">
+                              <CalendarIcon className="w-3.5 h-3.5 text-[#52B788]" />
+                              <span className="font-semibold">{booking.date}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 border-l border-[#D5EEDD]/40 pl-4">
+                              <Clock className="w-3.5 h-3.5 text-[#52B788]" />
+                              <span className="font-semibold">{booking.time}</span>
+                            </div>
+                          </div>
+
+                          {/* Session Details: platform & notes */}
+                          {(booking.platform || booking.sessionNotes) && (
+                            <div className="pt-2 text-xs space-y-1.5 border-t border-[#D5EEDD]/30">
+                              {booking.platform && (
+                                <p className="text-[#556B5D]">
+                                  <span className="font-semibold text-[#2d6a4f]">Platform:</span> {booking.platform}
+                                </p>
+                              )}
+                              {booking.sessionNotes && (
+                                <p className="text-[#556B5D] bg-[#F4FAF6] p-2 rounded-lg border border-[#D5EEDD]/40 italic">
+                                  "{booking.sessionNotes}"
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          )}
         </motion.section>
 
         {/* Recommended For You Section */}

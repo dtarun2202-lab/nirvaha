@@ -302,12 +302,20 @@ export function BookingManagementPage() {
 
     try {
       setActionLoading(true);
+      
+      // Build request body with companionId for session confirmations
+      const requestBody: any = { status: targetStatus };
+      if (confirmAction.type === "accept" && confirmAction.booking.companionId) {
+        requestBody.companionId = confirmAction.booking.companionId;
+        console.log("[ADMIN-BOOKING] Approving with companionId:", confirmAction.booking.companionId);
+      }
+      
       const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/bookings/${confirmAction.booking.id}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status: targetStatus }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {

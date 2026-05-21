@@ -98,9 +98,6 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
         case 'profile':
           navigate('/dashboard/profile');
           break;
-        case 'sessions':
-          navigate('/dashboard/sessions');
-          break;
         default:
           navigate(`/dashboard/${page}`);
       }
@@ -286,18 +283,6 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
                       <span>My Profile</span>
                     </motion.button>
 
-                    <motion.button
-                      whileHover={{ x: 4, backgroundColor: "rgba(16, 185, 129, 0.1)" }}
-                      onClick={() => {
-                        handleNavigate("sessions");
-                        setProfileMenuOpen(false);
-                      }}
-                      className={`w-full flex items-center gap-3 px-6 py-3 text-teal-700 transition-all ${currentPage === "sessions" ? "bg-emerald-50 text-emerald-700" : ""
-                        }`}
-                    >
-
-                      <span>My Sessions</span>
-                    </motion.button>
 
                     <motion.button
                       whileHover={{ x: 4, backgroundColor: "rgba(16, 185, 129, 0.1)" }}
@@ -366,16 +351,6 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
                 className="w-full py-2 bg-white rounded-xl text-teal-800 text-sm"
               >
                 Go to Profile
-              </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  handleNavigate("sessions");
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full py-2 bg-white rounded-xl text-teal-800 text-sm mt-2 font-bold border border-emerald-100"
-              >
-                My Sessions
               </motion.button>
             </div>
 
