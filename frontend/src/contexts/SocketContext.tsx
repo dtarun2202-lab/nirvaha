@@ -84,9 +84,23 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     // Listen for companion request updates (for users who submitted)
     newSocket.on('request-status-updated', (request: any) => {
-      toast.success(`Your companion request has been ${request.status}`, {
-        autoClose: 5000
-      });
+      const userRaw = localStorage.getItem('user');
+      let shouldNotify = true;
+      if (userRaw && request?.email) {
+        try {
+          const userData = JSON.parse(userRaw);
+          shouldNotify =
+            userData.email?.toLowerCase() === String(request.email).toLowerCase();
+        } catch {
+          /* ignore */
+        }
+      }
+      if (shouldNotify) {
+        toast.success(`Your companion request has been ${request.status}`, {
+          autoClose: 5000,
+        });
+      }
+      window.dispatchEvent(new CustomEvent('nirvaha-user-sync-request'));
     });
 
     // Listen for new companion requests (for admins)

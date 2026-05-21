@@ -1,5 +1,12 @@
 const express = require('express');
 const CompanionApplication = require('../models/CompanionApplication');
+const { authenticateJWT } = require('../middleware/auth');
+const {
+  getCompanionStatusForUser,
+  persistCompanionApprovalToUser,
+  resolveAndPersistCompanionForUser,
+  normalizeStatus,
+} = require('../utils/companionStatus');
 
 const router = express.Router();
 
@@ -56,6 +63,19 @@ function toPublicCompanion(app) {
     callRate: app.callRate || 0,
   };
 }
+
+// Current user's companion application status (authenticated)
+router.get('/me/status', authenticateJWT, async (req, res) => {
+  try {
+    const status = await resolveAndPersistCompanionForUser({
+      email: req.user.email,
+      name: req.user.name,
+    });
+    res.json({ success: true, ...status });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Get all companion applications (admin)
 router.get('/applications', async (req, res) => {
@@ -149,7 +169,7 @@ router.post('/applications', async (req, res) => {
 
     const application = await CompanionApplication.create({
       fullName: payload.fullName,
-      email: payload.email,
+      email: String(payload.email || '').trim().toLowerCase(),
       phone: payload.phone,
       title: payload.title,
       bio: payload.bio,
@@ -255,6 +275,19 @@ router.put('/applications/:id', async (req, res) => {
       return res.status(404).json({ error: 'application not found' });
     }
 
+    if (payload.status !== undefined) {
+      const statusNorm = normalizeStatus(updated.status);
+      await persistCompanionApprovalToUser(
+        updated.email,
+        {
+          isApprovedCompanion: statusNorm === 'approved',
+          companionStatus: statusNorm === 'approved' ? 'approved' : updated.status,
+          companionId: updated.id,
+        },
+        { fallbackName: updated.fullName }
+      );
+    }
+
     res.json(toAdminCompanion(updated));
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -280,12 +313,27 @@ router.patch('/applications/:id/status', async (req, res) => {
       return res.status(404).json({ error: 'application not found' });
     }
 
+    const statusNorm = normalizeStatus(updated.status);
+    const isApproved = statusNorm === 'approved';
+    await persistCompanionApprovalToUser(
+      updated.email,
+      {
+        isApprovedCompanion: isApproved,
+        companionStatus: isApproved ? 'approved' : updated.status,
+        companionId: updated.id,
+      },
+      { fallbackName: updated.fullName }
+    );
+
     // Emit real-time status update
     const io = req.app.get('io');
     io.emit('request-status-updated', {
       id: updated.id,
       status: updated.status,
       fullName: updated.fullName,
+      email: updated.email,
+      isApprovedCompanion: isApproved,
+      companionStatus: isApproved ? 'approved' : updated.status,
       updatedAt: updated.updatedAt,
     });
 
@@ -305,6 +353,87 @@ router.delete('/applications/:id', async (req, res) => {
     }
     res.json({ ok: true });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Backfill approved companion flags onto User documents (admin / recovery)
+router.post('/sync-users', async (req, res) => {
+  try {
+    const { syncAllApprovedCompanionsToUsers } = require('../utils/companionStatus');
+    const count = await syncAllApprovedCompanionsToUsers();
+    res.json({ success: true, synced: count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get companion sessions (authenticated endpoint)
+// Returns all sessions assigned to the logged-in companion
+router.get('/sessions', authenticateJWT, async (req, res) => {
+  try {
+    const Booking = require('../models/Booking');
+
+    const loggedInUser = req.user;
+    
+    if (!loggedInUser) {
+      console.warn('[COMPANION-SESSIONS] Authenticated user is missing from request');
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const isApprovedCompanion = loggedInUser.isApprovedCompanion === true || loggedInUser.companionStatus === 'approved';
+    
+    if (!isApprovedCompanion) {
+      console.warn(`[COMPANION-SESSIONS] User is not an approved companion: ${loggedInUser.email}`);
+      return res.status(403).json({ error: 'User is not an approved companion' });
+    }
+    
+    console.log('Logged-in Companion:', loggedInUser._id);
+    console.log('Logged-in Companion Email:', loggedInUser.email);
+
+    const sessions = await Booking.find({
+      companionId: loggedInUser._id,
+      $or: [
+        { sessionType: { $regex: /^(session|video|chat)$/i } },
+        { type: { $regex: /^(session|video|chat)$/i } }
+      ]
+    })
+      .populate('userId', 'name email')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    console.log(`Fetched Sessions: ${sessions.length}`);
+    sessions.forEach((session, idx) => {
+      console.log(`Session ${idx}:`, {
+        id: session.id,
+        companionId: session.companionId,
+        status: session.status,
+        type: session.type,
+        sessionType: session.sessionType,
+      });
+    });
+    
+    console.log(`[COMPANION-SESSIONS] Found ${sessions.length} sessions for companion`);
+    sessions.forEach((s, idx) => {
+      console.log(`  [${idx}] id=${s.id}, companionId=${s.companionId}, status=${s.status}, type=${s.type}`);
+    });
+    
+    // Count by status
+    const stats = {
+      total: sessions.length,
+      assigned: sessions.length,
+      pending: sessions.filter(s => !s.status || s.status.toLowerCase().includes('pending')).length,
+      confirmed: sessions.filter(s => s.status && s.status.toLowerCase() === 'session confirmed').length,
+      completed: sessions.filter(s => s.status && s.status.toLowerCase() === 'completed').length,
+    };
+    
+    res.json({
+      success: true,
+      data: sessions,
+      stats,
+    });
+  } catch (error) {
+    console.error('[COMPANION-SESSIONS] Error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });

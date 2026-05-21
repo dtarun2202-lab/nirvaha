@@ -37,6 +37,7 @@ const userRoutes = require('./routes/userRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const reflectionRoutes = require('./routes/reflectionRoutes');
 const successStoriesRoutes = require('./routes/successStoriesRoutes');
+const { syncAllApprovedCompanionsToUsers } = require('./utils/companionStatus');
 
 // Import models for seeding
 const User = require('./models/User');
@@ -199,6 +200,11 @@ async function connectMongo() {
     });
     console.log('✓ Connected to MongoDB Atlas');
     mongoConnected = true;
+    try {
+      await syncAllApprovedCompanionsToUsers();
+    } catch (syncErr) {
+      console.error('[companion-sync] Startup backfill failed:', syncErr.message);
+    }
   } catch (error) {
     console.error('MongoDB connection error:', error.message);
     console.warn('⚠️  Falling back to local JSON database for development...');

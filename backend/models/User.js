@@ -57,7 +57,10 @@ const userSchema = new mongoose.Schema(
     enrolledPathways: {
       type: [String],
       default: []
-    }
+    },
+    isApprovedCompanion: { type: Boolean, default: false },
+    companionStatus: { type: String, default: null },
+    companionId: { type: String, default: null },
   },
   { timestamps: true }
 );

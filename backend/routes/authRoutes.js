@@ -3,8 +3,46 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const User = require('../models/User');
+const { resolveAndPersistCompanionForUser } = require('../utils/companionStatus');
 
 const router = express.Router();
+
+function buildAuthUserPayload(user) {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    profile: user.profile,
+    stats: user.stats,
+    bio: user.bio,
+    location: user.location,
+    avatar: user.avatar,
+    enrolledPathways: user.enrolledPathways || [],
+    pathwayProgress: user.pathwayProgress ? Object.fromEntries(user.pathwayProgress) : {},
+    isApprovedCompanion: user.isApprovedCompanion === true,
+    companionStatus: user.companionStatus || null,
+    companionId: user.companionId || null,
+  };
+}
+
+async function attachCompanionFields(userPayload) {
+  const companion = await resolveAndPersistCompanionForUser({
+    email: userPayload.email,
+    name: userPayload.name,
+  });
+
+  const isApproved =
+    companion.isApprovedCompanion === true ||
+    companion.companionStatus === 'approved';
+
+  return {
+    ...userPayload,
+    isApprovedCompanion: isApproved,
+    companionStatus: isApproved ? 'approved' : companion.companionStatus,
+    companionId: companion.companionId,
+  };
+}
 const JWT_SECRET = process.env.JWT_SECRET || 'nirvaha-secret-key-please-change-in-production';
 
 // Register new user
@@ -115,20 +153,12 @@ router.post('/login', async (req, res) => {
       { expiresIn: '365d' }
     );
 
-    // Return user data (without password)
+    const userPayload = await attachCompanionFields(buildAuthUserPayload(user));
+
     res.status(200).json({
       message: 'Login successful',
       token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        profile: user.profile,
-        stats: user.stats,
-        enrolledPathways: user.enrolledPathways || [],
-        pathwayProgress: user.pathwayProgress ? Object.fromEntries(user.pathwayProgress) : {}
-      },
+      user: userPayload,
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -157,20 +187,8 @@ router.get('/user', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json({
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        profile: user.profile,
-        stats: user.stats,
-        bio: user.bio,
-        location: user.location,
-        enrolledPathways: user.enrolledPathways || [],
-        pathwayProgress: user.pathwayProgress ? Object.fromEntries(user.pathwayProgress) : {}
-      }
-    });
+    const userPayload = await attachCompanionFields(buildAuthUserPayload(user));
+    res.json({ user: userPayload });
   } catch (error) {
     res.status(401).json({ error: 'Invalid token' });
   }
