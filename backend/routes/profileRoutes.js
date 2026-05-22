@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
+const { resolveAndPersistCompanionForUser } = require('../utils/companionStatus');
 
 const router = express.Router();
 
@@ -90,8 +91,23 @@ router.get('/', async (req, res) => {
       );
     }
 
-    const { password: _pw, ...safe } = user.toObject ? user.toObject() : user;
-    res.json(safe);
+    const companionInfo =
+      user.isApprovedCompanion === true || user.companionStatus === 'approved'
+        ? {
+            isApprovedCompanion: user.isApprovedCompanion === true,
+            companionStatus: user.companionStatus || null,
+            companionId: user.companionId || null,
+          }
+        : await resolveAndPersistCompanionForUser({ email: user.email, name: user.name });
+
+    const safeUser = {
+      ...user.toObject(),
+      isApprovedCompanion: companionInfo.isApprovedCompanion === true,
+      companionStatus: companionInfo.companionStatus || null,
+    };
+    if (safeUser.password) delete safeUser.password;
+    if (safeUser.__v) delete safeUser.__v;
+    res.json({ success: true, user: safeUser });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

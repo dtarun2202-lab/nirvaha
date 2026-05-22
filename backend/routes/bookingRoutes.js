@@ -7,66 +7,126 @@ const { sendSessionConfirmationEmail, sendSessionRejectedEmail } = require('../u
 
 const router = express.Router();
 
-// Create new booking
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helper: Safely resolve a user/companion reference to a valid
+// MongoDB ObjectId. Returns null if unresolvable (mock/demo IDs).
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function safeResolveObjectId(reference) {
+  if (!reference || String(reference).trim() === '') return null;
+  // Already a valid 24-char hex ObjectId
+  if (mongoose.Types.ObjectId.isValid(reference) && String(reference).match(/^[0-9a-fA-F]{24}$/)) {
+    return new mongoose.Types.ObjectId(reference);
+  }
+  // Try looking up by custom uuid `id` field on the User collection
+  try {
+    const lookup = await User.findOne({ id: reference }).select('_id').lean();
+    return lookup?._id || null;
+  } catch {
+    return null;
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helper: Sanitize a booking payload so that userId and
+// companionId are either valid ObjectIds or completely removed.
+// Invalid/mock IDs are preserved in legacyUserId / legacyCompanionId.
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function sanitizeBookingPayload(payload) {
+  // --- userId ---
+  const rawUserId = payload.userId;
+  delete payload.userId; // always delete first to prevent BSON crash
+  if (rawUserId && String(rawUserId).trim() !== '') {
+    const resolved = await safeResolveObjectId(rawUserId);
+    if (resolved) {
+      payload.userId = resolved;
+    } else {
+      payload.legacyUserId = String(rawUserId);
+    }
+  }
+
+  // --- companionId ---
+  const rawCompanionId = payload.companionId;
+  delete payload.companionId; // always delete first to prevent BSON crash
+  if (rawCompanionId && String(rawCompanionId).trim() !== '') {
+    const resolved = await safeResolveObjectId(rawCompanionId);
+    if (resolved) {
+      payload.companionId = resolved;
+    } else {
+      payload.legacyCompanionId = String(rawCompanionId);
+    }
+  }
+
+  return payload;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// POST /  —  Create new booking (crash-proof)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 router.post('/', async (req, res) => {
   try {
+    // --- Force sanitization of IDs before creating a booking ---
+    // Capture incoming IDs
+    const incomingUserId = req.body.userId;
+    const incomingCompanionId = req.body.companionId;
+    // Remove raw ID fields to avoid Mongoose CastError
+    delete req.body.userId;
+    delete req.body.companionId;
+
+    // Re‑add only valid ObjectIds or store as legacy fields
+    if (incomingUserId && String(incomingUserId).trim() !== '') {
+      if (mongoose.Types.ObjectId.isValid(incomingUserId)) {
+        req.body.userId = incomingUserId;
+      } else {
+        req.body.legacyUserId = incomingUserId;
+      }
+    }
+    if (incomingCompanionId && String(incomingCompanionId).trim() !== '') {
+      if (mongoose.Types.ObjectId.isValid(incomingCompanionId)) {
+        req.body.companionId = incomingCompanionId;
+      } else {
+        req.body.legacyCompanionId = incomingCompanionId;
+      }
+    }
+
     const isProduct = req.body.type === 'product' || req.body.type === 'Product';
-
-    const resolveUserReference = async (reference) => {
-      if (!reference) return undefined;
-      if (mongoose.Types.ObjectId.isValid(reference)) return mongoose.Types.ObjectId(reference);
-      const lookup = await User.findOne({ id: reference }).select('_id').lean();
-      return lookup?._id;
-    };
-
+    // Build the payload (now safe) – note that userId/companionId fields are already sanitized
     const bookingPayload = {
       ...req.body,
-      status:
-        req.body.status ||
-        (isProduct ? 'completed' : 'Pending Approval'),
+      status: req.body.status || (isProduct ? 'completed' : 'Pending Approval'),
       sessionType: req.body.sessionType || req.body.type || '',
       assignedAt: req.body.assignedAt ? new Date(req.body.assignedAt) : undefined,
-      createdAt: req.body.createdAt ? new Date(req.body.createdAt) : new Date(),
+      createdAt: new Date(),
       id: req.body.id || uuidv4(),
     };
+    console.log('FINAL SANITIZED BOOKING PAYLOAD:', bookingPayload);
 
-    if (req.body.userId) {
-      const resolvedUserId = await resolveUserReference(req.body.userId);
-      if (resolvedUserId) {
-        bookingPayload.userId = resolvedUserId;
-      } else {
-        bookingPayload.legacyUserId = req.body.userId;
-      }
-    }
-
-    if (req.body.companionId) {
-      const resolvedCompanionId = await resolveUserReference(req.body.companionId);
-      if (resolvedCompanionId) {
-        bookingPayload.companionId = resolvedCompanionId;
-      } else {
-        bookingPayload.legacyCompanionId = req.body.companionId;
-      }
-    }
-
+    // Create the booking document in MongoDB
     const booking = await Booking.create(bookingPayload);
-    
+
     // Emit real-time event
     const io = req.app.get('io');
     if (io) {
       io.emit('booking-created', booking);
     }
     
+    console.log(`✅ [BOOKING] Created: id="${booking.id}", userId=${booking.userId || booking.legacyUserId || 'none'}, companionId=${booking.companionId || booking.legacyCompanionId || 'none'}`);
+
+    // Respond to client
     res.json({
       success: true,
       message: 'Booking Created',
       data: booking,
     });
+    return; // prevent fall‑through
   } catch (error) {
+    console.error('❌ [BOOKING] Create error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
 
-// Update booking status (admin)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PUT /:id/status  —  Update booking status (admin, crash-proof)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 router.put('/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
@@ -75,10 +135,8 @@ router.put('/:id/status', async (req, res) => {
     console.log(`📋 [BOOKING] Status update request: id="${id}", status="${status}", companionId="${companionId}"`);
 
     // Safely build query — avoid Mongoose CastError when id is a UUID (not a valid ObjectId)
-    const mongoose = require('mongoose');
-    const User = require('../models/User');
     const orConditions = [{ id: id }];
-    if (mongoose.Types.ObjectId.isValid(id)) {
+    if (mongoose.Types.ObjectId.isValid(id) && String(id).match(/^[0-9a-fA-F]{24}$/)) {
       orConditions.push({ _id: id });
     }
 
@@ -97,22 +155,17 @@ router.put('/:id/status', async (req, res) => {
     if (req.body.time) booking.time = req.body.time;
     if (req.body.sessionNotes) booking.sessionNotes = req.body.sessionNotes;
     
+    // ✅ Safely resolve companionId assignment
     if (companionId) {
-      let resolvedCompanionId = null;
-      if (mongoose.Types.ObjectId.isValid(companionId)) {
-        resolvedCompanionId = companionId;
-      } else {
-        const companionUser = await User.findOne({ id: companionId }).select('_id').lean();
-        resolvedCompanionId = companionUser?._id?.toString() || null;
-      }
-
+      const resolvedCompanionId = await safeResolveObjectId(companionId);
       if (resolvedCompanionId) {
-        booking.companionId = mongoose.Types.ObjectId(resolvedCompanionId);
+        booking.companionId = resolvedCompanionId;
         booking.assignedAt = booking.assignedAt || new Date();
         console.log(`✅ [BOOKING] Assigned to companion MongoDB _id: ${booking.companionId}`);
       } else {
-        booking.legacyCompanionId = companionId;
-        console.warn(`⚠️  [BOOKING] Companion user not found for UUID: ${companionId}, saving legacy companionId`);
+        booking.legacyCompanionId = String(companionId);
+        booking.companionId = undefined;
+        console.warn(`⚠️  [BOOKING] Companion user not found for: ${companionId}, saving as legacyCompanionId`);
       }
     }
 
@@ -184,7 +237,9 @@ router.get('/user/:email', async (req, res) => {
   }
 });
 
-// Update booking status
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PUT /:id  —  Update booking (general, crash-proof)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -200,12 +255,36 @@ router.put('/:id', async (req, res) => {
     }
 
     const oldStatus = booking.status;
-    Object.assign(booking, req.body);
+
+    // ✅ Sanitize any incoming companionId/userId in the update body
+    const updateBody = { ...req.body };
+    if (updateBody.companionId) {
+      const resolved = await safeResolveObjectId(updateBody.companionId);
+      if (resolved) {
+        updateBody.companionId = resolved;
+      } else {
+        updateBody.legacyCompanionId = String(updateBody.companionId);
+        delete updateBody.companionId;
+      }
+    }
+    if (updateBody.userId) {
+      const resolved = await safeResolveObjectId(updateBody.userId);
+      if (resolved) {
+        updateBody.userId = resolved;
+      } else {
+        updateBody.legacyUserId = String(updateBody.userId);
+        delete updateBody.userId;
+      }
+    }
+
+    Object.assign(booking, updateBody);
     await booking.save();
 
     // Emit update event
     const io = req.app.get('io');
-    io.emit('booking-updated', booking);
+    if (io) {
+      io.emit('booking-updated', booking);
+    }
 
     if (booking.status === 'Session Confirmed' && oldStatus !== 'Session Confirmed') {
       console.log(`📧 [BOOKING] Triggering confirmation email to: ${booking.userEmail || booking.email}`);
@@ -225,6 +304,7 @@ router.put('/:id', async (req, res) => {
 
     res.json({ success: true, data: booking });
   } catch (error) {
+    console.error('❌ [BOOKING] Update error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
@@ -244,7 +324,9 @@ router.delete('/:id', async (req, res) => {
     }
 
     const io = req.app.get('io');
-    io.emit('booking-deleted', { id: id });
+    if (io) {
+      io.emit('booking-deleted', { id: id });
+    }
 
     res.json({ success: true, message: 'Booking deleted' });
   } catch (error) {

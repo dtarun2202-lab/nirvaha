@@ -391,13 +391,28 @@ router.get('/sessions', authenticateJWT, async (req, res) => {
     console.log('Logged-in Companion:', loggedInUser._id);
     console.log('Logged-in Companion Email:', loggedInUser.email);
 
-    const sessions = await Booking.find({
+    const filter = {
       companionId: loggedInUser._id,
       $or: [
         { sessionType: { $regex: /^(session|video|chat)$/i } },
         { type: { $regex: /^(session|video|chat)$/i } }
       ]
-    })
+    };
+
+    if (req.query.status) {
+      const qStatus = req.query.status.toLowerCase();
+      if (qStatus === 'upcoming' || qStatus === 'confirmed') {
+        filter.status = { $in: ['Session Confirmed', 'approved'] };
+      } else if (qStatus === 'completed') {
+        filter.status = 'completed';
+      } else if (qStatus === 'pending') {
+        filter.status = { $regex: /pending/i };
+      } else if (qStatus === 'rejected') {
+        filter.status = 'rejected';
+      }
+    }
+
+    const sessions = await Booking.find(filter)
       .populate('userId', 'name email')
       .sort({ createdAt: -1 })
       .lean();
@@ -414,17 +429,23 @@ router.get('/sessions', authenticateJWT, async (req, res) => {
     });
     
     console.log(`[COMPANION-SESSIONS] Found ${sessions.length} sessions for companion`);
-    sessions.forEach((s, idx) => {
-      console.log(`  [${idx}] id=${s.id}, companionId=${s.companionId}, status=${s.status}, type=${s.type}`);
-    });
     
-    // Count by status
+    // Count by status (based on ALL assigned sessions for dashboard stats)
+    const allSessions = await Booking.find({
+      companionId: loggedInUser._id,
+      $or: [
+        { sessionType: { $regex: /^(session|video|chat)$/i } },
+        { type: { $regex: /^(session|video|chat)$/i } }
+      ]
+    }).lean();
+
     const stats = {
-      total: sessions.length,
-      assigned: sessions.length,
-      pending: sessions.filter(s => !s.status || s.status.toLowerCase().includes('pending')).length,
-      confirmed: sessions.filter(s => s.status && s.status.toLowerCase() === 'session confirmed').length,
-      completed: sessions.filter(s => s.status && s.status.toLowerCase() === 'completed').length,
+      total: allSessions.length,
+      assigned: allSessions.length,
+      pending: allSessions.filter(s => !s.status || s.status.toLowerCase().includes('pending')).length,
+      confirmed: allSessions.filter(s => s.status && s.status.toLowerCase() === 'session confirmed').length,
+      completed: allSessions.filter(s => s.status && s.status.toLowerCase() === 'completed').length,
+      rejected: allSessions.filter(s => s.status && s.status.toLowerCase() === 'rejected').length,
     };
     
     res.json({
@@ -434,6 +455,86 @@ router.get('/sessions', authenticateJWT, async (req, res) => {
     });
   } catch (error) {
     console.error('[COMPANION-SESSIONS] Error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update companion session status (authenticated endpoint)
+router.put('/sessions/:id/status', authenticateJWT, async (req, res) => {
+  try {
+    const Booking = require('../models/Booking');
+    const { id } = req.params;
+    const { status, sessionNotes, date, time, platform } = req.body;
+
+    const loggedInUser = req.user;
+    if (!loggedInUser) {
+      console.warn('[COMPANION-SESSIONS] Authenticated user is missing from request');
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const isApprovedCompanion = loggedInUser.isApprovedCompanion === true || loggedInUser.companionStatus === 'approved';
+    if (!isApprovedCompanion) {
+      console.warn(`[COMPANION-SESSIONS] User is not an approved companion: ${loggedInUser.email}`);
+      return res.status(403).json({ error: 'User is not an approved companion' });
+    }
+
+    // Find the booking checking both string UUID id and ObjectId _id
+    const mongoose = require('mongoose');
+    const orConditions = [{ id: id }];
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      orConditions.push({ _id: id });
+    }
+
+    const booking = await Booking.findOne({ 
+      $and: [
+        { $or: orConditions },
+        { companionId: loggedInUser._id }
+      ]
+    });
+
+    if (!booking) {
+      console.warn(`[COMPANION-SESSIONS] Booking not found or not assigned: id=${id}, companionId=${loggedInUser._id}`);
+      return res.status(404).json({ error: 'Booking not found or not assigned to this companion' });
+    }
+
+    const oldStatus = booking.status;
+    if (status !== undefined) booking.status = status;
+    if (sessionNotes !== undefined) booking.sessionNotes = sessionNotes;
+    if (date !== undefined) booking.date = date;
+    if (time !== undefined) booking.time = time;
+    if (platform !== undefined) booking.platform = platform;
+
+    await booking.save();
+
+    console.log(`[COMPANION-SESSIONS] Status updated: "${oldStatus}" → "${booking.status}"`);
+
+    // Emit real-time event
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('booking-updated', booking);
+    }
+
+    // Trigger emails using utils if status changes
+    const { sendSessionConfirmationEmail, sendSessionRejectedEmail } = require('../utils/email');
+    if (status === 'Session Confirmed' && oldStatus !== 'Session Confirmed') {
+      console.log(`📧 [COMPANION-SESSIONS] Triggering confirmation email to: ${booking.userEmail || booking.email}`);
+      try {
+        await sendSessionConfirmationEmail(booking);
+      } catch (emailError) {
+        console.error('❌ Email trigger failure in route:', emailError.message);
+      }
+    } else if (status === 'rejected' && oldStatus !== 'rejected') {
+      console.log(`📧 [COMPANION-SESSIONS] Triggering rejection email to: ${booking.userEmail || booking.email}`);
+      try {
+        await sendSessionRejectedEmail(booking);
+      } catch (emailError) {
+        console.error('❌ Email trigger failure in route:', emailError.message);
+      }
+    }
+
+    res.json({ success: true, data: booking });
+  } catch (error) {
+    console.error('[COMPANION-SESSIONS] Status update error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });

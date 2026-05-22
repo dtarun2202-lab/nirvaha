@@ -12,12 +12,13 @@ const bcrypt = require('bcryptjs');
 const allowedOrigins = [
   'https://nirvaha-wellnessllp.vercel.app',
   'http://localhost:3000',
+  'http://localhost:3001',
   'http://localhost:5173',
   'http://localhost:5001'
 ];
 
-// Load environment variables immediately
-dotenv.config();
+// Load environment variables immediately (explicit path to guarantee resolution)
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
@@ -64,7 +65,7 @@ const io = new Server(server, {
   },
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = 5001;
 const MONGODB_URI = process.env.MONGODB_URI;
 
 // Configuration

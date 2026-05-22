@@ -9,7 +9,7 @@ export const BACKEND_CONFIG = {
   LOCAL_SOCKET_URL: 'http://localhost:5001',
 
   // Check if we're in development mode (localhost or 127.0.0.1)
-  IS_DEVELOPMENT: 
+  IS_DEVELOPMENT:
     window.location.hostname === 'localhost' ||
     window.location.hostname === '127.0.0.1',
 

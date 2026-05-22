@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
+const { resolveAndPersistCompanionForUser } = require('../utils/companionStatus');
 const router = express.Router();
 
 // GET /api/users - Fetch all users
@@ -55,7 +56,25 @@ router.get("/profile", async (req, res) => {
       );
     }
 
-    res.json(user);
+    const companionInfo =
+      user.isApprovedCompanion === true || user.companionStatus === 'approved'
+        ? {
+            isApprovedCompanion: user.isApprovedCompanion === true,
+            companionStatus: user.companionStatus || null,
+            companionId: user.companionId || null,
+          }
+        : await resolveAndPersistCompanionForUser({ email: user.email, name: user.name });
+
+    const safeUser = {
+      ...user.toObject(),
+      isApprovedCompanion: companionInfo.isApprovedCompanion === true,
+      companionStatus: companionInfo.companionStatus || null,
+    };
+    // remove sensitive/internal fields
+    if (safeUser.password) delete safeUser.password;
+    if (safeUser.__v) delete safeUser.__v;
+
+    res.json({ success: true, user: safeUser });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -80,7 +99,14 @@ router.post("/profile/update", async (req, res) => {
 
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    res.json(user);
+    const safeUser = {
+      ...user.toObject(),
+      isApprovedCompanion: user.isApprovedCompanion === true,
+      companionStatus: user.companionStatus || null,
+    };
+    if (safeUser.password) delete safeUser.password;
+    if (safeUser.__v) delete safeUser.__v;
+    res.json({ success: true, user: safeUser });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
