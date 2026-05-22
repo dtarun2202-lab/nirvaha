@@ -138,7 +138,7 @@ const CompanionBookingModal: React.FC<CompanionBookingModalProps> = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const userRaw = localStorage.getItem('nirvaha_user');
+    const userRaw = localStorage.getItem('user') || localStorage.getItem('nirvaha_user');
     if (userRaw) {
       try {
         const user = JSON.parse(userRaw);
@@ -185,13 +185,15 @@ const CompanionBookingModal: React.FC<CompanionBookingModalProps> = ({
     } else {
       try {
         setLoading(true);
-        const userRaw = localStorage.getItem('nirvaha_user');
+        const userRaw = localStorage.getItem('user') || localStorage.getItem('nirvaha_user');
         const user = userRaw ? JSON.parse(userRaw) : null;
 
-        const payload = {
-          companionId: bookingData.companion.id,
+        // Resolve user ID if present (prefer MongoDB _id)
+        const resolvedUserId = user?._id || user?.id || '';
+
+        const payload: Record<string, any> = {
+          companionId: bookingData.companion.id, // always send raw ID; backend will sanitize
           companionName: bookingData.companion.name,
-          userId: user?.id || user?._id || '',
           userName: userDetails.name,
           userEmail: userDetails.email,
           phone: userDetails.phone,
@@ -202,6 +204,11 @@ const CompanionBookingModal: React.FC<CompanionBookingModalProps> = ({
           price: parseInt(bookingData.sessionType.price.replace('₹', '')) || 0,
           status: 'Pending Approval'
         };
+
+        // Include userId only if we have a non-empty identifier
+        if (resolvedUserId && String(resolvedUserId).trim() !== '') {
+          payload.userId = resolvedUserId;
+        }
 
         await createBooking(payload);
         toast.success("Booking request submitted! Awaiting admin approval.");

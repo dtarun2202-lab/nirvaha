@@ -263,11 +263,11 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
                     onMouseLeave={() => setProfileMenuOpen(false)}
-                    className="absolute top-full right-0 mt-2 w-64 bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-emerald-200/30 overflow-hidden"
+                    className="absolute top-full right-0 mt-2 w-72 bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-emerald-200/30 overflow-hidden"
                   >
-                    <div className="p-4 border-b border-emerald-200/30">
-                      <p className="text-teal-800 mb-1">{user?.name || 'Guest User'}</p>
-                      <p className="text-sm text-teal-600">{user?.email || 'No email'}</p>
+                    <div className="p-4 border-b border-emerald-200/30 bg-gradient-to-br from-emerald-50/40 to-teal-50/40">
+                      <p className="text-sm font-semibold text-teal-800 mb-0.5 truncate">{user?.name || 'Guest User'}</p>
+                      <p className="text-xs text-teal-600 truncate" title={user?.email || ''}>{user?.email || 'No email'}</p>
                     </div>
 
                     <motion.button
