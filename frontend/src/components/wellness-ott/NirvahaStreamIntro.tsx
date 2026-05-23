@@ -47,7 +47,7 @@ export default function NirvahaStreamIntro() {
       <div className="relative z-10 flex flex-col items-center justify-center gap-6">
         {/* Nirvaha Logo / Icon */}
         <motion.div
-          className="w-32 h-32 rounded-full bg-gradient-to-br from-[#2ed899] to-[#1ab87e] flex items-center justify-center shadow-2xl"
+          className="w-32 h-32 flex items-center justify-center"
           initial={{ scale: 0, opacity: 0, rotate: -180 }}
           animate={{ scale: 1, opacity: 1, rotate: 0 }}
           transition={{
@@ -57,17 +57,75 @@ export default function NirvahaStreamIntro() {
           }}
         >
           <motion.div
-            className="text-5xl font-black text-black"
+            className="flex items-center justify-center w-full h-full"
             animate={{
-              scale: [1, 1.1, 1],
+              scale: [1, 1.08, 1],
             }}
             transition={{
-              duration: 2,
+              duration: 3,
               repeat: Infinity,
               repeatType: 'loop',
+              ease: 'easeInOut',
             }}
+            style={{ filter: 'drop-shadow(0 0 10px rgba(46,216,153,0.6))' }}
           >
-            ॐ
+            {/* Meditation lotus SVG — exact replica of uploaded icon, transparent bg */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 200 180"
+              className="w-full h-full"
+            >
+              {/* ── Outermost cream/beige border petals (back-most layer) ── */}
+              {/* Left outer petal */}
+              <ellipse cx="52" cy="95" rx="38" ry="58" fill="#e8d5b7" transform="rotate(-30 52 95)" />
+              {/* Right outer petal */}
+              <ellipse cx="148" cy="95" rx="38" ry="58" fill="#e8d5b7" transform="rotate(30 148 95)" />
+              {/* Center back outer petal */}
+              <ellipse cx="100" cy="52" rx="28" ry="58" fill="#e8d5b7" />
+
+              {/* ── Medium green mid petals ── */}
+              {/* Left mid petal */}
+              <ellipse cx="56" cy="98" rx="34" ry="53" fill="#3a9e6e" transform="rotate(-28 56 98)" />
+              {/* Right mid petal */}
+              <ellipse cx="144" cy="98" rx="34" ry="53" fill="#3a9e6e" transform="rotate(28 144 98)" />
+              {/* Center tall petal */}
+              <ellipse cx="100" cy="55" rx="25" ry="55" fill="#1e6b47" />
+
+              {/* ── Dark green inner accent petals ── */}
+              {/* Left inner */}
+              <ellipse cx="70" cy="108" rx="24" ry="42" fill="#1e5c3a" transform="rotate(-15 70 108)" />
+              {/* Right inner */}
+              <ellipse cx="130" cy="108" rx="24" ry="42" fill="#1e5c3a" transform="rotate(15 130 108)" />
+
+              {/* ── Shadow ellipse under figure ── */}
+              <ellipse cx="100" cy="148" rx="28" ry="7" fill="rgba(0,0,0,0.45)" />
+
+              {/* ── White meditating human silhouette ── */}
+              {/* Head */}
+              <circle cx="100" cy="82" r="10" fill="white" />
+              {/* Torso */}
+              <ellipse cx="100" cy="105" rx="14" ry="17" fill="white" />
+              {/* Left upper arm */}
+              <ellipse cx="84" cy="108" rx="6" ry="13" fill="white" transform="rotate(15 84 108)" />
+              {/* Right upper arm */}
+              <ellipse cx="116" cy="108" rx="6" ry="13" fill="white" transform="rotate(-15 116 108)" />
+              {/* Left forearm resting on knee */}
+              <ellipse cx="78" cy="122" rx="5" ry="10" fill="white" transform="rotate(35 78 122)" />
+              {/* Right forearm resting on knee */}
+              <ellipse cx="122" cy="122" rx="5" ry="10" fill="white" transform="rotate(-35 122 122)" />
+              {/* Left thigh / crossed leg */}
+              <ellipse cx="82" cy="132" rx="18" ry="9" fill="white" transform="rotate(-10 82 132)" />
+              {/* Right thigh / crossed leg */}
+              <ellipse cx="118" cy="132" rx="18" ry="9" fill="white" transform="rotate(10 118 132)" />
+              {/* Left foot */}
+              <ellipse cx="104" cy="140" rx="9" ry="5" fill="white" transform="rotate(5 104 140)" />
+              {/* Right foot */}
+              <ellipse cx="96" cy="140" rx="9" ry="5" fill="white" transform="rotate(-5 96 140)" />
+              {/* Left hand mudra */}
+              <circle cx="75" cy="128" r="4" fill="white" />
+              {/* Right hand mudra */}
+              <circle cx="125" cy="128" r="4" fill="white" />
+            </svg>
           </motion.div>
         </motion.div>
 
