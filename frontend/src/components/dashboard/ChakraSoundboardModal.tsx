@@ -321,7 +321,7 @@ export function ChakraSoundboardModal({ chakra, chakraImage, onClose }: Props) {
 
               {/* Description */}
               <motion.p
-                className="text-sm text-gray-500 text-center leading-relaxed mb-7 max-w-sm mx-auto"
+                className="text-sm text-gray-600 font-semibold text-center leading-relaxed mb-7 max-w-sm mx-auto"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}

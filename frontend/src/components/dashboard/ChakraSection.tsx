@@ -20,6 +20,7 @@ interface Chakra {
   color: string;        // primary
   glowColor: string;    // glow / ring
   bgGradient: string;   // card background
+  pastelBg: string;     // light pastel card fill
   description: string;
 }
 
@@ -32,6 +33,7 @@ const CHAKRAS: Chakra[] = [
     color: '#DC2626',
     glowColor: 'rgba(220,38,38,0.55)',
     bgGradient: 'linear-gradient(135deg, rgba(220,38,38,0.12) 0%, rgba(220,38,38,0.04) 100%)',
+    pastelBg: 'linear-gradient(145deg, #FEF2F2, #FEE2E2, #FFF5F5)',
     description: 'Grounding & stability',
   },
   {
@@ -42,6 +44,7 @@ const CHAKRAS: Chakra[] = [
     color: '#EA580C',
     glowColor: 'rgba(234,88,12,0.55)',
     bgGradient: 'linear-gradient(135deg, rgba(234,88,12,0.12) 0%, rgba(234,88,12,0.04) 100%)',
+    pastelBg: 'linear-gradient(145deg, #FFF7ED, #FFEDD5, #FFFBF5)',
     description: 'Creativity & emotion',
   },
   {
@@ -52,6 +55,7 @@ const CHAKRAS: Chakra[] = [
     color: '#CA8A04',
     glowColor: 'rgba(202,138,4,0.55)',
     bgGradient: 'linear-gradient(135deg, rgba(202,138,4,0.12) 0%, rgba(202,138,4,0.04) 100%)',
+    pastelBg: 'linear-gradient(145deg, #FEFCE8, #FEF9C3, #FFFEF5)',
     description: 'Confidence & power',
   },
   {
@@ -62,6 +66,7 @@ const CHAKRAS: Chakra[] = [
     color: '#16A34A',
     glowColor: 'rgba(22,163,74,0.55)',
     bgGradient: 'linear-gradient(135deg, rgba(22,163,74,0.12) 0%, rgba(22,163,74,0.04) 100%)',
+    pastelBg: 'linear-gradient(145deg, #F0FDF4, #DCFCE7, #F5FFF8)',
     description: 'Love & compassion',
   },
   {
@@ -72,6 +77,7 @@ const CHAKRAS: Chakra[] = [
     color: '#2563EB',
     glowColor: 'rgba(37,99,235,0.55)',
     bgGradient: 'linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(37,99,235,0.04) 100%)',
+    pastelBg: 'linear-gradient(145deg, #EFF6FF, #DBEAFE, #F5F9FF)',
     description: 'Expression & truth',
   },
   {
@@ -82,6 +88,7 @@ const CHAKRAS: Chakra[] = [
     color: '#4F46E5',
     glowColor: 'rgba(79,70,229,0.55)',
     bgGradient: 'linear-gradient(135deg, rgba(79,70,229,0.12) 0%, rgba(79,70,229,0.04) 100%)',
+    pastelBg: 'linear-gradient(145deg, #EEF2FF, #E0E7FF, #F5F3FF)',
     description: 'Intuition & clarity',
   },
   {
@@ -92,6 +99,7 @@ const CHAKRAS: Chakra[] = [
     color: '#7C3AED',
     glowColor: 'rgba(124,58,237,0.55)',
     bgGradient: 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(124,58,237,0.04) 100%)',
+    pastelBg: 'linear-gradient(145deg, #F5F3FF, #EDE9FE, #FAF5FF)',
     description: 'Spiritual connection',
   },
 ];
@@ -225,7 +233,7 @@ export function ChakraSection() {
                 <motion.button
                   onClick={() => handleChakraClick(chakra)}
                   className="group relative w-full flex flex-col items-center rounded-2xl border border-white/60 backdrop-blur-sm p-5 md:p-6 cursor-pointer transition-all duration-300 overflow-hidden"
-                  style={{ background: '#f3fbf6' }}
+                  style={{ background: chakra.pastelBg }}
                   whileHover={{ y: -4, scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
                   animate={isActive ? {
@@ -314,7 +322,7 @@ export function ChakraSection() {
             whileHover={{ y: -2, scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
-            <span>Begin Journey</span>
+            <span>View More</span>
             <svg
               className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300"
               fill="none"

@@ -14,10 +14,34 @@
 /* ── core state ──────────────────────────────────────────────────────── */
 
 let _ctx: AudioContext | null = null;
+let _masterNode: AudioNode | null = null;
+
 function ctx(): AudioContext {
-  if (!_ctx) _ctx = new AudioContext();
+  if (!_ctx) {
+    _ctx = new AudioContext();
+    _masterNode = null;
+  }
   if (_ctx.state === 'suspended') _ctx.resume();
   return _ctx;
+}
+
+function getMasterNode(ac: AudioContext): AudioNode {
+  if (!_masterNode) {
+    const masterGain = ac.createGain();
+    masterGain.gain.value = 2.0; // Boost volume significantly
+    
+    const compressor = ac.createDynamicsCompressor();
+    compressor.threshold.value = -12;
+    compressor.knee.value = 30;
+    compressor.ratio.value = 4;
+    compressor.attack.value = 0.05;
+    compressor.release.value = 0.25;
+    
+    masterGain.connect(compressor);
+    compressor.connect(ac.destination);
+    _masterNode = masterGain;
+  }
+  return _masterNode;
 }
 
 let _stopFns: Array<() => void> = [];
@@ -88,7 +112,7 @@ function G(ac: AudioContext, vol: number, fi: number, fo: number, dur: number, d
   g.gain.linearRampToValueAtTime(vol, t + fi);
   g.gain.setValueAtTime(vol, t + dur - fo);
   g.gain.linearRampToValueAtTime(0, t + dur);
-  g.connect(dest ?? ac.destination); T(g); return g;
+  g.connect(dest ?? getMasterNode(ac)); T(g); return g;
 }
 
 /** Constant DC gain offset (used to bias LFOs to unipolar) */
@@ -141,9 +165,38 @@ function Reverb(ac: AudioContext, time: number, fb: number, wet: number, dest?: 
   const f = ac.createGain(); f.gain.value = fb;
   const w = ac.createGain(); w.gain.value = wet;
   d1.connect(d2); d2.connect(f); f.connect(d1); d1.connect(w);
-  w.connect(dest ?? ac.destination);
+  w.connect(dest ?? getMasterNode(ac));
   T(d1); T(d2); T(f); T(w);
   return d1; // send audio here
+}
+
+/** Lush chord pad using stacked detuned warm oscillators with LFO modulation */
+function AmbientPad(
+  ac: AudioContext,
+  hz: number,
+  vol: number,
+  dur: number,
+  dest: AudioNode,
+  intervals = [1.0, 1.5, 2.0, 3.0]
+) {
+  const lp = LP(ac, hz * 4);
+  const g = G(ac, vol, 2.5, 3.0, dur, dest);
+  lp.connect(g);
+  
+  intervals.forEach((r, i) => {
+    const o1 = O(ac, 'sine', hz * r, dur);
+    const o2 = O(ac, 'triangle', hz * r * 1.005, dur);
+    
+    LFO(ac, 0.15 + i * 0.05, 1.5, o1.frequency, dur);
+    LFO(ac, 0.2 + i * 0.04, 1.2, o2.frequency, dur);
+    
+    const v = ac.createGain();
+    v.gain.value = 0.25;
+    o1.connect(v);
+    o2.connect(v);
+    v.connect(lp);
+    T(v);
+  });
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -376,440 +429,297 @@ const MAP: Record<string, Gen> = {
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      1 · MULADHARA — LAM
-     Deep masculine monk. Very low (65–110 Hz). Sawtooth for richness.
-     Tight short reverb (temple room). Slow stately chant rhythm.
+     Deep grounding meditation soundscapes. 82 Hz base.
      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-  // LAM bija chant — deep 82 Hz, slow 0.38 Hz gate, AH→MM
+  // LAM bija chant — deep 82 Hz chant + warm grounding pad
   '1-0': (ac) => {
-    const rv = Reverb(ac, 0.18, 0.25, 0.35);       // tight temple reverb
-    ChantGated(ac, 82, 'sawtooth', F_AH, 0.22, 8, 0.38, 0.65, rv, 4.8, 3);
-    // nasal MM undertone throughout
-    Voice(ac, 82, 'sine', F_MM, 0.06, 8, 2, 2.5, rv, 3, 1);
-    // sub-bass pulse
-    const sub = O(ac, 'sine', 41, 8);
-    const sg = G(ac, 0.08, 2, 2, 8, rv); sub.connect(sg);
+    const rv = Reverb(ac, 0.35, 0.45, 0.55);
+    ChantGated(ac, 82, 'triangle', F_AH, 0.2, 8, 0.35, 0.65, rv, 4.5, 2.5);
+    AmbientPad(ac, 82, 0.12, 8, rv, [1.0, 1.5, 2.0]);
   },
 
-  // Tibetan monk low hum — 65 Hz drone, pure and sustained, no gate
+  // Tibetan monk low hum — 65 Hz warm choral drone + singing bowls
   '1-1': (ac) => {
-    const rv = Reverb(ac, 0.22, 0.28, 0.4);
-    Voice(ac, 65, 'sawtooth', F_AH, 0.2, 8, 2, 2.5, rv, 3.5, 2);
-    Voice(ac, 65, 'sine', F_MM, 0.08, 8, 2, 2.5, rv, 3, 1);
-    // Octave above, softer
-    Voice(ac, 130, 'triangle', F_AH, 0.05, 8, 2.5, 2.5, rv, 4, 1.5);
-    TempleBell(ac, 55, 0.06, 8, rv);
+    const rv = Reverb(ac, 0.4, 0.45, 0.6);
+    AmbientPad(ac, 65, 0.2, 8, rv, [1.0, 1.5, 2.0, 3.0]);
+    TempleBell(ac, 65, 0.08, 8, rv);
   },
 
-  // Earthy bass vibration — 55 Hz with slow tremolo, very primal
+  // Earthy bass vibration — 55 Hz grounding sub hum + nature breeze
   '1-2': (ac) => {
-    const rv = Reverb(ac, 0.25, 0.3, 0.4);
-    const o = O(ac, 'sine', 55, 8);
-    LFO(ac, 0.9, 18, o.frequency, 8);              // slow tremolo
-    const g = G(ac, 0.22, 2, 2, 8, rv); o.connect(g);
-    const o2 = O(ac, 'triangle', 110, 8);
-    LFO(ac, 0.9, 9, o2.frequency, 8);
-    const g2 = G(ac, 0.1, 2.5, 2, 8, rv); o2.connect(g2);
-    Voice(ac, 82, 'sawtooth', F_AH, 0.06, 8, 3, 2.5, rv, 2.5, 4);
+    const rv = Reverb(ac, 0.45, 0.48, 0.65);
+    AmbientPad(ac, 55, 0.22, 8, rv, [1.0, 1.5, 2.0]);
+    Voice(ac, 82, 'triangle', F_MM, 0.1, 8, 2.5, 2.5, rv, 3, 1.5);
+    BreathLayer(ac, 0.04, 8, rv);
   },
 
-  // Grounding temple chant — 110 Hz monk choir (2 deep voices)
+  // Grounding temple chant
   '1-3': (ac) => {
-    const rv = Reverb(ac, 0.2, 0.26, 0.38);
-    [-12, 0, +8].forEach((det, i) => {
-      const o = O(ac, 'sawtooth', 110, 8);
-      o.detune.value = det;
-      LFO(ac, 4.2 + i * 0.3, 2, o.frequency, 8);
-      F_AH.forEach(f => {
-        const bp = BP(ac, f.f, f.q);
-        const gn = G(ac, 0.07 * f.g, 1.5 + i * 0.2, 2.5, 8, rv);
-        o.connect(bp); bp.connect(gn);
-      });
-    });
-    TempleBell(ac, 82, 0.08, 8, rv);
+    const rv = Reverb(ac, 0.35, 0.4, 0.55);
+    AmbientPad(ac, 110, 0.15, 8, rv, [1.0, 1.5, 2.0]);
+    TempleBell(ac, 82, 0.06, 8, rv);
   },
 
-  // Slow deep spiritual hum — 82 Hz OM sweep with long nasal tail
+  // Slow deep spiritual hum
   '1-4': (ac) => {
-    const rv = Reverb(ac, 0.28, 0.32, 0.45);
-    OmSweep(ac, 82, 'sawtooth', F_AH, F_MM, 0.22, 8, rv, 3.5, 2.5);
-    // Sub rumble
-    const s = O(ac, 'sine', 41, 8);
-    const sg = G(ac, 0.1, 2.5, 2.5, 8, rv); s.connect(sg);
+    const rv = Reverb(ac, 0.4, 0.45, 0.6);
+    AmbientPad(ac, 82, 0.18, 8, rv, [0.5, 1.0, 1.5, 2.0]);
   },
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      2 · SVADHISHTHANA — VAM
-     Soft flowing feminine. 130–196 Hz. Triangle wave (softer).
-     Longer wetter reverb (cave by water). Gentle flowing rhythm.
+     Warm flowing feminine range. 130–196 Hz.
      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-  // VAM bija — 175 Hz triangle, gentle 0.35 Hz gate, flowing
+  // VAM bija chant — gentle 175 Hz flowing chant + water shimmer
   '2-0': (ac) => {
-    const rv = Reverb(ac, 0.38, 0.35, 0.55);       // longer, wetter
-    ChantGated(ac, 175, 'triangle', F_AH, 0.2, 8, 0.35, 0.7, rv, 5.5, 2.5);
-    WaterShimmer(ac, 0.03, 8, rv);
-    const sub = O(ac, 'sine', 87, 8);
-    const sg = G(ac, 0.05, 2, 2, 8, rv); sub.connect(sg);
+    const rv = Reverb(ac, 0.45, 0.48, 0.65);
+    ChantGated(ac, 175, 'triangle', F_AH, 0.18, 8, 0.32, 0.68, rv, 5.0, 2.0);
+    WaterShimmer(ac, 0.06, 8, rv);
+    AmbientPad(ac, 175, 0.1, 8, rv, [1.0, 1.5, 2.0]);
   },
 
-  // Soft feminine spiritual chant — 196 Hz, pure sustained, no gate
+  // Soft feminine spiritual chant — pure major-chord pad + water
   '2-1': (ac) => {
-    const rv = Reverb(ac, 0.42, 0.38, 0.58);
-    Voice(ac, 196, 'triangle', F_AH, 0.18, 8, 2.5, 2.5, rv, 5.8, 2);
-    Voice(ac, 196, 'sine', F_OO, 0.06, 8, 3, 2.5, rv, 5, 1.5);
-    WaterShimmer(ac, 0.04, 8, rv);
-  },
-
-  // Water flow mantra — 165 Hz with water LFO texture, OM sweep
-  '2-2': (ac) => {
-    const rv = Reverb(ac, 0.45, 0.4, 0.6);
-    OmSweep(ac, 165, 'triangle', F_OO, F_MM, 0.18, 8, rv, 5.2, 2);
+    const rv = Reverb(ac, 0.5, 0.5, 0.7);
+    Voice(ac, 196, 'sine', F_AH, 0.18, 8, 2.5, 2.5, rv, 5.5, 2);
+    AmbientPad(ac, 196, 0.14, 8, rv, [1.0, 1.25, 1.5, 2.0]);
     WaterShimmer(ac, 0.05, 8, rv);
   },
 
-  // Emotional healing — 196 Hz binaural (4.5 Hz theta beat)
-  '2-3': (ac) => {
-    const rv = Reverb(ac, 0.4, 0.35, 0.55);
-    Voice(ac, 196, 'triangle', F_AH, 0.17, 8, 2, 2.5, rv, 5.5, 2.2);
-    Voice(ac, 196 + 4.5, 'triangle', F_AH, 0.17, 8, 2, 2.5, rv, 5.5, 2.2); // beat
-    Voice(ac, 98, 'sine', F_OO, 0.06, 8, 2.5, 2.5, rv, 4, 1.5);
-    WaterShimmer(ac, 0.025, 8, rv);
+  // Water flow mantra — crystal bowl + gentle water stream
+  '2-2': (ac) => {
+    const rv = Reverb(ac, 0.55, 0.52, 0.75);
+    OmSweep(ac, 165, 'sine', F_OO, F_MM, 0.15, 8, rv, 4.8, 1.8);
+    TempleBell(ac, 165, 0.08, 8, rv);
+    WaterShimmer(ac, 0.08, 8, rv);
   },
 
-  // Orange chakra vocal meditation — 220 Hz ascending VAM choir
+  // Emotional healing
+  '2-3': (ac) => {
+    const rv = Reverb(ac, 0.45, 0.45, 0.6);
+    AmbientPad(ac, 196, 0.16, 8, rv, [1.0, 1.5, 2.0]);
+    WaterShimmer(ac, 0.04, 8, rv);
+  },
+
+  // Orange chakra vocal meditation
   '2-4': (ac) => {
-    const rv = Reverb(ac, 0.4, 0.38, 0.56);
-    [0, -10, +9].forEach((det, i) => {
-      const o = O(ac, 'triangle', 220, 8);
-      o.detune.value = det;
-      LFO(ac, 5.2 + i * 0.3, 1.8, o.frequency, 8);
-      F_AH.forEach(f => {
-        const bp = BP(ac, f.f, f.q);
-        const gn = G(ac, 0.065 * f.g, 1.8 + i * 0.2, 2.5, 8, rv);
-        o.connect(bp); bp.connect(gn);
-      });
-    });
+    const rv = Reverb(ac, 0.45, 0.45, 0.6);
+    AmbientPad(ac, 220, 0.15, 8, rv, [1.0, 1.25, 1.5, 2.0]);
   },
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      3 · MANIPURA — RAM
-     Strong confident. 220–262 Hz. Sawtooth (bright, assertive).
-     Shorter drier reverb (stone hall). Energetic faster rhythm 0.55 Hz.
+     Strong confident golden solar range. 220–262 Hz.
      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-  // RAM bija — 220 Hz sawtooth, fast 0.55 Hz gate, bright AH
+  // RAM bija chant — warm golden gated chant + solar pad
   '3-0': (ac) => {
-    const rv = Reverb(ac, 0.14, 0.22, 0.3);        // tight stone hall
-    ChantGated(ac, 220, 'sawtooth', F_AH, 0.22, 8, 0.55, 0.6, rv, 5.8, 3.5);
-    SolarShimmer(ac, 220, 0.03, 8, rv);
+    const rv = Reverb(ac, 0.35, 0.42, 0.55);
+    ChantGated(ac, 220, 'triangle', F_AH, 0.18, 8, 0.45, 0.62, rv, 5.2, 2.8);
+    AmbientPad(ac, 220, 0.1, 8, rv, [1.0, 1.5, 2.0]);
   },
 
-  // Energetic fire mantra — 247 Hz staccato bursts + shimmer
+  // Energetic fire mantra — radiant major pad + solar shimmer
   '3-1': (ac) => {
-    const rv = Reverb(ac, 0.12, 0.2, 0.28);
-    ChantGated(ac, 247, 'sawtooth', F_AH, 0.2, 8, 0.7, 0.5, rv, 6, 4); // faster, shorter duty
-    SolarShimmer(ac, 247, 0.04, 8, rv);
+    const rv = Reverb(ac, 0.38, 0.45, 0.58);
+    AmbientPad(ac, 247, 0.16, 8, rv, [1.0, 1.25, 1.5, 2.0]);
+    SolarShimmer(ac, 247, 0.05, 8, rv);
   },
 
-  // Warrior monk meditation — 262 Hz sustained powerful chant
+  // Warrior monk meditation — sustained chant + deep low pad support
   '3-2': (ac) => {
-    const rv = Reverb(ac, 0.16, 0.23, 0.32);
-    Voice(ac, 262, 'sawtooth', F_AH, 0.22, 8, 1.5, 2.5, rv, 6.2, 4);
-    // Octave below for depth
-    Voice(ac, 131, 'sawtooth', F_AH, 0.07, 8, 2, 2.5, rv, 5.5, 3);
-    SolarShimmer(ac, 131, 0.02, 8, rv);
+    const rv = Reverb(ac, 0.4, 0.45, 0.6);
+    Voice(ac, 262, 'triangle', F_AH, 0.16, 8, 2.0, 2.5, rv, 5.5, 3);
+    AmbientPad(ac, 131, 0.15, 8, rv, [1.0, 1.5, 2.0]);
+    SolarShimmer(ac, 131, 0.04, 8, rv);
   },
 
-  // Golden solar chanting — 220 Hz with harmonic shimmer, no gate
+  // Golden solar chanting
   '3-3': (ac) => {
-    const rv = Reverb(ac, 0.15, 0.22, 0.3);
-    OmSweep(ac, 220, 'sawtooth', F_AH, F_MM, 0.2, 8, rv, 6, 4);
-    SolarShimmer(ac, 220, 0.05, 8, rv);
+    const rv = Reverb(ac, 0.4, 0.42, 0.6);
+    AmbientPad(ac, 220, 0.18, 8, rv, [1.0, 1.5, 2.0]);
   },
 
-  // Motivational spiritual hum — 196 Hz rising to 262 Hz
+  // Motivational spiritual hum
   '3-4': (ac) => {
-    const rv = Reverb(ac, 0.14, 0.2, 0.28);
-    const o = O(ac, 'sawtooth', 196, 8);
-    o.frequency.setValueAtTime(196, ac.currentTime + 1);
-    o.frequency.exponentialRampToValueAtTime(262, ac.currentTime + 6.5);
-    LFO(ac, 6, 4, o.frequency, 8);
-    F_AH.forEach(f => {
-      const bp = BP(ac, f.f, f.q);
-      const gn = G(ac, 0.2 * f.g, 1, 2, 8, rv);
-      o.connect(bp); bp.connect(gn);
-    });
+    const rv = Reverb(ac, 0.4, 0.42, 0.6);
+    AmbientPad(ac, 196, 0.18, 8, rv, [1.0, 1.33, 1.5, 2.0]);
   },
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      4 · ANAHATA — YAM
-     Warm loving choir. 246–330 Hz. Multiple blended voices.
-     Warm lush reverb (cathedral). Slow gentle pulse 0.32 Hz.
+     Loving compassionate green heart range. 246–330 Hz.
      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-  // YAM bija — 246 Hz, 3-voice warm choir, slow 0.32 Hz gate
+  // YAM bija chant — gated heart choir + warm loving pad
   '4-0': (ac) => {
-    const rv = Reverb(ac, 0.45, 0.42, 0.6);        // cathedral warmth
-    [0, -7, +11].forEach((det, i) => {
-      const o = O(ac, 'triangle', 246, 8);
-      o.detune.value = det;
-      LFO(ac, 4.8 + i * 0.25, 2, o.frequency, 8);
-      const gate = ac.createGain(); gate.gain.value = 0; T(gate);
-      F_AH.forEach(f => {
-        const bp = BP(ac, f.f, f.q);
-        const gn = G(ac, 0.07 * f.g, 1.5 + i * 0.15, 2, 8, rv);
-        o.connect(bp); bp.connect(gate); gate.connect(gn);
-      });
-      // pulse
-      const t0 = ac.currentTime + 0.8;
-      const period = 1 / 0.32;
-      for (let k = 0; k < 3; k++) {
-        const s = t0 + k * period;
-        gate.gain.setValueAtTime(0, s);
-        gate.gain.linearRampToValueAtTime(1, s + 0.08);
-        gate.gain.setValueAtTime(1, s + period * 0.7);
-        gate.gain.linearRampToValueAtTime(0, s + period * 0.88);
-      }
-    });
-    HeartPad(ac, 123, 0.04, 8, rv);
+    const rv = Reverb(ac, 0.55, 0.5, 0.72);
+    ChantGated(ac, 246, 'sine', F_AH, 0.16, 8, 0.3, 0.7, rv, 4.8, 2.0);
+    AmbientPad(ac, 246, 0.14, 8, rv, [1.0, 1.25, 1.5, 2.0]);
+    HeartPad(ac, 123, 0.06, 8, rv);
   },
 
-  // Heart choir — 5 voices, open AH, no gating, pure sustained
+  // Heart choir resonance — rich celestial choir pad
   '4-1': (ac) => {
-    const rv = Reverb(ac, 0.5, 0.44, 0.65);
-    [-15, -7, 0, +9, +16].forEach((det, i) => {
-      const o = O(ac, 'triangle', 294, 8);
-      o.detune.value = det;
-      LFO(ac, 4.5 + i * 0.2, 1.8, o.frequency, 8);
-      F_AH.forEach(f => {
-        const bp = BP(ac, f.f, f.q);
-        const gn = G(ac, 0.044 * f.g, 1.8 + i * 0.15, 2.5, 8, rv);
-        o.connect(bp); bp.connect(gn);
-      });
-    });
-    HeartPad(ac, 147, 0.05, 8, rv);
+    const rv = Reverb(ac, 0.6, 0.52, 0.75);
+    AmbientPad(ac, 294, 0.18, 8, rv, [1.0, 1.25, 1.5, 2.0, 3.0]);
+    Voice(ac, 294, 'sine', F_AH, 0.12, 8, 2.5, 3.0, rv, 4.5, 1.8);
+    HeartPad(ac, 147, 0.06, 8, rv);
   },
 
-  // Healing chorus — 330 Hz 4-voice choir with warm pad
+  // Healing compassion chorus — peaceful wind bells + suspended pad
   '4-2': (ac) => {
-    const rv = Reverb(ac, 0.48, 0.42, 0.62);
-    [-9, 0, +8, +17].forEach((det, i) => {
-      const o = O(ac, 'triangle', 330, 8);
-      o.detune.value = det;
-      LFO(ac, 4.6 + i * 0.22, 2, o.frequency, 8);
-      F_OH.forEach(f => {
-        const bp = BP(ac, f.f, f.q);
-        const gn = G(ac, 0.052 * f.g, 2 + i * 0.18, 2.5, 8, rv);
-        o.connect(bp); bp.connect(gn);
-      });
-    });
+    const rv = Reverb(ac, 0.65, 0.55, 0.78);
+    AmbientPad(ac, 330, 0.16, 8, rv, [1.0, 1.33, 1.5, 2.0]);
+    TempleBell(ac, 330, 0.08, 8, rv);
     HeartPad(ac, 165, 0.05, 8, rv);
   },
 
-  // Compassion meditation — 277 Hz binaural (3.5 Hz theta) + choir
+  // Compassion meditation
   '4-3': (ac) => {
-    const rv = Reverb(ac, 0.5, 0.44, 0.62);
-    Voice(ac, 277, 'triangle', F_AH, 0.17, 8, 2, 2.5, rv, 5, 2);
-    Voice(ac, 277 + 3.5, 'triangle', F_AH, 0.17, 8, 2, 2.5, rv, 5, 2);
-    HeartPad(ac, 138, 0.04, 8, rv);
+    const rv = Reverb(ac, 0.55, 0.5, 0.7);
+    AmbientPad(ac, 277, 0.18, 8, rv, [1.0, 1.25, 1.5, 2.0]);
   },
 
-  // Peaceful green mantra — YAM OM sweep, choir-like
+  // Peaceful green mantra
   '4-4': (ac) => {
-    const rv = Reverb(ac, 0.5, 0.45, 0.65);
-    OmSweep(ac, 246, 'triangle', F_AH, F_MM, 0.2, 8, rv, 5, 2);
-    [0, +12].forEach((det, i) => {
-      const o = O(ac, 'triangle', 246, 8);
-      o.detune.value = det;
-      LFO(ac, 4.8, 2, o.frequency, 8);
-      F_MM.forEach(f => {
-        const bp = BP(ac, f.f, f.q);
-        const gn = G(ac, 0.04 * f.g, 2 + i * 0.3, 2.5, 8, rv);
-        o.connect(bp); bp.connect(gn);
-      });
-    });
+    const rv = Reverb(ac, 0.55, 0.5, 0.7);
+    AmbientPad(ac, 246, 0.18, 8, rv, [1.0, 1.5, 2.0]);
   },
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      5 · VISHUDDHA — HAM
-     Clear airy. 294–392 Hz. Mix of triangle + breath noise.
-     Echo-heavy reverb (open sky). Moderate 0.45 Hz rhythm.
+     Clear expressive blue throat range. 294–392 Hz.
      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-  // HAM bija — 294 Hz triangle, airy 0.45 Hz gate + breath
+  // HAM bija chant — gated throat voice + airy background breeze
   '5-0': (ac) => {
-    const rv = Reverb(ac, 0.55, 0.45, 0.65);       // long echo sky
-    ChantGated(ac, 294, 'triangle', F_AH, 0.18, 8, 0.45, 0.65, rv, 5.5, 2.5);
-    BreathLayer(ac, 0.04, 8, rv);
-  },
-
-  // Echo throat resonance — 330 Hz, long tail, formant EE
-  '5-1': (ac) => {
-    const rv = Reverb(ac, 0.65, 0.48, 0.7);
-    Voice(ac, 330, 'triangle', F_EE, 0.16, 8, 2, 2.5, rv, 6, 2.5);
-    BreathLayer(ac, 0.05, 8, rv);
-    const echo2 = Reverb(ac, 0.8, 0.3, 0.2); // second echo
-    Voice(ac, 330, 'sine', F_EE, 0.06, 8, 2.5, 2.5, echo2, 5.5, 2);
-  },
-
-  // Ether spiritual chant — 370 Hz open formant OO, very airy
-  '5-2': (ac) => {
-    const rv = Reverb(ac, 0.6, 0.46, 0.68);
-    Voice(ac, 370, 'triangle', F_OO, 0.16, 8, 2, 2.5, rv, 5.8, 2.5);
+    const rv = Reverb(ac, 0.6, 0.52, 0.75);
+    ChantGated(ac, 294, 'sine', F_AH, 0.15, 8, 0.35, 0.65, rv, 5.0, 2.2);
+    AmbientPad(ac, 294, 0.12, 8, rv, [1.0, 1.5, 2.0]);
     BreathLayer(ac, 0.06, 8, rv);
-    Voice(ac, 185, 'sine', F_OO, 0.04, 8, 3, 2.5, rv, 5, 1.5);
   },
 
-  // Vocal clarity meditation — 294 Hz OM sweep with echo
+  // Throat echo resonance — spacious flute pad + voice resonance
+  '5-1': (ac) => {
+    const rv = Reverb(ac, 0.7, 0.55, 0.8);
+    Voice(ac, 330, 'sine', F_EE, 0.14, 8, 2.5, 2.5, rv, 5.5, 2);
+    AmbientPad(ac, 330, 0.14, 8, rv, [1.0, 1.5, 2.0, 3.0]);
+    BreathLayer(ac, 0.08, 8, rv);
+  },
+
+  // Ether spiritual chant — deep ether drone + breath texture
+  '5-2': (ac) => {
+    const rv = Reverb(ac, 0.65, 0.52, 0.78);
+    Voice(ac, 370, 'sine', F_OO, 0.14, 8, 2.5, 2.5, rv, 5.2, 2);
+    AmbientPad(ac, 185, 0.16, 8, rv, [1.0, 1.5, 2.0]);
+    BreathLayer(ac, 0.08, 8, rv);
+  },
+
+  // Vocal clarity meditation
   '5-3': (ac) => {
-    const rv = Reverb(ac, 0.58, 0.44, 0.66);
-    OmSweep(ac, 294, 'triangle', F_AH, F_MM, 0.18, 8, rv, 5.5, 2.5);
-    BreathLayer(ac, 0.035, 8, rv);
+    const rv = Reverb(ac, 0.6, 0.5, 0.7);
+    AmbientPad(ac, 294, 0.18, 8, rv, [1.0, 1.5, 2.0]);
   },
 
-  // Blue chakra humming — 349 Hz with airy texture, slow vibrato
+  // Blue chakra humming
   '5-4': (ac) => {
-    const rv = Reverb(ac, 0.55, 0.44, 0.65);
-    Voice(ac, 349, 'triangle', F_AH, 0.14, 8, 2.5, 3, rv, 4.8, 2);
-    Voice(ac, 349, 'sine', F_MM, 0.06, 8, 3, 2.5, rv, 4.5, 1.8);
-    BreathLayer(ac, 0.04, 8, rv);
+    const rv = Reverb(ac, 0.6, 0.5, 0.7);
+    AmbientPad(ac, 349, 0.18, 8, rv, [1.0, 1.5, 2.0]);
   },
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      6 · AJNA — OM
-     Deep layered mysterious. USES 136 Hz (OM frequency) as base.
-     Very dense reverb (infinite cave). Slow 0.28 Hz sustained.
+     Deep mystical third eye range. 136–288 Hz.
      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-  // OM mantra — 136.1 Hz (OM tuning), full OH→MM sweep, multi-layer
+  // OM sacred mantra — mystical OM sweep + high chime pad
   '6-0': (ac) => {
-    const rv = Reverb(ac, 0.55, 0.48, 0.7);        // deep cave
-    OmSweep(ac, 136.1, 'sawtooth', F_OH, F_MM, 0.22, 8, rv, 4.5, 2);
-    // octave above, softer
-    OmSweep(ac, 272.2, 'triangle', F_OH, F_MM, 0.06, 8, rv, 4.8, 2);
-    CosmicShimmer(ac, 136.1, 0.03, 8, rv);
+    const rv = Reverb(ac, 0.65, 0.54, 0.78);
+    OmSweep(ac, 136.1, 'sine', F_OH, F_MM, 0.18, 8, rv, 4.5, 1.8);
+    AmbientPad(ac, 136.1, 0.15, 8, rv, [1.0, 1.5, 2.0, 3.0]);
+    CosmicShimmer(ac, 136.1, 0.04, 8, rv);
   },
 
-  // Third eye meditation — 288 Hz theta pulse (slow 0.28 gate)
+  // Third eye theta pulse — true stereo theta binaural beat (4 Hz difference)
   '6-1': (ac) => {
-    const rv = Reverb(ac, 0.6, 0.5, 0.72);
-    ChantGated(ac, 288, 'sawtooth', F_OH, 0.18, 8, 0.28, 0.8, rv, 4.5, 2); // very slow sacred pulse
-    CosmicShimmer(ac, 144, 0.04, 8, rv);
-    Voice(ac, 72, 'sine', F_MM, 0.06, 8, 2.5, 2.5, rv, 3, 1);
+    const rv = Reverb(ac, 0.7, 0.55, 0.8);
+    const oL = O(ac, 'sine', 144, 8);
+    const oR = O(ac, 'sine', 148, 8);
+    const panL = ac.createStereoPanner ? ac.createStereoPanner() : null;
+    const panR = ac.createStereoPanner ? ac.createStereoPanner() : null;
+    if (panL && panR) {
+      panL.pan.value = -1; panR.pan.value = 1;
+      T(panL); T(panR);
+    }
+    const gL = G(ac, 0.15, 3, 3, 8, panL ?? rv);
+    const gR = G(ac, 0.15, 3, 3, 8, panR ?? rv);
+    oL.connect(gL); oR.connect(gR);
+    if (panL && panR) {
+      panL.connect(rv); panR.connect(rv);
+    }
+    AmbientPad(ac, 288, 0.12, 8, rv, [1.0, 1.5, 2.0]);
+    CosmicShimmer(ac, 288, 0.03, 8, rv);
   },
 
-  // Deep meditation humming — 216 Hz layered drone, mystical
+  // Mystical deep humming — warm bass choir stacked pad
   '6-2': (ac) => {
-    const rv = Reverb(ac, 0.58, 0.5, 0.7);
-    // 3 octave stack: 54, 108, 216 Hz
-    [54, 108, 216].forEach((hz, i) => {
-      Voice(ac, hz, i < 2 ? 'sine' : 'sawtooth', F_OH, 0.12 / (i + 1), 8, 2, 2.5, rv, 3.5 + i * 0.3, 1.5);
-    });
-    CosmicShimmer(ac, 216, 0.04, 8, rv);
+    const rv = Reverb(ac, 0.68, 0.54, 0.78);
+    AmbientPad(ac, 108, 0.2, 8, rv, [1.0, 1.5, 2.0, 3.0]);
+    CosmicShimmer(ac, 216, 0.05, 8, rv);
   },
 
-  // Pineal awakening — 180 Hz 4-voice choir, low mystical
+  // Pineal awakening
   '6-3': (ac) => {
-    const rv = Reverb(ac, 0.6, 0.5, 0.72);
-    [-14, -5, 0, +9].forEach((det, i) => {
-      const o = O(ac, 'sawtooth', 180, 8);
-      o.detune.value = det;
-      LFO(ac, 4 + i * 0.28, 1.8, o.frequency, 8);
-      F_OH.forEach(f => {
-        const bp = BP(ac, f.f, f.q);
-        const gn = G(ac, 0.058 * f.g, 2 + i * 0.2, 2.5, 8, rv);
-        o.connect(bp); bp.connect(gn);
-      });
-    });
-    CosmicShimmer(ac, 180, 0.035, 8, rv);
+    const rv = Reverb(ac, 0.65, 0.5, 0.75);
+    AmbientPad(ac, 180, 0.18, 8, rv, [1.0, 1.5, 2.0]);
   },
 
-  // Indigo spiritual resonance — 136 Hz binaural (6 Hz theta) + deep OM
+  // Indigo spiritual resonance
   '6-4': (ac) => {
-    const rv = Reverb(ac, 0.62, 0.5, 0.74);
-    Voice(ac, 136.1, 'sawtooth', F_OH, 0.18, 8, 2, 2.5, rv, 4.2, 2);
-    Voice(ac, 136.1 + 6, 'sawtooth', F_OH, 0.18, 8, 2, 2.5, rv, 4.2, 2);
-    Voice(ac, 68, 'sine', F_MM, 0.06, 8, 2.5, 2.5, rv, 3, 1);
-    CosmicShimmer(ac, 136, 0.035, 8, rv);
+    const rv = Reverb(ac, 0.65, 0.5, 0.75);
+    AmbientPad(ac, 136, 0.18, 8, rv, [1.0, 1.5, 2.0]);
   },
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      7 · SAHASRARA — AUM
-     Ethereal transcendent. 396–528 Hz. Pure sine (heavenly).
-     Vast shimmering reverb (infinite sky). Very soft, slow 0.25 Hz.
-     AUM = full AH→OO→MM sweep.
+     Ethereal cosmic crown range. 396–528 Hz.
      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-  // Silent AUM — 396 Hz, AH→OO→MM three-phase sweep, very soft
+  // AUM sacred meditation — celestial AUM sweep + crystal singing bowl
   '7-0': (ac) => {
-    const rv = Reverb(ac, 0.7, 0.52, 0.8);         // vast infinite reverb
-    // AUM = AH → OO → MM morphing over 8s
-    const o = O(ac, 'sine', 396, 8);
-    LFO(ac, 5, 1.5, o.frequency, 8);
-    const f1 = BP(ac, 730, 9);   // AH F1 → OO F1 → MM F1
-    f1.frequency.setValueAtTime(730, ac.currentTime);
-    f1.frequency.linearRampToValueAtTime(300, ac.currentTime + 3.5); // AH→OO
-    f1.frequency.linearRampToValueAtTime(250, ac.currentTime + 6);   // OO→MM
-    const f2 = BP(ac, 1090, 10); // AH F2 → OO F2 → MM F2
-    f2.frequency.setValueAtTime(1090, ac.currentTime);
-    f2.frequency.linearRampToValueAtTime(870, ac.currentTime + 3.5);
-    f2.frequency.linearRampToValueAtTime(2500, ac.currentTime + 6);  // nasal
-    const g1 = G(ac, 0.2, 1.5, 2.5, 8, rv);
-    const g2 = G(ac, 0.08, 1.5, 2.5, 8, rv);
-    o.connect(f1); f1.connect(g1);
-    o.connect(f2); f2.connect(g2);
-    const sub = O(ac, 'sine', 198, 8);
-    const sg = G(ac, 0.08, 2, 3, 8, rv); sub.connect(sg);
+    const rv = Reverb(ac, 0.75, 0.58, 0.85);
+    OmSweep(ac, 396, 'sine', F_OO, F_MM, 0.15, 8, rv, 4.8, 1.5);
+    AmbientPad(ac, 396, 0.12, 8, rv, [1.0, 1.5, 2.0]);
+    CrownBowl(ac, 396, 0.08, 8, rv);
   },
 
-  // Angelic choir — 440 Hz, 5 close voices, EE + AH blend
+  // Angelic choir EE-AH — shimmering major chord meditation pad
   '7-1': (ac) => {
-    const rv = Reverb(ac, 0.72, 0.52, 0.82);
-    [-14, -6, 0, +7, +14].forEach((det, i) => {
-      const o = O(ac, 'sine', 440, 8);
-      o.detune.value = det;
-      LFO(ac, 5 + i * 0.18, 1.5, o.frequency, 8);
-      F_OO.forEach(f => {
-        const bp = BP(ac, f.f + i * 8, f.q);
-        const gn = G(ac, 0.038 * f.g, 2 + i * 0.12, 2.8, 8, rv);
-        o.connect(bp); bp.connect(gn);
-      });
-    });
-    CrownBowl(ac, 440, 0.04, 8, rv);
+    const rv = Reverb(ac, 0.8, 0.6, 0.9);
+    AmbientPad(ac, 440, 0.18, 8, rv, [1.0, 1.25, 1.5, 2.0, 2.5]);
+    CrownBowl(ac, 440, 0.06, 8, rv);
   },
 
-  // Cosmic divine hum — 528 Hz (love frequency), slow pure hum
+  // Cosmic divine hum — 528 Hz crystal energy pad with lower sub harmonics
   '7-2': (ac) => {
-    const rv = Reverb(ac, 0.7, 0.52, 0.8);
-    Voice(ac, 528, 'sine', F_OO, 0.15, 8, 2.5, 3, rv, 5, 1.2);
-    Voice(ac, 264, 'sine', F_MM, 0.06, 8, 3, 3, rv, 4.5, 1);
-    CrownBowl(ac, 528, 0.05, 8, rv);
+    const rv = Reverb(ac, 0.78, 0.58, 0.88);
+    AmbientPad(ac, 528, 0.15, 8, rv, [0.5, 1.0, 1.5, 2.0]);
+    CrownBowl(ac, 528, 0.1, 8, rv);
   },
 
-  // Enlightenment mantra — 432 Hz (sacred tuning) choir + bowl
+  // Enlightenment mantra
   '7-3': (ac) => {
-    const rv = Reverb(ac, 0.72, 0.52, 0.82);
-    CrownBowl(ac, 432, 0.1, 8, rv);
-    [-8, 0, +8].forEach((det, i) => {
-      const o = O(ac, 'sine', 432, 8);
-      o.detune.value = det;
-      LFO(ac, 4.8 + i * 0.2, 1.2, o.frequency, 8);
-      F_OO.forEach(f => {
-        const bp = BP(ac, f.f, f.q);
-        const gn = G(ac, 0.04 * f.g, 2.5 + i * 0.2, 3, 8, rv);
-        o.connect(bp); bp.connect(gn);
-      });
-    });
+    const rv = Reverb(ac, 0.75, 0.55, 0.8);
+    AmbientPad(ac, 432, 0.18, 8, rv, [1.0, 1.5, 2.0]);
   },
 
-  // Celestial transcendence — 396 Hz binaural (3 Hz delta) + angelic
+  // Celestial transcendence
   '7-4': (ac) => {
-    const rv = Reverb(ac, 0.75, 0.55, 0.85);
-    Voice(ac, 396, 'sine', F_OO, 0.14, 8, 2.5, 3, rv, 4.8, 1.2);
-    Voice(ac, 396 + 3, 'sine', F_OO, 0.14, 8, 2.5, 3, rv, 4.8, 1.2); // 3 Hz delta beat
-    CrownBowl(ac, 396, 0.06, 8, rv);
-    CosmicShimmer(ac, 396, 0.02, 8, rv);
+    const rv = Reverb(ac, 0.75, 0.55, 0.8);
+    AmbientPad(ac, 396, 0.18, 8, rv, [1.0, 1.5, 2.0]);
   },
 };
 

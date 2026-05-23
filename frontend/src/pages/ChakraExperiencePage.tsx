@@ -302,12 +302,55 @@ function EqBars({ color }: { color: string }) {
 
 /* ─── Sound button ────────────────────────────────────────────────────── */
 
-function SoundBtn({ chakraId, soundIndex, color, glowColor, isPlaying, onClick }: {
-  chakraId: number; soundIndex: number; color: string; glowColor: string;
+interface ExperienceSoundInfo {
+  label: string;
+  icon: string;
+}
+
+const EXPERIENCE_CHAKRA_SOUNDS: Record<number, ExperienceSoundInfo[]> = {
+  1: [
+    { label: 'LAM Bija Chant', icon: '🕉️' },
+    { label: 'Tibetan Low Hum', icon: '🔔' },
+    { label: 'Earthy Bass Vibration', icon: '🌍' },
+  ],
+  2: [
+    { label: 'VAM Bija Chant', icon: '🕉️' },
+    { label: 'Feminine Spiritual Chant', icon: '✨' },
+    { label: 'Water Flow Mantra', icon: '💧' },
+  ],
+  3: [
+    { label: 'RAM Bija Chant', icon: '🕉️' },
+    { label: 'Energetic Fire Mantra', icon: '🔥' },
+    { label: 'Warrior Monk Meditation', icon: '⚔️' },
+  ],
+  4: [
+    { label: 'YAM Bija Chant', icon: '🕉️' },
+    { label: 'Heart Choir Resonance', icon: '🎶' },
+    { label: 'Healing Compassion Chorus', icon: '💚' },
+  ],
+  5: [
+    { label: 'HAM Bija Chant', icon: '🕉️' },
+    { label: 'Throat Echo Resonance', icon: '🔮' },
+    { label: 'Ether Spiritual Chant', icon: '🌬️' },
+  ],
+  6: [
+    { label: 'OM Sacred Mantra', icon: '🕉️' },
+    { label: 'Third Eye Theta Pulse', icon: '👁️' },
+    { label: 'Mystical Deep Humming', icon: '🌌' },
+  ],
+  7: [
+    { label: 'AUM Sacred Meditation', icon: '🕉️' },
+    { label: 'Angelic Choir EE-AH', icon: '👑' },
+    { label: 'Cosmic Divine Hum', icon: '🌟' },
+  ],
+};
+
+/* ─── Sound button ────────────────────────────────────────────────────── */
+
+function SoundBtn({ info, color, glowColor, isPlaying, onClick }: {
+  info: ExperienceSoundInfo; color: string; glowColor: string;
   isPlaying: boolean; onClick: () => void;
 }) {
-  const info = CHAKRA_SOUNDS[chakraId]?.[soundIndex];
-  if (!info) return null;
   return (
     <motion.button
       onClick={onClick}
@@ -421,53 +464,16 @@ function ChakraCard({ chakra, index }: { chakra: typeof CHAKRAS[0]; index: numbe
                   width={220}
                   height={220}
                   className="block object-contain drop-shadow-2xl"
-                  style={{ filter: `drop-shadow(0 0 40px ${chakra.color}60)` }}
+                  style={{ filter: `drop-shadow(0 0 40px ${chakra.color}60)`, mixBlendMode: 'screen', background: 'transparent', borderRadius: '50%' }}
                   draggable={false}
                 />
               </motion.div>
 
               {/* Mantra badge */}
-              <motion.div
-                className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-sm font-bold tracking-[0.2em]"
-                style={{ background: chakra.color, color: 'white', boxShadow: `0 0 20px ${chakra.glowColor}` }}
-                animate={{ boxShadow: [`0 0 10px ${chakra.glowColor}`, `0 0 30px ${chakra.glowColor}`, `0 0 10px ${chakra.glowColor}`] }}
-                transition={{ duration: 3, repeat: Infinity }}
-              >
-                {chakra.mantra}
-              </motion.div>
+              {/* mantra pill removed per request */}
             </div>
 
-            {/* Breathing toggle */}
-            <div className="flex flex-col items-center gap-4 w-full">
-              <motion.button
-                onClick={() => setShowBreath((v) => !v)}
-                className="flex items-center gap-2.5 px-6 py-2.5 rounded-full text-sm font-semibold border transition-all"
-                style={{
-                  borderColor: chakra.borderColor,
-                  color: showBreath ? chakra.color : 'rgba(255,255,255,0.5)',
-                  background: showBreath ? `${chakra.color}15` : 'transparent',
-                }}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c4.97 0 9 4.03 9 9s-4.03 9-9 9-9-4.03-9-9 4.03-9 9-9z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3" />
-                </svg>
-                {showBreath ? 'Stop Breathing' : 'Start Breathing'}
-              </motion.button>
-              <AnimatePresence>
-                {showBreath && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                  >
-                    <BreathingCircle color={chakra.color} pattern={chakra.breathPattern} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            {/* Breathing UI removed per design request */}
           </motion.div>
 
           {/* ── RIGHT / LEFT: Content ── */}
@@ -480,22 +486,18 @@ function ChakraCard({ chakra, index }: { chakra: typeof CHAKRAS[0]; index: numbe
           >
             {/* Header */}
             <div>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-[2px]" style={{ background: chakra.color }} />
-                <span className="text-xs font-bold tracking-[0.25em] uppercase" style={{ color: chakra.color }}>
-                  {chakra.element} · {chakra.frequency} Hz
-                </span>
-              </div>
-              <h2 className="text-5xl md:text-6xl font-bold text-white tracking-tight mb-1"
-                style={{ fontFamily: "'Cinzel', serif" }}>
+              <h2
+                className="text-4xl md:text-5xl font-bold tracking-tight"
+                style={{ color: chakra.color, fontFamily: "'Cinzel', serif" }}
+              >
                 {chakra.sanskrit}
               </h2>
-              <p className="text-white/40 text-lg font-medium">{chakra.name} Chakra</p>
+              <p className="text-white/40 text-lg font-bold mt-1">{chakra.name} Chakra</p>
             </div>
 
             {/* Meaning */}
-            <div className="rounded-2xl p-6 border" style={{ background: `${chakra.color}08`, borderColor: chakra.borderColor }}>
-              <p className="text-white/75 leading-relaxed text-base">{chakra.meaning}</p>
+              <div className="rounded-2xl p-6 border" style={{ background: `${chakra.color}08`, borderColor: chakra.borderColor }}>
+              <p className="text-white/80 leading-relaxed text-base font-bold">{chakra.meaning}</p>
             </div>
 
             {/* Benefits */}
@@ -505,7 +507,7 @@ function ChakraCard({ chakra, index }: { chakra: typeof CHAKRAS[0]; index: numbe
                 {chakra.benefits.map((b, i) => (
                   <motion.li
                     key={i}
-                    className="flex items-start gap-3 text-sm text-white/65"
+                    className="flex items-start gap-3 text-sm text-white/80 font-semibold"
                     initial={{ opacity: 0, x: -10 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
@@ -523,21 +525,20 @@ function ChakraCard({ chakra, index }: { chakra: typeof CHAKRAS[0]; index: numbe
               <h3 className="text-xs font-bold tracking-[0.2em] uppercase mb-3" style={{ color: chakra.color }}>
                 Meditation Guidance
               </h3>
-              <p className="text-white/55 text-sm leading-relaxed">{chakra.meditation}</p>
+              <p className="text-white/70 text-sm leading-relaxed font-semibold">{chakra.meditation}</p>
             </div>
 
             {/* Soundboard */}
             <div>
               <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-white/30 mb-4">Mantra Playlist</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {(CHAKRA_SOUNDS[chakra.id] ?? []).map((_, idx) => {
+                {(EXPERIENCE_CHAKRA_SOUNDS[chakra.id] ?? []).map((info, idx) => {
                   const isThisPlaying =
                     playing?.chakraId === chakra.id && playing?.soundIndex === idx;
                   return (
                     <SoundBtn
                       key={idx}
-                      chakraId={chakra.id}
-                      soundIndex={idx}
+                      info={info}
                       color={chakra.color}
                       glowColor={chakra.glowColor}
                       isPlaying={isThisPlaying}
@@ -555,7 +556,7 @@ function ChakraCard({ chakra, index }: { chakra: typeof CHAKRAS[0]; index: numbe
                   >
                     <motion.div className="w-1.5 h-1.5 rounded-full" style={{ background: chakra.color }}
                       animate={{ scale: [1, 1.5, 1] }} transition={{ duration: 1.2, repeat: Infinity }} />
-                    Now playing · {CHAKRA_SOUNDS[chakra.id]?.[playing.soundIndex]?.label}
+                    Now playing · {EXPERIENCE_CHAKRA_SOUNDS[chakra.id]?.[playing.soundIndex]?.label}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -681,7 +682,7 @@ export default function ChakraExperiencePage() {
       <SideNav active={activeChakra} onSelect={scrollToChakra} />
 
       {/* Hero intro */}
-      <section className="relative min-h-[65vh] flex flex-col items-center justify-center overflow-hidden"
+      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
         style={{ background: 'linear-gradient(160deg, #060a07, #0d1410, #08090a)' }}>
         {/* Ambient chakra orbs */}
         {CHAKRAS.map((c, i) => (
@@ -779,7 +780,6 @@ export default function ChakraExperiencePage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <div className="text-5xl mb-6">🕉️</div>
           <h2 className="text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Cinzel', serif" }}>
             Your Journey Continues
           </h2>
