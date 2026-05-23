@@ -14,13 +14,16 @@ export const CommonProblems = () => {
         {
             title: "Burnout",
             icon: Flame,
-            color: "text-orange-500",
-            bgColor: "bg-orange-50",
-            borderColor: "border-orange-200",
-            hoverBg: "hover:bg-orange-50",
-            activeBg: "bg-orange-100",
-            gradientFrom: "from-orange-500",
-            gradientTo: "to-red-500",
+            color: "text-amber-700",
+            bgColor: "bg-amber-50",
+            borderColor: "border-amber-200",
+            hoverBg: "hover:bg-amber-50",
+            activeBg: "bg-amber-100",
+            gradientFrom: "from-amber-500",
+            gradientTo: "to-orange-400",
+            accentColor: "#D4A574",
+            accentLight: "#F9F3E8",
+            modalGradient: "from-amber-400 to-orange-400",
 
             image: "https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=600&h=400&fit=crop&q=80",
             description: "Feeling exhausted and overwhelmed from work or life demands?",
@@ -35,111 +38,126 @@ export const CommonProblems = () => {
         {
             title: "Excess Stress",
             icon: Zap,
-            color: "text-yellow-500",
-            bgColor: "bg-yellow-50",
-            borderColor: "border-yellow-200",
-            hoverBg: "hover:bg-yellow-50",
-            activeBg: "bg-yellow-100",
-            gradientFrom: "from-yellow-500",
-            gradientTo: "to-orange-500",
+            color: "text-green-600",
+            bgColor: "bg-green-50",
+            borderColor: "border-green-200",
+            hoverBg: "hover:bg-green-50",
+            activeBg: "bg-green-100",
+            gradientFrom: "from-green-500",
+            gradientTo: "to-emerald-400",
+            accentColor: "#A8C99F",
+            accentLight: "#F0F5ED",
+            modalGradient: "from-green-400 to-emerald-400",
 
             image: "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=600&h=400&fit=crop&q=80",
 
             description: "Chronic stress can impact your health and productivity.",
             solutions: ["Breathing exercises", "Mindfulness practices", "Regular physical activity", "Connect with AI companion"],
             recommendations: [
-                { icon: Headphones, text: "Guided Breathwork" },
-                { icon: Play, text: "Nature Sounds" },
-                { icon: MessageCircle, text: "Stress Management Chat" },
-                { icon: Calendar, text: "Group Wellness Session" }
+                { icon: Headphones, text: "Stress Relief Meditation" },
+                { icon: Play, text: "432 Hz Healing Frequency" },
+                { icon: MessageCircle, text: "Talk to AI Companion" },
+                { icon: Calendar, text: "Book 1:1 Session" }
             ]
         },
         {
             title: "Sleep Issues",
             icon: Moon,
-            color: "text-purple-500",
-            bgColor: "bg-purple-50",
-            borderColor: "border-purple-200",
-            hoverBg: "hover:bg-purple-50",
-            activeBg: "bg-purple-100",
-            gradientFrom: "from-purple-500",
-            gradientTo: "to-indigo-500",
+            color: "text-slate-700",
+            bgColor: "bg-slate-50",
+            borderColor: "border-slate-300",
+            hoverBg: "hover:bg-slate-50",
+            activeBg: "bg-slate-200",
+            gradientFrom: "from-slate-600",
+            gradientTo: "to-blue-700",
+            accentColor: "#9FA8BA",
+            accentLight: "#F2F5FA",
+            modalGradient: "from-slate-700 to-blue-900",
 
             image: "https://images.unsplash.com/photo-1518281361980-b26bfd556770?w=600&h=400&fit=crop&q=80",
 
             description: "Quality sleep is essential for recovery and mental clarity.",
             solutions: ["Sleep meditation tracks", "Calming frequencies", "Evening routines", "Binaural beats"],
             recommendations: [
-                { icon: Headphones, text: "Deep Sleep Meditation" },
-                { icon: Play, text: "Delta Wave Music" },
-                { icon: MessageCircle, text: "Sleep Hygiene Tips" },
-                { icon: Calendar, text: "Sleep Coaching Session" }
+                { icon: Headphones, text: "Stress Relief Meditation" },
+                { icon: Play, text: "432 Hz Healing Frequency" },
+                { icon: MessageCircle, text: "Talk to AI Companion" },
+                { icon: Calendar, text: "Book 1:1 Session" }
             ]
         },
         {
             title: "High Anxiety",
             icon: Cloud,
-            color: "text-blue-500",
-            bgColor: "bg-blue-50",
-            borderColor: "border-blue-200",
-            hoverBg: "hover:bg-blue-50",
-            activeBg: "bg-blue-100",
-            gradientFrom: "from-blue-500",
-            gradientTo: "to-cyan-500",
+            color: "text-purple-600",
+            bgColor: "bg-purple-50",
+            borderColor: "border-purple-200",
+            hoverBg: "hover:bg-purple-50",
+            activeBg: "bg-purple-100",
+            gradientFrom: "from-purple-400",
+            gradientTo: "to-indigo-500",
+            accentColor: "#D8C5E5",
+            accentLight: "#F7F3FC",
+            modalGradient: "from-purple-400 to-indigo-500",
 
             image: "https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?w=600&h=400&fit=crop&q=80",
 
             description: "Anxiety can feel overwhelming, but you can find peace.",
             solutions: ["Guided anxiety relief", "Grounding techniques", "Crystal bowl therapy", "Community support"],
             recommendations: [
-                { icon: Headphones, text: "Grounding Exercise" },
-                { icon: Play, text: "Crystal Bowl Therapy" },
-                { icon: MessageCircle, text: "Anxiety Support Chat" },
-                { icon: Calendar, text: "Anxiety Relief Session" }
+                { icon: Headphones, text: "Stress Relief Meditation" },
+                { icon: Play, text: "432 Hz Healing Frequency" },
+                { icon: MessageCircle, text: "Talk to AI Companion" },
+                { icon: Calendar, text: "Book 1:1 Session" }
             ]
         },
         {
             title: "Mood Swings",
             icon: Activity,
-            color: "text-pink-500",
-            bgColor: "bg-pink-50",
-            borderColor: "border-pink-200",
-            hoverBg: "hover:bg-pink-50",
-            activeBg: "bg-pink-100",
-            gradientFrom: "from-pink-500",
-            gradientTo: "to-rose-500",
+            color: "text-rose-500",
+            bgColor: "bg-rose-50",
+            borderColor: "border-rose-200",
+            hoverBg: "hover:bg-rose-50",
+            activeBg: "bg-rose-100",
+            gradientFrom: "from-rose-400",
+            gradientTo: "to-pink-400",
+            accentColor: "#E5B8A8",
+            accentLight: "#FAF0ED",
+            modalGradient: "from-rose-400 to-pink-400",
 
             image: "https://images.unsplash.com/photo-1478147427282-58a87a120781?w=600&h=400&fit=crop&q=80",
 
             description: "Emotional fluctuations affect your daily life.",
             solutions: ["Chakra balancing", "Emotional regulation", "Journaling exercises", "Companion sessions"],
             recommendations: [
-                { icon: Headphones, text: "Chakra Meditation" },
-                { icon: Play, text: "Heart Frequencies" },
-                { icon: MessageCircle, text: "Emotion Tracking" },
-                { icon: Calendar, text: "Emotional Wellness Session" }
+                { icon: Headphones, text: "Stress Relief Meditation" },
+                { icon: Play, text: "432 Hz Healing Frequency" },
+                { icon: MessageCircle, text: "Talk to AI Companion" },
+                { icon: Calendar, text: "Book 1:1 Session" }
             ]
         },
         {
             title: "Feeling Isolated",
             icon: Users,
-            color: "text-teal-500",
-            bgColor: "bg-teal-50",
-            borderColor: "border-teal-200",
-            hoverBg: "hover:bg-teal-50",
-            activeBg: "bg-teal-100",
-            gradientFrom: "from-teal-500",
-            gradientTo: "to-emerald-500",
+            color: "text-cyan-600",
+            bgColor: "bg-cyan-50",
+            borderColor: "border-cyan-200",
+            hoverBg: "hover:bg-cyan-50",
+            activeBg: "bg-cyan-100",
+            gradientFrom: "from-cyan-400",
+            gradientTo: "to-teal-500",
+            accentColor: "#A8D4E0",
+            accentLight: "#F0F8FB",
+            modalGradient: "from-cyan-400 to-teal-500",
 
             image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&h=400&fit=crop&q=80",
 
             description: "Connection is a fundamental human need.",
             solutions: ["Join community groups", "Attend live sessions", "Connect with companions", "Group retreats"],
             recommendations: [
-                { icon: Headphones, text: "Loving Kindness Meditation" },
-                { icon: Play, text: "Community Sound Bath" },
-                { icon: MessageCircle, text: "Join Community" },
-                { icon: Calendar, text: "Meditation Circle" }
+                { icon: Headphones, text: "Stress Relief Meditation" },
+                { icon: Play, text: "432 Hz Healing Frequency" },
+                { icon: MessageCircle, text: "Talk to AI Companion" },
+                { icon: Calendar, text: "Book 1:1 Session" }
             ]
         },
     ];
@@ -170,7 +188,20 @@ export const CommonProblems = () => {
                          whileHover={{ scale: 1.02, y: -4 }}
                          whileTap={{ scale: 0.98 }}
                          onClick={() => setModalProblem(p)}
-                         className={`group rounded-2xl border transition-all duration-300 cursor-pointer overflow-hidden bg-white border-gray-200 ${p.hoverBg} hover:shadow-xl hover:${p.borderColor}`}
+                         className="group rounded-2xl border-2 transition-all duration-300 cursor-pointer overflow-hidden bg-white hover:shadow-xl"
+                         style={{
+                            borderColor: '#E5E7EB'
+                         }}
+                         onMouseEnter={(e) => {
+                            const elem = e.currentTarget as HTMLElement;
+                            elem.style.borderColor = p.accentColor;
+                            elem.style.boxShadow = `0 12px 24px ${p.accentColor}0A, 0 0 20px ${p.accentColor}08`;
+                         }}
+                         onMouseLeave={(e) => {
+                            const elem = e.currentTarget as HTMLElement;
+                            elem.style.borderColor = '#E5E7EB';
+                            elem.style.boxShadow = 'none';
+                         }}
                         >
                          <img
                            src={p.image}
@@ -178,13 +209,19 @@ export const CommonProblems = () => {
                            className="w-full h-40 object-cover"
                          />
 
-                        <div className="flex items-center justify-center p-4 w-full">
-                            <span className="text-lg font-semibold text-gray-900 group-hover:text-[#1a5d47] transition-colors text-center">
+                        <div className="flex items-center justify-center p-4 w-full relative">
+                            <span className="text-lg font-semibold text-gray-900 group-hover:opacity-0 transition-all text-center duration-300">
+                              {p.title}
+                            </span>
+                            <span className="text-lg font-semibold opacity-0 group-hover:opacity-100 transition-all text-center duration-300" 
+                              style={{ 
+                                color: p.accentColor
+                              }}>
                               {p.title}
                             </span>
                         </div>
                      </motion.div>
-                    ))} 
+                    ))}
                 </div>
               </div>
 
@@ -207,7 +244,10 @@ export const CommonProblems = () => {
                            className="relative bg-white rounded-2xl w-full max-w-[650px] aspect-square max-h-[90vh] shadow-2xl flex flex-col overflow-hidden mx-auto"
                         >
                             {/* Header with gradient bar */}
-                            <div className="h-3 min-h-[12px] w-full shrink-0 bg-gradient-to-r from-emerald-400 to-emerald-500" />
+                            <div className="h-3 min-h-[12px] w-full shrink-0" style={{
+                                background: `linear-gradient(to right, ${modalProblem.accentColor}, ${modalProblem.accentColor}40)`,
+                                boxShadow: `0 0 20px ${modalProblem.accentColor}10`
+                            }} />
 
                             {/* X Close Button */}
                             <motion.button
@@ -248,7 +288,7 @@ export const CommonProblems = () => {
                                     <div className="grid grid-cols-2 gap-3">
                                         {modalProblem.solutions.map((solution: string, sIdx: number) => (
                                             <div key={sIdx} className="flex items-center gap-2">
-                                                <Check className="w-5 h-5 text-emerald-500" />
+                                                <Check className="w-5 h-5" style={{ color: modalProblem.accentColor }} />
                                                 <span className="text-sm text-gray-600">{solution}</span>
                                             </div>
                                         ))}
@@ -267,9 +307,26 @@ export const CommonProblems = () => {
                                                 whileHover={{ scale: 1.08 }}
                                                 whileTap={{ scale: 0.92 }}
                                                 onClick={() => setActiveActionModal(rec.text)}
-                                                className="w-28 h-28 flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-all"
+                                                className="w-28 h-28 flex flex-col items-center justify-center gap-2 p-3 rounded-xl transition-all"
+                                                style={{
+                                                    backgroundColor: modalProblem.accentLight,
+                                                    border: `1px solid ${modalProblem.accentColor}20`,
+                                                    boxShadow: `0 0 12px ${modalProblem.accentColor}08`
+                                                }}
+                                                onHoverStart={(e) => {
+                                                    const elem = e.currentTarget as HTMLElement;
+                                                    elem.style.boxShadow = `0 0 20px ${modalProblem.accentColor}15`;
+                                                    elem.style.backgroundColor = modalProblem.accentLight;
+                                                }}
+                                                onHoverEnd={(e) => {
+                                                    const elem = e.currentTarget as HTMLElement;
+                                                    elem.style.boxShadow = `0 0 12px ${modalProblem.accentColor}08`;
+                                                }}
                                             >
-                                                <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-emerald-400 to-emerald-500 flex items-center justify-center flex-shrink-0">
+                                                <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{
+                                                    background: `linear-gradient(135deg, ${modalProblem.accentColor}, ${modalProblem.accentColor}80)`,
+                                                    boxShadow: `0 0 15px ${modalProblem.accentColor}15`
+                                                }}>
                                                     <rec.icon className="w-6 h-6 text-white" />
                                                 </div>
                                                 <span className="text-xs font-medium text-gray-700 text-center line-clamp-2">{rec.text}</span>
@@ -280,14 +337,22 @@ export const CommonProblems = () => {
 
                                 {/* NEW DROPDOWN BOXES */}
                                 <div className="mb-6">
-                                    <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-300 pb-2">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2" style={{
+                                        borderBottomColor: `${modalProblem.accentColor}40`,
+                                        borderBottomWidth: '2px'
+                                    }}>
                                         Why the mind keeps repeating
                                   </h3>
 
                                   <div className="space-y-3">
 
-                                    <details className="border border-gray-300 rounded-md bg-white px-4 py-3">
-                                        <summary className="cursor-pointer font-medium text-gray-800">
+                                    <details className="rounded-md bg-white px-4 py-3 transition-all" style={{
+                                        borderWidth: '1px',
+                                        borderColor: `${modalProblem.accentColor}20`
+                                    }}>
+                                        <summary className="cursor-pointer font-medium text-gray-800" style={{
+                                            color: modalProblem.accentColor
+                                        }}>
                                             The mind seeks closure
                                       </summary>
                                       <p className="mt-2 text-sm text-gray-600">
@@ -295,8 +360,13 @@ export const CommonProblems = () => {
                                       </p>
                                   </details>
 
-                                  <details className="border border-gray-300 rounded-md bg-white px-4 py-3">
-                                      <summary className="cursor-pointer font-medium text-gray-800">
+                                  <details className="rounded-md bg-white px-4 py-3 transition-all" style={{
+                                        borderWidth: '1px',
+                                        borderColor: `${modalProblem.accentColor}20`
+                                    }}>
+                                      <summary className="cursor-pointer font-medium text-gray-800" style={{
+                                            color: modalProblem.accentColor
+                                        }}>
                                           Fear keeps loops alive
                                       </summary>
                                       <p className="mt-2 text-sm text-gray-600">
@@ -304,8 +374,13 @@ export const CommonProblems = () => {
                                       </p>
                                   </details>
 
-                                  <details className="border border-gray-300 rounded-md bg-white px-4 py-3">
-                                      <summary className="cursor-pointer font-medium text-gray-800">
+                                  <details className="rounded-md bg-white px-4 py-3 transition-all" style={{
+                                        borderWidth: '1px',
+                                        borderColor: `${modalProblem.accentColor}20`
+                                    }}>
+                                      <summary className="cursor-pointer font-medium text-gray-800" style={{
+                                            color: modalProblem.accentColor
+                                        }}>
                                         Thinking vs Looping
                                       </summary>
                                       <p className="mt-2 text-sm text-gray-600">
@@ -337,7 +412,11 @@ export const CommonProblems = () => {
                                           navigate('/dashboard/companion');
                                           setModalProblem(null);
                                         }}
-                                        className="flex-1 py-3 rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-emerald-400 to-emerald-500"
+                                        className="flex-1 py-3 rounded-xl text-white font-semibold text-sm transition-all"
+                                        style={{
+                                            background: `linear-gradient(135deg, ${modalProblem.accentColor}, ${modalProblem.accentColor}90)`,
+                                            boxShadow: `0 0 20px ${modalProblem.accentColor}15`
+                                        }}
                                     >
                                         Start Journey
                                     </motion.button>

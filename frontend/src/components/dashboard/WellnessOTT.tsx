@@ -20,8 +20,13 @@ export const WellnessOTT = () => {
     const handleViewMore = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        setIsAnimating(true);
-        navigate('/wellness-ott-intro', { replace: false });
+        const element = document.getElementById('chakra-section');
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            setIsAnimating(true);
+            navigate('/wellness-ott-intro', { replace: false });
+        }
     };
 
     return (
