@@ -376,29 +376,14 @@ export const CommonProblems = () => {
                             </div>
                             </div>
 
-                            {/* Action Buttons - fixed at bottom, outside scrollable area */}
-                            <div className="shrink-0 bg-white px-6 pt-4 pb-4 flex gap-3 border-t border-gray-200">
+                            {/* Action Button - fixed at bottom, outside scrollable area */}
+                            <div className="shrink-0 bg-white px-6 pt-4 pb-4 flex justify-center border-t border-gray-200">
                                 <button
                                     type="button"
                                     onClick={(e) => { e.stopPropagation(); setModalProblem(null); }}
-                                    className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 transition-all cursor-pointer"
+                                    className="px-12 py-3 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 transition-all cursor-pointer"
                                 >
                                     Close
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      navigate('/dashboard/companion');
-                                      setModalProblem(null);
-                                    }}
-                                    className="flex-1 py-3 rounded-xl text-white font-semibold text-sm transition-all cursor-pointer"
-                                    style={{
-                                        background: `linear-gradient(135deg, ${modalProblem.accentColor}, ${modalProblem.accentColor}90)`,
-                                        boxShadow: `0 0 20px ${modalProblem.accentColor}15`
-                                    }}
-                                >
-                                    Start Journey
                                 </button>
                             </div>
                         </motion.div>

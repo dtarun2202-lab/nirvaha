@@ -38,6 +38,7 @@ const userRoutes = require('./routes/userRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const reflectionRoutes = require('./routes/reflectionRoutes');
 const successStoriesRoutes = require('./routes/successStoriesRoutes');
+const wellnessRetreatRoutes = require('./routes/wellnessRetreatRoutes');
 const { syncAllApprovedCompanionsToUsers } = require('./utils/companionStatus');
 
 // Import models for seeding
@@ -432,6 +433,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/reflect', reflectionRoutes);
 app.use('/api/success-stories', successStoriesRoutes);
+app.use('/api/wellness-retreats', wellnessRetreatRoutes);
 app.use('/api', utilityRoutes);
 
 // Legacy route compatibility (for existing frontend code)

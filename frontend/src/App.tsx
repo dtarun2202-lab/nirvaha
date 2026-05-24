@@ -63,6 +63,7 @@ import { ProductManagementPage } from "./admin/pages/ProductManagementPage";
 import { ContactManagementPage } from "./admin/pages/ContactManagementPage";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { SuccessStoriesManager } from "./components/admin/SuccessStoriesManager";
+import { WellnessRetreatsManager } from "./components/admin/WellnessRetreatsManager";
 
 /**
  * Dashboard Routes Component
@@ -145,6 +146,7 @@ function AppInner() {
           <Route path="settings" element={<SettingsPage />} />
           <Route path="users" element={<UserManagementPage />} />
           <Route path="success-stories" element={<SuccessStoriesManager />} />
+          <Route path="wellness-retreats" element={<WellnessRetreatsManager />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Route>
 

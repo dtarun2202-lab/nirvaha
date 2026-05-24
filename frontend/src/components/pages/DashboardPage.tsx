@@ -7,6 +7,7 @@ import heroBg2 from "../../assets/meditation/hero-bg2.jpg";
 
 import { FeaturesBentoGrid } from "../dashboard/FeaturesBentoGrid";
 import { CommonProblems } from "../dashboard/CommonProblems";
+import { WellnessRetreats } from "../dashboard/WellnessRetreats";
 import { WellnessOTT } from "../dashboard/WellnessOTT";
 import { ChakraSection } from "../dashboard/ChakraSection";
 import { InspirationalQuotes } from "../dashboard/InspirationalQuotes";
@@ -112,6 +113,7 @@ export function DashboardPage() {
 
       <FeaturesBentoGrid />
       <CommonProblems />
+      <WellnessRetreats />
       <WellnessOTT />
       <ChakraSection />
       <InspirationalQuotes />

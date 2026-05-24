@@ -75,7 +75,7 @@ const quotes = [
 
 export const InspirationalQuotes = () => {
     return (
-       <section className="min-h-screen flex flex-col justify-start py-16 md:py-24 bg-[#EEF7F1] relative overflow-hidden">
+       <section className="min-h-screen flex flex-col justify-center py-16 md:py-24 bg-[#EEF7F1] relative overflow-hidden">
             {/* Container Wrapper */}
             <div className="max-w-7xl mx-auto px-6 w-full">
                 {/* Centered Header Section */}

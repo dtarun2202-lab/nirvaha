@@ -20,17 +20,12 @@ export const WellnessOTT = () => {
     const handleViewMore = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        const element = document.getElementById('chakra-section');
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            setIsAnimating(true);
-            navigate('/wellness-ott-intro', { replace: false });
-        }
+        setIsAnimating(true);
+        navigate('/wellness-ott-intro', { replace: false });
     };
 
     return (
-        <section className="flex flex-col justify-start pt-2 pb-8 bg-[#EEF7F1] overflow-hidden relative">
+        <section className="min-h-screen flex flex-col justify-center py-8 bg-[#EEF7F1] overflow-hidden relative">
             <div className="max-w-[1440px] mx-auto px-6 md:px-8">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
