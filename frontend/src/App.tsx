@@ -36,6 +36,7 @@ import SyllabusPage from './pages/SyllabusPage';
 import LibraryDetailPage from './pages/LibraryDetailPage';
 import StoryDetailPage from './pages/StoryDetailPage';
 import ChakraExperiencePage from './pages/ChakraExperiencePage';
+import HealingMusicPage from './pages/HealingMusicPage';
 
 import { FeaturesBentoGrid } from "./components/dashboard/FeaturesBentoGrid";
 import { CommonProblems } from "./components/dashboard/CommonProblems";
@@ -101,6 +102,7 @@ function AppInner() {
         <Route path="/library/:id" element={<LibraryDetailPage />} />
         <Route path="/story/:id" element={<StoryDetailPage />} />
         <Route path="/chakra-experience" element={<ChakraExperiencePage />} />
+        <Route path="/healing-music" element={<HealingMusicPage />} />
 
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
