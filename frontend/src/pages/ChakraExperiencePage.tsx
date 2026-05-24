@@ -766,36 +766,81 @@ export default function ChakraExperiencePage() {
       ))}
 
       {/* Closing section */}
-      <section className="relative py-32 flex flex-col items-center text-center overflow-hidden"
+      <section className="relative py-24 md:py-32 flex items-center justify-center overflow-hidden"
         style={{ background: 'linear-gradient(160deg, #080c09, #0a0f0d)' }}>
+        {/* Soft spiritual ambient background glow */}
         <motion.div
           className="absolute rounded-full blur-[160px] pointer-events-none"
-          style={{ width: 600, height: 600, background: 'rgba(124,58,237,0.1)', top: '50%', left: '50%', translateX: '-50%', translateY: '-50%' }}
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 6, repeat: Infinity }}
+          style={{ width: 600, height: 600, background: 'rgba(124,58,237,0.12)', top: '50%', left: '50%', translateX: '-50%', translateY: '-50%' }}
+          animate={{ scale: [1, 1.15, 1] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
         />
-        <motion.div
-          className="relative z-10 max-w-2xl mx-auto px-6"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <h2 className="text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Cinzel', serif" }}>
-            Your Journey Continues
-          </h2>
-          <p className="text-white/40 leading-relaxed mb-10">
-            The chakras are not a destination but a living map of your inner world.
-            Return often. Listen deeply. Let the healing unfold.
-          </p>
-          <motion.button
-            onClick={() => { stopSound(); navigate('/dashboard/overview?scrollTo=chakra-section'); }}
-            className="px-8 py-3.5 rounded-full font-semibold text-sm border border-white/15 text-white/60 hover:text-white hover:border-white/30 transition-all"
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-          >
-            Return to Dashboard
-          </motion.button>
-        </motion.div>
+        
+        <div className="relative z-10 max-w-5xl mx-auto px-6 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            {/* Image Container: Column Span 5 on lg */}
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
+              className="lg:col-span-5 flex justify-center"
+            >
+              <div className="relative group max-w-[280px] sm:max-w-xs md:max-w-sm w-full aspect-square rounded-3xl overflow-hidden bg-[#080c09]/40 border border-white/10 shadow-[0_0_50px_rgba(124,58,237,0.2)] transition-shadow duration-500 hover:shadow-[0_0_60px_rgba(124,58,237,0.35)]">
+                {/* Internal soft color overlays */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/10 via-transparent to-transparent pointer-events-none z-10" />
+                <motion.img 
+                  src="/images/7-chakras-meditation.webp" 
+                  alt="7 Chakras Meditation" 
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (target.src.endsWith('.webp')) {
+                      target.src = '/images/7-chakras-meditation.png';
+                    } else if (target.src.endsWith('.png')) {
+                      target.src = '/images/7-chakras-meditation.jpg';
+                    } else if (target.src.endsWith('.jpg')) {
+                      target.src = '/images/7-chakras-meditation.jpeg';
+                    } else {
+                      target.style.display = 'none';
+                    }
+                  }}
+                  className="w-full h-full object-cover rounded-3xl transition-transform duration-700 group-hover:scale-105"
+                />
+                {/* Vignette layer to blend the image naturally with dark theme */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent pointer-events-none" />
+              </div>
+            </motion.div>
+
+            {/* Text & Button Content: Column Span 7 on lg */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.15 }}
+              className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 md:space-y-8"
+            >
+              <div className="space-y-4">
+                <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight" style={{ fontFamily: "'Cinzel', serif" }}>
+                  Your Journey Continues
+                </h2>
+                <p className="text-white/50 leading-relaxed text-base md:text-lg max-w-lg font-medium">
+                  The chakras are not a destination but a living map of your inner world. Return often. Listen deeply. Let the healing unfold.
+                </p>
+              </div>
+              
+              <div className="pt-2">
+                <motion.button
+                  onClick={() => { stopSound(); navigate('/dashboard/overview?scrollTo=chakra-section'); }}
+                  className="px-8 py-3.5 rounded-full font-semibold text-sm border border-white/15 text-white/80 bg-white/5 hover:bg-white/10 hover:text-white hover:border-white/35 transition-all shadow-md"
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  Return to Dashboard
+                </motion.button>
+              </div>
+            </motion.div>
+          </div>
+        </div>
       </section>
     </div>
   );
