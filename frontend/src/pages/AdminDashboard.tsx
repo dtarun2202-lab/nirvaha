@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { BarChart3, Settings, LogOut, Menu, X } from 'lucide-react';
+import { BarChart3, Settings, LogOut, Menu, X, Compass } from 'lucide-react';
 import { motion } from 'motion/react';
 import { SuccessStoriesManager } from '../components/admin/SuccessStoriesManager';
+import { WellnessRetreatsManager } from '../components/admin/WellnessRetreatsManager';
 
 interface SidebarItem {
   id: string;
@@ -20,6 +21,12 @@ export function AdminDashboard() {
       label: 'Success Stories Manager',
       icon: <BarChart3 className="w-5 h-5" />,
       component: <SuccessStoriesManager />
+    },
+    {
+      id: 'wellness-retreats',
+      label: 'Wellness Retreats',
+      icon: <Compass className="w-5 h-5" />,
+      component: <WellnessRetreatsManager />
     },
     {
       id: 'settings',

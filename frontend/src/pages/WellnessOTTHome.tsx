@@ -290,7 +290,7 @@ export default function WellnessOTTHome() {
     <div className="min-h-screen bg-[#050505] text-white font-sans overflow-x-hidden selection:bg-[#1a5d47] selection:text-white pb-24 relative">
       
       {/* Netflix-Style Glassmorphic Header */}
-      <header className={`fixed top-0 left-0 w-full z-50 py-5 px-6 md:px-12 lg:px-16 flex justify-between items-center transition-all duration-500 ${
+      <header className={`fixed top-0 left-0 w-full z-[9999] pointer-events-auto py-5 px-6 md:px-12 lg:px-16 flex justify-between items-center transition-all duration-500 ${
         scrolled ? 'bg-[#050505]/95 backdrop-blur-md border-b border-white/5 shadow-2xl' : 'bg-gradient-to-b from-[#050505] via-[#050505]/60 to-transparent'
       }`}>
         <div className="flex items-center gap-8">
@@ -339,34 +339,37 @@ export default function WellnessOTTHome() {
         </div>
         
         {/* Right Nav Options */}
-        <div className="flex items-center gap-5 md:gap-7 relative">
+        <div className="flex items-center gap-5 md:gap-7 relative z-50">
           {/* Search Trigger */}
-          <div className="relative flex items-center">
-            <Search 
-              onClick={() => setIsSearchOpen(true)}
-              className="w-5 h-5 text-white/80 hover:text-[#2ed899] hover:drop-shadow-[0_0_8px_rgba(46,216,153,0.8)] cursor-pointer transition-all hover:scale-110" 
-            />
-          </div>
+          <button 
+            type="button"
+            onClick={() => setIsSearchOpen(true)}
+            className="relative flex items-center p-1.5 focus:outline-none hover:scale-110 transition-transform cursor-pointer bg-transparent border-none"
+          >
+            <Search className="w-5 h-5 text-white/80 hover:text-[#2ed899] hover:drop-shadow-[0_0_8px_rgba(46,216,153,0.8)] transition-colors" />
+          </button>
           
           {/* Notifications Dropdown Trigger */}
-          <div className="relative">
-            <Bell 
-              onClick={() => { setIsNotificationsOpen(!isNotificationsOpen); setIsProfileOpen(false); }}
-              className={`w-5 h-5 cursor-pointer transition-all hover:scale-110 ${isNotificationsOpen ? 'text-[#2ed899]' : 'text-white/80 hover:text-white'}`} 
-            />
-            <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#2ed899] rounded-full border-[1.5px] border-[#050505] shadow-[0_0_6px_rgba(46,216,153,0.8)] animate-pulse" />
-          </div>
+          <button 
+            type="button"
+            onClick={() => { setIsNotificationsOpen(!isNotificationsOpen); setIsProfileOpen(false); }}
+            className="relative p-1.5 focus:outline-none hover:scale-110 transition-transform cursor-pointer bg-transparent border-none"
+          >
+            <Bell className={`w-5 h-5 ${isNotificationsOpen ? 'text-[#2ed899]' : 'text-white/80 hover:text-white'} transition-colors`} />
+            <div className="absolute top-1 right-1 w-2 h-2 bg-[#2ed899] rounded-full border border-[#050505] shadow-[0_0_6px_rgba(46,216,153,0.8)] animate-pulse" />
+          </button>
 
           {/* Profile Dropdown Trigger */}
-          <div 
+          <button 
+            type="button"
             onClick={() => { setIsProfileOpen(!isProfileOpen); setIsNotificationsOpen(false); }}
-            className={`w-9 h-9 rounded-xl bg-gradient-to-tr from-[#1a5d47] to-[#2ed899]/50 flex items-center justify-center cursor-pointer overflow-hidden border transition-all ${
+            className={`w-9 h-9 rounded-xl bg-gradient-to-tr from-[#1a5d47] to-[#2ed899]/50 flex items-center justify-center overflow-hidden border transition-all cursor-pointer ${
               isProfileOpen ? 'border-[#2ed899] shadow-[0_0_15px_rgba(46,216,153,0.4)] scale-95' : 'border-white/10 hover:border-[#2ed899]/45'
             }`}
           >
             <User className="w-5 h-5 text-white" />
-          </div>
-
+          </button>
+          
           {/* Notifications Panel Modal */}
           <AnimatePresence>
             {isNotificationsOpen && (
@@ -375,7 +378,7 @@ export default function WellnessOTTHome() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 15, scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                className="absolute top-14 right-12 w-80 bg-[#070809]/95 backdrop-blur-3xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.95)] z-50 p-2"
+                className="absolute top-14 right-12 w-80 bg-[#070809]/95 backdrop-blur-3xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.95)] z-50 p-2 text-left"
               >
                 <div className="px-4 py-3 border-b border-white/5 mb-1 flex items-center justify-between">
                   <h4 className="font-extrabold text-white text-xs uppercase tracking-widest">Notifications</h4>
@@ -397,7 +400,7 @@ export default function WellnessOTTHome() {
               </motion.div>
             )}
           </AnimatePresence>
-
+ 
           {/* Profile Dropdown Modal */}
           <AnimatePresence>
             {isProfileOpen && (
@@ -406,7 +409,7 @@ export default function WellnessOTTHome() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 15, scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                className="absolute top-14 right-0 w-64 bg-[#070809]/95 backdrop-blur-3xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.9)] z-50 p-2"
+                className="absolute top-14 right-0 w-64 bg-[#070809]/95 backdrop-blur-3xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.9)] z-50 p-2 text-left"
               >
                 <div className="px-4 py-4 border-b border-white/5 flex items-center gap-3.5 bg-white/5 rounded-xl mb-1">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1a5d47] to-[#2ed899] flex items-center justify-center shadow-md">

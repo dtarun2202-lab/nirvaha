@@ -155,7 +155,7 @@ export function ChakraSection() {
   }, []);
 
   return (
-    <section id="chakra-section" className="py-16 md:py-20 bg-[#EEF7F1] relative overflow-hidden">
+    <section id="chakra-section" className="min-h-screen flex flex-col justify-center py-16 md:py-20 bg-[#EEF7F1] relative overflow-hidden">
       {/* Subtle background pattern */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"

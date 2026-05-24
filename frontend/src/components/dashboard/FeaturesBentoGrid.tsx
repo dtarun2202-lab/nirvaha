@@ -68,7 +68,7 @@ export const FeaturesBentoGrid = () => {
     };
 
     return (
-        <section className="py-8 bg-[#EEF7F1] relative overflow-hidden">
+        <section className="min-h-screen flex flex-col justify-center py-8 bg-[#EEF7F1] relative overflow-hidden">
             <div className="w-full px-6 md:px-12 lg:px-20">
                 {/* Cards Carousel */}
                 <div className="relative h-[550px] flex items-center justify-center">

@@ -17,6 +17,7 @@ import {
   FileText,
   Palette,
   MessageSquare,
+  Compass,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -114,6 +115,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           title: "Inquiries & Leads",
           icon: MessageSquare,
           path: "/admin/inquiries",
+        },
+        {
+          title: "Wellness Retreats",
+          icon: Compass,
+          path: "/admin/wellness-retreats",
         },
         {
           title: "Content Management",
