@@ -15,17 +15,13 @@ import {
   Volume2,
   VolumeX,
   X,
-  Settings,
   Heart,
   Repeat,
   Repeat2,
-  Maximize2,
   ChevronDown,
-  Zap,
-  Clock,
   BookOpen,
 } from 'lucide-react';
-import { wellnessSessions, WellnessSession, Episode, Season } from '../../data/wellnessSessions';
+import { wellnessSessions } from '../../data/wellnessSessions';
 
 interface ContinueListeningItem {
   seriesId: string;
@@ -79,7 +75,7 @@ export default function WellnessOTTAudioPlayer() {
         duration: series.duration,
         thumbnail: series.thumbnail,
         description: series.description,
-        videoUrl: series.audioSource || '/audio/meditation.mp3',
+        videoUrl: series.audioSource || '/audio/meditation/Indoor-Calm-Meditation.mp3',
       };
     }
     if (!series.seasons || !episodeId) return null;
@@ -145,13 +141,10 @@ export default function WellnessOTTAudioPlayer() {
   const handleLoadedMetadata = useCallback(() => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
-      if (!isFadingInRef.current) {
-        isFadingInRef.current = true;
-        fadeAudio(0, isMuted ? 0 : volume, 1500);
-        setTimeout(() => { isFadingInRef.current = false; }, 1500);
-      }
+      // Set volume immediately to current volume setting
+      audioRef.current.volume = isMuted ? 0 : volume;
     }
-  }, [fadeAudio, volume, isMuted]);
+  }, [volume, isMuted]);
 
   const handleTimeUpdate = useCallback(() => {
     if (audioRef.current) {
@@ -252,16 +245,27 @@ export default function WellnessOTTAudioPlayer() {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play();
+        // Ensure volume is set before playing
+        audioRef.current.volume = isMuted ? 0 : volume;
+        audioRef.current.play().catch(e => console.log("Audio play error:", e));
       }
       setIsPlaying(!isPlaying);
     }
-  }, [isPlaying]);
+  }, [isPlaying, volume, isMuted]);
+
+  useEffect(() => {
+    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    audio.volume = isMuted ? 0 : volume;
+    audio.play()
+      .then(() => setIsPlaying(true))
+      .catch((e) => console.log('WellnessOTTAudioPlayer autoplay blocked:', e));
+  }, [currentEpisode]);
 
   const handleVolumeChange = (newVolume: number) => {
     setVolume(newVolume);
     if (audioRef.current) {
-      audioRef.current.volume = newVolume;
+      audioRef.current.volume = Math.max(0, Math.min(1, newVolume));
     }
   };
 
@@ -410,12 +414,13 @@ export default function WellnessOTTAudioPlayer() {
       {/* Audio Element */}
       <audio
         ref={audioRef}
-        src={encodeURI(currentEpisode.videoUrl || currentEpisode.audioSource || '/audio/meditation.mp3')}
+        src={encodeURI(currentEpisode.videoUrl || '/audio/meditation/Indoor-Calm-Meditation.mp3')}
         onLoadedMetadata={handleLoadedMetadata}
         onTimeUpdate={handleTimeUpdate}
         onEnded={handleEnded}
         onPlayCapture={() => setIsPlaying(true)}
         onPauseCapture={() => setIsPlaying(false)}
+        crossOrigin="anonymous"
       />
 
       {/* Main Content */}

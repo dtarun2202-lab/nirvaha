@@ -42,7 +42,7 @@ export const wellnessSessions: WellnessSession[] = [
         duration: "10 min",
         thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2400&auto=format&fit=crop",
         banner: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2400&auto=format&fit=crop",
-        audioSource: "/audio/meditation.mp3",
+        audioSource: "/audio/meditation/Indoor-Calm-Meditation.mp3",
         description: "Start your day with clarity and intention. A gentle awakening for the mind and body to optimize energy and presence.",
         match: "98% Match",
         year: "2026",
@@ -107,7 +107,7 @@ export const wellnessSessions: WellnessSession[] = [
         duration: "45 min",
         thumbnail: "https://images.squarespace-cdn.com/content/v1/57b5ef68c534a5cc06edc769/b50a955f-e95f-42c1-beb6-4e74d753bfbb/restorative+yoga",
         banner: "https://images.squarespace-cdn.com/content/v1/57b5ef68c534a5cc06edc769/b50a955f-e95f-42c1-beb6-4e74d753bfbb/restorative+yoga",
-        audioSource: "/audio/sleep.mp3",
+        audioSource: "/audio/sleep/sleep-delta.mp3",
         description: "Drift into a restorative, deep slumber. Let go of the day's tension and embrace the peaceful night.",
         match: "95% Match",
         year: "2026",
@@ -171,7 +171,7 @@ export const wellnessSessions: WellnessSession[] = [
         duration: "20 min",
         thumbnail: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=2400&auto=format&fit=crop",
         banner: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=2400&auto=format&fit=crop",
-        audioSource: "/audio/stress.mp3",
+        audioSource: "/audio/stress/stress-nature.mp3",
         description: "Ground yourself completely in the present moment. A powerful tool designed to dissolve overwhelming thoughts, panic, and fast heartbeats.",
         match: "99% Match",
         year: "2025",
@@ -235,7 +235,7 @@ export const wellnessSessions: WellnessSession[] = [
         duration: "30 min",
         thumbnail: "https://lonestarneurology.net/wp-content/uploads/2025/08/3-Mental-Clarity-and-Cognitive-Function-from-Yoga.jpg",
         banner: "https://lonestarneurology.net/wp-content/uploads/2025/08/3-Mental-Clarity-and-Cognitive-Function-from-Yoga.jpg",
-        audioSource: "/audio/focus.mp3",
+        audioSource: "/audio/focus/Clear-Mind-Frequencies.mp3",
         description: "Sharpen your concentration and unlock deep work states. Experience absolute precision-engineered mindfulness designed for focus.",
         match: "92% Match",
         year: "2026",
@@ -300,7 +300,7 @@ export const wellnessSessions: WellnessSession[] = [
         duration: "15 min",
         thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=2400&auto=format&fit=crop",
         banner: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=2400&auto=format&fit=crop",
-        audioSource: "/audio/energy.mp3",
+        audioSource: "/audio/meditation/Crystal-Frequency-Healing.mp3",
         description: "Realign your core energetic centers. Experience a revitalizing surge of spiritual harmony and inner light.",
         match: "88% Match",
         year: "2024",
@@ -364,7 +364,7 @@ export const wellnessSessions: WellnessSession[] = [
         duration: "12 min",
         thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=2400&auto=format&fit=crop",
         banner: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=2400&auto=format&fit=crop",
-        audioSource: "/audio/meditation.mp3",
+        audioSource: "/audio/meditation/Indoor-Calm-Meditation.mp3",
         description: "Master the fundamentals of conscious breathing. The ultimate starting point to optimize parasympathetic health.",
         match: "96% Match",
         year: "2025",
@@ -381,7 +381,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "12 min",
                         thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=600&auto=format&fit=crop",
                         description: "Optimize belly expansion for maximum vagus nerve activation.",
-                        videoUrl: "/audio/meditation.mp3"
+                        videoUrl: "/audio/meditation/Indoor-Calm-Meditation.mp3"
                     },
                     {
                         id: "2",
@@ -389,7 +389,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "15 min",
                         thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
                         description: "A 4-4-4-4 holding sequence designed by Navy SEALs to secure complete stress regulation.",
-                        videoUrl: "/audio/meditation.mp3"
+                        videoUrl: "/audio/meditation/Indoor-Calm-Meditation.mp3"
                     }
                 ]
             }
@@ -404,7 +404,7 @@ export const wellnessSessions: WellnessSession[] = [
         duration: "8 min",
         thumbnail: "https://images.unsplash.com/photo-1524863479829-916d8e77f114?q=80&w=2400&auto=format&fit=crop",
         banner: "https://images.unsplash.com/photo-1524863479829-916d8e77f114?q=80&w=2400&auto=format&fit=crop",
-        audioSource: "/audio/stress.mp3",
+        audioSource: "/audio/stress/stress-nature.mp3",
         description: "A quick physical recalibration. Release modern office fatigue and structural spine tension in minutes.",
         match: "91% Match",
         year: "2026",
@@ -420,7 +420,7 @@ export const wellnessSessions: WellnessSession[] = [
         duration: "35 min",
         thumbnail: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2400&auto=format&fit=crop",
         banner: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2400&auto=format&fit=crop",
-        audioSource: "/audio/sleep.mp3",
+        audioSource: "/audio/sleep/sleep-delta.mp3",
         description: "Wander through an ancient, mystical pine woodland. Drift off seamlessly under soft rain sounds.",
         match: "94% Match",
         year: "2025",
@@ -437,7 +437,7 @@ export const wellnessSessions: WellnessSession[] = [
         duration: "25 min",
         thumbnail: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=2400&auto=format&fit=crop",
         banner: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=2400&auto=format&fit=crop",
-        audioSource: "/audio/focus.mp3",
+        audioSource: "/audio/focus/Clear-Mind-Frequencies.mp3",
         description: "Stimulate nervous relaxation and gently heal deep professional exhaustion with somatic meditations.",
         match: "89% Match",
         year: "2026",
@@ -454,7 +454,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "18 min",
                         thumbnail: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=600&auto=format&fit=crop",
                         description: "Understand the biological mechanisms of burnout and learn how to immediately downshift.",
-                        videoUrl: "/audio/focus.mp3"
+                        videoUrl: "/audio/focus/Clear-Mind-Frequencies.mp3"
                     },
                     {
                         id: "2",
@@ -462,7 +462,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "22 min",
                         thumbnail: "https://images.unsplash.com/photo-1524863479829-916d8e77f114?q=80&w=600&auto=format&fit=crop",
                         description: "Re-ignite deep mitochondrial energy through targeted progressive physical relaxation.",
-                        videoUrl: "/audio/focus.mp3"
+                        videoUrl: "/audio/focus/Clear-Mind-Frequencies.mp3"
                     }
                 ]
             }
@@ -477,7 +477,7 @@ export const wellnessSessions: WellnessSession[] = [
         duration: "20 min",
         thumbnail: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=2400&auto=format&fit=crop",
         banner: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=2400&auto=format&fit=crop",
-        audioSource: "/audio/energy.mp3",
+        audioSource: "/audio/meditation/Crystal-Frequency-Healing.mp3",
         description: "Wake up your body with gentle, highly fluid Hatha yoga stretches and dynamic deep breath coordination.",
         match: "97% Match",
         year: "2026",
@@ -494,7 +494,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "15 min",
                         thumbnail: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop",
                         description: "Flowing movements designed to decompress vertebrae and stimulate cerebrospinal fluid.",
-                        videoUrl: "/audio/energy.mp3"
+                        videoUrl: "/audio/meditation/Crystal-Frequency-Healing.mp3"
                     },
                     {
                         id: "2",
@@ -502,7 +502,7 @@ export const wellnessSessions: WellnessSession[] = [
                         duration: "20 min",
                         thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=600&auto=format&fit=crop",
                         description: "A seamless dynamic sequence to activate core energy hubs and build early sweat.",
-                        videoUrl: "/audio/energy.mp3"
+                        videoUrl: "/audio/meditation/Crystal-Frequency-Healing.mp3"
                     }
                 ]
             }
