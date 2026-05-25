@@ -11,7 +11,11 @@ export const BACKEND_CONFIG = {
   // Check if we're in development mode (localhost or 127.0.0.1)
   IS_DEVELOPMENT:
     window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1',
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname.startsWith('192.168.') ||
+    window.location.hostname.startsWith('10.') ||
+    window.location.hostname.startsWith('172.') ||
+    window.location.hostname.endsWith('.local'),
 
   // Force local development (set to true for local development)
   FORCE_LOCAL: false,

@@ -1,0 +1,24 @@
+{
+  "settings": {
+    "accountPreferences": "ఖాతా ప్రాధాన్యతలు",
+    "themeMode": "థీమ్ మోడ్",
+    "appLanguage": "యాప్ భాష",
+    "savePreferences": "ప్రాధాన్యతలను సేవ్ చేయండి",
+    "notifications": "నోటిఫికేషన్లు",
+    "privacySecurity": "గోప్యత & భద్రత",
+    "saved": "ప్రాధాన్యతలు విజయవంతంగా సేవ్ అయ్యాయి!",
+    "notificationsSaved": "నోటిఫికేషన్లు నవీకరించబడ్డాయి!",
+    "privacySaved": "గోప్యత సెట్టింగ్‌లు సేవ్ అయ్యాయి!"
+  },
+  "nav": {
+    "dashboard": "డాష్‌బోర్డ్",
+    "profile": "ప్రొఫైల్",
+    "chatbot": "AI గైడ్"
+  },
+  "common": {
+    "save": "సేవ్",
+    "cancel": "రద్దు",
+    "close": "మూసివేయి",
+    "loading": "లోడ్ అవుతోంది..."
+  }
+}

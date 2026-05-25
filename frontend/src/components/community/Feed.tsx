@@ -129,23 +129,13 @@ export default function Feed({
       <div className="space-y-5">
         {visible.length === 0 && (
           <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-20 px-4 text-center bg-white/50 backdrop-blur-sm rounded-3xl border border-gray-100 border-dashed"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center justify-center py-20 px-6 text-center bg-white/40 backdrop-blur-xl rounded-[32px] border border-white/50 shadow-[0_8px_32px_rgba(31,38,135,0.03)]"
           >
-            <div className="w-20 h-20 mb-5 rounded-full bg-emerald-50 flex items-center justify-center shadow-sm">
-              <svg className="w-10 h-10 text-[#16a34a] opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-              </svg>
-            </div>
-            <h3 className="text-[17px] font-bold text-[#0f172a] mb-2">No active wellness moments</h3>
-            <p className="text-[14px] text-[#64748b] max-w-[280px] leading-relaxed">
-              {filter === "Popular" ? "There are no highly liked posts right now." : 
-               filter === "Mindfulness" ? "No mindfulness posts right now. Take a deep breath and share your practice 🌿" :
-               filter === "Healing" ? "No healing posts right now. Take small steps and share your journey 💚" :
-               searchQuery.trim() ? `We couldn't find any moments for "${searchQuery.trim()}".` :
-               hashtagFilter ? `No active posts tagged with ${hashtagFilter} today.` :
-               "The community is quiet right now. Be the first to share today's journey."}
+            <h3 className="text-xl font-black text-[#0f172a] mb-2 tracking-tight">No posts yet</h3>
+            <p className="text-[14px] text-[#64748b] max-w-[280px] leading-relaxed font-medium">
+              Be the first to share something 🌱
             </p>
           </motion.div>
         )}

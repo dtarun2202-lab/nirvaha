@@ -27,6 +27,11 @@ export interface Post {
   comments: Comment[];
   isCertified: boolean;
   isOnline: boolean;
+  categories: string[];
+  comments_count: number;
+  shares: number;
+  content?: string;
+  user_id?: string;
   expiresAt?: string | Date;
 }
 

@@ -1,8 +1,109 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const Post = require('../models/Post');
+const Hashtag = require('../models/Hashtag');
 
 const router = express.Router();
+
+// ── Auto Category Detection ──────────────────────────────────────────
+function detectCategories(text) {
+  const categories = [];
+  const lowercaseText = (text || "").toLowerCase();
+  
+  const mindfulnessKeywords = [
+    "meditat", "mindful", "breathe", "breath", "calm", "relax", "presence", "zen", 
+    "now", "gratitude", "focus", "journal", "awareness", "conscious", "silent", 
+    "silence", "stillness", "salutation", "peace"
+  ];
+  
+  const healingKeywords = [
+    "heal", "recover", "anxiety", "depress", "stress", "trauma", "pain", "sad", 
+    "grief", "reiki", "chakra", "energy", "therapy", "sound", "music", "frequency", 
+    "ayurveda", "ashwagandha", "self-care", "self care", "loss", "recovery"
+  ];
+  
+  const hasMindfulness = mindfulnessKeywords.some(kw => lowercaseText.includes(kw));
+  const hasHealing = healingKeywords.some(kw => lowercaseText.includes(kw));
+  
+  if (hasMindfulness) categories.push("mindfulness");
+  if (hasHealing) categories.push("healing");
+  
+  if (categories.length === 0) {
+    categories.push("healing"); // default to at least one category to maintain platform intent
+  }
+  
+  return categories;
+}
+
+// ── Auto Hashtag Generation ───────────────────────────────────────────
+function generateHashtags(text) {
+  const lowercaseText = (text || "").toLowerCase();
+  const generated = new Set();
+  
+  const hashtagMapping = {
+    "#healing": ["heal", "recover", "trauma", "reiki", "therapy", "ayurveda", "ashwagandha", "self-care", "self care", "grief", "loss"],
+    "#mindfulness": ["meditat", "mindful", "breathe", "breath", "presence", "zen", "now", "awareness", "conscious", "silent", "silence"],
+    "#peace": ["peace", "calm", "relax", "serene", "stillness", "harmony", "quiet"],
+    "#anxiety": ["anxiety", "stress", "depress", "overwhelm", "fear", "panic", "tension"],
+    "#wellness": ["wellness", "health", "habit", "ritual", "gratitude", "kindness", "happiness", "joy"]
+  };
+  
+  for (const [tag, keywords] of Object.entries(hashtagMapping)) {
+    if (keywords.some(kw => lowercaseText.includes(kw))) {
+      generated.add(tag);
+    }
+  }
+  
+  // Also extract hashtags written explicitly by user
+  const userHashtags = text.match(/#[a-zA-Z0-9_]+/g) || [];
+  userHashtags.forEach(tag => generated.add(tag.toLowerCase()));
+  
+  return Array.from(generated);
+}
+
+// ── Realtime Hashtag Synchronization ──────────────────────────────
+async function syncHashtagCounts() {
+  const now = new Date();
+  
+  // 1. Get active counts from posts
+  const activeCounts = await Post.aggregate([
+    { $match: { expiresAt: { $gt: now } } },
+    { $unwind: '$hashtags' },
+    { $group: { _id: '$hashtags', count: { $sum: 1 } } }
+  ]);
+  
+  // 2. Set existing tag counts to 0
+  await Hashtag.updateMany({}, { count: 0 });
+  
+  // 3. Upsert active ones
+  for (const item of activeCounts) {
+    const tag = item._id.startsWith('#') ? item._id : `#${item._id}`;
+    await Hashtag.findOneAndUpdate(
+      { tag: tag.toLowerCase() },
+      { count: item.count },
+      { upsert: true, new: true }
+    );
+  }
+}
+
+async function getTrendingHashtags() {
+  await syncHashtagCounts();
+  const result = await Hashtag.find({}).sort({ count: -1, tag: 1 }).limit(10);
+  return result.map(h => ({
+    title: h.tag,
+    count: h.count > 999 ? `${(h.count / 1000).toFixed(1)}k` : String(h.count),
+    rawCount: h.count
+  }));
+}
+
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function buildFilterRegex(keywords = []) {
+  if (!Array.isArray(keywords) || !keywords.length) return null;
+  return new RegExp(`\\b(?:${keywords.map(escapeRegExp).join("|")})\\b`, "i");
+}
 
 // ── Seed data ──────────────────────────────────────────────────────────────
 const SEED_POSTS = [
@@ -82,33 +183,70 @@ router.get('/', async (req, res) => {
     const { sort, q, hashtag, page = 1, limit = 20 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const now = new Date();
-    let query = { expiresAt: { $gt: now } };
+    const filters = [{ expiresAt: { $gt: now } }];
 
     // Hashtag filter — exact match in hashtags array (supports comma-separated list)
     if (hashtag && hashtag.trim()) {
-      const tags = hashtag.split(',').map(t => t.trim().toLowerCase());
-      if (tags.length === 1) {
-        query.hashtags = tags[0];
-      } else {
-        query.hashtags = { $in: tags };
+      const tags = hashtag
+        .split(',')
+        .map((t) => t.trim().toLowerCase())
+        .filter(Boolean);
+
+      if (tags.length) {
+        const cleanTags = tags.map((t) => (t.startsWith('#') ? t.substring(1) : t));
+        const tagsWithHash = tags.map((t) => (t.startsWith('#') ? t : `#${t}`));
+        const isMindfulness = cleanTags.includes('mindfulness');
+        const isHealing = cleanTags.includes('healing');
+
+        if (isMindfulness || isHealing) {
+          const mindfulnessKeywords = [
+            'mindful', 'meditat', 'breathe', 'breath', 'calm', 'relax', 'presence', 'awareness', 'zen',
+            'gratitude', 'focus', 'stillness', 'peace', 'serenity', 'grounding'
+          ];
+          const healingKeywords = [
+            'heal', 'recover', 'anxiety', 'stress', 'trauma', 'therapy', 'grief', 'reiki', 'chakra',
+            'energy', 'self-care', 'self care', 'recovery', 'emotion', 'release', 'support', 'nurture'
+          ];
+          const keywordRegex = buildFilterRegex([
+            ...(isMindfulness ? mindfulnessKeywords : []),
+            ...(isHealing ? healingKeywords : []),
+          ]);
+
+          filters.push({
+            $or: [
+              { hashtags: { $in: [...tags, ...tagsWithHash, ...cleanTags] } },
+              { categories: { $in: cleanTags } },
+              ...(keywordRegex ? [
+                { title: { $regex: keywordRegex } },
+                { body: { $regex: keywordRegex } },
+              ] : []),
+            ],
+          });
+        } else {
+          filters.push({ hashtags: { $in: [...tags, ...tagsWithHash, ...cleanTags] } });
+        }
       }
     }
 
     if (q && q.trim()) {
       const term = q.trim();
-      query.$or = [
-        { title: { $regex: term, $options: 'i' } },
-        { body: { $regex: term, $options: 'i' } },
-        { hashtags: { $regex: term, $options: 'i' } },
-        { userName: { $regex: term, $options: 'i' } },
-        { userRole: { $regex: term, $options: 'i' } },
-      ];
+      const queryRegex = new RegExp(escapeRegExp(term), 'i');
+      filters.push({
+        $or: [
+          { title: { $regex: queryRegex } },
+          { body: { $regex: queryRegex } },
+          { hashtags: { $regex: queryRegex } },
+          { userName: { $regex: queryRegex } },
+          { userRole: { $regex: queryRegex } },
+        ],
+      });
     }
+
+    const query = filters.length === 1 ? filters[0] : { $and: filters };
 
     let sortOrder;
     if (sort === 'popular') {
-      query.likes = { $gte: 50 };
-      sortOrder = { likes: -1 };
+      sortOrder = { likes: -1, comments_count: -1, timestampValue: -1 };
     } else if (sort === 'all') {
       sortOrder = { _id: -1 };
     } else {
@@ -131,34 +269,88 @@ router.get('/', async (req, res) => {
 router.get('/trending', async (req, res) => {
   try {
     await seedIfEmpty();
-    const now = new Date();
-
-    // Use MongoDB aggregation for real post counts per hashtag
-    const result = await Post.aggregate([
-      { $match: { expiresAt: { $gt: now } } },
-      { $unwind: '$hashtags' },
-      { $group: { _id: '$hashtags', count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-      { $limit: 10 },
-    ]);
-
-    const trending = result.map(({ _id, count }) => ({
-      title: _id,
-      count: count > 999 ? `${(count / 1000).toFixed(1)}k` : String(count),
-      rawCount: count,
-    }));
-
+    const trending = await getTrendingHashtags();
     res.json(trending);
   } catch (err) {
+    console.error('GET /api/posts/trending error:', err);
     res.status(500).json({ error: 'Failed to fetch trending' });
   }
 });
+
+const BANNED_WORDS = [
+  "fuck", "shit", "bitch", "asshole", "bastard", "cunt", "dick", "pussy",
+  "nigger", "nigga", "faggot", "retard", "whore", "slut", "motherfucker",
+  "wanker", "bollocks", "scam", "casino", "crypto", "viagra", "porn"
+];
+
+const WELLNESS_KEYWORDS = [
+  "peace", "calm", "relax", "meditat", "breathe", "breath", "mindful", "heal", "spirit", "yoga",
+  "self-care", "self care", "wellness", "health", "mental", "feel", "emotion", "grief", "sad",
+  "happy", "joy", "reflection", "stress", "anxiety", "depression", "overwhelm", "mentor", "companion",
+  "life", "love", "heart", "ground", "sleep", "rest", "energy", "reiki", "chakra", "music", "frequency",
+  "sunlight", "nature", "forest", "therapy", "boundar", "habit", "ritual", "gratitude", "kindness"
+];
+
+const recentPostsCache = new Map();
+
+function moderatePost(title, body) {
+  const fullText = `${title || ""} ${body}`.toLowerCase();
+  
+  for (const word of BANNED_WORDS) {
+    const regex = new RegExp(`\\b${word}\\b`, 'i');
+    if (regex.test(fullText)) {
+      return { approved: false, reason: "Banned or offensive language detected. Please keep the community supportive and peaceful 🌿" };
+    }
+  }
+
+  if ((fullText.match(/https?:\/\//g) || []).length > 2 || fullText.includes("telegram.me/") || fullText.includes("t.me/")) {
+    return { approved: false, reason: "Spam or advertisement links are not allowed." };
+  }
+
+  if (body.length > 25) {
+    const hasWellnessKeyword = WELLNESS_KEYWORDS.some(keyword => fullText.includes(keyword));
+    if (!hasWellnessKeyword) {
+      return { 
+        approved: false, 
+        reason: "Post rejected. To maintain focus, all posts should be related to wellness, mindfulness, reflection, or community support 🌿" 
+      };
+    }
+  }
+
+  return { approved: true };
+}
 
 // ── POST /api/posts ────────────────────────────────────────────────────────
 router.post('/', async (req, res) => {
   try {
     const { userId, userName, userRole, userInitial, avatarColor, avatarUrl, title, body, hashtags, isCertified, isOnline } = req.body;
     if (!userName || !body) return res.status(400).json({ error: 'userName and body are required' });
+
+    // Spam rate limit & duplicate check
+    if (userId && userId !== 'anonymous') {
+      const lastPost = recentPostsCache.get(userId);
+      if (lastPost) {
+        const timeDiff = Date.now() - lastPost.timestamp;
+        if (timeDiff < 10000) {
+          return res.status(429).json({ error: "Please wait a moment before posting again." });
+        }
+        if (lastPost.body === body && timeDiff < 60000) {
+          return res.status(400).json({ error: "Duplicate post detected. Share a new reflection!" });
+        }
+      }
+      recentPostsCache.set(userId, { body, timestamp: Date.now() });
+    }
+
+    // Content Moderation check
+    const moderation = moderatePost(title, body);
+    if (!moderation.approved) {
+      return res.status(400).json({ error: moderation.reason });
+    }
+
+    // Auto detect categories and hashtags
+    const detectedCategories = detectCategories(body);
+    const generatedTags = generateHashtags(body);
+    const finalHashtags = Array.from(new Set([...(hashtags || []), ...generatedTags]));
 
     const post = new Post({
       id: uuidv4(),
@@ -170,21 +362,33 @@ router.post('/', async (req, res) => {
       avatarUrl: avatarUrl || '',
       title: title || body.split('\n')[0].slice(0, 80),
       body,
-      hashtags: hashtags || [],
+      content: body,
+      user_id: userId || 'anonymous',
+      categories: detectedCategories,
+      hashtags: finalHashtags,
       isCertified: isCertified || false,
       isOnline: isOnline !== undefined ? isOnline : true,
       timestampValue: Date.now(),
       likes: 0,
       liked: false,
       comments: [],
+      comments_count: 0,
+      shares: 0,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
 
     await post.save();
+    
+    // Sync hashtag counts in database
+    await syncHashtagCounts();
+    const trendingList = await getTrendingHashtags();
+
     const io = req.app.get('io');
     if (io) {
       console.log('📡 Emitting postCreated:', post.id);
       io.emit('postCreated', post.toObject());
+      console.log('📡 Emitting trendingUpdated');
+      io.emit('trendingUpdated', trendingList);
     }
     res.status(201).json(post);
   } catch (err) {
@@ -245,6 +449,26 @@ router.post('/:id/comment', async (req, res) => {
     res.status(201).json(comment);
   } catch (err) {
     res.status(500).json({ error: 'Failed to add comment' });
+  }
+});
+
+// ── POST /api/posts/:id/share ───────────────────────────────────────────────
+router.post('/:id/share', async (req, res) => {
+  try {
+    const post = await Post.findOne({ id: req.params.id });
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+
+    post.shares = (post.shares || 0) + 1;
+    await post.save();
+
+    const io = req.app.get('io');
+    if (io) {
+      console.log('📡 Emitting postShared:', post.id, post.shares);
+      io.emit('postShared', { id: post.id, shares: post.shares });
+    }
+    res.json({ id: post.id, shares: post.shares });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update share count' });
   }
 });
 

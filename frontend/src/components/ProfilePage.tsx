@@ -31,13 +31,21 @@ import {
   Video,
   Check,
   Loader2,
+  Lock,
+  Trash2,
+  Volume2,
+  Key,
+  X,
 } from "lucide-react";
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ShareProfileCard } from "./ShareProfileCard";
 import { MeditationSessionModal } from "./MeditationSessionModal";
 import { useAuth } from "../contexts/AuthContext";
+import { useSettings } from "../contexts/SettingsContext";
 import { useSocket } from "../contexts/SocketContext";
+import { useTranslation } from "react-i18next";
+import type { AppLanguage, ThemeMode } from "../types/settings";
 import { useProfileSync } from "../hooks/useProfileSync";
 import BACKEND_CONFIG from "../config/backend";
 import html2canvas from "html2canvas";
@@ -336,6 +344,29 @@ export function ProfilePage() {
   const { getWeeklyData, getTodayMinutes } = useProfileSync();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+
+  const location = useLocation();
+
+  // Listen to URL query params to auto-open settings/notifications/privacy
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const openParam = params.get("open");
+    if (openParam === "settings") {
+      setIsSettingsOpen(true);
+      setIsNotificationsOpen(false);
+      setIsPrivacyOpen(false);
+    } else if (openParam === "notifications") {
+      setIsNotificationsOpen(true);
+      setIsSettingsOpen(false);
+      setIsPrivacyOpen(false);
+    } else if (openParam === "privacy") {
+      setIsPrivacyOpen(true);
+      setIsSettingsOpen(false);
+      setIsNotificationsOpen(false);
+    }
+  }, [location]);
 
   // Refresh profile on mount to ensure we have the absolute latest backend data
   // (e.g. companion approval status) instead of stale localStorage cache.
@@ -368,16 +399,78 @@ export function ProfilePage() {
   };
   
   const [profileData, setProfileData] = useState<any>(null);
-  const [prefs, setPrefs] = useState({
-    theme: "system" as "light" | "dark" | "system",
-    language: "en" as "en" | "hi" | "te" | "kn",
-    emailNotifications: true,
-    pushNotifications: true,
-    profileVisibility: "friends" as "public" | "friends" | "private",
-    showOnlineStatus: true,
-    dataSharing: false,
-  });
+  const { t } = useTranslation();
+  const {
+    settings,
+    isSaving: isSavingSettings,
+    setTheme,
+    setLanguage,
+    setNotificationToggle,
+    setPrivacyToggle,
+    deleteAccount,
+    clearChatHistory,
+    blockedUsersCount,
+  } = useSettings();
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  const showSaveFeedback = (message: string) => {
+    setSaveMessage(message);
+    setTimeout(() => setSaveMessage(null), 3000);
+  };
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordStatus, setPasswordStatus] = useState<{ success: boolean; message: string } | null>(null);
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordStatus(null);
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordStatus({ success: false, message: "All fields are required" });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setPasswordStatus({ success: false, message: "Password must be at least 6 characters long" });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordStatus({ success: false, message: "New passwords do not match" });
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/auth/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        setPasswordStatus({ success: false, message: data.error || "Failed to change password" });
+      } else {
+        setPasswordStatus({ success: true, message: "Password changed successfully!" });
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch (err) {
+      console.error("Error changing password:", err);
+      setPasswordStatus({ success: false, message: "An error occurred. Please try again." });
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
   const profileRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -1564,7 +1657,7 @@ export function ProfilePage() {
               </motion.button>
 
               <motion.button
-                onClick={() => alert("Opening Notifications")}
+                onClick={() => setIsNotificationsOpen(true)}
                 whileHover={{ x: 4 }}
                 className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors"
               >
@@ -1588,7 +1681,7 @@ export function ProfilePage() {
               </motion.button>
 
               <motion.button
-                onClick={() => alert("Opening Privacy & Security")}
+                onClick={() => setIsPrivacyOpen(true)}
                 whileHover={{ x: 4 }}
                 className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors"
               >
@@ -1823,161 +1916,540 @@ export function ProfilePage() {
         </AnimatePresence>
       </div>
 
-      {/* Preferences Modal */}
-      {isSettingsOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-white rounded-[32px] p-8 shadow-2xl border border-gray-200/30 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-          >
-            {/* Close Button */}
-            <button
-              onClick={() => setIsSettingsOpen(false)}
-              className="float-right text-gray-600 hover:text-gray-800 text-2xl font-bold leading-none"
+      {/* Settings & Preferences Modals */}
+      <AnimatePresence>
+        {/* Account Settings (Preferences) Modal */}
+        {isSettingsOpen && (
+          <div className="fixed inset-0 bg-black/65 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 15 }}
+              transition={{ type: "spring", duration: 0.45 }}
+              className="bg-white rounded-[32px] p-8 shadow-2xl border border-emerald-100/50 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             >
-              ×
-            </button>
-
-            <h2 className="text-gray-800 mb-8">Preferences</h2>
-
-            <div className="space-y-8">
-              {/* Theme & Language */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Theme */}
-                <div>
-                  <label className="block">
-                    <p className="text-gray-800 font-semibold mb-2">Theme</p>
-                    <p className="text-gray-600 text-sm mb-3">Choose light, dark or system</p>
-                  </label>
-                  <select
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200/60 bg-white text-gray-800 focus:ring-2 focus:ring-gray-400 focus:border-gray-500"
-                    value={prefs.theme}
-                    onChange={(e) => setPrefs({ ...prefs, theme: e.target.value as "light" | "dark" | "system" })}
-                  >
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                    <option value="system">System</option>
-                  </select>
+              {/* Header */}
+              <div className="flex justify-between items-center mb-8 border-b border-emerald-100/40 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center border border-emerald-100/50">
+                    <Settings className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-[#1B4332] tracking-tight">{t("settings.accountPreferences")}</h3>
+                    <p className="text-xs text-teal-600 font-medium">Manage theme, language, and system controls</p>
+                  </div>
                 </div>
-
-                {/* Language */}
-                <div>
-                  <label className="block">
-                    <p className="text-gray-800 font-semibold mb-2">Language</p>
-                    <p className="text-gray-600 text-sm mb-3">App display language</p>
-                  </label>
-                  <select
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200/60 bg-white text-gray-800 focus:ring-2 focus:ring-gray-400 focus:border-gray-500"
-                    value={prefs.language}
-                    onChange={(e) => setPrefs({ ...prefs, language: e.target.value as "en" | "hi" | "te" | "kn" })}
-                  >
-                    <option value="en">English</option>
-                    <option value="hi">Hindi</option>
-                    <option value="te">Telugu</option>
-                    <option value="kn">Kannada</option>
-                  </select>
-                </div>
+                <button
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
 
-              {/* Notifications */}
-              <div>
-                <h4 className="text-gray-800 font-semibold mb-4">Notifications</h4>
-                <div className="space-y-3">
-                  <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
-                    <span className="text-gray-800">Email notifications</span>
-                    <input
-                      type="checkbox"
-                      checked={prefs.emailNotifications}
-                      onChange={(e) => setPrefs({ ...prefs, emailNotifications: e.target.checked })}
-                      className="w-5 h-5 cursor-pointer"
-                    />
-                  </label>
-                  <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
-                    <span className="text-gray-800">Push notifications</span>
-                    <input
-                      type="checkbox"
-                      checked={prefs.pushNotifications}
-                      onChange={(e) => setPrefs({ ...prefs, pushNotifications: e.target.checked })}
-                      className="w-5 h-5 cursor-pointer"
-                    />
-                  </label>
-                </div>
-              </div>
-
-              {/* Privacy */}
-              <div>
-                <h4 className="text-gray-800 font-semibold mb-4">Privacy</h4>
-                <div className="space-y-3">
-                  {/* Profile Visibility */}
-                  <div className="p-4 bg-gray-50 rounded-xl">
+              <div className="space-y-6">
+                {/* Theme & Language */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-emerald-50/20 p-6 rounded-3xl border border-emerald-100/20">
+                  {/* Theme */}
+                  <div>
                     <label className="block">
-                      <p className="text-gray-800 font-medium mb-2">Profile visibility</p>
+                      <p className="text-[#1B4332] font-bold text-sm mb-1.5">{t("settings.themeMode")}</p>
+                      <p className="text-gray-500 text-xs mb-3">Adjust the visual style of your workspace</p>
                     </label>
                     <select
-                      className="w-full px-4 py-2 rounded-lg border border-gray-200/60 bg-white text-gray-800"
-                      value={prefs.profileVisibility}
-                      onChange={(e) => setPrefs({ ...prefs, profileVisibility: e.target.value as "public" | "friends" | "private" })}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-semibold text-sm cursor-pointer"
+                      value={settings.theme}
+                      onChange={(e) => void setTheme(e.target.value as ThemeMode)}
                     >
-                      <option value="public">Public</option>
-                      <option value="friends">Friends</option>
-                      <option value="private">Private</option>
+                      <option value="light">☀️ Light Theme</option>
+                      <option value="dark">🌙 Dark Theme</option>
+                      <option value="system">🖥️ System Default</option>
                     </select>
                   </div>
-                  <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
-                    <span className="text-gray-800">Show online status</span>
-                    <input
-                      type="checkbox"
-                      checked={prefs.showOnlineStatus}
-                      onChange={(e) => setPrefs({ ...prefs, showOnlineStatus: e.target.checked })}
-                      className="w-5 h-5 cursor-pointer"
-                    />
-                  </label>
-                  <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
-                    <span className="text-gray-800">Allow anonymous data sharing</span>
-                    <input
-                      type="checkbox"
-                      checked={prefs.dataSharing}
-                      onChange={(e) => setPrefs({ ...prefs, dataSharing: e.target.checked })}
-                      className="w-5 h-5 cursor-pointer"
-                    />
-                  </label>
+
+                  {/* Language */}
+                  <div>
+                    <label className="block">
+                      <p className="text-[#1B4332] font-bold text-sm mb-1.5">{t("settings.appLanguage")}</p>
+                      <p className="text-gray-500 text-xs mb-3">Choose your preferred display language</p>
+                    </label>
+                    <select
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-semibold text-sm cursor-pointer"
+                      value={settings.language}
+                      onChange={(e) => void setLanguage(e.target.value as AppLanguage)}
+                    >
+                      <option value="en">🇺🇸 English</option>
+                      <option value="hi">🇮🇳 Hindi (हिन्दी)</option>
+                      <option value="te">🇮🇳 Telugu (తెలుగు)</option>
+                      <option value="kn">🇮🇳 Kannada (ಕನ್ನಡ)</option>
+                    </select>
+                  </div>
                 </div>
+
+                {/* Account Details Quick View */}
+                <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 flex items-center gap-4">
+                  <div className="w-12 h-12 bg-emerald-100 text-emerald-800 font-bold rounded-2xl flex items-center justify-center shadow-inner text-lg">
+                    {user?.name?.charAt(0).toUpperCase() || "🧘"}
+                  </div>
+                  <div>
+                    <p className="text-[#1B4332] font-black text-base">{user?.name || "Guest"}</p>
+                    <p className="text-xs text-gray-500 font-semibold truncate">{user?.email || "No email registered"}</p>
+                  </div>
+                  <span className="ml-auto px-3 py-1 bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] font-black uppercase rounded-full tracking-wider">
+                    {user?.role || "User"}
+                  </span>
+                </div>
+
+                {/* Save & Action Buttons */}
+                <div className="flex gap-4 pt-4 border-t border-emerald-100/40">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => showSaveFeedback(t("settings.saved"))}
+                    disabled={isSavingSettings}
+                    className="flex-1 py-3 bg-[#2D6A4F] text-white rounded-2xl shadow-lg shadow-emerald-900/10 hover:bg-[#1B4332] transition-colors font-bold text-sm disabled:opacity-60"
+                  >
+                    {isSavingSettings ? t("common.loading") : t("settings.savePreferences")}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setIsSettingsOpen(false)}
+                    className="flex-1 py-3 bg-gray-100 text-gray-800 rounded-2xl hover:bg-gray-200 transition-colors font-bold text-sm"
+                  >
+                    Cancel
+                  </motion.button>
+                </div>
+
+                {saveMessage && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-center text-sm font-bold rounded-xl"
+                  >
+                    {saveMessage}
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Notifications Modal */}
+        {isNotificationsOpen && (
+          <div className="fixed inset-0 bg-black/65 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 15 }}
+              transition={{ type: "spring", duration: 0.45 }}
+              className="bg-white rounded-[32px] p-8 shadow-2xl border border-emerald-100/50 max-w-xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center mb-8 border-b border-emerald-100/40 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center border border-emerald-100/50">
+                    <Bell className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-[#1B4332] tracking-tight">{t("settings.notifications")}</h3>
+                    <p className="text-xs text-teal-600 font-medium">Control what alerts and reminders you receive</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsNotificationsOpen(false)}
+                  className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-6 border-t border-gray-200/30">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    setSaveMessage("Preferences saved");
-                    setTimeout(() => setSaveMessage(null), 2000);
-                  }}
-                  className="flex-1 py-3 bg-[#2D6A4F] text-white rounded-xl shadow-lg hover:shadow-xl transition-all"
+              {/* Toggles Container */}
+              <div className="space-y-4">
+                <div className="bg-emerald-50/20 p-2 rounded-[28px] border border-emerald-100/25 space-y-1">
+                  
+                  {/* Toggle 1: Community Posts */}
+                  <div className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-emerald-100/10 hover:shadow-md transition-shadow">
+                    <div className="flex-1 pr-4">
+                      <p className="text-[#1B4332] font-bold text-sm mb-0.5">Community post notifications</p>
+                      <p className="text-gray-500 text-[11px] leading-relaxed">Alerts when community members post new content or updates</p>
+                    </div>
+                    <button
+                      role="switch"
+                      aria-checked={settings.notifications.communityPosts}
+                      onClick={() => void setNotificationToggle("communityPosts", !settings.notifications.communityPosts)}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                        settings.notifications.communityPosts ? "bg-[#2D6A4F] border-[#2D6A4F]" : "bg-gray-200 border-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${
+                          settings.notifications.communityPosts ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Toggle 2: Likes & Comments */}
+                  <div className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-emerald-100/10 hover:shadow-md transition-shadow">
+                    <div className="flex-1 pr-4">
+                      <p className="text-[#1B4332] font-bold text-sm mb-0.5">Likes & comments notifications</p>
+                      <p className="text-gray-500 text-[11px] leading-relaxed">Instantly know when someone likes or comments on your posts</p>
+                    </div>
+                    <button
+                      role="switch"
+                      aria-checked={settings.notifications.likesComments}
+                      onClick={() => void setNotificationToggle("likesComments", !settings.notifications.likesComments)}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                        settings.notifications.likesComments ? "bg-[#2D6A4F] border-[#2D6A4F]" : "bg-gray-200 border-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${
+                          settings.notifications.likesComments ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Toggle 3: Mentor/Community Reply */}
+                  <div className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-emerald-100/10 hover:shadow-md transition-shadow">
+                    <div className="flex-1 pr-4">
+                      <p className="text-[#1B4332] font-bold text-sm mb-0.5">Mentor & community replies</p>
+                      <p className="text-gray-500 text-[11px] leading-relaxed">Get notified when a mentor or member replies directly to you</p>
+                    </div>
+                    <button
+                      role="switch"
+                      aria-checked={settings.notifications.mentorReplies}
+                      onClick={() => void setNotificationToggle("mentorReplies", !settings.notifications.mentorReplies)}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                        settings.notifications.mentorReplies ? "bg-[#2D6A4F] border-[#2D6A4F]" : "bg-gray-200 border-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${
+                          settings.notifications.mentorReplies ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Toggle 4: Daily Wellness Reminders */}
+                  <div className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-emerald-100/10 hover:shadow-md transition-shadow">
+                    <div className="flex-1 pr-4">
+                      <p className="text-[#1B4332] font-bold text-sm mb-0.5">Daily wellness reminders</p>
+                      <p className="text-gray-500 text-[11px] leading-relaxed">Daily calm thought, breathing prompts, and mindful check-ins</p>
+                    </div>
+                    <button
+                      role="switch"
+                      aria-checked={settings.notifications.dailyWellness}
+                      onClick={() => void setNotificationToggle("dailyWellness", !settings.notifications.dailyWellness)}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                        settings.notifications.dailyWellness ? "bg-[#2D6A4F] border-[#2D6A4F]" : "bg-gray-200 border-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${
+                          settings.notifications.dailyWellness ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Toggle 5: Sound & Vibration Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-emerald-100/10 hover:shadow-md transition-shadow">
+                    <div className="flex-1 pr-4">
+                      <div className="flex items-center gap-1.5">
+                        <Volume2 className="w-4 h-4 text-emerald-600" />
+                        <p className="text-[#1B4332] font-bold text-sm">Sound & vibration toggle</p>
+                      </div>
+                      <p className="text-gray-500 text-[11px] leading-relaxed">Play gentle notification bells and soft device haptics</p>
+                    </div>
+                    <button
+                      role="switch"
+                      aria-checked={settings.notifications.soundVibration}
+                      onClick={() => void setNotificationToggle("soundVibration", !settings.notifications.soundVibration)}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                        settings.notifications.soundVibration ? "bg-[#2D6A4F] border-[#2D6A4F]" : "bg-gray-200 border-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${
+                          settings.notifications.soundVibration ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                </div>
+
+                {/* Footer Buttons */}
+                <div className="flex gap-4 pt-4 border-t border-emerald-100/40 mt-6">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => showSaveFeedback(t("settings.notificationsSaved"))}
+                    disabled={isSavingSettings}
+                    className="flex-1 py-3 bg-[#2D6A4F] text-white rounded-2xl shadow-lg shadow-emerald-900/10 hover:bg-[#1B4332] transition-colors font-bold text-sm disabled:opacity-60"
+                  >
+                    {isSavingSettings ? t("common.loading") : t("common.save")}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setIsNotificationsOpen(false)}
+                    className="flex-1 py-3 bg-gray-100 text-gray-800 rounded-2xl hover:bg-gray-200 transition-colors font-bold text-sm"
+                  >
+                    Close
+                  </motion.button>
+                </div>
+
+                {saveMessage && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-center text-sm font-bold rounded-xl"
+                  >
+                    {saveMessage}
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Privacy & Security Modal */}
+        {isPrivacyOpen && (
+          <div className="fixed inset-0 bg-black/65 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 15 }}
+              transition={{ type: "spring", duration: 0.45 }}
+              className="bg-white rounded-[32px] p-8 shadow-2xl border border-emerald-100/50 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center mb-6 border-b border-emerald-100/40 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center border border-emerald-100/50">
+                    <Shield className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-[#1B4332] tracking-tight">{t("settings.privacySecurity")}</h3>
+                    <p className="text-xs text-teal-600 font-medium">Protect your personal data and account access</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsPrivacyOpen(false)}
+                  className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
                 >
-                  Save Changes
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setIsSettingsOpen(false)}
-                  className="flex-1 py-3 bg-gray-100 text-gray-800 rounded-xl hover:bg-gray-200 transition-colors"
-                >
-                  Close
-                </motion.button>
+                  <X className="w-4 h-4" />
+                </button>
               </div>
 
-              {saveMessage && (
-                <div className="p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 text-center">
-                  {saveMessage}
+              <div className="space-y-6">
+                
+                {/* ── Privacy Settings Section ── */}
+                <div className="bg-emerald-50/20 p-6 rounded-3xl border border-emerald-100/25">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-[#1B4332] font-extrabold text-sm uppercase tracking-wider">Privacy Settings</h4>
+                    {/* Settings Shortcut Link */}
+                    <button
+                      onClick={() => {
+                        setIsPrivacyOpen(false);
+                        setIsSettingsOpen(true);
+                      }}
+                      className="flex items-center gap-1.5 text-xs text-emerald-700 hover:text-emerald-800 font-extrabold bg-emerald-100/60 hover:bg-emerald-100 px-3 py-1.5 rounded-xl transition-all"
+                    >
+                      <Settings className="w-3.5 h-3.5" />
+                      Open Account Settings
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Public/Private profile toggle */}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-gray-800 font-bold text-sm">Private Profile</p>
+                        <p className="text-gray-500 text-xs">Only approved friends and companions can view your stats</p>
+                      </div>
+                      <button
+                        role="switch"
+                        aria-checked={settings.privacy.privateProfile}
+                        onClick={() => void setPrivacyToggle("privateProfile", !settings.privacy.privateProfile)}
+                        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                          settings.privacy.privateProfile ? "bg-[#2D6A4F] border-[#2D6A4F]" : "bg-gray-200 border-gray-200"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${
+                            settings.privacy.privateProfile ? "translate-x-5" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {/* Hide activity status */}
+                    <div className="flex items-center justify-between border-t border-emerald-100/10 pt-4">
+                      <div>
+                        <p className="text-gray-800 font-bold text-sm">Hide Activity Status</p>
+                        <p className="text-gray-500 text-xs">Hide when you are actively breathing or meditating</p>
+                      </div>
+                      <button
+                        role="switch"
+                        aria-checked={settings.privacy.hideActivityStatus}
+                        onClick={() => void setPrivacyToggle("hideActivityStatus", !settings.privacy.hideActivityStatus)}
+                        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                          settings.privacy.hideActivityStatus ? "bg-[#2D6A4F] border-[#2D6A4F]" : "bg-gray-200 border-gray-200"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${
+                            settings.privacy.hideActivityStatus ? "translate-x-5" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
-          </motion.div>
-        </div>
-      )}
+
+                {/* ── Block & Report Section ── */}
+                <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-[#1B4332] font-extrabold text-sm mb-1">Block / Report Users</h4>
+                    <p className="text-gray-500 text-xs">Restrict who can see and comment on your posts</p>
+                  </div>
+                  <button
+                    onClick={() => alert(`Blocked users registry — ${blockedUsersCount} blocked user(s).`)}
+                    className="px-4 py-2 bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 font-bold text-xs rounded-xl shadow-sm transition-all"
+                  >
+                    Manage Registry ({blockedUsersCount})
+                  </button>
+                </div>
+
+                {/* ── Change Password Form ── */}
+                <form onSubmit={handleChangePassword} className="bg-white p-6 rounded-3xl border border-gray-200/50 space-y-4">
+                  <div className="flex items-center gap-2 mb-2 border-b border-gray-100 pb-2">
+                    <Key className="w-4 h-4 text-emerald-600" />
+                    <h4 className="text-[#1B4332] font-black text-sm">Change Password</h4>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-gray-700 text-xs font-bold mb-1.5">Current Password</label>
+                      <input
+                        type="password"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/50"
+                        placeholder="••••••••"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-700 text-xs font-bold mb-1.5">New Password</label>
+                      <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/50"
+                        placeholder="Min 6 chars"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-700 text-xs font-bold mb-1.5">Confirm Password</label>
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/50"
+                        placeholder="••••••••"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-2">
+                    {passwordStatus && (
+                      <p className={`text-xs font-bold ${passwordStatus.success ? "text-emerald-600" : "text-rose-600"}`}>
+                        {passwordStatus.message}
+                      </p>
+                    )}
+                    <button
+                      type="submit"
+                      disabled={isChangingPassword}
+                      className="ml-auto px-4 py-2.5 bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 disabled:opacity-60"
+                    >
+                      {isChangingPassword && <Loader2 className="w-3 h-3 animate-spin" />}
+                      Update Password
+                    </button>
+                  </div>
+                </form>
+
+                {/* ── Dangerous Zone Actions ── */}
+                <div className="bg-rose-50/20 p-6 rounded-3xl border border-rose-100/30 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  
+                  {/* Clear Chat History */}
+                  <div className="bg-white p-4 rounded-2xl border border-rose-100/25 flex flex-col justify-between">
+                    <div>
+                      <p className="text-gray-800 font-bold text-xs mb-1">Clear AI Chat History</p>
+                      <p className="text-gray-500 text-[10px] leading-relaxed mb-3">Instantly erase all message history with the AI Guide from this device</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const confirmClear = window.confirm("Are you sure you want to permanently clear all local chat history with the AI Guide?");
+                        if (confirmClear) {
+                          clearChatHistory(user?.id);
+                          alert("AI chat history erased successfully!");
+                        }
+                      }}
+                      className="w-full py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-extrabold text-[10px] uppercase tracking-wider rounded-xl transition-all border border-rose-100"
+                    >
+                      Clear History
+                    </button>
+                  </div>
+
+                  {/* Delete Account */}
+                  <div className="bg-white p-4 rounded-2xl border border-rose-100/25 flex flex-col justify-between">
+                    <div>
+                      <p className="text-rose-800 font-bold text-xs mb-1 flex items-center gap-1">
+                        <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                        Delete Account
+                      </p>
+                      <p className="text-gray-500 text-[10px] leading-relaxed mb-3">Permanently delete your profile, stats, streak history and bookings</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const confirmDelete = window.confirm("⚠️ WARNING: Deleting your account is permanent. All your progress and data will be destroyed. Do you wish to continue?");
+                        if (confirmDelete) {
+                          try {
+                            await deleteAccount();
+                          } catch {
+                            alert("Failed to delete account. Please try again or contact support.");
+                          }
+                        }
+                      }}
+                      className="w-full py-2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-[10px] uppercase tracking-wider rounded-xl transition-all shadow-md shadow-rose-900/10"
+                    >
+                      Delete Account
+                    </button>
+                  </div>
+
+                </div>
+
+                {/* ── Privacy Policy & Data Settings ── */}
+                <div className="p-4 bg-gray-50 rounded-2xl text-[10px] text-gray-500 leading-relaxed border border-gray-100 flex items-center gap-3">
+                  <Lock className="w-5 h-5 text-teal-600/70 shrink-0" />
+                  <p>
+                    We protect your personal data in accordance with our <strong>Privacy Policy</strong>. We use end-to-end encryption for AI chat logs and your health records are completely private.
+                  </p>
+                </div>
+
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Share Profile Modal */}
       <ShareProfileCard

@@ -1,0 +1,24 @@
+{
+  "settings": {
+    "accountPreferences": "Account Preferences",
+    "themeMode": "Theme Mode",
+    "appLanguage": "App Language",
+    "savePreferences": "Save Preferences",
+    "notifications": "Notifications",
+    "privacySecurity": "Privacy & Security",
+    "saved": "Preferences saved successfully!",
+    "notificationsSaved": "Notifications updated successfully!",
+    "privacySaved": "Privacy settings saved successfully!"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "chatbot": "AI Guide"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "loading": "Loading..."
+  }
+}

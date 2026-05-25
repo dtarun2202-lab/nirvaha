@@ -286,6 +286,14 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
 
                     <motion.button
                       whileHover={{ x: 4, backgroundColor: "rgba(16, 185, 129, 0.1)" }}
+                      onClick={() => {
+                        if (onNavigate) {
+                          onNavigate("profile?open=settings");
+                        } else {
+                          navigate("/dashboard/profile?open=settings");
+                        }
+                        setProfileMenuOpen(false);
+                      }}
                       className="w-full flex items-center gap-3 px-6 py-3 text-teal-700 transition-all"
                     >
 

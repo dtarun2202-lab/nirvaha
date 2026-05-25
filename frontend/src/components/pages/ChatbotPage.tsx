@@ -2,27 +2,140 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Send,
   Mic,
-  Smile,
   Leaf,
   MessageSquare,
   Settings,
   User,
   Trash2,
   ChevronLeft,
-  BrainCircuit
+  BrainCircuit,
+  Camera,
+  X,
+  Upload,
+  Download,
+  Loader2,
+  Music,
+  Volume2,
+  VolumeX,
+  ChevronDown
 } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+
 import TextType from "../TextType";
 import { BACKEND_CONFIG } from "@/config/backend";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSettings } from "@/contexts/SettingsContext";
+import type { ChatbotPersona } from "@/types/settings";
+import { toast } from "react-toastify";
 
 type Message = { type: "ai" | "user"; content: string; timestamp: string };
 type Session = { id: string; title: string; messages: Message[]; createdAt: number; updatedAt: number };
 
 export function ChatbotPage() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { user, setCurrentUser } = useAuth();
+  const { settings, setMusicEnabled, setChatbotPersona } = useSettings();
+  const bgMusicEnabled = settings.music.enabled;
+  const selectedPersona = settings.chatbotPersona as ChatbotPersona;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Profile modal states
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [profileName, setProfileName] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
+  const [profileAvatar, setProfileAvatar] = useState("");
+
+  const [isPreferencesModalOpen, setIsPreferencesModalOpen] = useState(false);
+  const [isClearingHistory, setIsClearingHistory] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const musicTracks = [
+    "/music/music 1.mp3",
+    "/music/music 2.mp3",
+    "/music/music 3.mp3",
+    "/music/music 4.mp3",
+    "/music/music 5.mp3",
+  ];
+
+  // Background music control
+  const AMBIENT_MUSIC_VOLUME = 0.12;
+  const MUSIC_FADE_DURATION_MS = 1400;
+
+  const fadeAudio = (audio: HTMLAudioElement, targetVolume: number, duration: number) => {
+    const startVolume = audio.volume;
+    const change = targetVolume - startVolume;
+    const startTime = Date.now();
+
+    const fadeStep = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      audio.volume = Math.max(0, Math.min(1, startVolume + change * progress));
+
+      if (progress < 1) {
+        requestAnimationFrame(fadeStep);
+      }
+    };
+
+    fadeStep();
+  };
+
+  const playRandomTrack = () => {
+    const randomTrack = musicTracks[Math.floor(Math.random() * musicTracks.length)];
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = randomTrack;
+      audioRef.current.loop = true;
+      audioRef.current.volume = 0;
+      audioRef.current.play().catch(() => {});
+      fadeAudio(audioRef.current, AMBIENT_MUSIC_VOLUME, MUSIC_FADE_DURATION_MS);
+    } else {
+      const audio = new Audio(randomTrack);
+      audio.volume = 0;
+      audio.loop = true;
+      audio.play().catch(() => {});
+      fadeAudio(audio, AMBIENT_MUSIC_VOLUME, MUSIC_FADE_DURATION_MS);
+      audioRef.current = audio;
+    }
+  };
+
+  const stopMusic = () => {
+    if (audioRef.current) {
+      fadeAudio(audioRef.current, 0, MUSIC_FADE_DURATION_MS);
+      window.setTimeout(() => {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+        }
+      }, MUSIC_FADE_DURATION_MS + 50);
+    }
+  };
+
+  const toggleBgMusic = (enabled: boolean) => {
+    void setMusicEnabled(enabled);
+    if (enabled) {
+      playRandomTrack();
+    } else {
+      stopMusic();
+    }
+  };
+
+  const savePersona = (persona: ChatbotPersona) => {
+    void setChatbotPersona(persona);
+  };
+
+  useEffect(() => {
+    if (settings.music.enabled) {
+      playRandomTrack();
+    } else {
+      stopMusic();
+    }
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, [settings.music.enabled]);
+
+
   const initialMessage: Message = useMemo(
     () => ({
       type: "ai",
@@ -38,16 +151,54 @@ export function ChatbotPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isExportingHistory, setIsExportingHistory] = useState(false);
+  const [isSyncingHistory, setIsSyncingHistory] = useState(false);
+  const [lastSyncLabel, setLastSyncLabel] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Helper to get storage key
+  const getStorageKey = () => {
+    return user?.id ? `nirvaha_chat_v2_${user.id}` : "nirvaha_chat_v2_anonymous";
+  };
 
   // Persistent Storage
   const saveSessions = (next: Session[]) => {
     setSessions(next);
-    localStorage.setItem("nirvaha_chat_v2", JSON.stringify(next));
+    localStorage.setItem(getStorageKey(), JSON.stringify(next));
+  };
+
+  const fetchBackendHistory = async () => {
+    if (!user?.id || user.id === 'anonymous') return null;
+    try {
+      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/reflect/history?userId=${encodeURIComponent(user.id)}`);
+      if (!response.ok) {
+        throw new Error('Unable to fetch backend history');
+      }
+      const data = await response.json();
+      return Array.isArray(data.sessions) ? data.sessions as Session[] : [];
+    } catch (error) {
+      console.error('Backend reflection history error:', error);
+      return null;
+    }
+  };
+
+  const syncChatHistory = async () => {
+    if (!user?.id || user.id === 'anonymous') return;
+    setIsSyncingHistory(true);
+    try {
+      const backendSessions = await fetchBackendHistory();
+      if (backendSessions && backendSessions.length) {
+        saveSessions(backendSessions);
+        setCurrentSessionId(backendSessions[0].id);
+        setLastSyncLabel(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      }
+    } finally {
+      setIsSyncingHistory(false);
+    }
   };
 
   // Logic: Start empty if requested
-  const startNewChat = () => {
+  const startNewChat = (customSessions?: Session[] | React.MouseEvent) => {
     const id = crypto.randomUUID?.() || `${Date.now()}`;
     const newSession: Session = {
       id,
@@ -56,9 +207,123 @@ export function ChatbotPage() {
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
-    saveSessions([newSession, ...sessions]);
+    const activeSessions = Array.isArray(customSessions) ? customSessions : sessions;
+    saveSessions([newSession, ...activeSessions]);
     setCurrentSessionId(id);
     setInputValue("");
+  };
+
+  // Profile modal action handlers
+  const handleClearHistory = async () => {
+    setIsClearingHistory(true);
+    try {
+      if (user?.id && user.id !== 'anonymous') {
+        const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/reflect/clear?userId=${encodeURIComponent(user.id)}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || 'Failed to clear backend history');
+        }
+      }
+
+      const key = getStorageKey();
+      localStorage.removeItem(key);
+      setSessions([]);
+      startNewChat([]);
+      toast.success('Chat history cleared');
+    } catch (error) {
+      console.error('Clear history failed:', error);
+      toast.error((error as Error).message || 'Unable to clear history right now');
+    } finally {
+      setIsClearingHistory(false);
+      setIsPreferencesModalOpen(false);
+    }
+  };
+
+  const handleExportHistory = async () => {
+    if (!user?.id || user.id === 'anonymous') {
+      toast.warning('Please log in to export your reflection history.');
+      return;
+    }
+
+    setIsExportingHistory(true);
+    try {
+      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/reflect/export?userId=${encodeURIComponent(user.id)}`);
+      const data = await response.json();
+      if (!response.ok || !data.url) {
+        throw new Error(data.error || 'Export request failed');
+      }
+
+      const downloadUrl = `${BACKEND_CONFIG.API_BASE_URL}${data.url}`;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = data.filename || `nirvaha-chat-backup-${Date.now()}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success('Chat export downloaded');
+    } catch (error) {
+      console.error('Export history failed:', error);
+      toast.error((error as Error).message || 'Unable to export history');
+    } finally {
+      setIsExportingHistory(false);
+    }
+  };
+
+  const openProfileModal = () => {
+    if (!user) {
+      toast.warning("Please log in to manage your profile");
+      return;
+    }
+    setProfileName(user.name || "");
+    setProfileEmail(user.email || "");
+    setProfileAvatar(user.avatar || "");
+    setIsProfileModalOpen(true);
+  };
+
+  const handleProfileFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfileAvatar(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveProfile = async () => {
+    if (!profileName.trim() || !profileEmail.trim()) {
+      toast.error("Display Name and Username/Email are required");
+      return;
+    }
+    setIsSavingProfile(true);
+    try {
+      const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/users/profile/update`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user?.id,
+          name: profileName.trim(),
+          email: profileEmail.trim(),
+          avatar: profileAvatar,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setCurrentUser(data.user);
+        toast.success("Profile updated successfully! ✨");
+        setIsProfileModalOpen(false);
+      } else {
+        toast.error(data.error || "Failed to update profile");
+      }
+    } catch (err) {
+      console.error("Save profile error:", err);
+      toast.error("Network error. Please try again.");
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
   const currentSession = useMemo(
@@ -68,19 +333,48 @@ export function ChatbotPage() {
 
   const messages = currentSession?.messages ?? [];
 
+  // Reload history when user logs in/out or switches accounts
   useEffect(() => {
-    const saved = localStorage.getItem("nirvaha_chat_v2");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.length) {
-        setSessions(parsed);
-        setCurrentSessionId(parsed[0].id);
-        return;
-      }
-    }
-    startNewChat();
-  }, []);
+    const loadHistory = async () => {
+      const key = user?.id ? `nirvaha_chat_v2_${user.id}` : "nirvaha_chat_v2_anonymous";
+      const saved = localStorage.getItem(key);
 
+      if (user?.id && user.id !== 'anonymous') {
+        const backendSessions = await fetchBackendHistory();
+        if (backendSessions && backendSessions.length) {
+          saveSessions(backendSessions);
+          setCurrentSessionId(backendSessions[0].id);
+          return;
+        }
+      }
+
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.length) {
+            setSessions(parsed);
+            setCurrentSessionId(parsed[0].id);
+            return;
+          }
+        } catch {
+          localStorage.removeItem(key);
+        }
+      }
+
+      // If no sessions, initialize with an empty reflection session
+      startNewChat([]);
+    };
+
+    loadHistory();
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id || user.id === 'anonymous') return;
+    const intervalId = window.setInterval(() => {
+      void syncChatHistory();
+    }, 60000);
+    return () => window.clearInterval(intervalId);
+  }, [user?.id]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -88,41 +382,87 @@ export function ChatbotPage() {
     }
   }, [messages, isTyping]);
 
-  const generateAIResponse = (message: string): string => {
+  const generateAIResponse = (message: string, history: Message[]): string => {
     const lower = message.toLowerCase();
     
-    // Feature-specific responses
-    if (lower.includes("meditat")) {
-      return "Meditation is the heart of Nirvaha. You can explore our curated sessions in the Meditation section to find your inner calm. Would you like me to guide you through a simple breathing technique now? 🧘‍♀️";
-    }
-    if (lower.includes("sound") || lower.includes("music") || lower.includes("healing")) {
-      return "Sound Healing uses vibrational frequencies to restore balance. Check out our All Sound Healing Sessions for a deep immersive experience. 🎵";
-    }
-    if (lower.includes("companion") || lower.includes("mentor") || lower.includes("expert")) {
-      return "Our Nirvaha Companions are here for personalized support. You can browse through our mentors in the Companion section to find a guide that resonates with you. 🤝";
-    }
-    if (lower.includes("marketplace") || lower.includes("buy") || lower.includes("product")) {
-      return "In the Nirvaha Marketplace, you'll find curated wellness products, from crystals to essential oils, all designed to support your spiritual practice. 🛍️";
-    }
-    if (lower.includes("community") || lower.includes("post") || lower.includes("share")) {
-      return "The Nirvaha Community is a safe space to share your journey and connect with others. You can see what others are reflecting on in the Community feed. 🌿";
+    // Find last user topic if any
+    const lastUserMsg = history.filter(m => m.type === "user").pop();
+    const lastAiMsg = history.filter(m => m.type === "ai").pop();
+    const lastUserContent = lastUserMsg ? lastUserMsg.content.toLowerCase() : "";
+
+    let validation = "";
+    let guidance = "";
+    let reflectionQuestion = "";
+
+    // Helper check to see if user is explicitly asking for tools, help, suggestions, etc.
+    const isAskingForSuggestions = lower.includes("how") || lower.includes("tool") || lower.includes("suggest") || lower.includes("help") || lower.includes("do") || lower.includes("exercise") || lower.includes("recom");
+
+    // 1. Emotion & Intent Matching
+    if (lower.includes("stress") || lower.includes("overwhelm") || lower.includes("anxious") || lower.includes("panic")) {
+      validation = "I hear the weight in your words. Feeling overwhelmed or stressed is a heavy burden, but it is also your mind asking for a gentle pause. Take a slow breath with me.";
+      if (isAskingForSuggestions) {
+        guidance = "If you feel ready to explore tools, our Meditation section offers Guided Breathwork sessions, and our Sound Healing frequencies are designed to help soothe the nervous system.";
+      } else {
+        guidance = "Allow yourself a moment to step back from all the demands. There is no need to resolve everything this very second. Let your shoulders drop and feel the ground beneath you.";
+      }
+      reflectionQuestion = "When you breathe in right now, where in your body do you feel the tension holding on?";
+    } else if (lower.includes("sad") || lower.includes("lonely") || lower.includes("hurt") || lower.includes("cry") || lower.includes("grief") || lower.includes("depress")) {
+      validation = "I am holding space for you. Sadness and grief are not signs of weakness, but visitors showing how deeply you care and feel. You do not have to carry this alone.";
+      if (isAskingForSuggestions) {
+        guidance = "If you feel you need deeper support, you can connect with our Nirvaha Companions for one-on-one personalized, compassionate guidance.";
+      } else {
+        guidance = "It is completely okay to not be okay right now. There is no rush to feel better. Let the feeling be, and treat yourself with absolute kindness.";
+      }
+      reflectionQuestion = "Would you like to sit with this feeling in silence for a moment, or is there a specific thought you want to express?";
+    } else if (lower.includes("happy") || lower.includes("good") || lower.includes("great") || lower.includes("peaceful")) {
+      validation = "What a beautiful space you are in. Celebrating moments of joy and peace is a wonderful way to ground them in your heart.";
+      guidance = "Savoring these moments of clarity helps build a gentle inner sanctuary. You don't need to do anything to optimize or change it—just be fully present in this lightness.";
+      reflectionQuestion = "What is one little thing that brought you this feeling of peace today?";
+    } else if (lower.includes("meditat") || lower.includes("breath")) {
+      validation = "Meditation is a gentle return to yourself. It is not about silencing the mind, but about listening to it with kindness.";
+      guidance = "Our Meditation section offers structured guided paths for mindfulness, stress relief, and deep sleep. You can start with a short 5-minute session to ease in.";
+      reflectionQuestion = "Have you meditated before, or are we beginning a new chapter together today?";
+    } else if (lower.includes("sound") || lower.includes("healing") || lower.includes("music") || lower.includes("frequency")) {
+      validation = "Sound has a beautiful way of bypassing the busy mind and speaking directly to our nervous system.";
+      guidance = "In our Sound Healing library, you can tune into specific healing frequencies like 432Hz for grounding or 528Hz for relaxation.";
+      reflectionQuestion = "Is there a particular sound or instrument, like singing bowls or rain, that helps you feel safe?";
+    } else if (lower.includes("companion") || lower.includes("mentor") || lower.includes("expert") || lower.includes("guide")) {
+      validation = "Seeking a mentor or companion is a courageous step on the path of self-discovery.";
+      guidance = "Our Nirvaha Companions are wellness experts who offer personalized, compassionate guidance. You can browse through their profiles to find someone who resonates with you.";
+      reflectionQuestion = "Are you looking for support with something specific, like anxiety, sleep, or daily mindfulness?";
+    } else if (lower.includes("marketplace") || lower.includes("buy") || lower.includes("product")) {
+      validation = "Creating a soothing physical space is a lovely way to support your inner wellness journey.";
+      guidance = "In the Nirvaha Marketplace, you can find curated items like essential oils, grounding crystals, and wellness journals to complement your practice.";
+      reflectionQuestion = "Are you looking for something to help with your physical space, or a gift for a loved one?";
+    } else if (lower.includes("hello") || lower.includes("hi") || lower.includes("namaste") || lower.includes("hey")) {
+      validation = "Namaste 🙏 I am your NIRVAHA AI spiritual guide, here to listen and walk with you.";
+      guidance = "I am here to offer a safe, quiet space for you to reflect, pause, or talk through whatever is on your mind.";
+      reflectionQuestion = "How does your heart feel in this exact moment?";
+    } else if (lower.includes("thank") || lower.includes("thanks")) {
+      validation = "You are so welcome. Gratitude is a beautiful reflection of a warm heart.";
+      guidance = "Remember, you can return to this space anytime you need to pause, breathe, or reflect.";
+      reflectionQuestion = "Is there anything else you would like to reflect on before you move forward today?";
+    } else {
+      // Memory / Context fallbacks
+      if (lastAiMsg && lastAiMsg.content.includes("where in your body")) {
+        validation = "Thank you for bringing awareness to that part of your body. Sensing where tension lives is the first step toward releasing it.";
+        guidance = "Allow yourself to imagine sending a warm, soft breath to that area, letting it soften with each exhale.";
+        reflectionQuestion = "Would you like to try a short breathing pause together now?";
+      } else if (lastAiMsg && lastAiMsg.content.includes("How does your heart feel")) {
+        validation = "I hear you, and I honor whatever feeling you are sitting with right now. Every emotion has its own wisdom.";
+        guidance = "There is no right or wrong way to feel. Just allowing yourself to be present is a profound form of self-care.";
+        reflectionQuestion = "What feels like the most supportive thing for you right now?";
+      } else {
+        validation = "Thank you for sharing that reflection with me. Every thought and emotion is a stepping stone on your journey of self-discovery.";
+        guidance = "I am here to listen and support you. You don't have to navigate these paths alone.";
+        reflectionQuestion = "What is the primary feeling or thought that stays with you after sharing this?";
+      }
     }
 
-    // Emotional responses
-    if (lower.includes("stress") || lower.includes("overwhelm") || lower.includes("anxious")) {
-      return "I hear you. Stress is your body asking for rest. Let's try a simple pause: inhale for 4 counts, hold for 4, exhale for 4. You are safe here. 🌬️";
+    if (guidance) {
+      return `${validation}\n\n${guidance}\n\n${reflectionQuestion}`;
     }
-    
-    if (lower.includes("sad") || lower.includes("lonely") || lower.includes("depress")) {
-      return "I'm so sorry you're feeling this way. Remember that sadness is a visitor, not a resident. I'm here to listen. What's on your mind? 💙";
-    }
-
-    if (lower.includes("hello") || lower.includes("hi") || lower.includes("namaste")) {
-      return "Namaste 🙏 I am your NIRVAHA AI spiritual guide. How are you feeling in this moment? I am here to support your reflection.";
-    }
-
-    // Default
-    return "That's a deep reflection. I'm listening with an open heart. Can you tell me more about how that makes you feel? 🌿";
+    return `${validation}\n\n${reflectionQuestion}`;
   };
 
   const handleSend = async () => {
@@ -162,13 +502,16 @@ export function ChatbotPage() {
 
       if (res.ok) {
         const data = await res.json();
-        const replyText = data.reply || generateAIResponse(sentMessage);
+        const replyText = data.reply || generateAIResponse(sentMessage, messages);
         
         const aiResponse: Message = {
           type: "ai",
           content: replyText,
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         };
+
+        // Empathetic timing delay
+        await new Promise(resolve => setTimeout(resolve, 800));
 
         const withAi = updatedSessions.map(s =>
           s.id === currentSessionId ? { ...s, messages: [...s.messages, aiResponse], updatedAt: Date.now() } : s
@@ -181,13 +524,16 @@ export function ChatbotPage() {
     } catch (error) {
       console.error("AI Reflection Error:", error);
       // Use frontend AI response system as fallback
-      const replyText = generateAIResponse(sentMessage);
+      const replyText = generateAIResponse(sentMessage, messages);
       
       const aiResponse: Message = {
         type: "ai",
         content: replyText,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
+
+      // Empathetic timing delay for fallback
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       const withAi = updatedSessions.map(s =>
         s.id === currentSessionId ? { ...s, messages: [...s.messages, aiResponse], updatedAt: Date.now() } : s
@@ -289,18 +635,21 @@ export function ChatbotPage() {
 
               <div className="pt-6 border-t border-white/5 space-y-1.5">
                 <button
-                  onClick={() => navigate('/dashboard/profile')}
+                  onClick={openProfileModal}
                   className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200 group"
                 >
                   <User className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" />
                   <span className="text-sm font-medium">Personal Profile</span>
                 </button>
                 <button
-                  onClick={() => navigate('/dashboard/overview')}
+                  onClick={() => setIsPreferencesModalOpen(true)}
                   className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200 group"
                 >
                   <Settings className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" />
                   <span className="text-sm font-medium">Preferences</span>
+                  {bgMusicEnabled && (
+                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" title="Music playing" />
+                  )}
                 </button>
               </div>
             </div>
@@ -515,7 +864,7 @@ export function ChatbotPage() {
                       <div className={`px-5 py-3.5 rounded-2xl text-[15px] leading-relaxed shadow-sm ${msg.type === 'user'
                         ? 'bg-[#2D6A4F] text-white rounded-tr-none'
                         : 'bg-[#F8FAF9] text-[#1A2E2A] border border-gray-100 rounded-tl-none'
-                        }`}>
+                        }`} style={{ whiteSpace: 'pre-line' }}>
                         {msg.content}
                       </div>
                       <span className={`text-[10px] font-semibold tracking-wider text-gray-400 px-1 uppercase ${msg.type === 'user' ? 'text-right' : 'text-left'}`}>
@@ -601,6 +950,301 @@ export function ChatbotPage() {
           </p>
         </div>
       </main>
+
+      {/* Personal Profile Edit Modal */}
+      <AnimatePresence>
+        {isProfileModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop with modern blur */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsProfileModalOpen(false)}
+              className="absolute inset-0 bg-[#05291F]/40 backdrop-blur-md"
+            />
+
+            {/* Modal Body */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: "spring", duration: 0.45 }}
+              className="relative w-full max-w-[380px] bg-white rounded-2xl shadow-[0_16px_48px_rgba(5,41,31,0.16)] border border-[#0C3B2E]/5 p-5 overflow-hidden z-10 text-[#1A2E2A]"
+            >
+              {/* Organic background accents */}
+              <div className="absolute -top-10 -right-10 w-28 h-28 bg-[#52B788]/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-[#0C3B2E]/5 rounded-full blur-2xl pointer-events-none" />
+
+              {/* Close Button */}
+              <button
+                onClick={() => setIsProfileModalOpen(false)}
+                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full transition-all"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Header Title */}
+              <div className="text-center mb-4">
+                <h3 className="text-lg font-black text-[#0C3B2E] tracking-tight">Personal Profile</h3>
+                <p className="text-[11px] font-semibold text-gray-400 mt-0.5">Manage your identity in Nirvaha</p>
+              </div>
+
+              {/* Avatar Upload */}
+              <div className="flex flex-col items-center gap-1.5 mb-4">
+                <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleProfileFileChange}
+                  />
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#52B788] to-[#2D6A4F] flex items-center justify-center text-white shadow-[0_6px_20px_rgba(45,106,79,0.22)] overflow-hidden relative border-4 border-white group-hover:scale-105 transition-transform duration-300">
+                    {profileAvatar ? (
+                      <img src={profileAvatar} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-2xl font-black">
+                        {user?.name ? user.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : "UN"}
+                      </span>
+                    )}
+
+                    {/* Dark camera overlay on hover */}
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <Camera className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+
+                  {/* Tiny edit badge */}
+                  <div className="absolute -bottom-1 -right-1 bg-[#2D6A4F] text-white p-1.5 rounded-xl shadow-md border-2 border-white pointer-events-none">
+                    <Upload className="w-3 h-3" />
+                  </div>
+                </div>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-xs text-[#2D6A4F] font-bold hover:text-[#1B4332] transition-colors mt-1"
+                >
+                  Upload Picture
+                </button>
+              </div>
+
+              {/* Inputs */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#0C3B2E]/60 uppercase tracking-wider mb-1.5 px-1">Display Name</label>
+                  <input
+                    type="text"
+                    value={profileName}
+                    onChange={(e) => setProfileName(e.target.value)}
+                    placeholder="Enter display name"
+                    className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm font-semibold outline-none focus:border-[#2D6A4F] focus:ring-4 focus:ring-[#2D6A4F]/5 transition-all text-[#1A2E2A]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#0C3B2E]/60 uppercase tracking-wider mb-1.5 px-1">Username / Email</label>
+                  <input
+                    type="email"
+                    value={profileEmail}
+                    onChange={(e) => setProfileEmail(e.target.value)}
+                    placeholder="Enter username or email"
+                    className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm font-semibold outline-none focus:border-[#2D6A4F] focus:ring-4 focus:ring-[#2D6A4F]/5 transition-all text-[#1A2E2A]"
+                  />
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 mt-5">
+                <button
+                  onClick={() => setIsProfileModalOpen(false)}
+                  disabled={isSavingProfile}
+                  className="flex-1 py-3 px-4 rounded-2xl border border-gray-200 text-sm font-bold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveProfile}
+                  disabled={isSavingProfile}
+                  className="flex-1 py-3 px-4 rounded-2xl bg-[#2D6A4F] hover:bg-[#1B4332] active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none text-white text-sm font-bold shadow-lg shadow-[#2D6A4F]/20 flex items-center justify-center gap-2 transition-all"
+                >
+                  {isSavingProfile ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ====== PREFERENCES MODAL ====== */}
+      <AnimatePresence>
+        {isPreferencesModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsPreferencesModalOpen(false)}
+              className="absolute inset-0 bg-[#05291F]/40 backdrop-blur-md"
+            />
+
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 16 }}
+              transition={{ type: "spring", duration: 0.45 }}
+              className="relative w-full max-w-md bg-white rounded-2xl shadow-[0_12px_40px_rgba(5,41,31,0.12)] border border-[#0C3B2E]/5 p-5 overflow-hidden z-10 text-[#1A2E2A]"
+            >
+              {/* Decorative accents */}
+              <div className="absolute -top-10 -right-10 w-24 h-24 bg-[#52B788]/5 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-10 -left-10 w-24 h-24 bg-[#0C3B2E]/5 rounded-full blur-2xl pointer-events-none" />
+
+              {/* Close */}
+              <button
+                onClick={() => setIsPreferencesModalOpen(false)}
+                className="absolute top-3.5 right-3.5 p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full transition-all"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Header */}
+              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[#0C3B2E]/5">
+                <div className="w-9 h-9 rounded-xl bg-[#EAF5F0] flex items-center justify-center text-[#2D6A4F] shadow-sm">
+                  <Settings className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-extrabold text-[#0C3B2E] tracking-tight">Preferences</h3>
+                  <p className="text-[11px] font-semibold text-gray-400 mt-0.5">Personalize your reflection space</p>
+                </div>
+              </div>
+
+              <div className="space-y-5">
+
+                {/* ── Background Music Toggle ── */}
+                <div className="flex items-center justify-between py-3 border-b border-[#0C3B2E]/5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-[#F0F7F4] flex items-center justify-center">
+                      {bgMusicEnabled
+                        ? <Volume2 className="w-4 h-4 text-[#2D6A4F]" />
+                        : <VolumeX className="w-4 h-4 text-gray-400" />
+                      }
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-[#0C3B2E]">Background Music</p>
+                      <p className="text-[11px] text-gray-400 mt-0.5">
+                        {bgMusicEnabled ? "Playing ambient wellness track" : "Music disabled"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Toggle Switch */}
+                  <button
+                    id="pref-bgmusic-toggle"
+                    onClick={() => toggleBgMusic(!bgMusicEnabled)}
+                    className={`relative w-11 h-6 rounded-full transition-all duration-300 focus:outline-none ${
+                      bgMusicEnabled ? 'bg-[#2D6A4F]' : 'bg-gray-200'
+                    }`}
+                  >
+                    <motion.div
+                      animate={{ x: bgMusicEnabled ? 22 : 2 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm"
+                    />
+                  </button>
+                </div>
+
+                {/* ── Persona Selector ── */}
+                <div className="py-3.5 border-b border-[#0C3B2E]/5">
+                  <label className="block text-[10px] font-bold text-[#0C3B2E]/50 uppercase tracking-widest mb-2 px-0.5">AI Persona</label>
+                  <div className="relative">
+                    <select
+                      id="pref-persona-select"
+                      value={selectedPersona}
+                      onChange={(e) => savePersona(e.target.value as ChatbotPersona)}
+                      className="w-full appearance-none px-4 py-2.5 pr-8 rounded-full border border-emerald-600/10 text-xs font-semibold outline-none focus:border-[#2D6A4F] focus:ring-4 focus:ring-[#2D6A4F]/5 transition-all text-[#1C332E] bg-[#F4F9F6] cursor-pointer"
+                    >
+                      <option value="Supportive">Supportive Persona</option>
+                      <option value="Emotional">Emotional Persona</option>
+                      <option value="Deep">Deep Wisdom Persona</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
+                  <p className="text-[11px] text-gray-400 mt-2 px-0.5 leading-relaxed">
+                    {selectedPersona === "Supportive" && "Your guide is warm and encouraging, offering gentle support."}
+                    {selectedPersona === "Emotional" && "Your guide leads with deep empathy and compassionate presence."}
+                    {selectedPersona === "Deep" && "Your guide offers philosophical, reflective wisdom for deeper inquiry."}
+                  </p>
+                </div>
+
+                {/* ── Clear Chat History ── */}
+                <div className="flex items-center justify-between py-3">
+                  <div>
+                    <p className="text-xs font-bold text-gray-700">Clear chat history</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5 leading-normal">Delete all sessions permanently</p>
+                  </div>
+                  <button
+                    id="pref-clear-history-btn"
+                    onClick={handleClearHistory}
+                    disabled={isClearingHistory}
+                    className="px-3.5 py-1.5 rounded-full border border-red-200 hover:border-red-300 hover:bg-red-50 text-red-600 disabled:opacity-60 text-[10px] font-bold transition-all flex items-center gap-1 active:scale-[0.98]"
+                  >
+                    {isClearingHistory ? (
+                      <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Clearing</>
+                    ) : (
+                      <><Trash2 className="w-3.5 h-3.5" /> Clear History</>
+                    )}
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between py-3 border-t border-[#0C3B2E]/5">
+                  <div>
+                    <p className="text-xs font-bold text-gray-700">Export chat backup</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5 leading-normal">Download your saved reflections from the backend</p>
+                  </div>
+                  <button
+                    id="pref-export-history-btn"
+                    onClick={handleExportHistory}
+                    disabled={isExportingHistory}
+                    className="px-3.5 py-1.5 rounded-full border border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50 text-emerald-700 disabled:opacity-60 text-[10px] font-bold transition-all flex items-center gap-1 active:scale-[0.98]"
+                  >
+                    {isExportingHistory ? (
+                      <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Exporting</>
+                    ) : (
+                      <><Download className="w-3.5 h-3.5" /> Export</>
+                    )}
+                  </button>
+                </div>
+
+                {lastSyncLabel && (
+                  <div className="text-[11px] text-gray-400 pt-2">
+                    Synced with backend at {lastSyncLabel}
+                  </div>
+                )}
+
+              </div>
+
+              {/* Footer */}
+              <div className="mt-6">
+                <button
+                  onClick={() => setIsPreferencesModalOpen(false)}
+                  className="w-full py-2.5 px-4 rounded-full bg-[#2D6A4F] hover:bg-[#1B4332] active:scale-[0.98] text-white text-xs font-bold shadow-md shadow-[#2D6A4F]/15 transition-all"
+                >
+                  Done
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <style>{`
         .custom-scrollbar::-webkit-scrollbar {
