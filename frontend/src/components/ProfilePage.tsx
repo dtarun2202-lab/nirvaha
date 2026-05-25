@@ -47,6 +47,7 @@ import { useSocket } from "../contexts/SocketContext";
 import { useTranslation } from "react-i18next";
 import type { AppLanguage, ThemeMode } from "../types/settings";
 import { useProfileSync } from "../hooks/useProfileSync";
+import { InitialsAvatar } from "./ui/InitialsAvatar";
 import BACKEND_CONFIG from "../config/backend";
 import html2canvas from "html2canvas";
 import {
@@ -474,8 +475,6 @@ export function ProfilePage() {
   const profileRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [sessionsLoading, setSessionsLoading] = useState(true);
   const [userBookings, setUserBookings] = useState<any[]>([]);
 
@@ -690,11 +689,6 @@ export function ProfilePage() {
     };
   }, [socket, user?.email, syncUserFromServer]);
 
-
-  const getInitials = (name: string) => {
-    if (!name) return "UN";
-    return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
-  };
 
   const availableMoods = [
     { icon: Sun, label: "Peaceful", color: "from-[#52B788] to-[#2D6A4F]" },
@@ -1002,29 +996,6 @@ export function ProfilePage() {
     return () => { socket.off("profile_updated", handleUpdate); };
   }, [socket, user?.id, refreshProfile]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64 = reader.result as string;
-      try {
-        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/users/profile/update`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user?.id, avatar: base64 })
-        });
-        if (res.ok) {
-          refreshProfile();
-        }
-      } catch (err) {
-        console.error("Avatar update failed:", err);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -1062,39 +1033,13 @@ export function ProfilePage() {
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#2D6A4F]/5 rounded-full blur-2xl -ml-24 -mb-24" />
             
             <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-10">
-              {/* Profile Avatar */}
-              <div className="relative group">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleFileChange}
+              <motion.div whileHover={{ scale: 1.05 }} style={{ boxShadow: "0 20px 60px rgba(45, 106, 79, 0.35)" }}>
+                <InitialsAvatar
+                  name={user?.name || profileData?.name || "Guest"}
+                  size="profile"
+                  className="shadow-2xl"
                 />
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  className="w-32 h-32 rounded-[32px] bg-gradient-to-br from-[#52B788] to-[#2D6A4F] flex items-center justify-center text-white shadow-2xl overflow-hidden relative"
-                  style={{ boxShadow: "0 20px 60px rgba(45, 106, 79, 0.35)" }}
-                >
-                  {user?.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-4xl font-bold tracking-tight">
-                      {getInitials(user?.name || "User Name")}
-                    </span>
-                  )}
-                  {/* Subtle overlay on hover */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                </motion.div>
-                <motion.button
-                  whileHover={{ scale: 1.1, rotate: 10 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => fileInputRef.current?.click()}
-                  className="absolute -bottom-2 -right-2 w-10 h-10 bg-[#2D6A4F] rounded-2xl shadow-lg flex items-center justify-center text-white border-4 border-white z-20"
-                >
-                  <Edit2 className="w-5 h-5" />
-                </motion.button>
-              </div>
+              </motion.div>
 
               {/* Profile Info */}
               <div className="flex-1">
@@ -1988,9 +1933,7 @@ export function ProfilePage() {
 
                 {/* Account Details Quick View */}
                 <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 flex items-center gap-4">
-                  <div className="w-12 h-12 bg-emerald-100 text-emerald-800 font-bold rounded-2xl flex items-center justify-center shadow-inner text-lg">
-                    {user?.name?.charAt(0).toUpperCase() || "🧘"}
-                  </div>
+                  <InitialsAvatar name={user?.name || "Guest"} size="lg" />
                   <div>
                     <p className="text-[#1B4332] font-black text-base">{user?.name || "Guest"}</p>
                     <p className="text-xs text-gray-500 font-semibold truncate">{user?.email || "No email registered"}</p>

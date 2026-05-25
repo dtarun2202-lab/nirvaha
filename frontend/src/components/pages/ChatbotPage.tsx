@@ -9,9 +9,7 @@ import {
   Trash2,
   ChevronLeft,
   BrainCircuit,
-  Camera,
   X,
-  Upload,
   Download,
   Loader2,
   Music,
@@ -25,6 +23,7 @@ import TextType from "../TextType";
 import { BACKEND_CONFIG } from "@/config/backend";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSettings } from "@/contexts/SettingsContext";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import type { ChatbotPersona } from "@/types/settings";
 import { toast } from "react-toastify";
 
@@ -36,14 +35,11 @@ export function ChatbotPage() {
   const { settings, setMusicEnabled, setChatbotPersona } = useSettings();
   const bgMusicEnabled = settings.music.enabled;
   const selectedPersona = settings.chatbotPersona as ChatbotPersona;
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   // Profile modal states
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [profileName, setProfileName] = useState("");
   const [profileEmail, setProfileEmail] = useState("");
-  const [profileAvatar, setProfileAvatar] = useState("");
 
   const [isPreferencesModalOpen, setIsPreferencesModalOpen] = useState(false);
   const [isClearingHistory, setIsClearingHistory] = useState(false);
@@ -278,18 +274,7 @@ export function ChatbotPage() {
     }
     setProfileName(user.name || "");
     setProfileEmail(user.email || "");
-    setProfileAvatar(user.avatar || "");
     setIsProfileModalOpen(true);
-  };
-
-  const handleProfileFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProfileAvatar(reader.result as string);
-    };
-    reader.readAsDataURL(file);
   };
 
   const handleSaveProfile = async () => {
@@ -306,7 +291,6 @@ export function ChatbotPage() {
           userId: user?.id,
           name: profileName.trim(),
           email: profileEmail.trim(),
-          avatar: profileAvatar,
         }),
       });
 
@@ -991,42 +975,12 @@ export function ChatbotPage() {
                 <p className="text-[11px] font-semibold text-gray-400 mt-0.5">Manage your identity in Nirvaha</p>
               </div>
 
-              {/* Avatar Upload */}
-              <div className="flex flex-col items-center gap-1.5 mb-4">
-                <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleProfileFileChange}
-                  />
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#52B788] to-[#2D6A4F] flex items-center justify-center text-white shadow-[0_6px_20px_rgba(45,106,79,0.22)] overflow-hidden relative border-4 border-white group-hover:scale-105 transition-transform duration-300">
-                    {profileAvatar ? (
-                      <img src={profileAvatar} alt="Avatar" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-2xl font-black">
-                        {user?.name ? user.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : "UN"}
-                      </span>
-                    )}
-
-                    {/* Dark camera overlay on hover */}
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <Camera className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-
-                  {/* Tiny edit badge */}
-                  <div className="absolute -bottom-1 -right-1 bg-[#2D6A4F] text-white p-1.5 rounded-xl shadow-md border-2 border-white pointer-events-none">
-                    <Upload className="w-3 h-3" />
-                  </div>
-                </div>
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-xs text-[#2D6A4F] font-bold hover:text-[#1B4332] transition-colors mt-1"
-                >
-                  Upload Picture
-                </button>
+              <div className="flex flex-col items-center mb-4">
+                <InitialsAvatar
+                  name={profileName || user?.name}
+                  size="2xl"
+                  className="border-4 border-white shadow-[0_6px_20px_rgba(45,106,79,0.22)]"
+                />
               </div>
 
               {/* Inputs */}
