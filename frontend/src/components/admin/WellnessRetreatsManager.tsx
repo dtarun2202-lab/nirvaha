@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Edit2, Trash2, Save, X, Upload, ArrowUp, ArrowDown, Eye, EyeOff, Compass } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import BACKEND_CONFIG from '@/config/backend';
@@ -46,6 +46,14 @@ export function WellnessRetreatsManager() {
   const [isSaving, setIsSaving] = useState(false);
   const [customCategory, setCustomCategory] = useState('');
   const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const modalScrollRef = useRef<HTMLDivElement>(null);
+
+  const triggerError = (msg: string) => {
+    setFormError(msg);
+    if (modalScrollRef.current) {
+      modalScrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   useEffect(() => {
     fetchRetreats();
@@ -157,12 +165,12 @@ export function WellnessRetreatsManager() {
 
     // Validation
     if (!editingRetreat.title.trim() || !editingRetreat.description.trim() || !finalCategory) {
-      setFormError('Title, Subtitle/Description, and Category are required.');
+      triggerError('Title, Subtitle/Description, and Category are required.');
       return;
     }
 
     if (!editingRetreat.image && !imageFile) {
-      setFormError('An image is required.');
+      triggerError('An image is required.');
       return;
     }
     
@@ -216,12 +224,30 @@ export function WellnessRetreatsManager() {
         setSaveMessage({ type: 'success', text: 'Retreat saved successfully' });
         setTimeout(() => setSaveMessage(null), 3000);
       } else {
-        const errorData = await response.json().catch(() => null);
-        setFormError(errorData?.message || 'Failed to save retreat to database.');
+        let errMsg = 'Failed to save retreat to database.';
+        try {
+          // Clone the response so we can read it twice if needed
+          const clonedResponse = response.clone();
+          const errorData = await clonedResponse.json();
+          if (errorData?.message) {
+            errMsg = errorData.message;
+            if (errorData.error) {
+              errMsg += `: ${errorData.error}`;
+            }
+          }
+        } catch (e) {
+          try {
+            const textData = await response.text();
+            if (textData) {
+              errMsg = `Server Error (${response.status}): ${textData.substring(0, 150)}`;
+            }
+          } catch (e2) {}
+        }
+        triggerError(errMsg);
       }
     } catch (error: any) {
       console.error('Error saving retreat:', error);
-      setFormError(error.message || 'Error processing request');
+      triggerError(error.message || 'Error processing request');
     } finally {
       setIsSaving(false);
     }
@@ -479,7 +505,7 @@ export function WellnessRetreatsManager() {
               </div>
 
               {/* Form Body */}
-              <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+              <div ref={modalScrollRef} className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
                 {formError && (
                   <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-semibold">
                     {formError}
@@ -610,6 +636,12 @@ export function WellnessRetreatsManager() {
                     </div>
                   </div>
                 </div>
+
+                {formError && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-semibold animate-shake">
+                    {formError}
+                  </div>
+                )}
 
                 {/* Footer Controls */}
                 <div className="flex gap-4 pt-6 border-t">

@@ -89,7 +89,7 @@ export const WellnessRetreats = () => {
 
         {/* ── Centered Section Header ── */}
         <motion.div
-          className="text-center mb-12 md:mb-16"
+          className="text-center mb-4 md:mb-4"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -111,7 +111,7 @@ export const WellnessRetreats = () => {
         </motion.div>
 
         {/* ── Slider Controls Row ── */}
-        <div className="flex items-center justify-end mb-6 gap-3">
+        <div className="flex items-center justify-end mb-2 gap-3">
           <button
             onClick={() => handleScroll('left')}
             disabled={!canScrollLeft}
