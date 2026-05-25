@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import { X, Check, Linkedin, Instagram, MapPin, Mail, Flame, Sparkles, Clock, Music2, Activity } from "lucide-react";
 import { useState, useEffect } from "react";
+import { getInitials } from "@/lib/getInitials";
 
 interface ShareProfileCardProps {
   isOpen: boolean;
@@ -135,7 +136,7 @@ export function ShareProfileCard({
     setTimeout(() => setShareFeedback("none"), 2000);
   };
 
-  const initials = userName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+  const initials = getInitials(userName);
   const score = Math.min(100, stats.wellnessScore);
   const statValues = [stats.streak, stats.sessions, stats.meditationMinutes, stats.soundMinutes];
 

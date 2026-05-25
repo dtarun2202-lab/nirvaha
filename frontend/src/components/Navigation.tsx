@@ -3,6 +3,7 @@ import { Menu, X, ChevronDown } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { InitialsAvatar } from "./ui/InitialsAvatar";
 
 export function Navigation({ currentPage, onNavigate }: { currentPage: string; onNavigate?: (page: string) => void }) {
   const navigate = useNavigate();
@@ -248,9 +249,7 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
                   onMouseEnter={() => setProfileMenuOpen(true)}
                   className="flex items-center gap-3 px-4 py-2 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl hover:shadow-lg transition-all"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white shadow-md">
-                    <span className="text-lg">{user?.name?.charAt(0).toUpperCase() || '🧘'}</span>
-                  </div>
+                  <InitialsAvatar name={user?.name || "Guest"} size="sm" className="shadow-md" />
                   <div className="text-left">
                     <p className="text-sm text-teal-800">{user?.name || 'Guest'}</p>
                   </div>
@@ -286,6 +285,14 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
 
                     <motion.button
                       whileHover={{ x: 4, backgroundColor: "rgba(16, 185, 129, 0.1)" }}
+                      onClick={() => {
+                        if (onNavigate) {
+                          onNavigate("profile?open=settings");
+                        } else {
+                          navigate("/dashboard/profile?open=settings");
+                        }
+                        setProfileMenuOpen(false);
+                      }}
                       className="w-full flex items-center gap-3 px-6 py-3 text-teal-700 transition-all"
                     >
 
@@ -334,9 +341,7 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
             {/* Profile Section */}
             <div className="mb-4 p-4 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white shadow-md">
-                  <span className="text-2xl">{user?.name?.charAt(0).toUpperCase() || '🧘'}</span>
-                </div>
+                <InitialsAvatar name={user?.name || "Guest"} size="lg" className="shadow-md" />
                 <div>
                   <p className="text-teal-800">{user?.name || 'Guest User'}</p>
                   <p className="text-sm text-teal-600">View Profile</p>

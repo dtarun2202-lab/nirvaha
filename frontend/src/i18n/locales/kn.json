@@ -1,0 +1,24 @@
+{
+  "settings": {
+    "accountPreferences": "ಖಾತೆ ಆದ್ಯತೆಗಳು",
+    "themeMode": "ಥೀಮ್ ಮೋಡ್",
+    "appLanguage": "ಅಪ್ಲಿಕೇಶನ್ ಭಾಷೆ",
+    "savePreferences": "ಆದ್ಯತೆಗಳನ್ನು ಉಳಿಸಿ",
+    "notifications": "ಅಧಿಸೂಚನೆಗಳು",
+    "privacySecurity": "ಗೌಪ್ಯತೆ ಮತ್ತು ಭದ್ರತೆ",
+    "saved": "ಆದ್ಯತೆಗಳು ಯಶಸ್ವಿಯಾಗಿ ಉಳಿಸಲಾಗಿದೆ!",
+    "notificationsSaved": "ಅಧಿಸೂಚನೆಗಳನ್ನು ನವೀಕರಿಸಲಾಗಿದೆ!",
+    "privacySaved": "ಗೌಪ್ಯತೆ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಉಳಿಸಲಾಗಿದೆ!"
+  },
+  "nav": {
+    "dashboard": "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+    "profile": "ಪ್ರೊಫೈಲ್",
+    "chatbot": "AI ಮಾರ್ಗದರ್ಶಿ"
+  },
+  "common": {
+    "save": "ಉಳಿಸಿ",
+    "cancel": "ರದ್ದು",
+    "close": "ಮುಚ್ಚಿ",
+    "loading": "ಲೋಡ್ ಆಗುತ್ತಿದೆ..."
+  }
+}

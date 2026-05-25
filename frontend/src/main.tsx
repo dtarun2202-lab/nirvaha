@@ -1,15 +1,20 @@
+import { createRoot } from "react-dom/client";
+import { HelmetProvider } from 'react-helmet-async';
+import App from "./App.tsx";
+import { AuthProvider } from "./contexts/AuthContext";
+import { SettingsProvider } from "./contexts/SettingsContext";
+import { ThemeProvider } from "./components/ThemeProvider";
+import "./i18n";
+import "./index.css";
 
-  import { createRoot } from "react-dom/client";
-  import { HelmetProvider } from 'react-helmet-async';
-  import App from "./App.tsx";
-  import { AuthProvider } from "./contexts/AuthContext";
-  import "./index.css";
-
-  createRoot(document.getElementById("root")!).render(
-    <HelmetProvider>
+createRoot(document.getElementById("root")!).render(
+  <HelmetProvider>
+    <ThemeProvider>
       <AuthProvider>
-        <App />
+        <SettingsProvider>
+          <App />
+        </SettingsProvider>
       </AuthProvider>
-    </HelmetProvider>
-  );
-  
+    </ThemeProvider>
+  </HelmetProvider>
+);

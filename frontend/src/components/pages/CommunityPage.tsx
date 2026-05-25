@@ -152,26 +152,50 @@ export function CommunityPage() {
   useEffect(() => { fetchTrending(); }, []);
 
   const shouldShowPost = (post: Post, currentFilter: string, currentTag: string) => {
-    if (currentFilter === "Recent" || currentFilter === "All") return true;
-    if (currentFilter === "Popular" && post.likes >= 50) return true;
-    
-    const hasMatch = (tags: string[]) => 
+    if (currentFilter === "Recent" || currentFilter === "All" || currentFilter === "Popular") return true;
+
+    const normalizedText = `${post.title || ""} ${post.body || ""} ${post.content || ""}`.toLowerCase();
+    const hasCategory = (category: string) =>
+      post.categories?.some((c) => c.toLowerCase() === category) ?? false;
+
+    const hasKeyword = (keywords: string[]) =>
+      keywords.some((keyword) => normalizedText.includes(keyword.toLowerCase()));
+
+    const hasTag = (tags: string[]) =>
       post.hashtags?.some((t: string) => {
-        const tLower = t.toLowerCase();
-        return tags.includes(tLower) || tags.includes(`#${tLower}`);
+        const lowerTag = t.toLowerCase();
+        return tags.some((tag) => tag === lowerTag || tag === `#${lowerTag}`);
       });
 
+    const matchesTagOrCategory = (tag: string) => {
+      const cleanTag = tag.toLowerCase().replace(/^#/, "");
+      return hasCategory(cleanTag) || hasTag([cleanTag, `#${cleanTag}`]);
+    };
+
     if (currentFilter === "Mindfulness") {
-      return hasMatch(["#mindfulness", "#meditation", "#calm", "#breathing"]);
+      const mindfulnessTags = [
+        "#mindfulness", "#meditation", "#calm", "#breathing", "#presence", "#awareness", "#zen", "#gratitude", "#focus", "#stillness"
+      ];
+      const mindfulnessKeywords = [
+        "mindful", "meditat", "breathe", "calm", "relax", "presence", "awareness", "zen", "gratitude", "focus", "stillness", "peace"
+      ];
+      return hasCategory("mindfulness") || hasTag(mindfulnessTags) || hasKeyword(mindfulnessKeywords);
     }
+
     if (currentFilter === "Healing") {
-      return hasMatch(["#healing", "#positivity", "#stressrelief", "#recovery"]);
+      const healingTags = [
+        "#healing", "#stressrelief", "#anxiety", "#recovery", "#selfcare", "#energyhealing", "#reiki", "#chakra", "#therapy", "#grief"
+      ];
+      const healingKeywords = [
+        "heal", "recover", "anxiety", "stress", "trauma", "therapy", "grief", "reiki", "chakra", "energy", "self-care", "self care", "recovery", "emotion", "release"
+      ];
+      return hasCategory("healing") || hasTag(healingTags) || hasKeyword(healingKeywords);
     }
+
     if (currentTag.trim()) {
-      const tag = currentTag.trim().toLowerCase();
-      const withHash = tag.startsWith("#") ? tag : `#${tag}`;
-      return hasMatch([tag, withHash]);
+      return matchesTagOrCategory(currentTag);
     }
+
     return false;
   };
 
@@ -191,8 +215,8 @@ export function CommunityPage() {
       fetchTrending();
     };
 
-    const onPostLiked = ({ id, likes, liked }: { id: string; likes: number; liked: boolean }) => {
-      setPosts(prev => prev.map(p => matchId(p, id) ? { ...p, likes, liked } : p));
+    const onPostLiked = ({ id, likes }: { id: string; likes: number }) => {
+      setPosts(prev => prev.map(p => matchId(p, id) ? { ...p, likes } : p));
     };
 
     const onCommentAdded = ({ postId, comment }: { postId: string; comment: any }) => {
@@ -208,16 +232,31 @@ export function CommunityPage() {
       setPosts(prev => prev.filter(p => !matchId(p, id)));
     };
 
+    const onTrendingUpdated = (newTrending: any) => {
+      console.log('📥 Socket: Trending updated', newTrending);
+      if (newTrending && newTrending.length > 0) {
+        setTrending(newTrending);
+      }
+    };
+
+    const onPostShared = ({ id, shares }: { id: string; shares: number }) => {
+      setPosts(prev => prev.map(p => matchId(p, id) ? { ...p, shares } : p));
+    };
+
     socket.on("postCreated", onPostCreated);
     socket.on("postLiked", onPostLiked);
     socket.on("commentAdded", onCommentAdded);
     socket.on("postDeleted", onPostDeleted);
+    socket.on("trendingUpdated", onTrendingUpdated);
+    socket.on("postShared", onPostShared);
 
     return () => {
       socket.off("postCreated", onPostCreated);
       socket.off("postLiked", onPostLiked);
       socket.off("commentAdded", onCommentAdded);
       socket.off("postDeleted", onPostDeleted);
+      socket.off("trendingUpdated", onTrendingUpdated);
+      socket.off("postShared", onPostShared);
     };
   }, [socket, filter, hashtagFilter]);
 
@@ -290,10 +329,12 @@ export function CommunityPage() {
         showToast("Post shared! 🌿");
         fetchTrending();
       } else {
-        throw new Error("Server error");
+        const errorData = await res.json().catch(() => ({}));
+        const errorMsg = errorData.error || "Failed to share post";
+        showToast(errorMsg);
       }
-    } catch {
-      // Offline fallback only — socket won't fire so we add manually
+    } catch (err) {
+      // Real network failure fallback
       const fallback: Post = {
         id: `local-${Date.now()}`,
         ...payload,
@@ -323,7 +364,80 @@ export function CommunityPage() {
   const displayTrending = trending;
 
   return (
-    <div className="community-theme bg-[#fafaf9] text-[#0f172a] min-h-screen pt-28 pb-16">
+    <div className="community-theme bg-[#fafaf9] text-[#0f172a] min-h-screen pt-28 pb-16 relative overflow-hidden">
+      {/* Premium Background Orbs & Styles */}
+      <style>{`
+        @keyframes floatUp {
+          0% { transform: translateY(100vh) translateX(0) scale(0.5); opacity: 0; }
+          10% { opacity: 0.15; }
+          90% { opacity: 0.15; }
+          100% { transform: translateY(-10vh) translateX(40px) scale(1.2); opacity: 0; }
+        }
+        @keyframes pulseGlow {
+          0%, 100% { transform: scale(1) translate(0px, 0px); opacity: 0.3; }
+          50% { transform: scale(1.08) translate(20px, -10px); opacity: 0.4; }
+        }
+        .particle {
+          position: fixed;
+          bottom: -80px;
+          background: radial-gradient(circle, rgba(22,163,74,0.12) 0%, rgba(20,184,166,0) 75%);
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 0;
+        }
+        .orb-green {
+          position: fixed;
+          top: 10%;
+          left: -10%;
+          width: 500px;
+          height: 500px;
+          background: radial-gradient(circle, rgba(167,243,208,0.4) 0%, rgba(250,250,249,0) 70%);
+          border-radius: 50%;
+          filter: blur(120px);
+          pointer-events: none;
+          z-index: 0;
+          animation: pulseGlow 20s infinite ease-in-out;
+        }
+        .orb-teal {
+          position: fixed;
+          bottom: 10%;
+          right: -10%;
+          width: 600px;
+          height: 600px;
+          background: radial-gradient(circle, rgba(204,251,241,0.4) 0%, rgba(250,250,249,0) 70%);
+          border-radius: 50%;
+          filter: blur(140px);
+          pointer-events: none;
+          z-index: 0;
+          animation: pulseGlow 25s infinite ease-in-out alternate;
+        }
+      `}</style>
+      
+      <div className="orb-green animate-pulse" />
+      <div className="orb-teal animate-pulse" />
+      
+      {/* Floating Particles */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        {[...Array(12)].map((_, i) => {
+          const size = Math.random() * 80 + 40;
+          const left = Math.random() * 100;
+          const delay = Math.random() * 10;
+          const duration = Math.random() * 12 + 12;
+          return (
+            <div
+              key={i}
+              className="particle"
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                left: `${left}%`,
+                animation: `floatUp ${duration}s linear infinite`,
+                animationDelay: `${delay}s`,
+              }}
+            />
+          );
+        })}
+      </div>
       {/* Toast */}
       {toast && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] bg-white/90 backdrop-blur-xl text-[#16a34a] border border-[#16a34a]/20 px-6 py-3 rounded-full text-[14px] font-bold shadow-[0_8px_30px_rgb(22,163,74,0.12)]">
