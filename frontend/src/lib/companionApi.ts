@@ -180,3 +180,28 @@ export async function getApprovedCompanions(): Promise<CompanionPublicItem[]> {
   );
   return response.data || [];
 }
+
+export async function getCompanionSessions(status?: string): Promise<{ success: boolean; data: any[]; stats: any }> {
+  const token = localStorage.getItem("token");
+  const query = status ? `?status=${status}` : "";
+  return requestJson<{ success: boolean; data: any[]; stats: any }>(`/api/companion/sessions${query}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export async function updateCompanionSessionStatus(
+  bookingId: string,
+  status: string,
+  sessionNotes?: string
+): Promise<{ success: boolean; data: any }> {
+  const token = localStorage.getItem("token");
+  return requestJson<{ success: boolean; data: any }>(`/api/companion/sessions/${bookingId}/status`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ status, sessionNotes }),
+  });
+}

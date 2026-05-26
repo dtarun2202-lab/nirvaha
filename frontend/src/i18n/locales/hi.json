@@ -1,0 +1,24 @@
+{
+  "settings": {
+    "accountPreferences": "खाता प्राथमिकताएँ",
+    "themeMode": "थीम मोड",
+    "appLanguage": "ऐप भाषा",
+    "savePreferences": "प्राथमिकताएँ सहेजें",
+    "notifications": "सूचनाएँ",
+    "privacySecurity": "गोपनीयता और सुरक्षा",
+    "saved": "प्राथमिकताएँ सफलतापूर्वक सहेजी गईं!",
+    "notificationsSaved": "सूचनाएँ अपडेट हो गईं!",
+    "privacySaved": "गोपनीयता सेटिंग्स सहेजी गईं!"
+  },
+  "nav": {
+    "dashboard": "डैशबोर्ड",
+    "profile": "प्रोफ़ाइल",
+    "chatbot": "AI गाइड"
+  },
+  "common": {
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "close": "बंद करें",
+    "loading": "लोड हो रहा है..."
+  }
+}

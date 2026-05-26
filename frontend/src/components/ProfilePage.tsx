@@ -28,14 +28,26 @@ import {
   BarChart2,
   ClipboardList,
   CheckCircle,
+  Video,
+  Check,
+  Loader2,
+  Lock,
+  Trash2,
+  Volume2,
+  Key,
+  X,
 } from "lucide-react";
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ShareProfileCard } from "./ShareProfileCard";
 import { MeditationSessionModal } from "./MeditationSessionModal";
 import { useAuth } from "../contexts/AuthContext";
+import { useSettings } from "../contexts/SettingsContext";
 import { useSocket } from "../contexts/SocketContext";
+import { useTranslation } from "react-i18next";
+import type { AppLanguage, ThemeMode } from "../types/settings";
 import { useProfileSync } from "../hooks/useProfileSync";
+import { InitialsAvatar } from "./ui/InitialsAvatar";
 import BACKEND_CONFIG from "../config/backend";
 import html2canvas from "html2canvas";
 import {
@@ -313,11 +325,56 @@ function mergeStatsForDisplay(profileStats: unknown, userStats: unknown): Record
 }
 
 export function ProfilePage() {
-  const { user, loading: authLoading, syncUserFromServer, refreshProfile } = useAuth();
+  const { user: authUser, loading: authLoading, syncUserFromServer, refreshProfile, setCurrentUser } = useAuth();
+
+  // Load user from latest source: auth context OR localStorage("user")
+  const user = useMemo(() => {
+    if (authUser) return authUser;
+    const localUserRaw = localStorage.getItem("user");
+    if (localUserRaw) {
+      try {
+        return JSON.parse(localUserRaw);
+      } catch (e) {
+        console.error("Error parsing local user:", e);
+      }
+    }
+    return null;
+  }, [authUser]);
+
   const { socket } = useSocket();
   const { getWeeklyData, getTodayMinutes } = useProfileSync();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+
+  const location = useLocation();
+
+  // Listen to URL query params to auto-open settings/notifications/privacy
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const openParam = params.get("open");
+    if (openParam === "settings") {
+      setIsSettingsOpen(true);
+      setIsNotificationsOpen(false);
+      setIsPrivacyOpen(false);
+    } else if (openParam === "notifications") {
+      setIsNotificationsOpen(true);
+      setIsSettingsOpen(false);
+      setIsPrivacyOpen(false);
+    } else if (openParam === "privacy") {
+      setIsPrivacyOpen(true);
+      setIsSettingsOpen(false);
+      setIsNotificationsOpen(false);
+    }
+  }, [location]);
+
+  // Refresh profile on mount to ensure we have the absolute latest backend data
+  // (e.g. companion approval status) instead of stale localStorage cache.
+  useEffect(() => {
+    refreshProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   
   const StatCounter = ({ value }: { value: number }) => {
     const [count, setCount] = useState(0);
@@ -343,44 +400,126 @@ export function ProfilePage() {
   };
   
   const [profileData, setProfileData] = useState<any>(null);
-  const [prefs, setPrefs] = useState({
-    theme: "system" as "light" | "dark" | "system",
-    language: "en" as "en" | "hi" | "te" | "kn",
-    emailNotifications: true,
-    pushNotifications: true,
-    profileVisibility: "friends" as "public" | "friends" | "private",
-    showOnlineStatus: true,
-    dataSharing: false,
-  });
+  const { t } = useTranslation();
+  const {
+    settings,
+    isSaving: isSavingSettings,
+    setTheme,
+    setLanguage,
+    setNotificationToggle,
+    setPrivacyToggle,
+    deleteAccount,
+    clearChatHistory,
+    blockedUsersCount,
+  } = useSettings();
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  const showSaveFeedback = (message: string) => {
+    setSaveMessage(message);
+    setTimeout(() => setSaveMessage(null), 3000);
+  };
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordStatus, setPasswordStatus] = useState<{ success: boolean; message: string } | null>(null);
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordStatus(null);
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordStatus({ success: false, message: "All fields are required" });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setPasswordStatus({ success: false, message: "Password must be at least 6 characters long" });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordStatus({ success: false, message: "New passwords do not match" });
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/auth/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        setPasswordStatus({ success: false, message: data.error || "Failed to change password" });
+      } else {
+        setPasswordStatus({ success: true, message: "Password changed successfully!" });
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch (err) {
+      console.error("Error changing password:", err);
+      setPasswordStatus({ success: false, message: "An error occurred. Please try again." });
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
   const profileRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [sessionsLoading, setSessionsLoading] = useState(true);
   const [userBookings, setUserBookings] = useState<any[]>([]);
+
+  // ── Companion Mode Switch (TEMPORARY OVERRIDE FOR VERIFICATION) ───
+
+  // Force-enable companion UI to verify runtime user object
+  const canAccessCompanionMode = true;
+
+  const isUserApprovedCompanion = canAccessCompanionMode;
+
+  const CompanionModeSwitch = () => {
+    return (
+      <motion.div
+        initial={{ opacity: 0, x: 10 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="flex items-center gap-2.5 bg-white/60 backdrop-blur-md border border-emerald-200/60 rounded-2xl px-4 py-2.5 shadow-sm"
+      >
+        <Users className="w-4 h-4 text-[#2D6A4F]" />
+        <span className="text-sm font-bold text-[#1B4332] select-none">As a Companion</span>
+        {/* Toggle switch */}
+        <button
+          id="companion-mode-toggle"
+          role="switch"
+          aria-checked={isCompanionModeEnabled}
+          onClick={handleCompanionToggle}
+          className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#52B788] focus:ring-offset-1 ${
+            isCompanionModeEnabled
+              ? 'bg-[#2D6A4F] border-[#2D6A4F]'
+              : 'bg-gray-200 border-gray-200'
+          }`}
+        >
+          <span
+            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${
+              isCompanionModeEnabled ? 'translate-x-5' : 'translate-x-0'
+            }`}
+          />
+        </button>
+      </motion.div>
+    );
+  };
+
+  const [isCompanionModeEnabled, setIsCompanionModeEnabled] = useState(false);
   const [companionBookings, setCompanionBookings] = useState<any[]>([]);
-  const [activeSessionView, setActiveSessionView] = useState<'my-sessions' | 'as-companion'>('my-sessions');
-
-  const isApprovedCompanion =
-    user?.isApprovedCompanion === true ||
-    user?.companionStatus === "approved";
-
-  useEffect(() => {
-    console.log("FULL USER:", user);
-    console.log("logged-in email:", user?.email);
-    console.log("isApprovedCompanion:", user?.isApprovedCompanion);
-    console.log("companionStatus:", user?.companionStatus);
-    console.log("computed isApprovedCompanion:", isApprovedCompanion);
-    if (user?.email && !isApprovedCompanion) {
-      console.warn(
-        "[My Sessions] Switch hidden: log in with the SAME email used on the approved companion application."
-      );
-    }
-  }, [user, isApprovedCompanion]);
-
-  const showCompanionView = isApprovedCompanion && activeSessionView === "as-companion";
+  const [companionBookingsLoading, setCompanionBookingsLoading] = useState(false);
+  const [markingCompleted, setMarkingCompleted] = useState<string | null>(null);
 
   const fetchMySessions = useCallback(async () => {
     if (!user?.email) return;
@@ -405,84 +544,80 @@ export function ProfilePage() {
     }
   }, [user?.email]);
 
-  const fetchCompanionSessions = useCallback(async () => {
-    if (!user?.email || !isApprovedCompanion) {
-      setCompanionBookings([]);
-      return;
-    }
+  // Fetch approved bookings where logged-in companion is assigned
+  const fetchCompanionBookings = useCallback(async () => {
+    if (!user?.email && !user?.name) return;
+    setCompanionBookingsLoading(true);
     try {
-      setSessionsLoading(true);
-      console.log(`[PROFILE] Fetching companion sessions for ${user?.email}`);
-      console.log(`  - isApprovedCompanion: ${isApprovedCompanion}`);
-      console.log(`  - user._id: ${user?._id}`);
-      console.log(`  - user.id: ${user?.id}`);
-
-      const token = localStorage.getItem('token');
-      const companionResponse = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/companion/sessions`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!companionResponse.ok) {
-        if (companionResponse.status === 403) {
-          console.warn('[PROFILE] User is not an approved companion');
-        } else {
-          console.warn('[PROFILE] Failed to fetch companion sessions:', companionResponse.status);
-        }
+      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/bookings`);
+      if (!response.ok) {
         setCompanionBookings([]);
         return;
       }
-
-      const companionData = await companionResponse.json();
-      console.log('[PROFILE] Companion sessions response:', companionData);
-      setCompanionBookings(Array.isArray(companionData.data) ? companionData.data : []);
-    } catch (error) {
-      console.error('[PROFILE] Error fetching companion sessions:', error);
+      const data = await response.json();
+      const allBookings = Array.isArray(data) ? data : [];
+      const approved = allBookings.filter((b: any) => {
+        return (
+          b.status === "Session Confirmed" &&
+          (b.companionName === user?.name || b.companionEmail === user?.email)
+        );
+      });
+      setCompanionBookings(approved);
+    } catch (err) {
+      console.error('[PROFILE] Error fetching companion bookings:', err);
       setCompanionBookings([]);
     } finally {
-      setSessionsLoading(false);
+      setCompanionBookingsLoading(false);
     }
-  }, [user?.email, user?._id, isApprovedCompanion]);
+  }, [user?.email, user?.name]);
 
-  const companionSessionStats = useMemo(() => {
-    const pending = companionBookings.filter((b) => {
-      const s = (b.status || "").toLowerCase();
-      return s.includes("pending") || s === "";
-    }).length;
-    const completed = companionBookings.filter(
-      (b) => (b.status || "").toLowerCase() === "completed"
-    ).length;
-    const confirmed = companionBookings.filter(
-      (b) => (b.status || "").toLowerCase() === "session confirmed"
-    ).length;
-    return {
-      total: companionBookings.length,
-      pending,
-      completed,
-      confirmed,
-    };
-  }, [companionBookings]);
-
-  useEffect(() => {
-    if (!isApprovedCompanion && activeSessionView === "as-companion") {
-      setActiveSessionView("my-sessions");
+  // Mark a booking as completed
+  const handleMarkCompleted = async (bookingId: string) => {
+    setMarkingCompleted(bookingId);
+    try {
+      const idField = bookingId;
+      const response = await fetch(
+        `${BACKEND_CONFIG.API_BASE_URL}/api/bookings/${idField}/status`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'Completed' }),
+        }
+      );
+      if (response.ok) {
+        setCompanionBookings((prev) =>
+          prev.map((b) =>
+            (b.id === bookingId || b._id === bookingId)
+              ? { ...b, status: 'Completed' }
+              : b
+          )
+        );
+      }
+    } catch (err) {
+      console.error('[PROFILE] Mark completed error:', err);
+    } finally {
+      setMarkingCompleted(null);
     }
-  }, [isApprovedCompanion, activeSessionView]);
+  };
+
+  // Toggle companion mode: fetch bookings when switching on
+  const handleCompanionToggle = () => {
+    const next = !isCompanionModeEnabled;
+    setIsCompanionModeEnabled(next);
+    if (next && isUserApprovedCompanion) {
+      fetchCompanionBookings();
+    }
+  };
 
   useEffect(() => {
     if (!socket || !user?.email) return;
 
     const handleBookingUpdated = (updatedBooking: any) => {
-      console.log('[PROFILE-SOCKET] booking-updated event:', updatedBooking);
-      
       const isUserBooking =
         (updatedBooking.userEmail && updatedBooking.userEmail.toLowerCase() === user.email.toLowerCase()) ||
         (updatedBooking.email && updatedBooking.email.toLowerCase() === user.email.toLowerCase());
 
       if (isUserBooking) {
-        console.log('[PROFILE-SOCKET] Updating user booking:', updatedBooking.id);
         setUserBookings((prev) => {
           const matchIndex = prev.findIndex((b) => (b.id === updatedBooking.id || b._id === updatedBooking._id || b.id === updatedBooking._id));
           if (matchIndex !== -1) {
@@ -504,50 +639,13 @@ export function ProfilePage() {
           }
         });
       }
-
-      // Check if this is a companion session
-      if (isApprovedCompanion) {
-        console.log('[PROFILE-SOCKET] Checking if booking is for companion...');
-        console.log(`  - companionId in booking: ${updatedBooking.companionId}`);
-        console.log(`  - user._id: ${user?._id}`);
-        console.log(`  - user.id: ${user?.id}`);
-        
-        const isCompanionBooking =
-          (updatedBooking.companionId && (updatedBooking.companionId === user?._id || updatedBooking.companionId === user?.id)) ||
-          (updatedBooking.companionName && user.name && updatedBooking.companionName.toLowerCase() === user.name.toLowerCase());
-
-        if (isCompanionBooking) {
-          console.log('[PROFILE-SOCKET] This is a companion session, updating companion bookings');
-          setCompanionBookings((prev) => {
-            const matchIndex = prev.findIndex((b) => (b.id === updatedBooking.id || b._id === updatedBooking._id || b.id === updatedBooking._id));
-            if (matchIndex !== -1) {
-              const updated = [...prev];
-              updated[matchIndex] = {
-                ...updated[matchIndex],
-                ...updatedBooking,
-                id: updatedBooking.id || updatedBooking._id,
-              };
-              return updated;
-            } else {
-              return [
-                {
-                  ...updatedBooking,
-                  id: updatedBooking.id || updatedBooking._id,
-                },
-                ...prev,
-              ];
-            }
-          });
-          fetchCompanionSessions();
-        }
-      }
     };
 
     socket.on("booking-updated", handleBookingUpdated);
     return () => {
       socket.off("booking-updated", handleBookingUpdated);
     };
-  }, [socket, user?.email, user?.id, user?._id, user?.name, isApprovedCompanion, fetchCompanionSessions]);
+  }, [socket, user?.email]);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -555,13 +653,6 @@ export function ProfilePage() {
       try {
         setSessionsLoading(true);
         await fetchMySessions();
-
-        if (isApprovedCompanion) {
-          await fetchCompanionSessions();
-        } else {
-          console.log(`[PROFILE] Skipping companion sessions fetch - not approved`);
-          setCompanionBookings([]);
-        }
       } catch (error) {
         console.error("[PROFILE] Failed to load sessions:", error);
       } finally {
@@ -570,7 +661,7 @@ export function ProfilePage() {
     };
 
     fetchBookings();
-  }, [user?.email, user?.id, user?.name, isApprovedCompanion, activeSessionView, fetchCompanionSessions, fetchMySessions]);
+  }, [user?.email, fetchMySessions]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -598,11 +689,6 @@ export function ProfilePage() {
     };
   }, [socket, user?.email, syncUserFromServer]);
 
-
-  const getInitials = (name: string) => {
-    if (!name) return "UN";
-    return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
-  };
 
   const availableMoods = [
     { icon: Sun, label: "Peaceful", color: "from-[#52B788] to-[#2D6A4F]" },
@@ -848,10 +934,13 @@ export function ProfilePage() {
 
         if (profRes.ok) {
           const data = await profRes.json();
-          setProfileData(data);
-          const histLen = Array.isArray(data.sessionHistory) ? data.sessionHistory.length : 0;
-          if (histLen === 0 && data.currentMood) {
-            const mood = availableMoods.find((m) => m.label === data.currentMood);
+          const fetchedUser = data.user || data;
+          setProfileData(fetchedUser);
+          setCurrentUser(fetchedUser);
+          localStorage.setItem("user", JSON.stringify(fetchedUser));
+          const histLen = Array.isArray(fetchedUser.sessionHistory) ? fetchedUser.sessionHistory.length : 0;
+          if (histLen === 0 && fetchedUser.currentMood) {
+            const mood = availableMoods.find((m) => m.label === fetchedUser.currentMood);
             if (mood) setSelectedMood(mood);
           }
         }
@@ -907,29 +996,6 @@ export function ProfilePage() {
     return () => { socket.off("profile_updated", handleUpdate); };
   }, [socket, user?.id, refreshProfile]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64 = reader.result as string;
-      try {
-        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/users/profile/update`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user?.id, avatar: base64 })
-        });
-        if (res.ok) {
-          refreshProfile();
-        }
-      } catch (err) {
-        console.error("Avatar update failed:", err);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -950,6 +1016,8 @@ export function ProfilePage() {
     return null;
   };
 
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50/20 to-gray-50/20 pt-24 pb-16">
       <div className="max-w-7xl mx-auto px-6" ref={profileRef}>
@@ -965,39 +1033,13 @@ export function ProfilePage() {
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#2D6A4F]/5 rounded-full blur-2xl -ml-24 -mb-24" />
             
             <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-10">
-              {/* Profile Avatar */}
-              <div className="relative group">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleFileChange}
+              <motion.div whileHover={{ scale: 1.05 }} style={{ boxShadow: "0 20px 60px rgba(45, 106, 79, 0.35)" }}>
+                <InitialsAvatar
+                  name={user?.name || profileData?.name || "Guest"}
+                  size="profile"
+                  className="shadow-2xl"
                 />
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  className="w-32 h-32 rounded-[32px] bg-gradient-to-br from-[#52B788] to-[#2D6A4F] flex items-center justify-center text-white shadow-2xl overflow-hidden relative"
-                  style={{ boxShadow: "0 20px 60px rgba(45, 106, 79, 0.35)" }}
-                >
-                  {user?.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-4xl font-bold tracking-tight">
-                      {getInitials(user?.name || "User Name")}
-                    </span>
-                  )}
-                  {/* Subtle overlay on hover */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                </motion.div>
-                <motion.button
-                  whileHover={{ scale: 1.1, rotate: 10 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => fileInputRef.current?.click()}
-                  className="absolute -bottom-2 -right-2 w-10 h-10 bg-[#2D6A4F] rounded-2xl shadow-lg flex items-center justify-center text-white border-4 border-white z-20"
-                >
-                  <Edit2 className="w-5 h-5" />
-                </motion.button>
-              </div>
+              </motion.div>
 
               {/* Profile Info */}
               <div className="flex-1">
@@ -1016,7 +1058,10 @@ export function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-4">
+                  <div className="flex flex-wrap items-center gap-3">
+                      {/* As a Companion toggle — TEMPORARILY rendered unconditionally for verification */}
+                      <CompanionModeSwitch />
+
                     <div className="relative">
                       {/* Burst rings on click */}
                       <AnimatePresence>
@@ -1057,7 +1102,7 @@ export function ProfilePage() {
                         Share
                       </motion.button>
                     </div>
-                                      </div>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6 mt-6">
@@ -1082,6 +1127,8 @@ export function ProfilePage() {
             </div>
           </div>
         </motion.div>
+
+
 
         {/* Dashboard Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -1509,262 +1556,7 @@ export function ProfilePage() {
           <p className="mt-4 text-xs text-[#2D6A4F]/55 font-medium">
             Today&apos;s calm thought
           </p>
-        </motion.section>
-
-        {/* My Sessions Section */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 1.2, ease: "easeOut" }}
-          className="mt-8 mb-8 bg-white rounded-[24px] p-6 shadow-sm border border-[#D5EEDD]"
-        >
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-[#D5EEDD]/50">
-            <div>
-              <h3 className="text-xl font-bold text-[#1B4332]">My Sessions</h3>
-              <p className="text-sm text-[#556B5D] mt-1">Track and manage your upcoming wellness sessions.</p>
-            </div>
-            {isApprovedCompanion && (
-              <div
-                className="relative flex shrink-0 items-center rounded-full border border-[#C3E6CC]/80 bg-[#EBF5EE]/90 p-1 shadow-[inset_0_1px_2px_rgba(27,67,50,0.06)]"
-                role="tablist"
-                aria-label="Session view"
-              >
-                <motion.div
-                  layoutId="profile-sessions-segment"
-                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                  className="absolute top-1 bottom-1 rounded-full bg-[#1B4332] shadow-[0_2px_8px_rgba(27,67,50,0.22)]"
-                  style={{
-                    width: "calc(50% - 4px)",
-                    left: activeSessionView === "my-sessions" ? "4px" : "calc(50%)",
-                  }}
-                />
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeSessionView === "my-sessions"}
-                  onClick={() => setActiveSessionView("my-sessions")}
-                  className={`relative z-10 min-w-[7.5rem] rounded-full px-5 py-2 text-xs font-bold tracking-wide transition-colors duration-300 ${
-                    activeSessionView === "my-sessions" ? "text-white" : "text-[#1B4332] hover:text-[#2D6A4F]"
-                  }`}
-                >
-                  My Sessions
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeSessionView === "as-companion"}
-                  onClick={() => setActiveSessionView("as-companion")}
-                  className={`relative z-10 min-w-[7.5rem] rounded-full px-5 py-2 text-xs font-bold tracking-wide transition-colors duration-300 ${
-                    activeSessionView === "as-companion" ? "text-white" : "text-[#1B4332] hover:text-[#2D6A4F]"
-                  }`}
-                >
-                  As Companion
-                </button>
-              </div>
-            )}
-          </div>
-
-          {isApprovedCompanion && showCompanionView && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-3"
-            >
-              {[
-                { label: "Assigned", value: companionSessionStats.total, icon: ClipboardList },
-                { label: "Pending", value: companionSessionStats.pending, icon: Clock },
-                { label: "Confirmed", value: companionSessionStats.confirmed, icon: CheckCircle },
-                { label: "Completed", value: companionSessionStats.completed, icon: BarChart2 },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="rounded-2xl border border-[#D5EEDD]/80 bg-[#F4FAF6]/80 px-4 py-3"
-                >
-                  <div className="flex items-center gap-2 text-[#2D6A4F] mb-1">
-                    <item.icon className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>
-                  </div>
-                  <p className="text-xl font-black text-[#1B4332] tabular-nums">{item.value}</p>
-                </div>
-              ))}
-            </motion.div>
-          )}
-
-          {/* Dynamic Loading Shimmer */}
-          {sessionsLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[1, 2].map((i) => (
-                <div key={i} className="h-48 bg-[#F4FAF6]/50 border border-[#D5EEDD] rounded-[20px] p-6 animate-pulse space-y-4">
-                  <div className="h-5 w-1/3 bg-[#D5EEDD] rounded-md" />
-                  <div className="h-8 w-2/3 bg-[#EBF5EE] rounded-md" />
-                  <div className="h-3 w-1/2 bg-[#EBF5EE] rounded-md" />
-                  <div className="h-10 w-full bg-[#D5EEDD]/50 rounded-xl mt-4" />
-                </div>
-              ))}
-            </div>
-          ) : showCompanionView ? (
-            /* AS COMPANION VIEW — approved companions only */
-            <AnimatePresence mode="wait">
-              {companionBookings.length === 0 ? (
-                <motion.div
-                  key="companion-empty"
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  className="text-center py-12 bg-[#F4FAF6] border border-[#D5EEDD] rounded-[24px] px-8"
-                >
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#EAFBF0] to-[#D5F2D9] flex items-center justify-center text-[#1B4332] mx-auto mb-4 shadow-inner">
-                    <Users className="w-8 h-8" />
-                  </div>
-                  <h4 className="text-lg font-bold text-[#1B4332] mb-2">
-                    No companion sessions assigned yet.
-                  </h4>
-                  <p className="text-sm text-[#556B5D] leading-relaxed max-w-md mx-auto">
-                    Once users book sessions with you, they&apos;ll appear here.
-                  </p>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="companion-grid"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
-                >
-                  {companionBookings.map((booking) => (
-                    <div key={booking.id || booking._id} className="bg-white border border-[#D5EEDD] hover:border-[#52B788] shadow-sm hover:shadow-md transition-all rounded-[20px] p-5 flex flex-col justify-between group relative overflow-hidden">
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <span className="text-[9px] font-bold tracking-widest text-[#64C08E] uppercase block mb-1">{booking.type || "Wellness Session"}</span>
-                            <h4 className="text-base font-bold text-[#1B4332] line-clamp-1">{booking.userName || booking.userEmail || "Guest"}</h4>
-                          </div>
-                          <span className={`px-2 py-1 rounded-full text-[10px] font-bold whitespace-nowrap ${
-                            (booking.status || "").toLowerCase() === "completed" ? "bg-[#E8F4F8] text-[#1A4F66]" :
-                            (booking.status || "").toLowerCase().includes("pending") ? "bg-[#FFFDF0] text-[#997917]" :
-                            "bg-[#EAFBF0] text-[#1B4332]"
-                          }`}>
-                            {booking.status || "Confirmed"}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-4 bg-[#F4FAF6]/70 border border-[#D5EEDD]/50 rounded-xl p-2.5 text-xs text-[#2d6a4f]">
-                          <div className="flex items-center gap-1.5">
-                            <CalendarIcon className="w-3.5 h-3.5 text-[#52B788]" />
-                            <span className="font-semibold">{booking.date}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 border-l border-[#D5EEDD]/40 pl-4">
-                            <Clock className="w-3.5 h-3.5 text-[#52B788]" />
-                            <span className="font-semibold">{booking.time}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          ) : (
-            /* MY SESSIONS VIEW */
-            <AnimatePresence mode="wait">
-              {userBookings.length === 0 ? (
-                <motion.div
-                  key="user-empty"
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  className="text-center py-12 bg-[#F4FAF6] border border-[#D5EEDD] rounded-[24px] px-8"
-                >
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#EAFBF0] to-[#D5F2D9] flex items-center justify-center text-[#1B4332] mx-auto mb-4 shadow-inner">
-                    <Sparkles className="w-8 h-8" />
-                  </div>
-                  <h4 className="text-lg font-bold text-[#1B4332] mb-2">Your Journey Starts Here</h4>
-                  <p className="text-sm text-[#556B5D] leading-relaxed max-w-md mx-auto mb-6">
-                    No sessions have been scheduled yet. Embark on a path of reflection and growth.
-                  </p>
-                  <button
-                    onClick={() => navigate("/dashboard/companion")}
-                    className="bg-[#1B4332] hover:bg-[#2d6a4f] text-white rounded-xl px-6 py-2.5 text-sm font-bold shadow-md transition-transform hover:scale-105"
-                  >
-                    Explore Companions
-                  </button>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="user-grid"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
-                >
-                  {userBookings.map((booking) => {
-                    const statusVal = (booking.status || "").toLowerCase();
-                    const isApproved = statusVal === "session confirmed";
-                    const isRejected = statusVal === "rejected";
-                    const isPending = statusVal.includes("pending") || statusVal === "";
-                    
-                    const getStatusLabel = () => {
-                      if (isApproved) return "Approved";
-                      if (isRejected) return "Rejected";
-                      if (isPending) return "Pending";
-                      if (statusVal === "completed") return "Completed";
-                      return booking.status;
-                    };
-
-                    const getStatusBadgeClass = () => {
-                      if (isApproved) return "bg-[#EAFBF0] text-[#1B4332] border border-[#BDE8CE]";
-                      if (isRejected) return "bg-rose-50 text-rose-700 border border-rose-100";
-                      if (isPending) return "bg-[#FFFDF0] text-[#997917] border border-[#FCE181]";
-                      if (statusVal === "completed") return "bg-[#E8F4F8] text-[#1A4F66] border border-[#B3D6E4]";
-                      return "bg-gray-50 text-gray-700 border border-gray-200";
-                    };
-
-                    return (
-                      <div key={booking.id || booking._id} className="bg-white border border-[#D5EEDD] hover:border-[#52B788] shadow-sm hover:shadow-md transition-all rounded-[20px] p-5 flex flex-col justify-between group relative overflow-hidden">
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <span className="text-[9px] font-bold tracking-widest text-[#64C08E] uppercase block mb-1">{booking.type || "Wellness Session"}</span>
-                              <h4 className="text-base font-bold text-[#1B4332] line-clamp-1">{booking.companionName || booking.itemName || "Guide"}</h4>
-                            </div>
-                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold whitespace-nowrap ${getStatusBadgeClass()}`}>
-                              {getStatusLabel()}
-                            </span>
-                          </div>
-                          
-                          <div className="flex items-center gap-4 bg-[#F4FAF6]/70 border border-[#D5EEDD]/50 rounded-xl p-2.5 text-xs text-[#2d6a4f]">
-                            <div className="flex items-center gap-1.5">
-                              <CalendarIcon className="w-3.5 h-3.5 text-[#52B788]" />
-                              <span className="font-semibold">{booking.date}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 border-l border-[#D5EEDD]/40 pl-4">
-                              <Clock className="w-3.5 h-3.5 text-[#52B788]" />
-                              <span className="font-semibold">{booking.time}</span>
-                            </div>
-                          </div>
-
-                          {/* Session Details: platform & notes */}
-                          {(booking.platform || booking.sessionNotes) && (
-                            <div className="pt-2 text-xs space-y-1.5 border-t border-[#D5EEDD]/30">
-                              {booking.platform && (
-                                <p className="text-[#556B5D]">
-                                  <span className="font-semibold text-[#2d6a4f]">Platform:</span> {booking.platform}
-                                </p>
-                              )}
-                              {booking.sessionNotes && (
-                                <p className="text-[#556B5D] bg-[#F4FAF6] p-2 rounded-lg border border-[#D5EEDD]/40 italic">
-                                  "{booking.sessionNotes}"
-                                </p>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          )}
+          {/* My Sessions section removed: functionality moved to CompanionPage */}
         </motion.section>
 
         {/* Recommended For You Section */}
@@ -1810,7 +1602,7 @@ export function ProfilePage() {
               </motion.button>
 
               <motion.button
-                onClick={() => alert("Opening Notifications")}
+                onClick={() => setIsNotificationsOpen(true)}
                 whileHover={{ x: 4 }}
                 className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors"
               >
@@ -1834,7 +1626,7 @@ export function ProfilePage() {
               </motion.button>
 
               <motion.button
-                onClick={() => alert("Opening Privacy & Security")}
+                onClick={() => setIsPrivacyOpen(true)}
                 whileHover={{ x: 4 }}
                 className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors"
               >
@@ -1901,163 +1693,706 @@ export function ProfilePage() {
             </div>
           </motion.div>
         </div>
-      </div>
 
-      {/* Preferences Modal */}
-      {isSettingsOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-white rounded-[32px] p-8 shadow-2xl border border-gray-200/30 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-          >
-            {/* Close Button */}
-            <button
-              onClick={() => setIsSettingsOpen(false)}
-              className="float-right text-gray-600 hover:text-gray-800 text-2xl font-bold leading-none"
+        {/* ── Approved Companion Bookings Section ── */}
+        <AnimatePresence>
+          {isCompanionModeEnabled && isUserApprovedCompanion && (
+            <motion.section
+              key="companion-bookings"
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.45, ease: 'easeOut' }}
+              className="mt-10"
             >
-              ×
-            </button>
-
-            <h2 className="text-gray-800 mb-8">Preferences</h2>
-
-            <div className="space-y-8">
-              {/* Theme & Language */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Theme */}
+              {/* Section header */}
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#2D6A4F] to-[#1B4332] rounded-2xl flex items-center justify-center shadow-md">
+                  <CalendarIcon className="w-5 h-5 text-white" />
+                </div>
                 <div>
-                  <label className="block">
-                    <p className="text-gray-800 font-semibold mb-2">Theme</p>
-                    <p className="text-gray-600 text-sm mb-3">Choose light, dark or system</p>
-                  </label>
-                  <select
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200/60 bg-white text-gray-800 focus:ring-2 focus:ring-gray-400 focus:border-gray-500"
-                    value={prefs.theme}
-                    onChange={(e) => setPrefs({ ...prefs, theme: e.target.value as "light" | "dark" | "system" })}
-                  >
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                    <option value="system">System</option>
-                  </select>
+                  <h3 className="text-[#1B4332] font-black text-xl tracking-tight">Your Approved Bookings</h3>
+                  <p className="text-[#2D6A4F]/70 text-sm font-medium">Sessions confirmed by admin for you to host</p>
                 </div>
-
-                {/* Language */}
-                <div>
-                  <label className="block">
-                    <p className="text-gray-800 font-semibold mb-2">Language</p>
-                    <p className="text-gray-600 text-sm mb-3">App display language</p>
-                  </label>
-                  <select
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200/60 bg-white text-gray-800 focus:ring-2 focus:ring-gray-400 focus:border-gray-500"
-                    value={prefs.language}
-                    onChange={(e) => setPrefs({ ...prefs, language: e.target.value as "en" | "hi" | "te" | "kn" })}
-                  >
-                    <option value="en">English</option>
-                    <option value="hi">Hindi</option>
-                    <option value="te">Telugu</option>
-                    <option value="kn">Kannada</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Notifications */}
-              <div>
-                <h4 className="text-gray-800 font-semibold mb-4">Notifications</h4>
-                <div className="space-y-3">
-                  <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
-                    <span className="text-gray-800">Email notifications</span>
-                    <input
-                      type="checkbox"
-                      checked={prefs.emailNotifications}
-                      onChange={(e) => setPrefs({ ...prefs, emailNotifications: e.target.checked })}
-                      className="w-5 h-5 cursor-pointer"
-                    />
-                  </label>
-                  <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
-                    <span className="text-gray-800">Push notifications</span>
-                    <input
-                      type="checkbox"
-                      checked={prefs.pushNotifications}
-                      onChange={(e) => setPrefs({ ...prefs, pushNotifications: e.target.checked })}
-                      className="w-5 h-5 cursor-pointer"
-                    />
-                  </label>
-                </div>
-              </div>
-
-              {/* Privacy */}
-              <div>
-                <h4 className="text-gray-800 font-semibold mb-4">Privacy</h4>
-                <div className="space-y-3">
-                  {/* Profile Visibility */}
-                  <div className="p-4 bg-gray-50 rounded-xl">
-                    <label className="block">
-                      <p className="text-gray-800 font-medium mb-2">Profile visibility</p>
-                    </label>
-                    <select
-                      className="w-full px-4 py-2 rounded-lg border border-gray-200/60 bg-white text-gray-800"
-                      value={prefs.profileVisibility}
-                      onChange={(e) => setPrefs({ ...prefs, profileVisibility: e.target.value as "public" | "friends" | "private" })}
-                    >
-                      <option value="public">Public</option>
-                      <option value="friends">Friends</option>
-                      <option value="private">Private</option>
-                    </select>
-                  </div>
-                  <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
-                    <span className="text-gray-800">Show online status</span>
-                    <input
-                      type="checkbox"
-                      checked={prefs.showOnlineStatus}
-                      onChange={(e) => setPrefs({ ...prefs, showOnlineStatus: e.target.checked })}
-                      className="w-5 h-5 cursor-pointer"
-                    />
-                  </label>
-                  <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
-                    <span className="text-gray-800">Allow anonymous data sharing</span>
-                    <input
-                      type="checkbox"
-                      checked={prefs.dataSharing}
-                      onChange={(e) => setPrefs({ ...prefs, dataSharing: e.target.checked })}
-                      className="w-5 h-5 cursor-pointer"
-                    />
-                  </label>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-6 border-t border-gray-200/30">
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    setSaveMessage("Preferences saved");
-                    setTimeout(() => setSaveMessage(null), 2000);
-                  }}
-                  className="flex-1 py-3 bg-[#2D6A4F] text-white rounded-xl shadow-lg hover:shadow-xl transition-all"
+                  whileHover={{ rotate: 180 }}
+                  transition={{ duration: 0.35 }}
+                  onClick={fetchCompanionBookings}
+                  className="ml-auto p-2 rounded-xl bg-[#f0fdf4] border border-emerald-100 text-[#2D6A4F] hover:bg-emerald-50 transition-colors"
+                  title="Refresh bookings"
                 >
-                  Save Changes
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setIsSettingsOpen(false)}
-                  className="flex-1 py-3 bg-gray-100 text-gray-800 rounded-xl hover:bg-gray-200 transition-colors"
-                >
-                  Close
+                  <Loader2
+                    className={`w-4 h-4 ${
+                      companionBookingsLoading ? 'animate-spin' : ''
+                    }`}
+                  />
                 </motion.button>
               </div>
 
-              {saveMessage && (
-                <div className="p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 text-center">
-                  {saveMessage}
+              {/* Loading state */}
+              {companionBookingsLoading && (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 text-[#52B788] animate-spin" />
+                  <span className="ml-3 text-[#2D6A4F] font-medium">Loading your bookings…</span>
                 </div>
               )}
-            </div>
-          </motion.div>
-        </div>
-      )}
+
+              {/* Empty state */}
+              {!companionBookingsLoading && companionBookings.length === 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="rounded-[28px] border border-emerald-100/80 bg-gradient-to-br from-[#f9fdfb] via-[#f0fdf4] to-[#ecfdf5] px-8 py-12 text-center shadow-sm"
+                >
+                  <CalendarIcon className="w-12 h-12 text-[#52B788]/50 mx-auto mb-4" />
+                  <p className="text-[#1B4332] font-bold text-lg mb-1">No approved sessions yet.</p>
+                  <p className="text-[#2D6A4F]/60 text-sm">
+                    Once a user books a session and admin confirms it for you, it will appear here.
+                  </p>
+                </motion.div>
+              )}
+
+              {/* Booking cards */}
+              {!companionBookingsLoading && companionBookings.length > 0 && (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {companionBookings.map((booking: any, idx: number) => {
+                    const bookingId = booking.id || booking._id;
+                    const isCompleted = booking.status === 'Completed';
+                    const isMarkingThis = markingCompleted === bookingId;
+
+                    return (
+                      <motion.div
+                        key={bookingId || idx}
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.06, duration: 0.35 }}
+                        className={`relative rounded-[24px] border ${
+                          isCompleted
+                            ? 'border-emerald-200 bg-gradient-to-br from-[#f0fdf4] to-[#dcfce7]'
+                            : 'border-emerald-100 bg-white'
+                        } p-5 shadow-md hover:shadow-lg transition-shadow overflow-hidden`}
+                      >
+                        {/* Status badge */}
+                        <span
+                          className={`absolute top-4 right-4 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                            isCompleted
+                              ? 'bg-emerald-100 text-emerald-700'
+                              : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          }`}
+                        >
+                          {isCompleted ? 'Completed' : booking.status}
+                        </span>
+
+                        {/* Companion name (the guide) */}
+                        <p className="text-[#1B4332] font-black text-base mb-3 pr-20 leading-tight">
+                          {booking.companionName || user?.name || '—'}
+                        </p>
+
+                        {/* Session info */}
+                        <div className="space-y-1.5 mb-4">
+                          <div className="flex items-center gap-2">
+                            <ClipboardList className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                            <span className="text-[#1B4332] text-sm font-semibold truncate">
+                              {booking.sessionType || booking.type || 'Session'}
+                            </span>
+                          </div>
+                          {booking.date && (
+                            <div className="flex items-center gap-2">
+                              <CalendarIcon className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                              <span className="text-[#2D6A4F]/80 text-sm font-medium">{booking.date}</span>
+                            </div>
+                          )}
+                          {booking.time && (
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                              <span className="text-[#2D6A4F]/80 text-sm font-medium">{booking.time}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2">
+                            <User className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                            <span className="text-[#2D6A4F]/80 text-sm font-semibold">
+                              User: {booking.userName || booking.userEmail || booking.email || 'User'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Action buttons */}
+                        {!isCompleted && (
+                          <div className="flex gap-2">
+                            <motion.button
+                              whileHover={{ scale: 1.03 }}
+                              whileTap={{ scale: 0.97 }}
+                              onClick={() => alert('Join Session link will be provided by admin or via your meeting platform.')}
+                              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-[#2D6A4F] to-[#1B4332] text-white text-xs font-bold shadow-md hover:shadow-lg transition-all"
+                            >
+                              <Video className="w-3.5 h-3.5" />
+                              Join Session
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.03 }}
+                              whileTap={{ scale: 0.97 }}
+                              disabled={isMarkingThis}
+                              onClick={() => handleMarkCompleted(bookingId)}
+                              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold hover:bg-emerald-100 transition-all disabled:opacity-60"
+                            >
+                              {isMarkingThis ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Check className="w-3.5 h-3.5" />
+                              )}
+                              Mark Completed
+                            </motion.button>
+                          </div>
+                        )}
+
+                        {isCompleted && (
+                          <div className="flex items-center gap-2 text-emerald-600">
+                            <CheckCircle className="w-4 h-4" />
+                            <span className="text-sm font-bold">Session completed</span>
+                          </div>
+                        )}
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </motion.section>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Settings & Preferences Modals */}
+      <AnimatePresence>
+        {/* Account Settings (Preferences) Modal */}
+        {isSettingsOpen && (
+          <div className="fixed inset-0 bg-black/65 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 15 }}
+              transition={{ type: "spring", duration: 0.45 }}
+              className="bg-white rounded-[32px] p-8 shadow-2xl border border-emerald-100/50 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center mb-8 border-b border-emerald-100/40 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center border border-emerald-100/50">
+                    <Settings className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-[#1B4332] tracking-tight">{t("settings.accountPreferences")}</h3>
+                    <p className="text-xs text-teal-600 font-medium">Manage theme, language, and system controls</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Theme & Language */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-emerald-50/20 p-6 rounded-3xl border border-emerald-100/20">
+                  {/* Theme */}
+                  <div>
+                    <label className="block">
+                      <p className="text-[#1B4332] font-bold text-sm mb-1.5">{t("settings.themeMode")}</p>
+                      <p className="text-gray-500 text-xs mb-3">Adjust the visual style of your workspace</p>
+                    </label>
+                    <select
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-semibold text-sm cursor-pointer"
+                      value={settings.theme}
+                      onChange={(e) => void setTheme(e.target.value as ThemeMode)}
+                    >
+                      <option value="light">☀️ Light Theme</option>
+                      <option value="dark">🌙 Dark Theme</option>
+                      <option value="system">🖥️ System Default</option>
+                    </select>
+                  </div>
+
+                  {/* Language */}
+                  <div>
+                    <label className="block">
+                      <p className="text-[#1B4332] font-bold text-sm mb-1.5">{t("settings.appLanguage")}</p>
+                      <p className="text-gray-500 text-xs mb-3">Choose your preferred display language</p>
+                    </label>
+                    <select
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-semibold text-sm cursor-pointer"
+                      value={settings.language}
+                      onChange={(e) => void setLanguage(e.target.value as AppLanguage)}
+                    >
+                      <option value="en">🇺🇸 English</option>
+                      <option value="hi">🇮🇳 Hindi (हिन्दी)</option>
+                      <option value="te">🇮🇳 Telugu (తెలుగు)</option>
+                      <option value="kn">🇮🇳 Kannada (ಕನ್ನಡ)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Account Details Quick View */}
+                <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 flex items-center gap-4">
+                  <InitialsAvatar name={user?.name || "Guest"} size="lg" />
+                  <div>
+                    <p className="text-[#1B4332] font-black text-base">{user?.name || "Guest"}</p>
+                    <p className="text-xs text-gray-500 font-semibold truncate">{user?.email || "No email registered"}</p>
+                  </div>
+                  <span className="ml-auto px-3 py-1 bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] font-black uppercase rounded-full tracking-wider">
+                    {user?.role || "User"}
+                  </span>
+                </div>
+
+                {/* Save & Action Buttons */}
+                <div className="flex gap-4 pt-4 border-t border-emerald-100/40">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => showSaveFeedback(t("settings.saved"))}
+                    disabled={isSavingSettings}
+                    className="flex-1 py-3 bg-[#2D6A4F] text-white rounded-2xl shadow-lg shadow-emerald-900/10 hover:bg-[#1B4332] transition-colors font-bold text-sm disabled:opacity-60"
+                  >
+                    {isSavingSettings ? t("common.loading") : t("settings.savePreferences")}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setIsSettingsOpen(false)}
+                    className="flex-1 py-3 bg-gray-100 text-gray-800 rounded-2xl hover:bg-gray-200 transition-colors font-bold text-sm"
+                  >
+                    Cancel
+                  </motion.button>
+                </div>
+
+                {saveMessage && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-center text-sm font-bold rounded-xl"
+                  >
+                    {saveMessage}
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Notifications Modal */}
+        {isNotificationsOpen && (
+          <div className="fixed inset-0 bg-black/65 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 15 }}
+              transition={{ type: "spring", duration: 0.45 }}
+              className="bg-white rounded-[32px] p-8 shadow-2xl border border-emerald-100/50 max-w-xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center mb-8 border-b border-emerald-100/40 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center border border-emerald-100/50">
+                    <Bell className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-[#1B4332] tracking-tight">{t("settings.notifications")}</h3>
+                    <p className="text-xs text-teal-600 font-medium">Control what alerts and reminders you receive</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsNotificationsOpen(false)}
+                  className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Toggles Container */}
+              <div className="space-y-4">
+                <div className="bg-emerald-50/20 p-2 rounded-[28px] border border-emerald-100/25 space-y-1">
+                  
+                  {/* Toggle 1: Community Posts */}
+                  <div className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-emerald-100/10 hover:shadow-md transition-shadow">
+                    <div className="flex-1 pr-4">
+                      <p className="text-[#1B4332] font-bold text-sm mb-0.5">Community post notifications</p>
+                      <p className="text-gray-500 text-[11px] leading-relaxed">Alerts when community members post new content or updates</p>
+                    </div>
+                    <button
+                      role="switch"
+                      aria-checked={settings.notifications.communityPosts}
+                      onClick={() => void setNotificationToggle("communityPosts", !settings.notifications.communityPosts)}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                        settings.notifications.communityPosts ? "bg-[#2D6A4F] border-[#2D6A4F]" : "bg-gray-200 border-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${
+                          settings.notifications.communityPosts ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Toggle 2: Likes & Comments */}
+                  <div className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-emerald-100/10 hover:shadow-md transition-shadow">
+                    <div className="flex-1 pr-4">
+                      <p className="text-[#1B4332] font-bold text-sm mb-0.5">Likes & comments notifications</p>
+                      <p className="text-gray-500 text-[11px] leading-relaxed">Instantly know when someone likes or comments on your posts</p>
+                    </div>
+                    <button
+                      role="switch"
+                      aria-checked={settings.notifications.likesComments}
+                      onClick={() => void setNotificationToggle("likesComments", !settings.notifications.likesComments)}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                        settings.notifications.likesComments ? "bg-[#2D6A4F] border-[#2D6A4F]" : "bg-gray-200 border-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${
+                          settings.notifications.likesComments ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Toggle 3: Mentor/Community Reply */}
+                  <div className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-emerald-100/10 hover:shadow-md transition-shadow">
+                    <div className="flex-1 pr-4">
+                      <p className="text-[#1B4332] font-bold text-sm mb-0.5">Mentor & community replies</p>
+                      <p className="text-gray-500 text-[11px] leading-relaxed">Get notified when a mentor or member replies directly to you</p>
+                    </div>
+                    <button
+                      role="switch"
+                      aria-checked={settings.notifications.mentorReplies}
+                      onClick={() => void setNotificationToggle("mentorReplies", !settings.notifications.mentorReplies)}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                        settings.notifications.mentorReplies ? "bg-[#2D6A4F] border-[#2D6A4F]" : "bg-gray-200 border-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${
+                          settings.notifications.mentorReplies ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Toggle 4: Daily Wellness Reminders */}
+                  <div className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-emerald-100/10 hover:shadow-md transition-shadow">
+                    <div className="flex-1 pr-4">
+                      <p className="text-[#1B4332] font-bold text-sm mb-0.5">Daily wellness reminders</p>
+                      <p className="text-gray-500 text-[11px] leading-relaxed">Daily calm thought, breathing prompts, and mindful check-ins</p>
+                    </div>
+                    <button
+                      role="switch"
+                      aria-checked={settings.notifications.dailyWellness}
+                      onClick={() => void setNotificationToggle("dailyWellness", !settings.notifications.dailyWellness)}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                        settings.notifications.dailyWellness ? "bg-[#2D6A4F] border-[#2D6A4F]" : "bg-gray-200 border-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${
+                          settings.notifications.dailyWellness ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Toggle 5: Sound & Vibration Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-emerald-100/10 hover:shadow-md transition-shadow">
+                    <div className="flex-1 pr-4">
+                      <div className="flex items-center gap-1.5">
+                        <Volume2 className="w-4 h-4 text-emerald-600" />
+                        <p className="text-[#1B4332] font-bold text-sm">Sound & vibration toggle</p>
+                      </div>
+                      <p className="text-gray-500 text-[11px] leading-relaxed">Play gentle notification bells and soft device haptics</p>
+                    </div>
+                    <button
+                      role="switch"
+                      aria-checked={settings.notifications.soundVibration}
+                      onClick={() => void setNotificationToggle("soundVibration", !settings.notifications.soundVibration)}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                        settings.notifications.soundVibration ? "bg-[#2D6A4F] border-[#2D6A4F]" : "bg-gray-200 border-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${
+                          settings.notifications.soundVibration ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                </div>
+
+                {/* Footer Buttons */}
+                <div className="flex gap-4 pt-4 border-t border-emerald-100/40 mt-6">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => showSaveFeedback(t("settings.notificationsSaved"))}
+                    disabled={isSavingSettings}
+                    className="flex-1 py-3 bg-[#2D6A4F] text-white rounded-2xl shadow-lg shadow-emerald-900/10 hover:bg-[#1B4332] transition-colors font-bold text-sm disabled:opacity-60"
+                  >
+                    {isSavingSettings ? t("common.loading") : t("common.save")}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setIsNotificationsOpen(false)}
+                    className="flex-1 py-3 bg-gray-100 text-gray-800 rounded-2xl hover:bg-gray-200 transition-colors font-bold text-sm"
+                  >
+                    Close
+                  </motion.button>
+                </div>
+
+                {saveMessage && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-center text-sm font-bold rounded-xl"
+                  >
+                    {saveMessage}
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Privacy & Security Modal */}
+        {isPrivacyOpen && (
+          <div className="fixed inset-0 bg-black/65 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 15 }}
+              transition={{ type: "spring", duration: 0.45 }}
+              className="bg-white rounded-[32px] p-8 shadow-2xl border border-emerald-100/50 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center mb-6 border-b border-emerald-100/40 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center border border-emerald-100/50">
+                    <Shield className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-[#1B4332] tracking-tight">{t("settings.privacySecurity")}</h3>
+                    <p className="text-xs text-teal-600 font-medium">Protect your personal data and account access</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsPrivacyOpen(false)}
+                  className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                
+                {/* ── Privacy Settings Section ── */}
+                <div className="bg-emerald-50/20 p-6 rounded-3xl border border-emerald-100/25">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-[#1B4332] font-extrabold text-sm uppercase tracking-wider">Privacy Settings</h4>
+                    {/* Settings Shortcut Link */}
+                    <button
+                      onClick={() => {
+                        setIsPrivacyOpen(false);
+                        setIsSettingsOpen(true);
+                      }}
+                      className="flex items-center gap-1.5 text-xs text-emerald-700 hover:text-emerald-800 font-extrabold bg-emerald-100/60 hover:bg-emerald-100 px-3 py-1.5 rounded-xl transition-all"
+                    >
+                      <Settings className="w-3.5 h-3.5" />
+                      Open Account Settings
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Public/Private profile toggle */}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-gray-800 font-bold text-sm">Private Profile</p>
+                        <p className="text-gray-500 text-xs">Only approved friends and companions can view your stats</p>
+                      </div>
+                      <button
+                        role="switch"
+                        aria-checked={settings.privacy.privateProfile}
+                        onClick={() => void setPrivacyToggle("privateProfile", !settings.privacy.privateProfile)}
+                        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                          settings.privacy.privateProfile ? "bg-[#2D6A4F] border-[#2D6A4F]" : "bg-gray-200 border-gray-200"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${
+                            settings.privacy.privateProfile ? "translate-x-5" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {/* Hide activity status */}
+                    <div className="flex items-center justify-between border-t border-emerald-100/10 pt-4">
+                      <div>
+                        <p className="text-gray-800 font-bold text-sm">Hide Activity Status</p>
+                        <p className="text-gray-500 text-xs">Hide when you are actively breathing or meditating</p>
+                      </div>
+                      <button
+                        role="switch"
+                        aria-checked={settings.privacy.hideActivityStatus}
+                        onClick={() => void setPrivacyToggle("hideActivityStatus", !settings.privacy.hideActivityStatus)}
+                        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                          settings.privacy.hideActivityStatus ? "bg-[#2D6A4F] border-[#2D6A4F]" : "bg-gray-200 border-gray-200"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${
+                            settings.privacy.hideActivityStatus ? "translate-x-5" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── Block & Report Section ── */}
+                <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-[#1B4332] font-extrabold text-sm mb-1">Block / Report Users</h4>
+                    <p className="text-gray-500 text-xs">Restrict who can see and comment on your posts</p>
+                  </div>
+                  <button
+                    onClick={() => alert(`Blocked users registry — ${blockedUsersCount} blocked user(s).`)}
+                    className="px-4 py-2 bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 font-bold text-xs rounded-xl shadow-sm transition-all"
+                  >
+                    Manage Registry ({blockedUsersCount})
+                  </button>
+                </div>
+
+                {/* ── Change Password Form ── */}
+                <form onSubmit={handleChangePassword} className="bg-white p-6 rounded-3xl border border-gray-200/50 space-y-4">
+                  <div className="flex items-center gap-2 mb-2 border-b border-gray-100 pb-2">
+                    <Key className="w-4 h-4 text-emerald-600" />
+                    <h4 className="text-[#1B4332] font-black text-sm">Change Password</h4>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-gray-700 text-xs font-bold mb-1.5">Current Password</label>
+                      <input
+                        type="password"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/50"
+                        placeholder="••••••••"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-700 text-xs font-bold mb-1.5">New Password</label>
+                      <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/50"
+                        placeholder="Min 6 chars"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-700 text-xs font-bold mb-1.5">Confirm Password</label>
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/50"
+                        placeholder="••••••••"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-2">
+                    {passwordStatus && (
+                      <p className={`text-xs font-bold ${passwordStatus.success ? "text-emerald-600" : "text-rose-600"}`}>
+                        {passwordStatus.message}
+                      </p>
+                    )}
+                    <button
+                      type="submit"
+                      disabled={isChangingPassword}
+                      className="ml-auto px-4 py-2.5 bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 disabled:opacity-60"
+                    >
+                      {isChangingPassword && <Loader2 className="w-3 h-3 animate-spin" />}
+                      Update Password
+                    </button>
+                  </div>
+                </form>
+
+                {/* ── Dangerous Zone Actions ── */}
+                <div className="bg-rose-50/20 p-6 rounded-3xl border border-rose-100/30 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  
+                  {/* Clear Chat History */}
+                  <div className="bg-white p-4 rounded-2xl border border-rose-100/25 flex flex-col justify-between">
+                    <div>
+                      <p className="text-gray-800 font-bold text-xs mb-1">Clear AI Chat History</p>
+                      <p className="text-gray-500 text-[10px] leading-relaxed mb-3">Instantly erase all message history with the AI Guide from this device</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const confirmClear = window.confirm("Are you sure you want to permanently clear all local chat history with the AI Guide?");
+                        if (confirmClear) {
+                          clearChatHistory(user?.id);
+                          alert("AI chat history erased successfully!");
+                        }
+                      }}
+                      className="w-full py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-extrabold text-[10px] uppercase tracking-wider rounded-xl transition-all border border-rose-100"
+                    >
+                      Clear History
+                    </button>
+                  </div>
+
+                  {/* Delete Account */}
+                  <div className="bg-white p-4 rounded-2xl border border-rose-100/25 flex flex-col justify-between">
+                    <div>
+                      <p className="text-rose-800 font-bold text-xs mb-1 flex items-center gap-1">
+                        <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                        Delete Account
+                      </p>
+                      <p className="text-gray-500 text-[10px] leading-relaxed mb-3">Permanently delete your profile, stats, streak history and bookings</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const confirmDelete = window.confirm("⚠️ WARNING: Deleting your account is permanent. All your progress and data will be destroyed. Do you wish to continue?");
+                        if (confirmDelete) {
+                          try {
+                            await deleteAccount();
+                          } catch {
+                            alert("Failed to delete account. Please try again or contact support.");
+                          }
+                        }
+                      }}
+                      className="w-full py-2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-[10px] uppercase tracking-wider rounded-xl transition-all shadow-md shadow-rose-900/10"
+                    >
+                      Delete Account
+                    </button>
+                  </div>
+
+                </div>
+
+                {/* ── Privacy Policy & Data Settings ── */}
+                <div className="p-4 bg-gray-50 rounded-2xl text-[10px] text-gray-500 leading-relaxed border border-gray-100 flex items-center gap-3">
+                  <Lock className="w-5 h-5 text-teal-600/70 shrink-0" />
+                  <p>
+                    We protect your personal data in accordance with our <strong>Privacy Policy</strong>. We use end-to-end encryption for AI chat logs and your health records are completely private.
+                  </p>
+                </div>
+
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Share Profile Modal */}
       <ShareProfileCard

@@ -1,4 +1,5 @@
 const express = require('express');
+const compression = require('compression');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
@@ -9,15 +10,18 @@ const { v4: uuidv4 } = require('uuid');
 const http = require('http');
 const { Server } = require('socket.io');
 const bcrypt = require('bcryptjs');
+const { cacheMiddleware, initCache } = require('./utils/cache');
+const { startRetentionJobs, ensureBackupDir } = require('./utils/retention');
 const allowedOrigins = [
   'https://nirvaha-wellnessllp.vercel.app',
   'http://localhost:3000',
+  'http://localhost:3001',
   'http://localhost:5173',
   'http://localhost:5001'
 ];
 
-// Load environment variables immediately
-dotenv.config();
+// Load environment variables immediately (explicit path to guarantee resolution)
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
@@ -46,8 +50,10 @@ const Meditation = require('./models/Meditation');
 const Sound = require('./models/Sound');
 const Post = require('./models/Post');
 const MentorProfile = require('./models/MentorProfile');
+const Hashtag = require('./models/Hashtag');
 
 const app = express();
+app.disable('x-powered-by');
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -65,14 +71,38 @@ const io = new Server(server, {
   },
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 const MONGODB_URI = process.env.MONGODB_URI;
+const BACKUP_DIR = path.join(__dirname, 'backups');
+
+if (process.env.REDIS_URL) {
+  try {
+    const { createClient } = require('redis');
+    const { createAdapter } = require('@socket.io/redis-adapter');
+    const pubClient = createClient({ url: process.env.REDIS_URL });
+    const subClient = pubClient.duplicate();
+    Promise.all([pubClient.connect(), subClient.connect()])
+      .then(() => {
+        io.adapter(createAdapter(pubClient, subClient));
+        console.log('✓ Socket.IO Redis adapter enabled for horizontal scaling');
+      })
+      .catch((err) => {
+        console.warn('⚠️ Socket.IO Redis adapter failed to connect:', err.message);
+      });
+  } catch (err) {
+    console.warn('⚠️ Socket.IO Redis adapter is not available:', err.message);
+  }
+}
 
 // Configuration
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 
 if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+
+if (!fs.existsSync(BACKUP_DIR)) {
+  fs.mkdirSync(BACKUP_DIR, { recursive: true });
 }
 
 // Multer configuration
@@ -195,9 +225,16 @@ async function connectMongo() {
     return;
   }
 
+  mongoose.set('strictQuery', false);
+
   try {
     await mongoose.connect(MONGODB_URI, {
-      autoIndex: true,
+      autoIndex: false,
+      maxPoolSize: Number(process.env.MONGO_MAX_POOL_SIZE) || 30,
+      minPoolSize: Number(process.env.MONGO_MIN_POOL_SIZE) || 5,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      family: 4,
     });
     console.log('✓ Connected to MongoDB Atlas');
     mongoConnected = true;
@@ -364,6 +401,23 @@ async function seedMongo() {
     await MentorProfile.insertMany(seedMentors);
     console.log('✓ Seeded initial mentor profiles');
   }
+
+  // Seed default hashtags
+  const hashtagCount = await Hashtag.countDocuments();
+  if (hashtagCount === 0) {
+    const defaultHashtags = [
+      { tag: '#healing', count: 5 }, // seed some initial counts to match design examples
+      { tag: '#mindfulness', count: 2 },
+      { tag: '#anxiety', count: 0 },
+      { tag: '#peace', count: 0 },
+      { tag: '#meditation', count: 0 },
+      { tag: '#wellness', count: 0 },
+      { tag: '#grief', count: 0 },
+      { tag: '#selfcare', count: 0 }
+    ];
+    await Hashtag.insertMany(defaultHashtags);
+    console.log('✓ Seeded initial default hashtags');
+  }
 }
 
 // Socket.IO connection handling
@@ -387,6 +441,11 @@ io.on('connection', (socket) => {
 });
 
 // Middleware
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
+app.use(compression());
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -404,12 +463,14 @@ app.use(
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(cacheMiddleware());
 
 // Make io accessible to routes
 app.set('io', io);
 
 // Static files
 app.use('/uploads', express.static(UPLOADS_DIR));
+app.use('/backups', express.static(BACKUP_DIR));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -480,9 +541,15 @@ app.post('/api/upload/media', upload.fields([
 
 // Start server
 async function startServer() {
+  await initCache();
+  await ensureBackupDir();
   await connectMongo();
   await initLocalAdminUser();
   await seedMongo();
+  await startRetentionJobs();
+
+  server.keepAliveTimeout = Number(process.env.SERVER_KEEP_ALIVE_TIMEOUT_MS) || 65000;
+  server.headersTimeout = Number(process.env.SERVER_HEADERS_TIMEOUT_MS) || 70000;
 
   server.listen(PORT, () => {
     console.log(`🚀 Nirvaha backend running on port ${PORT}`);

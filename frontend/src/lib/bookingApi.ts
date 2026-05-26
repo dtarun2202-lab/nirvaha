@@ -3,15 +3,18 @@ import BACKEND_CONFIG from "@/config/backend";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || BACKEND_CONFIG.API_BASE_URL;
 
 export interface BookingData {
-  companionId: string;
+  companionId?: string;
   companionName: string;
   userId?: string;
   userName?: string;
   userEmail?: string;
+  phone?: string;
+  sessionNotes?: string;
   type: string;
   date: Date | string;
-  timeSlot: string;
-  price: string;
+  time?: string;
+  timeSlot?: string;
+  price: string | number;
   status?: string;
   createdAt?: Date;
 }
