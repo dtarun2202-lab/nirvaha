@@ -60,7 +60,7 @@ router.post('/', async (req, res) => {
 
     const { message, userId, problemContext } = req.body;
 
-    const { message, userId, persona } = req.body;
+    
 
 
     if (!message || message.trim() === '') {
@@ -201,25 +201,9 @@ Conversational Guidance:
       // Continue — the AI reply is still valid
     }
 
-      // Fallback response logic if AI fails
-      if (message.toLowerCase().includes('stress')) {
-        reply = normalizeShortReply("I understand. Stress can feel heavy. Breathe slowly and know you're doing your best.");
-      } else {
-        reply = normalizeShortReply("I hear you. Thank you for sharing. I'm here to listen and support you in this moment.");
-      }
-    }
+      
 
-    // Save to MongoDB (Bonus)
-    const retentionDays = Number(process.env.REFLECTION_RETENTION_DAYS) || 90;
-    const newReflection = new Reflection({
-      userId: userId || 'anonymous',
-      message,
-      reply,
-      timestamp: new Date(),
-      expiresAt: new Date(Date.now() + retentionDays * 24 * 60 * 60 * 1000),
-    });
-
-    await newReflection.save();
+    
 
     res.json({ reply });
   } catch (error) {
