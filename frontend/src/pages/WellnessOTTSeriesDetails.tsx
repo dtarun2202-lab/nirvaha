@@ -12,7 +12,8 @@ import {
   Library,
   Play,
 } from 'lucide-react';
-import { wellnessSessions, WellnessSession } from '../data/wellnessSessions';
+import { WellnessSession } from '../data/wellnessSessions';
+import { useWellnessOTT } from '../contexts/WellnessOTTContext';
 
 interface ContinueWatchingItem {
   seriesId: string;
@@ -25,6 +26,7 @@ interface ContinueWatchingItem {
 }
 
 export default function SeriesDetailsPage() {
+  const { sessions: wellnessSessions } = useWellnessOTT();
   const { seriesId } = useParams<{ seriesId: string }>();
   const navigate = useNavigate();
   const [selectedSeason, setSelectedSeason] = useState(0);
@@ -41,7 +43,7 @@ export default function SeriesDetailsPage() {
       const slug = s.title.toLowerCase().replace(/ /g, '-');
       return s.id === seriesId || slug === seriesId;
     });
-  }, [seriesId]);
+  }, [seriesId, wellnessSessions]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -79,7 +81,7 @@ export default function SeriesDetailsPage() {
     const recommended = wellnessSessions.filter(v => v.id !== series.id);
     const matchCategory = recommended.filter(v => v.category === series.category);
     return matchCategory.length > 0 ? matchCategory : recommended.slice(0, 4);
-  }, [series]);
+  }, [series, wellnessSessions]);
 
   if (!series) {
     return (

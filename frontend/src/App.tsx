@@ -65,6 +65,9 @@ import { ContactManagementPage } from "./admin/pages/ContactManagementPage";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { SuccessStoriesManager } from "./components/admin/SuccessStoriesManager";
 import { WellnessRetreatsManager } from "./components/admin/WellnessRetreatsManager";
+import { WellnessOTTProvider } from "./contexts/WellnessOTTContext";
+import { WellnessOTTManagementPage } from "./admin/pages/WellnessOTTManagementPage";
+import { CommonProblemsManagementPage } from "./admin/pages/CommonProblemsManagementPage";
 
 /**
  * Dashboard Routes Component
@@ -149,6 +152,8 @@ function AppInner() {
           <Route path="users" element={<UserManagementPage />} />
           <Route path="success-stories" element={<SuccessStoriesManager />} />
           <Route path="wellness-retreats" element={<WellnessRetreatsManager />} />
+          <Route path="wellness-ott" element={<WellnessOTTManagementPage />} />
+          <Route path="common-problems" element={<CommonProblemsManagementPage />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Route>
 
@@ -178,7 +183,9 @@ export default function App() {
   return (
     <Router>
       <SocketProvider>
-        <AppInner />
+        <WellnessOTTProvider>
+          <AppInner />
+        </WellnessOTTProvider>
       </SocketProvider>
     </Router>
   );

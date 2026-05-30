@@ -17,7 +17,8 @@ import {
   Tv, 
   Volume2
 } from 'lucide-react';
-import { wellnessSessions, WellnessSession } from '../data/wellnessSessions';
+import { WellnessSession } from '../data/wellnessSessions';
+import { useWellnessOTT } from '../contexts/WellnessOTTContext';
 import HeroBanner from '../components/wellness-ott/HeroBanner';
 
 // Interface for unified continue watching
@@ -157,6 +158,7 @@ const SessionRow = ({
 
 export default function WellnessOTTHome() {
   const navigate = useNavigate();
+  const { sessions } = useWellnessOTT();
 
   // Navigation states
   const [activeTab, setActiveTab] = useState<'Home' | 'Series' | 'Films' | 'New & Popular'>('Home');
@@ -246,33 +248,33 @@ export default function WellnessOTTHome() {
 
   // Tab filter logic
   const filteredSessions = useMemo(() => {
-    if (activeTab === 'Series') return wellnessSessions.filter(s => s.type === 'Series');
-    if (activeTab === 'Films') return wellnessSessions.filter(s => s.type === 'Film');
+    if (activeTab === 'Series') return sessions.filter(s => s.type === 'Series');
+    if (activeTab === 'Films') return sessions.filter(s => s.type === 'Film');
     if (activeTab === 'New & Popular') {
-      return [...wellnessSessions].sort((a, b) => parseInt(b.match) - parseInt(a.match));
+      return [...sessions].sort((a, b) => parseInt(b.match) - parseInt(a.match));
     }
-    return wellnessSessions;
-  }, [activeTab]);
+    return sessions;
+  }, [sessions, activeTab]);
 
   // Featured Banner Pick
   const featured = useMemo(() => {
-    return filteredSessions.find(s => s.isOriginal) || filteredSessions[0] || wellnessSessions[0];
-  }, [filteredSessions]);
+    return filteredSessions.find(s => s.isOriginal) || filteredSessions[0] || sessions[0];
+  }, [sessions, filteredSessions]);
 
   // Search filter logic
   const searchResults = useMemo(() => {
     if (!searchQuery) return [];
     const query = searchQuery.toLowerCase();
-    return wellnessSessions.filter(s => 
+    return sessions.filter(s => 
       s.title.toLowerCase().includes(query) ||
       s.category.toLowerCase().includes(query) ||
       s.tags.some(t => t.toLowerCase().includes(query)) ||
       s.mood.some(m => m.toLowerCase().includes(query))
     );
-  }, [searchQuery]);
+  }, [sessions, searchQuery]);
 
   // Dynamic lists
-  const originals = useMemo(() => wellnessSessions.filter(s => s.isOriginal), []);
+  const originals = useMemo(() => sessions.filter(s => s.isOriginal), [sessions]);
   const trending = useMemo(() => [...filteredSessions].sort((a, b) => parseInt(b.match) - parseInt(a.match)).slice(0, 6), [filteredSessions]);
   const meditationSessions = useMemo(() => filteredSessions.filter(s => s.category === "Meditation"), [filteredSessions]);
   const sleepSessions = useMemo(() => filteredSessions.filter(s => s.category === "Sleep Stories"), [filteredSessions]);

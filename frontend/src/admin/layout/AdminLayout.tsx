@@ -18,6 +18,8 @@ import {
   Palette,
   MessageSquare,
   Compass,
+  Play,
+  HelpCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -120,6 +122,16 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           title: "Wellness Retreats",
           icon: Compass,
           path: "/admin/wellness-retreats",
+        },
+        {
+          title: "Wellness OTT",
+          icon: Play,
+          path: "/admin/wellness-ott",
+        },
+        {
+          title: "Common Problems",
+          icon: HelpCircle,
+          path: "/admin/common-problems",
         },
         {
           title: "Content Management",

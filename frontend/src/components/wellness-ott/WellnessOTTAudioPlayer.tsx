@@ -21,7 +21,7 @@ import {
   ChevronDown,
   BookOpen,
 } from 'lucide-react';
-import { wellnessSessions } from '../../data/wellnessSessions';
+import { useWellnessOTT } from '../../contexts/WellnessOTTContext';
 
 interface ContinueListeningItem {
   seriesId: string;
@@ -34,6 +34,7 @@ interface ContinueListeningItem {
 }
 
 export default function WellnessOTTAudioPlayer() {
+  const { sessions: wellnessSessions } = useWellnessOTT();
   const { seriesId, episodeId } = useParams<{
     seriesId: string;
     episodeId: string;
@@ -65,7 +66,7 @@ export default function WellnessOTTAudioPlayer() {
       const slug = v.title.toLowerCase().replace(/ /g, '-');
       return v.id === seriesId || slug === seriesId;
     }) || wellnessSessions[0];
-  }, [seriesId]);
+  }, [seriesId, wellnessSessions]);
 
   const currentEpisode = useMemo(() => {
     if (series.type === 'Film' || episodeId === 'film') {
