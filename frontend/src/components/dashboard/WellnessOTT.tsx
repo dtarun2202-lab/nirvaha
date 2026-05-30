@@ -3,9 +3,10 @@ import { Play, Pause, X } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { wellnessSessions as videos } from '../../data/wellnessSessions';
+import { useWellnessOTT } from '../../contexts/WellnessOTTContext';
 
 export const WellnessOTT = () => {
+    const { sessions: videos } = useWellnessOTT();
     const navigate = useNavigate();
     const [isAnimating, setIsAnimating] = useState(false);
     const [viewMoreOpen, setViewMoreOpen] = useState(false);
