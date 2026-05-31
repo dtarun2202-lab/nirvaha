@@ -28,6 +28,7 @@ const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const meditationRoutes = require('./routes/meditationRoutes');
 const soundRoutes = require('./routes/soundRoutes');
+const poseRoutes = require('./routes/poseRoutes');
 const companionRoutes = require('./routes/companionRoutes');
 const contentRoutes = require('./routes/contentRoutes');
 const marketplaceRoutes = require('./routes/marketplaceRoutes');
@@ -44,6 +45,8 @@ const successStoriesRoutes = require('./routes/successStoriesRoutes');
 const wellnessRetreatRoutes = require('./routes/wellnessRetreatRoutes');
 const wellnessSessionRoutes = require('./routes/wellnessSessionRoutes');
 const commonProblemRoutes = require('./routes/commonProblemRoutes');
+const essentialGuidanceRoutes = require('./routes/essentialGuidanceRoutes');
+const healingFrequenciesRoutes = require('./routes/healingFrequenciesRoutes');
 const { syncAllApprovedCompanionsToUsers } = require('./utils/companionStatus');
 
 // Import models for seeding
@@ -53,6 +56,7 @@ const Sound = require('./models/Sound');
 const Post = require('./models/Post');
 const MentorProfile = require('./models/MentorProfile');
 const Hashtag = require('./models/Hashtag');
+const Pose = require('./models/Pose');
 
 const app = express();
 app.disable('x-powered-by');
@@ -297,66 +301,7 @@ async function seedMongo() {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   }
 
-  // Seed community posts
-  const postCount = await Post.countDocuments();
-  if (postCount === 0) {
-    const now = Date.now();
-    const seedPosts = [
-      {
-        id: `post-${now}-1`,
-        userId: 'seed1',
-        userName: 'Elena Rodriguez',
-        userRole: 'Community Member',
-        userInitial: 'E',
-        avatarColor: '#2D6A4F',
-        timestampValue: now - 1000 * 60 * 5, // 5 mins ago
-        title: 'Finding peace in the chaos',
-        body: 'Today was incredibly overwhelming. I felt like I couldn\'t catch my breath with all the deadlines. But I forced myself to step away for 10 minutes and just sit by the window. It didn\'t solve my problems, but it gave me the space to breathe. Sometimes that\'s all we can do. How do you all ground yourselves on hard days? #anxiety #grounding #mentalhealth',
-        hashtags: ['anxiety', 'grounding', 'mentalhealth'],
-        likes: 42,
-        liked: false,
-        comments: [],
-        isCertified: false,
-        isOnline: true,
-      },
-      {
-        id: `post-${now}-2`,
-        userId: 'seed2',
-        userName: 'Marcus Chen',
-        userRole: 'Community Member',
-        userInitial: 'M',
-        avatarColor: '#52B788',
-        timestampValue: now - 1000 * 60 * 45, // 45 mins ago
-        title: 'Grief comes in waves',
-        body: 'It\'s been a year since I lost my dad. Some days I feel fine, but today the grief hit me like a physical weight. I\'m learning that moving on doesn\'t mean forgetting, it means carrying the love forward. To anyone else missing someone today, I see you. You\'re not alone in this heavy feeling. #grief #healing #loss',
-        hashtags: ['grief', 'healing', 'loss'],
-        likes: 134,
-        liked: false,
-        comments: [],
-        isCertified: false,
-        isOnline: true,
-      },
-      {
-        id: `post-${now}-3`,
-        userId: 'seed3',
-        userName: 'Dr. Sarah Jenkins',
-        userRole: 'Clinical Psychologist',
-        userInitial: 'S',
-        avatarColor: '#1B4332',
-        timestampValue: now - 1000 * 60 * 60 * 2, // 2 hours ago
-        title: 'A reminder about boundaries',
-        body: 'Saying \'no\' is a complete sentence. You do not owe anyone an explanation for protecting your peace and your energy. It feels uncomfortable at first, but it is the most profound act of self-care. What is one boundary you\'re struggling to set this week? Let\'s discuss. #boundaries #selfcare #psychology',
-        hashtags: ['boundaries', 'selfcare', 'psychology'],
-        likes: 289,
-        liked: false,
-        comments: [],
-        isCertified: true,
-        isOnline: true,
-      }
-    ];
-    await Post.insertMany(seedPosts);
-    console.log('✓ Seeded initial community posts');
-  }
+  // Community posts are created by real users only — no seed data.
 
   // Seed mentor profiles
   const mentorCount = await MentorProfile.countDocuments();
@@ -1173,6 +1118,8 @@ app.use('/api/success-stories', successStoriesRoutes);
 app.use('/api/wellness-retreats', wellnessRetreatRoutes);
 app.use('/api/wellness-sessions', wellnessSessionRoutes);
 app.use('/api/common-problems', commonProblemRoutes);
+app.use('/api/essential-guidance', essentialGuidanceRoutes);
+app.use('/api/healing-frequencies', healingFrequenciesRoutes);
 app.use('/api', utilityRoutes);
 
 // Legacy route compatibility (for existing frontend code)
@@ -1202,11 +1149,12 @@ app.post('/api/upload/media', upload.fields([
   { name: 'thumbnail', maxCount: 1 },
   { name: 'banner',    maxCount: 1 },
   { name: 'audio',     maxCount: 1 },
+  { name: 'image',     maxCount: 1 },
 ]), (req, res) => {
   try {
     const BASE = process.env.BASE_URL || `http://localhost:${PORT}`;
     const result = {};
-    ['thumbnail', 'banner', 'audio'].forEach(field => {
+    ['thumbnail', 'banner', 'audio', 'image'].forEach(field => {
       if (req.files && req.files[field] && req.files[field][0]) {
         result[`${field}Url`] = `${BASE}/uploads/${req.files[field][0].filename}`;
       }
@@ -1217,6 +1165,11 @@ app.post('/api/upload/media', upload.fields([
     res.status(500).json({ error: 'Media upload failed', message: error.message });
   }
 });
+
+// Register pose and yoga routes
+app.use('/api/poses', poseRoutes);
+const yogaRoutes = require('./routes/yogaRoutes');
+app.use('/api/yoga', yogaRoutes);
 
 // Start server
 async function startServer() {

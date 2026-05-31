@@ -143,9 +143,24 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               path: "/admin/content/meditation",
             },
             {
+              title: "Yoga for Meditation",
+              icon: Music,
+              path: "/admin/content/yoga",
+            },
+            {
+              title: "Pose Management",
+              icon: FileText,
+              path: "/admin/content/poses",
+            },
+            {
               title: "Sound Healing",
               icon: Headphones,
               path: "/admin/content/sound",
+            },
+            {
+              title: "Healing Frequencies",
+              icon: Headphones,
+              path: "/admin/content/healing-frequencies",
             },
             {
               title: "Marketplace",

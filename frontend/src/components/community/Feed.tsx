@@ -12,7 +12,8 @@ interface FeedProps {
   hashtagFilter: string;
   hashtagTotal?: number | null;
   currentUser: { name: string; initial: string; avatarColor: string };
-  onPostsChange: (posts: Post[]) => void;
+  currentUserId: string;
+  onPostsChange: (posts: Post[] | ((prev: Post[]) => Post[])) => void;
   onToast: (msg: string) => void;
   onProfileClick: (post: Post) => void;
 }
@@ -24,34 +25,48 @@ export default function Feed({
   hashtagFilter,
   hashtagTotal,
   currentUser,
+  currentUserId,
   onPostsChange,
   onToast,
   onProfileClick,
 }: FeedProps) {
 
   const handleLike = useCallback(async (id: string) => {
-    const post = posts.find(p => p.id === id);
-    if (!post) return;
-    const isLiking = !post.liked;
+    // Use functional updater to always operate on the latest posts state,
+    // avoiding stale closure issues when socket events fire concurrently.
+    let previousPosts: Post[] = [];
 
-    // Optimistic update
-    onPostsChange(posts.map(p =>
-      p.id === id
-        ? { ...p, liked: isLiking, likes: isLiking ? p.likes + 1 : p.likes - 1 }
-        : p
-    ));
+    onPostsChange(prev => {
+      previousPosts = prev;
+      const post = prev.find(p => p.id === id);
+      if (!post) return prev;
+
+      const likedBy = post.likedBy ?? [];
+      const alreadyLiked = likedBy.includes(currentUserId);
+      const newLikedBy = alreadyLiked
+        ? likedBy.filter(uid => uid !== currentUserId)
+        : [...likedBy, currentUserId];
+
+      return prev.map(p =>
+        p.id === id
+          ? { ...p, likedBy: newLikedBy, likes: newLikedBy.length, liked: newLikedBy.includes(currentUserId) }
+          : p
+      );
+    });
 
     try {
       await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/posts/${id}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ liked: isLiking })
+        body: JSON.stringify({ userId: currentUserId }),
       });
     } catch (e) {
       console.error(e);
       onToast("Failed to update like");
+      // Revert to the snapshot captured before the optimistic update
+      if (previousPosts.length > 0) onPostsChange(() => previousPosts);
     }
-  }, [posts, onPostsChange, onToast]);
+  }, [currentUserId, onPostsChange, onToast]);
 
   const handleComment = useCallback(async (id: string, text: string) => {
     const newComment: Comment = {

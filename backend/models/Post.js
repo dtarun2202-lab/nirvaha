@@ -15,6 +15,7 @@ const postSchema = new mongoose.Schema(
     hashtags: { type: [String], default: [] },
     likes: { type: Number, default: 0 },
     liked: { type: Boolean, default: false },
+    likedBy: { type: [String], default: [] },
     comments: [
       {
         id: String,

@@ -11,6 +11,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useProfileSync } from "../../hooks/useProfileSync";
 import "../../styles/meditation-poses.css";
 import BlurText from "../ui/BlurText";
+import { getYogas, getPoses, type PoseItem } from "@/lib/contentApi";
 
 const heroImage = "/meditation/first.jpg";
 
@@ -119,6 +120,14 @@ const MeditationImages: React.FC = () => {
   const [currentSet, setCurrentSet] = React.useState<0 | 1>(0);
   const [transitioning, setTransitioning] = React.useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [apiPoses, setApiPoses] = useState<PoseItem[]>([]);
+
+  // Load admin-managed poses from API
+  useEffect(() => {
+    getPoses()
+      .then((data) => setApiPoses(data.filter((p) => p.status === "Active" && p.show === true)))
+      .catch(() => {/* silently fall back to static data */});
+  }, []);
 
   // Track mouse position for water ripple effects
   const handleMouseMove = useCallback((e: MouseEvent) => {
@@ -234,14 +243,14 @@ const MeditationImages: React.FC = () => {
       essence:
         "A dissolution of self into the infinite - where the meditator, the act of meditation, and the object of focus become one luminous whole.",
       origin:
-        "Described in the Yoga Sutras of Patanjali as Samadhi - the eighth and final limb of Ashtanga Yoga, attained through sustained Dhyana practice.",
+        "Described in the Yoga Sutras of Patanjali as the seventh of the eight limbs of Ashtanga Yoga. Dhyana is the sustained, uninterrupted flow of awareness toward a single object — the bridge between Dharana (concentration) and Samadhi (absorption).",
       mentalBenefits: [
         "Dissolves the boundary between self and universe",
         "Releases deep-seated mental conditioning",
         "Awakens intuition and inner knowing",
       ],
       physicalBenefits: [
-        "Lowers cortisol and blood pressure significantly",
+        "Lowers cortisol and blood pressure over consistent practice",
         "Activates the parasympathetic nervous system",
         "Reduces chronic fatigue and mental exhaustion",
       ],
@@ -260,7 +269,7 @@ const MeditationImages: React.FC = () => {
       description:
         "A kneeling posture of diamond-like stability. Vajrasana is the only pose recommended after meals and builds an unshakeable foundation.",
       benefits: [
-        "Aids digestion instantly",
+        "Supports healthy digestion after meals",
         "Strengthens lower back",
         "Builds mental focus",
         "Grounds excess energy",
@@ -342,7 +351,7 @@ const MeditationImages: React.FC = () => {
       origin:
         "Revered across Hindu, Buddhist, and Jain traditions for over 3,000 years. Depicted in ancient Vedic texts as the supreme seat of the gods and enlightened masters.",
       mentalBenefits: [
-        "Awakens Kundalini energy through the central channel",
+        "Encourages a calm, focused mind through the stability of the posture",
         "Induces profound states of meditative absorption",
         "Cultivates equanimity and spiritual clarity",
       ],
@@ -402,7 +411,7 @@ const MeditationImages: React.FC = () => {
       physicalBenefits: [
         "Lowers blood pressure and heart rate measurably",
         "Reduces cortisol and inflammatory markers",
-        "Allows cellular repair and deep tissue recovery",
+        "Allows the muscles and nervous system to fully rest and recover",
       ],
       chakra:
         "All seven chakras - Savasana allows prana to flow freely through every energy center, harmonizing the entire subtle body.",
@@ -561,7 +570,7 @@ const MeditationImages: React.FC = () => {
       physicalBenefits: [
         "Measurably reduces inflammatory biomarkers",
         "Lowers resting heart rate and blood pressure long-term",
-        "Enhances immune function and cellular regeneration",
+        "Supports overall physiological recovery through deep parasympathetic activation",
       ],
       chakra:
         "Sahasrara (Crown) & Ajna (Third Eye) - the upper chakras open like a lotus in full bloom, receiving the light of pure consciousness.",
@@ -583,7 +592,7 @@ const MeditationImages: React.FC = () => {
       benefits: [
         "Opens hips and groin deeply",
         "Stimulates abdominal organs",
-        "Relieves mild depression",
+        "Eases tension and promotes a sense of calm",
         "Soothes menstrual discomfort",
       ],
       steps: [
@@ -610,9 +619,9 @@ const MeditationImages: React.FC = () => {
       origin:
         "Described in the Hatha Yoga Pradipika as a destroyer of disease. Traditionally practiced by cobblers in India for hours daily, earning it the name 'Cobbler's Pose'.",
       mentalBenefits: [
-        "Releases emotional tension stored in the hips",
-        "Cultivates patience and non-striving",
-        "Reduces anxiety and mild depression",
+        "Softens the tendency to force or control, cultivating trust in the body's natural opening",
+        "Releases emotional holding in the hips and inner thighs through patient surrender",
+        "Calms the nervous system and eases anxiety through the grounding quality of the pose",
       ],
       physicalBenefits: [
         "Deeply opens hip flexors and inner groin",
@@ -689,7 +698,7 @@ const MeditationImages: React.FC = () => {
       benefits: [
         "Strengthens spine and core",
         "Improves posture",
-        "Stretches shoulders and chest",
+        "Builds awareness of spinal alignment and posture",
         "Calms the mind through alignment",
       ],
       steps: [
@@ -722,8 +731,8 @@ const MeditationImages: React.FC = () => {
       ],
       physicalBenefits: [
         "Strengthens the erector spinae and core muscles",
-        "Stretches the hamstrings and calves",
-        "Improves kidney and liver function through compression",
+        "Stretches the hamstrings and calves while decompressing the lumbar spine",
+        "Improves overall postural awareness and spinal integrity",
       ],
       chakra:
         "Manipura (Solar Plexus) - the engaged core activates personal power, discipline, and the fire of transformation.",
@@ -769,9 +778,9 @@ const MeditationImages: React.FC = () => {
       origin:
         "One of the 84 classical asanas described in the Hatha Yoga Pradipika. Traditionally used to open the body before pranayama and meditation practice.",
       mentalBenefits: [
-        "Releases emotional tension stored in the hips",
-        "Cultivates patience and non-striving",
-        "Reduces anxiety and mild depression",
+        "Releases the body's deepest layers of held tension across both hips and shoulders",
+        "Cultivates equanimity when facing asymmetry, discomfort, and the limits of the body",
+        "Reduces chronic stress held in the shoulder girdle and hip rotators",
       ],
       physicalBenefits: [
         "Deeply stretches hip rotators and IT band",
@@ -824,7 +833,7 @@ const MeditationImages: React.FC = () => {
       mentalBenefits: [
         "Releases fear and emotional armoring around the heart",
         "Cultivates courage and vulnerability",
-        "Combats depression through chest opening",
+        "Lifts mood and energy through the opening of the chest and front body",
       ],
       physicalBenefits: [
         "Stretches the entire front body from ankles to throat",
@@ -875,7 +884,7 @@ const MeditationImages: React.FC = () => {
       origin:
         "One of the most ancient asanas, depicted in 2nd century CE texts. In Kundalini tradition, Bhujangasana is used to awaken the serpent energy (Kundalini) at the base of the spine.",
       mentalBenefits: [
-        "Combats fatigue and mild depression",
+        "Lifts energy and reduces feelings of heaviness or low mood",
         "Builds confidence and sense of personal power",
         "Awakens alertness without agitation",
       ],
@@ -934,7 +943,7 @@ const MeditationImages: React.FC = () => {
       ],
       physicalBenefits: [
         "Strengthens the transverse abdominis and hip flexors",
-        "Stimulates the kidneys, thyroid, and intestines",
+        "Tones the abdominal muscles and supports healthy digestion",
         "Improves balance and proprioception",
       ],
       chakra:
@@ -986,7 +995,7 @@ const MeditationImages: React.FC = () => {
         "Awakens alertness and fresh perspective",
       ],
       physicalBenefits: [
-        "Massages and detoxifies the liver, kidneys, and spleen",
+        "Gently compresses and stimulates the abdominal organs, supporting digestion",
         "Increases rotational mobility of the thoracic spine",
         "Relieves lower back pain and sciatica",
       ],
@@ -999,7 +1008,32 @@ const MeditationImages: React.FC = () => {
     },
   ];
 
-  const poses = currentSet === 0 ? posesSet1 : posesSet2;
+  const poses = React.useMemo(() => {
+    const staticPoses = currentSet === 0 ? posesSet1 : posesSet2;
+    const setName = currentSet === 0 ? "Set 1" : "Set 2";
+
+    return staticPoses.map((staticPose, index) => {
+      // Find a matching admin-managed pose by set + position (1-indexed)
+      const apiPose = apiPoses.find(
+        (p) => (p.set || "Set 1") === setName && p.position === index + 1
+      );
+      if (!apiPose) return staticPose;
+
+      // Overlay API data onto the static pose — preserves all UI fields
+      return {
+        ...staticPose,
+        src:         apiPose.imageUrl   || staticPose.src,
+        label:       apiPose.name       || staticPose.label,
+        sanskrit:    apiPose.sanskritName || staticPose.sanskrit,
+        description: apiPose.shortIntro || staticPose.description,
+        essence:     apiPose.spiritualEssence || staticPose.essence,
+        origin:      apiPose.ancientOrigin    || staticPose.origin,
+        mentalBenefits:   apiPose.mentalBenefits?.length   ? apiPose.mentalBenefits   : staticPose.mentalBenefits,
+        physicalBenefits: apiPose.physicalBenefits?.length ? apiPose.physicalBenefits : staticPose.physicalBenefits,
+        chakra:      apiPose.chakraDescription ? `${apiPose.chakraName || ""} - ${apiPose.chakraDescription}` : staticPose.chakra,
+      };
+    });
+  }, [currentSet, apiPoses]);
 
   const radius = 300;
   const cards = poses.map((pose, i) => {
@@ -3040,7 +3074,37 @@ const YOGA_PARTICLE_OFFSETS = [
 const YOGA_CLICK_FX_MS = 1400;
 
 const MeditationPoses: React.FC = () => {
-  const poses = yogaTutorialCards;
+  const [dynamicPoses, setDynamicPoses] = useState<
+    { id: string | number; name: string; intensity: string; duration: string; image: string; youtubeUrl: string }[]
+  >([]);
+  const [loadedDynamic, setLoadedDynamic] = useState(false);
+
+  useEffect(() => {
+    getYogas()
+      .then((data) => {
+        const activeYogas = data.filter((y) => y.status === "Active");
+        if (activeYogas.length > 0) {
+          setDynamicPoses(
+            activeYogas.map((y, idx) => ({
+              id: y.id,
+              name: y.name,
+              intensity: y.difficulty || "Gentle",
+              duration: y.duration ? `${y.duration} min` : "—",
+              image: y.imageUrl || "",
+              youtubeUrl: y.youtubeUrl || "",
+            }))
+          );
+        }
+        setLoadedDynamic(true);
+      })
+      .catch(() => setLoadedDynamic(true));
+  }, []);
+
+  // Use API data when available; fall back to hardcoded cards only if API returns nothing
+  const poses =
+    loadedDynamic && dynamicPoses.length > 0
+      ? dynamicPoses
+      : yogaTutorialCards;
 
   return (
     <>
@@ -3085,7 +3149,7 @@ const MeditationPoses: React.FC = () => {
             }
           >
             <div className="list">
-              {poses.map((pose) => (
+              {poses.map((pose, idx) => (
                 <a
                   key={pose.id}
                   href={pose.youtubeUrl}
@@ -3094,7 +3158,7 @@ const MeditationPoses: React.FC = () => {
                   className="item"
                   style={
                     {
-                      "--position": pose.id,
+                      "--position": idx + 1,
                       textDecoration: "none",
                       display: "block",
                     } as React.CSSProperties

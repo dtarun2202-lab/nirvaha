@@ -57,6 +57,9 @@ import { SettingsPage } from "./admin/pages/SettingsPage";
 import { UserManagementPage } from "./admin/pages/UserManagementPage";
 import { MeditationContent } from "./admin/pages/content/MeditationContent";
 import { SoundHealingContent } from "./admin/pages/content/SoundHealingContent";
+import { HealingFrequenciesContent } from "./admin/pages/content/HealingFrequenciesContent";
+import { PosesContent } from "./admin/pages/content/PosesContent";
+import YogaContent from "./admin/pages/content/YogaContent";
 import { ProductsContent } from "./admin/pages/content/ProductsContent";
 import { ContentUpdatePage } from "./admin/pages/ContentUpdatePage";
 import { MarketplaceManagementPage } from "./admin/pages/MarketplaceManagementPage";
@@ -145,6 +148,9 @@ function AppInner() {
           <Route path="content" element={<ContentManagementPage />} />
           <Route path="content/meditation" element={<MeditationContent />} />
           <Route path="content/sound" element={<SoundHealingContent />} />
+          <Route path="content/healing-frequencies" element={<HealingFrequenciesContent />} />
+          <Route path="content/poses" element={<PosesContent />} />
+          <Route path="content/yoga" element={<YogaContent />} />
           <Route path="content/products" element={<ProductsContent />} />
           <Route path="content/landing" element={<ContentManagementPage />} />
           <Route path="content/dynamic" element={<ContentManagementPage />} />

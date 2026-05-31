@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, Share2, Download, ChevronRight, X, ListPlus, Heart, Clock, Plus, Bookmark, Music, Hash } from "lucide-react";
+import { Volume2, Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, Share2, Download, ChevronRight, X, ListPlus, Heart, Clock, Plus, Bookmark, Music, Hash, Folder } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useProfileSync } from "../../hooks/useProfileSync";
@@ -107,7 +107,6 @@ const sacredInstruments = [
   {
     id: 1,
     name: "Tibetan Singing Bowl",
-    icon: "🎵",
     image: "/instruments/tibetan-bowl.jpg",
     history: "Tibetan singing bowls have been used for over 2,000 years in meditation and healing practices. Originally crafted by Tibetan monks, these bowls were made from seven sacred metals representing celestial bodies.",
     science: "The bowls produce harmonic overtones that synchronize brainwaves, promoting alpha and theta states associated with deep relaxation and meditation. Research shows they can reduce stress hormones and blood pressure.",
@@ -116,7 +115,7 @@ const sacredInstruments = [
   {
     id: 2,
     name: "Crystal Singing Bowl",
-    icon: "💎",
+
     image: "/instruments/crystal-bowl.jpg",
     history: "Crystal singing bowls emerged in the 1980s, crafted from pure quartz crystal. They were developed as a modern interpretation of traditional Tibetan bowls, harnessing the piezoelectric properties of quartz.",
     science: "Quartz crystal vibrates at specific frequencies that resonate with the human body's energy field. The pure tones help reorganize cellular structure and promote healing at a molecular level.",
@@ -125,7 +124,7 @@ const sacredInstruments = [
   {
     id: 3,
     name: "Sacred Flute",
-    icon: "🪈",
+
     image: "/instruments/sacred-flute.jpg",
     history: "Sacred flutes have been used across cultures for millennia - from Native American ceremonies to Indian classical music. The breath-based instrument connects the player's life force with sound healing.",
     science: "Flute music activates the parasympathetic nervous system, lowering cortisol levels and promoting healing. The breath control required also increases oxygen flow and mindfulness.",
@@ -134,7 +133,7 @@ const sacredInstruments = [
   {
     id: 4,
     name: "Ceremonial Gong",
-    icon: "🥇",
+
     image: "/instruments/gong.jpg",
     history: "Gongs originated in Asia over 4,000 years ago, used in religious ceremonies and healing rituals. They were considered sacred instruments capable of connecting earth and heaven through sound.",
     science: "Gong vibrations create a full spectrum of frequencies that can reset the nervous system. The complex harmonics help synchronize both brain hemispheres and promote neuroplasticity.",
@@ -143,7 +142,7 @@ const sacredInstruments = [
   {
     id: 5,
     name: "Chimes & Bells",
-    icon: "🔔",
+
     image: "/instruments/chimes.jpg",
     history: "Sacred chimes and bells have been used in temples and healing spaces for thousands of years. From Tibetan tingsha bells to wind chimes, they mark sacred moments and clear energy.",
     science: "High-frequency chime sounds stimulate the release of endorphins and activate the body's natural healing response. The clear tones help focus attention and quiet mental chatter.",
@@ -155,7 +154,7 @@ export function SoundHealingPage() {
   const { user, refreshProfile } = useAuth();
   const { updateProfileStats, isUpdating } = useProfileSync();
   const audioRef = useRef<HTMLAudioElement>(null);
-  /** One profile log per main track play (≥60s), avoids double fire on timeupdate + ended. */
+  /** One profile log per main track play (>=60s), avoids double fire on timeupdate + ended. */
   const soundSessionLoggedRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playProgress, setPlayProgress] = useState(0);
@@ -178,40 +177,149 @@ export function SoundHealingPage() {
   const [selectedTrack, setSelectedTrack] = useState<any>(null); // Store clicked track data
   const [showInstrumentModal, setShowInstrumentModal] = useState(false);
   const [selectedInstrument, setSelectedInstrument] = useState<any>(null);
+  const [isShuffled, setIsShuffled] = useState(false);
+  const [isRepeating, setIsRepeating] = useState(false);
 
-  // Get recommended sounds based on feeling
-  const getRecommendedSounds = (feeling: string) => {
-    const recommendations = {
-      stress: [
-        { id: 1, title: "Ocean Waves Calm", description: "Gentle ocean sounds to wash away stress", category: "Nature", frequency: "528 Hz", duration: "15:00", image: "/sound/ocean_waves.png", audioUrl: "/audio/stress/Ocean-Waves-Calm.mp3", index: 1 },
-        { id: 2, title: "Forest Rain", description: "Peaceful rainfall in ancient forest", category: "Nature", frequency: "432 Hz", duration: "20:00", image: "/sound/forest_ambience.png", audioUrl: "/audio/stress/Gentle-Rain-Drops.mp3", index: 4 },
-        { id: 3, title: "Tibetan Bowls", description: "Sacred healing vibrations", category: "Bowl Therapy", frequency: "432 Hz", duration: "15:30", image: "/tibetan.jpg", audioUrl: "/audio/stress/Tibetan-Bowls.mp3", index: 0 }
-      ],
-      anxiety: [
-        { id: 4, title: "Gentle Rain Drops", description: "Soft rainfall for deep calm", category: "Nature", frequency: "528 Hz", duration: "25:00", image: "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=600&h=400&fit=crop&auto=format", audioUrl: "/audio/anxiety/Gentle-Rain-Drops.mp3", index: 2 },
-        { id: 5, title: "Misty Forest Stream", description: "Flowing water through peaceful woods", category: "Nature", frequency: "432 Hz", duration: "30:00", image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&h=400&fit=crop&auto=format", audioUrl: "/audio/anxiety/Misty-Forest-Stream.mp3", index: 3 },
-        { id: 6, title: "Soft Meadow Breeze", description: "Gentle wind through calm meadows", category: "Nature", frequency: "396 Hz", duration: "22:00", image: "/breeze.webp", audioUrl: "/audio/anxiety/Soft-Meadow-Breeze.mp3", index: 4 }
-      ],
-      sleep: [
-        { id: 7, title: "Night Ocean Waves", description: "Deep ocean sounds for restful sleep", category: "Sleep", frequency: "528 Hz", duration: "60:00", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=400&fit=crop&auto=format", audioUrl: "/audio/sleep/Night-Ocean-Waves.mp3", index: 1 },
-        { id: 8, title: "Starlit Delta Waves", description: "Sleep-inducing frequencies under stars", category: "Binaural", frequency: "1-4 Hz", duration: "45:00", image: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=600&h=400&fit=crop&auto=format", audioUrl: "/audio/sleep/Starlit-Delta-Waves.mp3", index: 2 },
-        { id: 9, title: "Moonlight Lullaby", description: "Soft tones for deep rest", category: "Ambient", frequency: "432 Hz", duration: "40:00", image: "/moon.jpeg", audioUrl: "/audio/sleep/Moonlight-Lullaby.mp3", index: 0 }
-      ],
-      focus: [
-        { id: 10, title: "Clear Mind Frequencies", description: "Pure tones for concentration", category: "Binaural", frequency: "8-12 Hz", duration: "25:00", image: "/Clear Mind Frequencies.jpg", audioUrl: "/audio/focus/Clear-Mind-Frequencies.mp3", index: 2 },
-        { id: 11, title: "Minimal Nature Sounds", description: "Clean audio for mental clarity", category: "Ambient", frequency: "528 Hz", duration: "20:00", image: "/nature.jpg", audioUrl: "/audio/focus/Minimal-Nature-Sounds.mp3", index: 3 },
-        { id: 12, title: "Productivity Flow", description: "Subtle background for deep work", category: "Focus", frequency: "40 Hz", duration: "30:00", image: "/Productivity Flow.jpg", audioUrl: "/audio/focus/Productivity-Flow.mp3", index: 4 }
-      ],
-      balance: [
-        { id: 13, title: "Chakra Harmony", description: "Balance all energy centers", category: "Chakra Healing", frequency: "852 Hz", duration: "22:30", image: "/sound/chakra_tuning.png", audioUrl: "/audio/emotional/Chakra-Harmony.mp3", index: 5 },
-        { id: 14, title: "Sacred Geometry", description: "Harmonic frequencies", category: "Crystal Therapy", frequency: "741 Hz", duration: "25:00", image: "/geometry.webp", audioUrl: "/audio/emotional/Sacred-Geometry.mp3", index: 3 },
-        { id: 15, title: "Healing Bowls", description: "Tibetan healing vibrations", category: "Bowl Therapy", frequency: "432 Hz", duration: "18:00", image: "/healing.jpg", audioUrl: "/audio/anxiety/Healing-Bowls.mp3", index: 0 }
-      ]
-    };
-    return recommendations[feeling as keyof typeof recommendations] || [];
+  // Mood slug mapping: feeling chip id -> API moodSlug
+  const FEELING_TO_MOOD_SLUG: Record<string, string> = {
+    stress: 'stress',
+    anxiety: 'anxiety',
+    sleep: 'sleep-issues',
+    focus: 'focus',
+    balance: 'emotional-balance',
   };
 
-  // Collection data — defined before getFilteredTracks so they're in scope
+  // â”€â”€ Mood cards visible count for Load More â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Keyed by feeling id. Default 3. Resets when feeling changes because
+  // selectedFeeling key changes and the slice re-evaluates.
+  const MOOD_PAGE_SIZE = 3;
+  const [moodVisibleCount, setMoodVisibleCount] = useState<Record<string, number>>({});
+
+  // API-fetched mood cards keyed by feeling id
+  const [moodCardsCache, setMoodCardsCache] = useState<Record<string, any[]>>({});
+  const [moodCardsLoading, setMoodCardsLoading] = useState<Record<string, boolean>>({});
+
+  // â”€â”€ Collection visible count for Load More (Sound Healing Library only) â”€â”€
+  // Keyed by collectionSlug. Default 6. Resets automatically when switching
+  // collections because the key changes.
+  const COLLECTION_PAGE_SIZE = 6;
+  const [collectionVisibleCount, setCollectionVisibleCount] = useState<Record<string, number>>({});
+  // Keyed by collectionSlug: 'meditation' | 'sleep' | 'focus' | 'nature'
+  const [collectionCardsCache, setCollectionCardsCache] = useState<Record<string, any[]>>({});
+  const [collectionCardsLoading, setCollectionCardsLoading] = useState<Record<string, boolean>>({
+    meditation: true, sleep: true, focus: true, nature: true,
+  });
+
+  // Fetch all 4 collection slugs on mount - parallel, non-blocking
+  useEffect(() => {
+    const COLLECTION_SLUGS = ['meditation', 'sleep', 'focus', 'nature'];
+    COLLECTION_SLUGS.forEach(slug => {
+      fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/healing-frequencies/cards?collectionSlug=${slug}&limit=50`)
+        .then(r => r.json())
+        .then(data => {
+          const cards = (data.cards || []).map((c: any) => ({
+            _id: c._id,
+            id: c._id,
+            title: c.title,
+            artist: c.artist || '',
+            description: c.description || '',
+            category: c.category || '',
+            frequency: c.frequency || '',
+            duration: c.duration || '',
+            thumbnailUrl: c.coverImage || '',
+            image: c.coverImage || '',
+            audioUrl: c.audioUrl || '',
+            tag: c.tag || '',
+            _fromApi: true,
+          }));
+          setCollectionCardsCache(prev => ({ ...prev, [slug]: cards }));
+        })
+        .catch(() => {
+          // On error keep empty - fallback data will be used
+          setCollectionCardsCache(prev => ({ ...prev, [slug]: [] }));
+        })
+        .finally(() => {
+          setCollectionCardsLoading(prev => ({ ...prev, [slug]: false }));
+        });
+    });
+  }, []);
+
+  // Fetch mood cards from API when a feeling is selected
+  useEffect(() => {
+    if (!selectedFeeling) return;
+    const slug = FEELING_TO_MOOD_SLUG[selectedFeeling];
+    if (!slug) return;
+    // Already cached
+    if (moodCardsCache[selectedFeeling] !== undefined) return;
+    setMoodCardsLoading(prev => ({ ...prev, [selectedFeeling]: true }));
+    fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/healing-frequencies/cards?moodSlug=${slug}&limit=50`)
+      .then(r => r.json())
+      .then(data => {
+        const cards = (data.cards || []).map((c: any) => ({
+          _id: c._id,
+          id: c._id,
+          title: c.title,
+          description: c.description || '',
+          category: c.category || '',
+          frequency: c.frequency || '',
+          duration: c.duration || '',
+          image: c.coverImage || '',
+          thumbnailUrl: c.coverImage || '',
+          audioUrl: c.audioUrl || '',
+          artist: c.artist || '',
+          tag: c.tag || '',
+          _fromApi: true,
+        }));
+        setMoodCardsCache(prev => ({ ...prev, [selectedFeeling]: cards }));
+      })
+      .catch(() => {
+        setMoodCardsCache(prev => ({ ...prev, [selectedFeeling]: [] }));
+      })
+      .finally(() => {
+        setMoodCardsLoading(prev => ({ ...prev, [selectedFeeling]: false }));
+      });
+  }, [selectedFeeling]);
+
+  // Static fallback cards per feeling (shown when no API cards exist)
+  const STATIC_FALLBACK_SOUNDS: Record<string, any[]> = {
+    stress: [
+      { id: 1, title: "Ocean Waves Calm", description: "Gentle ocean sounds to wash away stress", category: "Nature", frequency: "528 Hz", duration: "15:00", image: "/sound/ocean_waves.png", audioUrl: "/audio/stress/Ocean-Waves-Calm.mp3" },
+      { id: 2, title: "Forest Rain", description: "Peaceful rainfall in ancient forest", category: "Nature", frequency: "432 Hz", duration: "20:00", image: "/images/Forest Rain.jpg", audioUrl: "/audio/stress/Gentle-Rain-Drops.mp3" },
+      { id: 3, title: "Tibetan Bowls", description: "Sacred healing vibrations", category: "Bowl Therapy", frequency: "432 Hz", duration: "15:30", image: "/tibetan.jpg", audioUrl: "/audio/stress/Tibetan-Bowls.mp3" }
+    ],
+    anxiety: [
+      { id: 4, title: "Gentle Rain Drops", description: "Soft rainfall for deep calm", category: "Nature", frequency: "528 Hz", duration: "25:00", image: "/images/Gentle Rain Drops.jpg", audioUrl: "/audio/anxiety/Gentle-Rain-Drops.mp3" },
+      { id: 5, title: "Misty Forest Stream", description: "Flowing water through peaceful woods", category: "Nature", frequency: "432 Hz", duration: "30:00", image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&h=400&fit=crop&auto=format", audioUrl: "/audio/anxiety/Misty-Forest-Stream.mp3" },
+      { id: 6, title: "Soft Meadow Breeze", description: "Gentle wind through calm meadows", category: "Nature", frequency: "396 Hz", duration: "22:00", image: "/breeze.webp", audioUrl: "/audio/anxiety/Soft-Meadow-Breeze.mp3" }
+    ],
+    sleep: [
+      { id: 7, title: "Night Ocean Waves", description: "Deep ocean sounds for restful sleep", category: "Sleep", frequency: "528 Hz", duration: "60:00", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=400&fit=crop&auto=format", audioUrl: "/audio/sleep/Night-Ocean-Waves.mp3" },
+      { id: 8, title: "Starlit Delta Waves", description: "Sleep-inducing frequencies under stars", category: "Binaural", frequency: "1-4 Hz", duration: "45:00", image: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=600&h=400&fit=crop&auto=format", audioUrl: "/audio/sleep/Starlit-Delta-Waves.mp3" },
+      { id: 9, title: "Moonlight Lullaby", description: "Soft tones for deep rest", category: "Ambient", frequency: "432 Hz", duration: "40:00", image: "/moon.jpeg", audioUrl: "/audio/sleep/Moonlight-Lullaby.mp3" }
+    ],
+    focus: [
+      { id: 10, title: "Clear Mind Frequencies", description: "Pure tones for concentration", category: "Binaural", frequency: "8-12 Hz", duration: "25:00", image: "/Clear Mind Frequencies.jpg", audioUrl: "/audio/focus/Clear-Mind-Frequencies.mp3" },
+      { id: 11, title: "Minimal Nature Sounds", description: "Clean audio for mental clarity", category: "Ambient", frequency: "528 Hz", duration: "20:00", image: "/images/Minimal Nature Sounds.jpg", audioUrl: "/audio/focus/Minimal-Nature-Sounds.mp3" },
+      { id: 12, title: "Productivity Flow", description: "Subtle background for deep work", category: "Focus", frequency: "40 Hz", duration: "30:00", image: "/Productivity Flow.jpg", audioUrl: "/audio/focus/Productivity-Flow.mp3" }
+    ],
+    balance: [
+      { id: 13, title: "Chakra Harmony", description: "Balance all energy centers", category: "Chakra Healing", frequency: "852 Hz", duration: "22:30", image: "/sound/chakra_tuning.png", audioUrl: "/audio/emotional/Chakra-Harmony.mp3" },
+      { id: 14, title: "Sacred Geometry", description: "Harmonic frequencies", category: "Crystal Therapy", frequency: "741 Hz", duration: "25:00", image: "/geometry.webp", audioUrl: "/audio/emotional/Sacred-Geometry.mp3" },
+      { id: 15, title: "Healing Bowls", description: "Tibetan healing vibrations", category: "Bowl Therapy", frequency: "432 Hz", duration: "18:00", image: "/healing.jpg", audioUrl: "/audio/anxiety/Healing-Bowls.mp3" }
+    ]
+  };
+
+  // Get recommended sounds: API cards take priority; static fallback shown when API has no cards
+  const getRecommendedSounds = (feeling: string): any[] => {
+    const apiCards = moodCardsCache[feeling];
+    if (apiCards && apiCards.length > 0) {
+      return apiCards;
+    }
+    // Fall back to static cards while loading or when API has no cards
+    return STATIC_FALLBACK_SOUNDS[feeling] || [];
+  };
+
+  // Collection data - defined before getFilteredTracks so they're in scope
   const sleepTherapyData = [
     {
       id: "sleep1",
@@ -332,13 +440,20 @@ export function SoundHealingPage() {
   // Get filtered tracks based on active collection (search removed)
   const getFilteredTracks = () => {
     if (activeCollection) {
+      // For the 4 synced collections: use API data when available, fall back to hardcoded
+      const getCollectionTracks = (slug: string, fallback: any[]) => {
+        const apiCards = collectionCardsCache[slug];
+        if (apiCards && apiCards.length > 0) return apiCards;
+        return fallback;
+      };
+
       const collectionFilters: Record<string, () => any[]> = {
         'liked':      () => savedTracks,
         'recent':     () => recentTracks,
-        'meditation': () => soundLibrary.filter(t => t.category === 'Meditation'),
-        'sleep':      () => sleepTherapyData,
-        'focus':      () => focusBoostData,
-        'nature':     () => natureSoundsData,
+        'meditation': () => getCollectionTracks('meditation', soundLibrary.filter(t => t.category === 'Meditation')),
+        'sleep':      () => getCollectionTracks('sleep', sleepTherapyData),
+        'focus':      () => getCollectionTracks('focus', focusBoostData),
+        'nature':     () => getCollectionTracks('nature', natureSoundsData),
       };
       return collectionFilters[activeCollection]?.() ?? soundLibrary;
     }
@@ -441,14 +556,16 @@ export function SoundHealingPage() {
 
   const playlists = [
     // Quick Access Section
-    { id: 'liked', name: 'Saved', songs: savedTracks, icon: '❤️', section: 'quick' },
-    { id: 'recent', name: 'Recently Played', songs: recentTracks, icon: '⏱️', section: 'quick' },
-    
-    // Collections Section
-    { id: 'meditation', name: 'Meditation Journey', songs: [0, 1, 2], icon: '📂', section: 'collections' },
-    { id: 'sleep', name: 'Sleep Therapy', songs: [0, 1, 2], icon: '📂', section: 'collections' },
-    { id: 'focus', name: 'Focus Boost', songs: [2, 10, 11], icon: '📂', section: 'collections' },
-    { id: 'nature', name: 'Nature Sounds', songs: [1, 4, 6], icon: '📂', section: 'collections' },
+
+    { id: 'liked', name: 'Saved', songs: savedTracks, icon: 'heart', section: 'quick' },
+    { id: 'recent', name: 'Recently Played', songs: recentTracks, icon: 'clock', section: 'quick' },
+    // Collections Section - songs reads from collectionCardsCache so sidebar
+    // count always matches the actual number of cards fetched from the API.
+    // Fallback arrays are used only while the initial fetch is in flight.
+    { id: 'meditation', name: 'Meditation Journey', songs: collectionCardsCache['meditation'] ?? [0, 1, 2], icon: 'folder', section: 'collections' },
+    { id: 'sleep',      name: 'Sleep Therapy',      songs: collectionCardsCache['sleep']      ?? [0, 1, 2], icon: 'folder', section: 'collections' },
+    { id: 'focus',      name: 'Focus Boost',         songs: collectionCardsCache['focus']      ?? [0, 1, 2], icon: 'folder', section: 'collections' },
+    { id: 'nature',     name: 'Nature Sounds',       songs: collectionCardsCache['nature']     ?? [0, 1, 2], icon: 'folder', section: 'collections' },
   ];
 
   const handleSaveToggle = (track: any) => {
@@ -465,12 +582,12 @@ export function SoundHealingPage() {
 
   useEffect(() => {
     if (nowPlaying !== null) {
-      // nowPlaying is now a track object — no index-based localStorage needed
+      // nowPlaying is now a track object - no index-based localStorage needed
     }
   }, [nowPlaying]);
 
   const handlePlaylistClick = (playlistId: string) => {
-    console.log('🎵 Collection clicked:', playlistId); // Debug log
+    console.log('Collection clicked:', playlistId); // Debug log
     
     if (activeCollection === playlistId) {
       // If clicking the same collection, deselect it
@@ -479,7 +596,7 @@ export function SoundHealingPage() {
     } else {
       // FORCE RESET FIRST - Clear state completely for Sleep, Focus & Nature
       if (playlistId === 'sleep') {
-        console.log('💤 FORCE RESET: Clearing state for Sleep Therapy');
+        console.log('FORCE RESET: Clearing state for Sleep Therapy');
         setActiveCollection(null); // Reset first
         setSelectedPlaylist(null);
         
@@ -487,10 +604,10 @@ export function SoundHealingPage() {
         setTimeout(() => {
           setActiveCollection('sleep');
           setSelectedPlaylist('sleep');
-          console.log('💤 Sleep Therapy Data:', sleepTherapyData);
+          console.log('Sleep Therapy Data:', sleepTherapyData);
         }, 0);
       } else if (playlistId === 'focus') {
-        console.log('🎯 FORCE RESET: Clearing state for Focus Boost');
+        console.log('FORCE RESET: Clearing state for Focus Boost');
         setActiveCollection(null); // Reset first
         setSelectedPlaylist(null);
         
@@ -498,10 +615,10 @@ export function SoundHealingPage() {
         setTimeout(() => {
           setActiveCollection('focus');
           setSelectedPlaylist('focus');
-          console.log('🎯 Focus Boost Data:', focusBoostData);
+          console.log('Focus Boost Data:', focusBoostData);
         }, 0);
       } else if (playlistId === 'nature') {
-        console.log('🌿 FORCE RESET: Clearing state for Nature Sounds');
+        console.log('FORCE RESET: Clearing state for Nature Sounds');
         setActiveCollection(null); // Reset first
         setSelectedPlaylist(null);
         
@@ -509,7 +626,7 @@ export function SoundHealingPage() {
         setTimeout(() => {
           setActiveCollection('nature');
           setSelectedPlaylist('nature');
-          console.log('🌿 Nature Sounds Data:', natureSoundsData);
+          console.log('Nature Sounds Data:', natureSoundsData);
         }, 0);
       } else {
         // Normal collection selection
@@ -538,14 +655,14 @@ export function SoundHealingPage() {
     setCurrentTime(0);
     setAdditionalTrackIndex(-1); // reset to main track
 
-    // Add to recently played — no duplicates, latest first, max 10
+    // Add to recently played - no duplicates, latest first, max 10
     setRecentTracks(prev => {
       const filtered = prev.filter(t => t.title !== track.title);
       return [track, ...filtered].slice(0, 10);
     });
 
     const audioSrc = track.audioUrl;
-    console.log('[SoundHealing] Playing (Global):', track.title, '→', audioSrc);
+    console.log('[SoundHealing] Playing (Global):', track.title, '->', audioSrc);
 
     // Update profile stats immediately when track starts playing
     try {
@@ -571,6 +688,57 @@ export function SoundHealingPage() {
 
   const closeActiveCard = () => {
     setActiveCard(null);
+  };
+
+  // ── Shared player control handlers (used by both sidebar and modal) ──────
+
+  const handlePlayPause = () => {
+    setIsPlaying(prev => !prev);
+  };
+
+  const handleSeekClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!audioRef.current || !duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    audioRef.current.currentTime = percent * duration;
+    setCurrentTime(percent * duration);
+    setPlayProgress(percent * 100);
+  };
+
+  const handlePrevTrack = () => {
+    const tracks = getFilteredTracks();
+    if (!tracks.length) return;
+    const currentIdx = tracks.findIndex(t => t.title === currentTrack?.title);
+    // If more than 3 seconds in, restart current track instead
+    if (audioRef.current && audioRef.current.currentTime > 3) {
+      audioRef.current.currentTime = 0;
+      return;
+    }
+    const prevIdx = currentIdx <= 0 ? tracks.length - 1 : currentIdx - 1;
+    handleCardClick(tracks[prevIdx], "global");
+  };
+
+  const handleNextTrack = () => {
+    const tracks = getFilteredTracks();
+    if (!tracks.length) return;
+    if (isShuffled) {
+      const randomIdx = Math.floor(Math.random() * tracks.length);
+      handleCardClick(tracks[randomIdx], "global");
+      return;
+    }
+    const currentIdx = tracks.findIndex(t => t.title === currentTrack?.title);
+    const nextIdx = currentIdx >= tracks.length - 1 ? 0 : currentIdx + 1;
+    handleCardClick(tracks[nextIdx], "global");
+  };
+
+  const handleToggleShuffle = () => setIsShuffled(prev => !prev);
+
+  const handleToggleRepeat = () => {
+    setIsRepeating(prev => {
+      const next = !prev;
+      if (audioRef.current) audioRef.current.loop = next;
+      return next;
+    });
   };
 
   const handleInstrumentClick = (instrument: any) => {
@@ -603,7 +771,7 @@ export function SoundHealingPage() {
   }, [showInstrumentModal]);
 
   
-  // nowPlaying is now a track object — no index-based init needed
+  // nowPlaying is now a track object - no index-based init needed
 
   const currentTrack = selectedTrack || nowPlaying || soundLibrary[0];
 
@@ -706,9 +874,24 @@ export function SoundHealingPage() {
         }
       }
 
-      // Full track finished: log if listened ≥5s (and not already logged at 5s milestone)
+      // Full track finished: log if listened >=5s (and not already logged at 5s milestone)
       if (listenedAtEnd >= 5 && user?.id) {
         await postSoundSession(Math.max(listenedAtEnd, 5));
+      }
+
+      // Auto-advance: if not repeating, play next track
+      if (!audioRef.current?.loop) {
+        const tracks = getFilteredTracks();
+        if (tracks.length > 1) {
+          const currentIdx = tracks.findIndex(t => t.title === (nowPlaying?.title || selectedTrack?.title));
+          let nextIdx: number;
+          if (isShuffled) {
+            nextIdx = Math.floor(Math.random() * tracks.length);
+          } else {
+            nextIdx = currentIdx >= tracks.length - 1 ? 0 : currentIdx + 1;
+          }
+          handleCardClick(tracks[nextIdx], "global");
+        }
       }
     };
 
@@ -745,7 +928,7 @@ export function SoundHealingPage() {
     }
   }, [volume]);
 
-  // Audio is loaded directly in handleCardClick — no index-based effect needed
+  // Audio is loaded directly in handleCardClick - no index-based effect needed
 
   const formatTime = (seconds: number) => {
     if (!isFinite(seconds)) return "0:00";
@@ -930,7 +1113,7 @@ export function SoundHealingPage() {
         <div className="relative z-10 container mx-auto px-6 pt-32 pb-20">
           <div className="flex items-center min-h-[80vh]">
             
-            {/* Left Content — full width */}
+            {/* Left Content - full width */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
@@ -1088,57 +1271,88 @@ export function SoundHealingPage() {
                 transition={{ duration: 0.6 }}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
               >
-                {getRecommendedSounds(selectedFeeling).map((sound, index) => (
-                  <motion.div
-                    key={sound.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ y: -8 }}
-                    className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-white/50"
-                    style={{ boxShadow: '0 8px 20px rgba(34, 139, 34, 0.08)' }}
-                  >
-                    <div className="relative aspect-[4/3] overflow-hidden">
-                      <img
-                        src={sound.image}
-                        alt={sound.title}
-                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                      
-                      {/* Play Button */}
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleCardClick(sound)}
-                        className="absolute bottom-4 right-4 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl"
-                      >
-                        <Play className="w-5 h-5 text-gray-700 ml-0.5" fill="currentColor" />
-                      </motion.button>
-
-                    </div>
-
-                    <div className="p-6">
-                      <h3 className="font-bold text-lg text-gray-800 mb-2" style={{ fontFamily: "'Cinzel', serif" }}>
-                        {sound.title}
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-4" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                        {sound.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                          {sound.category}
-                        </span>
-                        <span className="text-xs text-purple-600 font-medium">
-                          {sound.frequency}
-                        </span>
+                {moodCardsLoading[selectedFeeling] ? (
+                  <div className="col-span-full flex items-center justify-center py-10 gap-3">
+                    <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-gray-500 text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>Loading sounds...</span>
+                  </div>
+                ) : (
+                  getRecommendedSounds(selectedFeeling)
+                    .slice(0, moodVisibleCount[selectedFeeling] ?? MOOD_PAGE_SIZE)
+                    .map((sound, index) => (
+                    <motion.div
+                      key={sound._id || sound.id || index}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ y: -8 }}
+                      className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-white/50"
+                      style={{ boxShadow: '0 8px 20px rgba(34, 139, 34, 0.08)' }}
+                    >
+                      <div className="relative aspect-[4/3] overflow-hidden">
+                        <img
+                          src={sound.image || sound.thumbnailUrl || fallbackImages[index % fallbackImages.length]}
+                          alt={sound.title}
+                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                        {/* Play Button */}
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => handleCardClick(sound)}
+                          className="absolute bottom-4 right-4 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl"
+                        >
+                          <Play className="w-5 h-5 text-gray-700 ml-0.5" fill="currentColor" />
+                        </motion.button>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+                      <div className="p-6">
+                        <h3 className="font-bold text-lg text-gray-800 mb-2" style={{ fontFamily: "'Cinzel', serif" }}>
+                          {sound.title}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-4" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                          {sound.description}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                            {sound.category}
+                          </span>
+                          <span className="text-xs text-purple-600 font-medium">
+                            {sound.frequency}
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))
+                )}
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Load More — mood cards only, shown when more than MOOD_PAGE_SIZE cards exist */}
+          {selectedFeeling && !moodCardsLoading[selectedFeeling] && (() => {
+            const total = getRecommendedSounds(selectedFeeling).length;
+            const visibleCount = moodVisibleCount[selectedFeeling] ?? MOOD_PAGE_SIZE;
+            if (total <= visibleCount) return null;
+            return (
+              <div className="flex justify-center mt-6">
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() =>
+                    setMoodVisibleCount(prev => ({
+                      ...prev,
+                      [selectedFeeling]: visibleCount + MOOD_PAGE_SIZE,
+                    }))
+                  }
+                  className="px-8 py-3 rounded-full border-2 border-green-600 bg-white text-green-800 font-semibold text-sm shadow-md hover:bg-green-50 transition-colors"
+                  style={{ fontFamily: "'Poppins', sans-serif" }}
+                >
+                  Load More
+                </motion.button>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
@@ -1211,12 +1425,12 @@ export function SoundHealingPage() {
                   whileHover={{ x: 4 }}
                   onClick={() => handlePlaylistClick(playlist.id)}
                   className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all mb-2 ${activeCollection === playlist.id
-                    ? 'bg-gray-100 border border-gray-300 shadow-sm'
-                    : 'hover:bg-gray-50'
+                    ? 'bg-green-50 border border-green-300 shadow-sm'
+                    : 'hover:bg-green-50/50'
                     }`}
                 >
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 text-lg">
-                    {playlist.icon}
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 text-xl">
+                    {playlist.id === 'liked' ? '❤️' : '⏰'}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-semibold truncate ${activeCollection === playlist.id ? 'text-green-800' : 'text-gray-800'}`} style={{ fontFamily: "'Poppins', sans-serif" }}>
@@ -1233,7 +1447,7 @@ export function SoundHealingPage() {
               {/* Collections Section */}
               <div className="mt-6 mb-3">
                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-3" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                  📂 Collections
+                  Collections
                 </h3>
                 {playlists.filter(playlist => playlist.section === 'collections').map((playlist, idx) => (
                   <motion.div
@@ -1241,15 +1455,12 @@ export function SoundHealingPage() {
                     whileHover={{ x: 4 }}
                     onClick={() => handlePlaylistClick(playlist.id)}
                     className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all mb-1 ${activeCollection === playlist.id
-                      ? 'bg-gray-100 border border-gray-300 shadow-sm'
-                      : 'hover:bg-gray-50'
+                      ? 'bg-green-50 border border-green-300 shadow-sm'
+                      : 'hover:bg-green-50/50'
                       }`}
                   >
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${activeCollection === playlist.id 
-                      ? 'bg-gradient-to-br from-gray-200 to-gray-300' 
-                      : 'bg-gradient-to-br from-gray-100 to-gray-200'
-                    }`}>
-                      <span className="text-sm">📂</span>
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 text-xl">
+                      📁
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-semibold truncate ${activeCollection === playlist.id ? 'text-green-800' : 'text-gray-800'}`} style={{ fontFamily: "'Poppins', sans-serif" }}>
@@ -1462,7 +1673,6 @@ export function SoundHealingPage() {
                       {/* Classical Divider */}
                       <div className="flex items-center gap-3 mb-3">
                         <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-                        <span className="text-gray-400 text-xs">✦</span>
                         <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
                       </div>
 
@@ -1540,23 +1750,17 @@ export function SoundHealingPage() {
               {/* Classical Divider */}
               <div className="flex items-center gap-3 mb-5">
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-                <span className="text-gray-500 text-sm">✦</span>
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
               </div>
 
               {/* Progress */}
               <div className="mb-5">
-                <div 
+                <div
                   className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mb-2 cursor-pointer hover:h-2 transition-all"
-                  onClick={(e) => {
-                    if (!audioRef.current || !duration) return;
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const percent = (e.clientX - rect.left) / rect.width;
-                    audioRef.current.currentTime = percent * duration;
-                  }}
+                  onClick={handleSeekClick}
                 >
                   <motion.div
-                    className="h-full bg-gradient-to-r from-green-600 to-green-600"
+                    className="h-full bg-gradient-to-r from-green-600 to-green-600 pointer-events-none"
                     style={{ width: `${playProgress}%` }}
                   />
                 </div>
@@ -1569,26 +1773,15 @@ export function SoundHealingPage() {
               {/* Controls */}
               <div className="flex items-center justify-center gap-3 mb-5">
                 <button
-                  className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                  onClick={() => {
-                    const tracks = getFilteredTracks();
-                    if (!tracks.length) return;
-                    const random = tracks[Math.floor(Math.random() * tracks.length)];
-                    handleCardClick(random, "global");
-                  }}
-                  title="Shuffle"
+                  className={`p-2 transition-colors ${isShuffled ? 'text-green-600' : 'text-gray-400 hover:text-gray-600'}`}
+                  onClick={handleToggleShuffle}
+                  title={isShuffled ? 'Shuffle on' : 'Shuffle off'}
                 >
                   <Shuffle className="w-5 h-5" />
                 </button>
                 <button
                   className="p-2 text-gray-600 hover:text-gray-800 transition-colors"
-                  onClick={() => {
-                    const tracks = getFilteredTracks();
-                    if (!tracks.length) return;
-                    const currentIdx = tracks.findIndex(t => t.title === currentTrack?.title);
-                    const prevIdx = currentIdx <= 0 ? tracks.length - 1 : currentIdx - 1;
-                    handleCardClick(tracks[prevIdx], "global");
-                  }}
+                  onClick={handlePrevTrack}
                   title="Previous"
                 >
                   <SkipBack className="w-5 h-5" fill="currentColor" />
@@ -1596,7 +1789,7 @@ export function SoundHealingPage() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsPlaying(!isPlaying)}
+                  onClick={handlePlayPause}
                   className="w-14 h-14 bg-gradient-to-br from-green-600 to-green-600 rounded-full flex items-center justify-center shadow-lg"
                 >
                   {isPlaying ? (
@@ -1607,25 +1800,15 @@ export function SoundHealingPage() {
                 </motion.button>
                 <button
                   className="p-2 text-gray-600 hover:text-gray-800 transition-colors"
-                  onClick={() => {
-                    const tracks = getFilteredTracks();
-                    if (!tracks.length) return;
-                    const currentIdx = tracks.findIndex(t => t.title === currentTrack?.title);
-                    const nextIdx = currentIdx >= tracks.length - 1 ? 0 : currentIdx + 1;
-                    handleCardClick(tracks[nextIdx], "global");
-                  }}
+                  onClick={handleNextTrack}
                   title="Next"
                 >
                   <SkipForward className="w-5 h-5" fill="currentColor" />
                 </button>
                 <button
-                  className={`p-2 transition-colors ${audioRef.current?.loop ? 'text-green-600' : 'text-gray-400 hover:text-gray-600'}`}
-                  onClick={() => {
-                    if (audioRef.current) {
-                      audioRef.current.loop = !audioRef.current.loop;
-                    }
-                  }}
-                  title="Repeat"
+                  className={`p-2 transition-colors ${isRepeating ? 'text-green-600' : 'text-gray-400 hover:text-gray-600'}`}
+                  onClick={handleToggleRepeat}
+                  title={isRepeating ? 'Repeat on' : 'Repeat off'}
                 >
                   <Repeat className="w-5 h-5" />
                 </button>
@@ -1657,7 +1840,7 @@ export function SoundHealingPage() {
               <div className="mt-6 p-4 bg-gray-50 rounded-xl">
                 <p className="text-xs text-gray-400 mb-1 uppercase tracking-wider">Details</p>
                 <p className="text-sm text-gray-600" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                  {currentTrack?.category} · {currentTrack?.frequency}
+                  {currentTrack?.category} &middot; {currentTrack?.frequency}
                 </p>
                 <p className="text-sm text-gray-500 mt-2 leading-relaxed">
                   {currentTrack?.description}
@@ -1740,9 +1923,12 @@ export function SoundHealingPage() {
 
                 {/* Progress */}
                 <div className="mb-6">
-                  <div className="w-full h-1.5 bg-green-200 rounded-full overflow-hidden mb-2">
+                  <div
+                    className="w-full h-1.5 bg-green-200 rounded-full overflow-hidden mb-2 cursor-pointer hover:h-2 transition-all"
+                    onClick={handleSeekClick}
+                  >
                     <motion.div
-                      className="h-full bg-green-600"
+                      className="h-full bg-green-600 pointer-events-none"
                       style={{ width: `${playProgress}%` }}
                     />
                   </div>
@@ -1754,16 +1940,24 @@ export function SoundHealingPage() {
 
                 {/* Controls */}
                 <div className="flex items-center justify-center gap-5 mb-6">
-                  <button className="p-2 text-green-600/60 hover:text-green-800 transition-colors">
+                  <button
+                    className={`p-2 transition-colors ${isShuffled ? 'text-green-600' : 'text-green-600/60 hover:text-green-800'}`}
+                    onClick={handleToggleShuffle}
+                    title={isShuffled ? 'Shuffle on' : 'Shuffle off'}
+                  >
                     <Shuffle className="w-5 h-5" />
                   </button>
-                  <button className="p-2 text-green-800 hover:scale-105 transition-transform">
+                  <button
+                    className="p-2 text-green-800 hover:scale-105 transition-transform"
+                    onClick={handlePrevTrack}
+                    title="Previous"
+                  >
                     <SkipBack className="w-6 h-6" fill="currentColor" />
                   </button>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setIsPlaying(!isPlaying)}
+                    onClick={handlePlayPause}
                     className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center shadow-xl"
                   >
                     {isPlaying ? (
@@ -1772,10 +1966,18 @@ export function SoundHealingPage() {
                       <Play className="w-7 h-7 text-white ml-1" fill="currentColor" />
                     )}
                   </motion.button>
-                  <button className="p-2 text-green-800 hover:scale-105 transition-transform">
+                  <button
+                    className="p-2 text-green-800 hover:scale-105 transition-transform"
+                    onClick={handleNextTrack}
+                    title="Next"
+                  >
                     <SkipForward className="w-6 h-6" fill="currentColor" />
                   </button>
-                  <button className="p-2 text-green-600/60 hover:text-green-800 transition-colors">
+                  <button
+                    className={`p-2 transition-colors ${isRepeating ? 'text-green-600' : 'text-green-600/60 hover:text-green-800'}`}
+                    onClick={handleToggleRepeat}
+                    title={isRepeating ? 'Repeat on' : 'Repeat off'}
+                  >
                     <Repeat className="w-5 h-5" />
                   </button>
                 </div>
@@ -1850,14 +2052,9 @@ export function SoundHealingPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
                   >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                        <span className="text-green-600 text-sm font-bold">—</span>
-                      </div>
-                      <h3 className="text-xl font-semibold text-gray-800" style={{ fontFamily: "'Cinzel', serif" }}>
-                        History
-                      </h3>
-                    </div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4" style={{ fontFamily: "'Cinzel', serif" }}>
+                      History
+                    </h3>
                     <p className="text-gray-600 leading-relaxed" style={{ fontFamily: "'Poppins', sans-serif" }}>
                       {selectedInstrument.history}
                     </p>
@@ -1875,14 +2072,9 @@ export function SoundHealingPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                   >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                        <span className="text-green-600 text-sm font-bold">—</span>
-                      </div>
-                      <h3 className="text-xl font-semibold text-gray-800" style={{ fontFamily: "'Cinzel', serif" }}>
-                        Science
-                      </h3>
-                    </div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4" style={{ fontFamily: "'Cinzel', serif" }}>
+                      Science
+                    </h3>
                     <p className="text-gray-600 leading-relaxed" style={{ fontFamily: "'Poppins', sans-serif" }}>
                       {selectedInstrument.science}
                     </p>
@@ -1900,14 +2092,9 @@ export function SoundHealingPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                   >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                        <span className="text-green-600 text-sm font-bold">—</span>
-                      </div>
-                      <h3 className="text-xl font-semibold text-gray-800" style={{ fontFamily: "'Cinzel', serif" }}>
-                        Benefits
-                      </h3>
-                    </div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4" style={{ fontFamily: "'Cinzel', serif" }}>
+                      Benefits
+                    </h3>
                     <div className="text-gray-600 leading-relaxed" style={{ fontFamily: "'Poppins', sans-serif" }}>
                       {selectedInstrument.benefits.split('\n').map((benefit: string, idx: number) => (
                         <div key={idx} className="mb-2">
