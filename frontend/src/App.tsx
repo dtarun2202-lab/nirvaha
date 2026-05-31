@@ -1,12 +1,16 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from './components/ui/toaster';
+import LearningCatalogPage from './pages/LearningCatalogPage';
+import LearningPathPage from './pages/LearningPathPage';
+import CoursePlayerPage from './pages/CoursePlayerPage';
 import { Toaster as Sonner } from './components/ui/sonner';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { SocketProvider } from './contexts/SocketContext';
 import BreathingPage from "./pages/BreathingPage";
 import LandingPage from './pages/LandingPage';
-import NirvahaAcademyPage from './pages/NirvahaAcademyPage';
+import CertificationsPage from './pages/CertificationsPage';
+
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 import StoriesPage from './pages/StoriesPage';
@@ -29,10 +33,7 @@ import { CompanionPage } from "./components/pages/CompanionPage";
 import { ProfilePage } from "./components/ProfilePage";
 import { Navigation } from "./components/Navigation";
 import { DashboardPage } from "./components/pages/DashboardPage";
-import PathwaysPage from './pages/PathwaysPage';
-import PathwayDetailPage from './pages/PathwayDetailPage';
-import PathwayJourney from './pages/PathwayJourney';
-import SyllabusPage from './pages/SyllabusPage';
+
 import LibraryDetailPage from './pages/LibraryDetailPage';
 import StoryDetailPage from './pages/StoryDetailPage';
 import ChakraExperiencePage from './pages/ChakraExperiencePage';
@@ -91,14 +92,13 @@ function AppInner() {
       <Routes>
         {/* Public Landing Page */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/academy" element={<NirvahaAcademyPage />} />
+        <Route path="/certifications" element={<CertificationsPage />} />
+        <Route path="/learn" element={<LearningCatalogPage />} />
+        <Route path="/learn/:pathId" element={<LearningPathPage />} />
+        <Route path="/learn/:pathId/play" element={<CoursePlayerPage />} />
         <Route path="/stories" element={<StoriesPage />} />
         <Route path="/success-story/:id" element={<SuccessStoryDetail />} />
         <Route path="/journey/:topicId" element={<JourneyPage />} />
-        <Route path="/pathways" element={<PathwaysPage />} />
-        <Route path="/pathways/:id" element={<PathwayDetailPage />} />
-        <Route path="/pathways/:id/journey" element={<PathwayJourney />} />
-        <Route path="/pathways/:id/syllabus" element={<SyllabusPage />} />
         <Route path="/library/:id" element={<LibraryDetailPage />} />
         <Route path="/story/:id" element={<StoryDetailPage />} />
         <Route path="/chakra-experience" element={<ChakraExperiencePage />} />

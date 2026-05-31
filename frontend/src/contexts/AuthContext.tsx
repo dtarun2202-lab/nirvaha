@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import BACKEND_CONFIG from "../config/backend";
-import { auth, googleProvider, githubProvider } from "../config/firebase";
+import { auth, googleProvider } from "../config/firebase";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -68,7 +68,6 @@ interface AuthContextType {
   loginWithEmail: (email: string, password: string) => Promise<void>;
   signupWithEmail: (name: string, email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
-  loginWithGithub: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -84,7 +83,6 @@ const AuthContext = createContext<AuthContextType>({
   loginWithEmail: async () => {},
   signupWithEmail: async () => {},
   loginWithGoogle: async () => {},
-  loginWithGithub: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -295,26 +293,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginWithGithub = async () => {
-    try {
-      const isFirebaseConfigured = !!import.meta.env.VITE_FIREBASE_API_KEY;
-      if (!isFirebaseConfigured) {
-        await performMockDeveloperLogin("github.user@example.com", "GitHub Contributor");
-        return;
-      }
-      const result = await signInWithPopup(auth, githubProvider);
-      const idToken = await result.user.getIdToken();
-      await authenticateWithBackend(idToken);
-    } catch (error: any) {
-      console.error("loginWithGithub error:", error);
-      if (error.code === "auth/invalid-api-key" || error.code === "auth/invalid-config" || error.code === "auth/operation-not-allowed") {
-        console.warn("Config error caught. Bypassing Firebase for local testing.");
-        await performMockDeveloperLogin("github.user@example.com", "GitHub Contributor");
-      } else {
-        throw error;
-      }
-    }
-  };
+
 
   const updateProfile = (profile: UserProfile) => {
     if (!user) return;
@@ -345,7 +324,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loginWithEmail,
         signupWithEmail,
         loginWithGoogle,
-        loginWithGithub,
       }}
     >
       {children}

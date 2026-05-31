@@ -1052,8 +1052,8 @@ export function CompanionPage() {
                       className="bg-white/80 backdrop-blur-md rounded-3xl p-6 border border-emerald-100/50 shadow-xl shadow-emerald-900/5 flex items-center justify-between group hover:border-emerald-200 transition-colors"
                     >
                       <div className="space-y-1">
-                        <p className="text-xs font-black uppercase tracking-wider text-emerald-800/40">{stat.title}</p>
-                        <p className="text-2xl md:text-3xl font-black text-emerald-955">{stat.value}</p>
+                        <p className="text-xs font-black uppercase tracking-wider text-emerald-800/60">{stat.title}</p>
+                        <p className="text-2xl md:text-3xl font-black text-[#1B4332]">{stat.value}</p>
                       </div>
                       <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${stat.color} border flex items-center justify-center relative`}>
                         {stat.pulse && (
@@ -1101,13 +1101,13 @@ export function CompanionPage() {
                     <div>
                       <div className="flex items-center gap-2 mb-6">
                         <AlertCircle className="w-5 h-5 text-amber-500" />
-                        <h2 className="text-2xl font-black tracking-tight text-emerald-955">Pending Requests ({companionSessions.filter(s => s.status?.toLowerCase().includes("pending")).length})</h2>
+                        <h2 className="text-2xl font-black tracking-tight text-[#1B4332]">Pending Requests ({companionSessions.filter(s => s.status?.toLowerCase().includes("pending")).length})</h2>
                       </div>
 
                       {companionSessions.filter(s => s.status?.toLowerCase().includes("pending")).length === 0 ? (
                         <div className="text-center py-12 bg-white/40 rounded-3xl border border-dashed border-emerald-100 flex flex-col items-center">
                           <Users className="w-8 h-8 text-emerald-300 mb-2" />
-                          <p className="text-emerald-805/40 font-bold">No pending booking requests at this time.</p>
+                          <p className="text-emerald-800/60 font-bold">No pending booking requests at this time.</p>
                         </div>
                       ) : (
                         <div className="grid md:grid-cols-2 gap-6">
@@ -1154,7 +1154,7 @@ export function CompanionPage() {
                                   placeholder="Add custom onboarding message or guidelines..."
                                   value={sessionNotesInput[session._id || session.id] || ""}
                                   onChange={(e) => setSessionNotesInput(prev => ({ ...prev, [session._id || session.id]: e.target.value }))}
-                                  className="w-full bg-emerald-50/20 border border-emerald-100 rounded-2xl px-4 py-3 text-xs text-emerald-955 placeholder-emerald-805/40 focus:outline-none focus:border-emerald-500"
+                                  className="w-full bg-emerald-50/20 border border-emerald-100 rounded-2xl px-4 py-3 text-xs text-[#1B4332] placeholder-emerald-800/50 focus:outline-none focus:border-emerald-500"
                                   rows={2}
                                 />
                                 <div className="grid grid-cols-2 gap-3">
@@ -1184,13 +1184,13 @@ export function CompanionPage() {
                     <div>
                       <div className="flex items-center gap-2 mb-6">
                         <CheckCircle className="w-5 h-5 text-emerald-500" />
-                        <h2 className="text-2xl font-black tracking-tight text-emerald-955">Upcoming Confirmed Sessions ({companionSessions.filter(s => s.status === "Session Confirmed" || s.status === "approved").length})</h2>
+                        <h2 className="text-2xl font-black tracking-tight text-[#1B4332]">Upcoming Confirmed Sessions ({companionSessions.filter(s => s.status === "Session Confirmed" || s.status === "approved").length})</h2>
                       </div>
 
                       {companionSessions.filter(s => s.status === "Session Confirmed" || s.status === "approved").length === 0 ? (
                         <div className="text-center py-12 bg-white/40 rounded-3xl border border-dashed border-emerald-100 flex flex-col items-center">
                           <Calendar className="w-8 h-8 text-emerald-300 mb-2" />
-                          <p className="text-emerald-805/40 font-bold">No upcoming sessions scheduled yet.</p>
+                          <p className="text-emerald-800/60 font-bold">No upcoming sessions scheduled yet.</p>
                         </div>
                       ) : (
                         <div className="grid md:grid-cols-2 gap-6">
@@ -1259,13 +1259,13 @@ export function CompanionPage() {
                 {activeTab === "history" && (
                   <div className="bg-white rounded-[32px] p-6 md:p-8 border border-emerald-50 shadow-2xl">
                     <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-2xl font-black text-emerald-955">Session History Archive</h2>
+                      <h2 className="text-2xl font-black text-[#1B4332]">Session History Archive</h2>
                     </div>
 
                     {companionSessions.filter(s => s.status === "completed" || s.status === "rejected").length === 0 ? (
                       <div className="text-center py-20 flex flex-col items-center">
                         <FileText className="w-12 h-12 text-emerald-200 mb-4" />
-                        <p className="text-xl text-emerald-805/40 font-bold">Your session history is currently empty.</p>
+                        <p className="text-xl text-emerald-800/60 font-bold">Your session history is currently empty.</p>
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
@@ -1279,7 +1279,7 @@ export function CompanionPage() {
                               <th className="py-4">Feedback / Notes</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-emerald-50 text-sm font-semibold text-emerald-955">
+                          <tbody className="divide-y divide-emerald-50 text-sm font-semibold text-[#1B4332]">
                             {companionSessions
                               .filter(s => s.status === "completed" || s.status === "rejected")
                               .map((session) => (
@@ -1320,7 +1320,7 @@ export function CompanionPage() {
                   <div className="space-y-8">
                     <div className="grid lg:grid-cols-3 gap-6">
                       <div className="lg:col-span-2 bg-white rounded-[32px] p-6 md:p-8 border border-emerald-50 shadow-2xl">
-                        <h3 className="text-lg font-black text-emerald-955 mb-6 flex items-center gap-2">
+                        <h3 className="text-lg font-black text-[#1B4332] mb-6 flex items-center gap-2">
                           <TrendingUp className="w-5 h-5 text-emerald-600" />
                           Practice Earnings Trend (Weekly)
                         </h3>
@@ -1353,7 +1353,7 @@ export function CompanionPage() {
 
                       <div className="bg-white rounded-[32px] p-6 md:p-8 border border-emerald-50 shadow-2xl flex flex-col justify-between">
                         <div>
-                          <h3 className="text-lg font-black text-emerald-955 mb-6 flex items-center gap-2">
+                          <h3 className="text-lg font-black text-[#1B4332] mb-6 flex items-center gap-2">
                             <Activity className="w-5 h-5 text-emerald-600" />
                             Session Breakdown
                           </h3>
@@ -1382,7 +1382,7 @@ export function CompanionPage() {
                           </div>
                         </div>
 
-                        <div className="pt-4 border-t border-emerald-50 text-xs text-emerald-805/50 leading-relaxed font-bold text-center">
+                        <div className="pt-4 border-t border-emerald-50 text-xs text-emerald-800/60 leading-relaxed font-bold text-center">
                           Breakdown of all registered practice sessions inside Nirvaha.
                         </div>
                       </div>
@@ -1405,7 +1405,7 @@ export function CompanionPage() {
                           </div>
                         </div>
 
-                        <h3 className="text-2xl font-black text-emerald-955 text-center mb-1">
+                        <h3 className="text-2xl font-black text-[#1B4332] text-center mb-1">
                           {companionProfile?.name || "Your Name"}
                         </h3>
                         <p className="text-sm font-bold text-emerald-600 mb-4 uppercase tracking-wider">
@@ -1414,12 +1414,12 @@ export function CompanionPage() {
 
                         <div className="w-full grid grid-cols-2 gap-3 py-4 border-t border-b border-emerald-50 mb-6">
                           <div className="text-center">
-                            <p className="text-[10px] font-black uppercase text-emerald-800/40">Hourly Rate</p>
-                            <p className="text-base font-bold text-emerald-955">{companionProfile?.hourlyRate || "₹1000"}</p>
+                            <p className="text-[10px] font-black uppercase text-emerald-800/60">Hourly Rate</p>
+                            <p className="text-base font-bold text-[#1B4332]">{companionProfile?.hourlyRate || "₹1000"}</p>
                           </div>
                           <div className="text-center border-l border-emerald-50">
-                            <p className="text-[10px] font-black uppercase text-emerald-800/40">Per Call Rate</p>
-                            <p className="text-base font-bold text-emerald-955">{companionProfile?.callRate || "₹500"}</p>
+                            <p className="text-[10px] font-black uppercase text-emerald-800/60">Per Call Rate</p>
+                            <p className="text-base font-bold text-[#1B4332]">{companionProfile?.callRate || "₹500"}</p>
                           </div>
                         </div>
 
@@ -1431,7 +1431,7 @@ export function CompanionPage() {
 
                       <div className="w-full lg:w-2/3 space-y-6">
                         <div>
-                          <h4 className="text-sm font-black uppercase tracking-wider text-emerald-855 mb-2">Expert Bio & Guidelines</h4>
+                          <h4 className="text-sm font-black uppercase tracking-wider text-emerald-800 mb-2">Expert Bio & Guidelines</h4>
                           <p className="text-sm leading-relaxed text-emerald-800/70 bg-emerald-50/20 p-5 rounded-2xl border border-emerald-50">
                             {companionProfile?.fullAbout || companionProfile?.bio || "No expanded bio provided."}
                           </p>
@@ -1439,7 +1439,7 @@ export function CompanionPage() {
 
                         <div className="grid md:grid-cols-2 gap-6">
                           <div>
-                            <h4 className="text-sm font-black uppercase tracking-wider text-emerald-855 mb-3">Guiding Specialties</h4>
+                            <h4 className="text-sm font-black uppercase tracking-wider text-emerald-800 mb-3">Guiding Specialties</h4>
                             <div className="flex flex-wrap gap-2">
                               {companionProfile?.specialties?.map((tag: string, i: number) => (
                                 <span key={i} className="px-3.5 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">
@@ -1450,7 +1450,7 @@ export function CompanionPage() {
                           </div>
 
                           <div>
-                            <h4 className="text-sm font-black uppercase tracking-wider text-emerald-855 mb-3">Spoken Languages</h4>
+                            <h4 className="text-sm font-black uppercase tracking-wider text-emerald-800 mb-3">Spoken Languages</h4>
                             <div className="flex flex-wrap gap-2">
                               {companionProfile?.languages?.map((lang: string, i: number) => (
                                 <span key={i} className="px-3.5 py-1.5 bg-teal-50 text-teal-700 text-xs font-bold rounded-full border border-teal-100">
@@ -1550,7 +1550,7 @@ export function CompanionPage() {
                 transition={{ duration: 0.8 }}
                 className="text-center mb-16"
               >
-                <h1 className="text-6xl md:text-8xl font-bold mb-6 tracking-tight text-emerald-955 font-black">
+                <h1 className="text-6xl md:text-8xl font-bold mb-6 tracking-tight text-[#1B4332] font-black">
                   Find Your Perfect <br/>
                   <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Spiritual Guide</span>
                 </h1>
@@ -1621,7 +1621,7 @@ export function CompanionPage() {
                   </div>
 
                   <div className="mt-4 flex flex-col items-center">
-                    <p className="text-emerald-805/60 text-sm font-medium tracking-wide">
+                    <p className="text-emerald-800/60 text-sm font-medium tracking-wide">
                       Choose your journey — receive healing or help others heal.
                     </p>
                   </div>
@@ -1709,7 +1709,7 @@ export function CompanionPage() {
                                   className={`flex items-center justify-between px-4 py-3 rounded-2xl border text-sm font-semibold transition-all ${
                                     isChecked 
                                     ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm shadow-emerald-100" 
-                                    : "bg-white/50 border-gray-100 hover:border-emerald-100 text-emerald-955/70"
+                                    : "bg-white/50 border-gray-100 hover:border-emerald-100 text-[#1B4332]/70"
                                   }`}
                                 >
                                   <span>{actualLabel}</span>
@@ -1733,7 +1733,7 @@ export function CompanionPage() {
                               className={`flex-1 py-2.5 rounded-xl border text-xs font-bold transition-all ${
                                 priceSort === "low-to-high"
                                 ? "bg-emerald-600 border-emerald-600 text-white shadow-sm"
-                                : "bg-white/50 border-gray-100 text-emerald-955/70 hover:border-emerald-100"
+                                : "bg-white/50 border-gray-100 text-[#1B4332]/70 hover:border-emerald-100"
                               }`}
                             >
                               ₹ Low to High
@@ -1743,7 +1743,7 @@ export function CompanionPage() {
                               className={`flex-1 py-2.5 rounded-xl border text-xs font-bold transition-all ${
                                 priceSort === "high-to-low"
                                 ? "bg-emerald-600 border-emerald-600 text-white shadow-sm"
-                                : "bg-white/50 border-gray-100 text-emerald-955/70 hover:border-emerald-100"
+                                : "bg-white/50 border-gray-100 text-[#1B4332]/70 hover:border-emerald-100"
                               }`}
                             >
                               ₹ High to Low
@@ -1768,7 +1768,7 @@ export function CompanionPage() {
                                   className={`flex items-center justify-between px-4 py-3 rounded-2xl border text-sm font-semibold transition-all ${
                                     isChecked 
                                     ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm" 
-                                    : "bg-white/50 border-gray-100 hover:border-emerald-100 text-emerald-955/70"
+                                    : "bg-white/50 border-gray-100 hover:border-emerald-100 text-[#1B4332]/70"
                                   }`}
                                 >
                                   <span>{range.label}</span>
@@ -1802,8 +1802,8 @@ export function CompanionPage() {
                                   }}
                                   className={`py-3 rounded-2xl border text-xs font-bold transition-all text-center ${
                                     isChecked 
-                                    ? "bg-emerald-50 border-emerald-300 text-emerald-850 shadow-sm" 
-                                    : "bg-white/50 border-gray-100 hover:border-emerald-100 text-emerald-955/70"
+                                    ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm" 
+                                    : "bg-white/50 border-gray-100 hover:border-emerald-100 text-[#1B4332]/70"
                                   }`}
                                 >
                                   {slot.label}
@@ -1827,8 +1827,8 @@ export function CompanionPage() {
                                   }}
                                   className={`flex items-center justify-between px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all ${
                                     isChecked 
-                                    ? "bg-emerald-50 border-emerald-300 text-emerald-850 shadow-sm" 
-                                    : "bg-white/50 border-gray-100 hover:border-emerald-100 text-emerald-955/70"
+                                    ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm" 
+                                    : "bg-white/50 border-gray-100 hover:border-emerald-100 text-[#1B4332]/70"
                                   }`}
                                 >
                                   <span>{dayOption.label}</span>
@@ -1862,8 +1862,8 @@ export function CompanionPage() {
                                   }}
                                   className={`flex items-center justify-between px-4 py-3 rounded-2xl border text-sm font-semibold transition-all ${
                                     isChecked 
-                                    ? "bg-emerald-50 border-emerald-300 text-emerald-850 shadow-sm" 
-                                    : "bg-white/50 border-gray-100 hover:border-emerald-100 text-emerald-955/70"
+                                    ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm" 
+                                    : "bg-white/50 border-gray-100 hover:border-emerald-100 text-[#1B4332]/70"
                                   }`}
                                 >
                                   <span>{exp.label}</span>
@@ -1894,8 +1894,8 @@ export function CompanionPage() {
                                   }}
                                   className={`flex items-center justify-between px-4 py-3 rounded-2xl border text-sm font-semibold transition-all ${
                                     isSelected 
-                                    ? "bg-emerald-50 border-emerald-300 text-emerald-850 shadow-sm shadow-emerald-100" 
-                                    : "bg-white/50 border-gray-100 hover:border-emerald-100 text-emerald-955/70"
+                                    ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm shadow-emerald-100" 
+                                    : "bg-white/50 border-gray-100 hover:border-emerald-100 text-[#1B4332]/70"
                                   }`}
                                 >
                                   <span className="flex items-center gap-1">
@@ -1926,8 +1926,8 @@ export function CompanionPage() {
                                   }}
                                   className={`py-3 rounded-2xl border text-xs font-bold transition-all text-center ${
                                     isChecked 
-                                    ? "bg-emerald-50 border-emerald-300 text-emerald-855 shadow-sm" 
-                                    : "bg-white/50 border-gray-100 hover:border-emerald-100 text-emerald-955/70"
+                                    ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm" 
+                                    : "bg-white/50 border-gray-100 hover:border-emerald-100 text-[#1B4332]/70"
                                   }`}
                                 >
                                   {lang}
@@ -2019,7 +2019,7 @@ export function CompanionPage() {
                               <div className="absolute bottom-1 right-3 w-6 h-6 bg-emerald-500 border-4 border-white rounded-full z-20" />
                             </div>
                             <div className="z-10">
-                              <h3 className="text-2xl font-black text-emerald-955 mb-1">{companion.name}</h3>
+                              <h3 className="text-2xl font-black text-[#1B4332] mb-1">{companion.name}</h3>
                               <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider rounded-full border border-emerald-100">
                                 <Sparkles className="w-3 h-3" />
                                 {companion.category}
@@ -2045,18 +2045,18 @@ export function CompanionPage() {
                             <div className="grid grid-cols-3 gap-2 py-4 bg-emerald-50/40 rounded-3xl border border-emerald-50">
                               <div className="flex flex-col items-center border-r border-emerald-100">
                                 <div className="flex items-center gap-1 mb-0.5">
-                                  <Star className="w-3 h-3 text-emerald-500 fill-emerald-500" />
-                                  <span className="text-xs font-black text-emerald-955">{companion.rating}</span>
+                                  <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                                  <span className="text-sm font-black text-[#1B4332]">{companion.rating}</span>
                                 </div>
-                                <span className="text-[8px] uppercase tracking-tighter font-bold text-emerald-805/40 text-center">Rating</span>
+                                <span className="text-[9px] uppercase tracking-wider font-extrabold text-[#2D6A4F] text-center">Rating</span>
                               </div>
                               <div className="flex flex-col items-center border-r border-emerald-100">
-                                <span className="text-xs font-black text-emerald-955 mb-0.5">{companion.sessions}+</span>
-                                <span className="text-[8px] uppercase tracking-tighter font-bold text-emerald-805/40 text-center">Sessions</span>
+                                <span className="text-sm font-black text-[#1B4332] mb-0.5">{companion.sessions}+</span>
+                                <span className="text-[9px] uppercase tracking-wider font-extrabold text-[#2D6A4F] text-center">Sessions</span>
                               </div>
                               <div className="flex flex-col items-center">
-                                <span className="text-xs font-black text-emerald-900 mb-0.5">{companion.price}</span>
-                                <span className="text-[8px] uppercase tracking-tighter font-bold text-emerald-805/40 text-center">Per Hour</span>
+                                <span className="text-sm font-black text-[#1B4332] mb-0.5">{companion.price}</span>
+                                <span className="text-[9px] uppercase tracking-wider font-extrabold text-[#2D6A4F] text-center">Per Hour</span>
                               </div>
                             </div>
                           </div>
@@ -2122,7 +2122,7 @@ export function CompanionPage() {
                 <div className="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mx-auto mb-8">
                   <MessageCircle className="w-10 h-10 text-emerald-600" />
                 </div>
-                <h2 className="text-3xl font-bold text-emerald-955 mb-4">Instantly connect</h2>
+                <h2 className="text-3xl font-bold text-[#1B4332] mb-4">Instantly connect</h2>
                 <p className="text-emerald-800/60 mb-10">Available guides are ready to support you right now.</p>
                 
                 <div className="grid gap-4">
@@ -2201,10 +2201,10 @@ export function CompanionPage() {
                 </div>
 
                 <div className="mb-8 text-center">
-                  <h2 className="text-3xl sm:text-4xl font-black text-teal-950 mb-2">
+                  <h2 className="text-3xl sm:text-4xl font-black text-[#1B4332] mb-2">
                     {selectedCompanion.name}
                   </h2>
-                  <p className="text-teal-600 font-bold mb-4 flex items-center justify-center gap-2">
+                  <p className="text-emerald-700 font-bold mb-4 flex items-center justify-center gap-2">
                     <Sparkles className="w-4 h-4" />
                     {selectedCompanion.title}
                   </p>
@@ -2233,13 +2233,13 @@ export function CompanionPage() {
                   {/* Quote */}
                   {selectedCompanion.quote && (
                     <div className="p-4 bg-teal-50 border-l-4 border-teal-500 rounded-r-xl">
-                      <p className="text-teal-805 italic font-medium">"{selectedCompanion.quote}"</p>
+                      <p className="text-teal-800 italic font-medium">"{selectedCompanion.quote}"</p>
                     </div>
                   )}
 
                   <div>
                     <h4 className="text-sm font-semibold text-teal-800 mb-2">About</h4>
-                    <p className="text-sm text-teal-750 leading-relaxed">{selectedCompanion.fullAbout || selectedCompanion.bio}</p>
+                    <p className="text-sm text-teal-700 leading-relaxed">{selectedCompanion.fullAbout || selectedCompanion.bio}</p>
                   </div>
 
                   {selectedCompanion.experience && selectedCompanion.experience.length > 0 && (
@@ -2247,7 +2247,7 @@ export function CompanionPage() {
                       <h4 className="text-sm font-semibold text-teal-800 mb-2">Experience</h4>
                       <ul className="list-disc pl-5 space-y-1">
                         {selectedCompanion.experience.map((exp: string, idx: number) => (
-                          <li key={idx} className="text-sm text-teal-750">{exp}</li>
+                          <li key={idx} className="text-sm text-teal-700">{exp}</li>
                         ))}
                       </ul>
                     </div>
@@ -2258,7 +2258,7 @@ export function CompanionPage() {
                       <h4 className="text-sm font-semibold text-teal-800 mb-2">Session Style</h4>
                       <ul className="list-disc pl-5 space-y-1">
                         {selectedCompanion.sessionStyle.map((style: string, idx: number) => (
-                          <li key={idx} className="text-sm text-teal-750">{style}</li>
+                          <li key={idx} className="text-sm text-teal-700">{style}</li>
                         ))}
                       </ul>
                     </div>
@@ -2299,7 +2299,7 @@ export function CompanionPage() {
                   {selectedCompanion.availability && (
                     <div>
                       <h4 className="text-sm font-semibold text-teal-800 mb-2">Availability</h4>
-                      <div className="flex items-center gap-2 text-sm text-teal-750">
+                      <div className="flex items-center gap-2 text-sm text-teal-700">
                         <Clock className="w-4 h-4 text-emerald-500" />
                         <span>{selectedCompanion.availability}</span>
                       </div>

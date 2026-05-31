@@ -102,15 +102,6 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
                 <span className="text-lg font-bold uppercase tracking-wider">Home</span>
               </motion.button>
 
-              <motion.button
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => handleNavigate('/pathways')}
-                className="flex items-center gap-2 px-4 py-2 text-black/70 hover:text-black transition-all"
-              >
-                <span className="text-lg font-bold uppercase tracking-wider">Academy</span>
-              </motion.button>
-
               {/* Features Dropdown */}
               <div className="relative">
                 <motion.button
@@ -227,13 +218,6 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
                   className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-white/10 rounded-xl"
                 >
                   <span className="font-semibold drop-shadow-sm">Home</span>
-                </button>
-
-                <button
-                  onClick={() => handleNavigate('/pathways')}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-white/10 rounded-xl"
-                >
-                  <span className="font-semibold drop-shadow-sm">Academy</span>
                 </button>
 
                 <div className="space-y-2">

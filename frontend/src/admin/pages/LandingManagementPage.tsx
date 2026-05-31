@@ -26,7 +26,6 @@ interface Section {
 
 const SECTIONS: Section[] = [
   { id: 'hero', label: 'Hero Section', icon: <ImageIcon size={18} /> },
-  { id: 'academy', label: 'Nirvaha Academy', icon: <CheckCircle2 size={18} /> },
   { id: 'stats', label: 'Trusted Stats', icon: <Plus size={18} /> },
   { id: 'wisdom', label: 'Ancient Wisdom', icon: <Type size={18} /> },
   { id: 'settings', label: 'Access Controls', icon: <Shield size={18} /> }

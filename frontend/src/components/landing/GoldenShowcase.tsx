@@ -25,7 +25,7 @@ const GoldenShowcase: React.FC = () => {
       subtitle: "Neuroscience Meets Spirit",
       desc: "We leverage cutting-edge tech to quantify spiritual growth, making the intangible measurable for modern seekers.",
       btn: "Explore Tech",
-      route: "/pathways"
+      route: "/certifications"
     },
     {
       image: "/image 03.png",
@@ -172,14 +172,14 @@ const GoldenShowcase: React.FC = () => {
                   
                   // Check if this route requires protection (most of these do, like dashboard)
                   // For safety, we can just protect all of them since the user requested these specific buttons.
-                  if (!user) {
+                  if (!user && targetRoute.startsWith('/dashboard')) {
                     sessionStorage.setItem("redirectUrl", targetRoute);
                     navigate("/login");
                   } else {
                     navigate(targetRoute);
                   }
                 }}
-                className="group relative px-12 py-5 rounded-full bg-[#1a442f] text-white font-semibold text-xl overflow-hidden border border-[#23583e] transition-all duration-500 shadow-2xl hover:shadow-[0_20px_40px_rgba(26,68,47,0.4)] hover:-translate-y-1"
+                className="group relative px-12 py-5 rounded-full bg-[#1a442f] text-white font-black text-2xl overflow-hidden border border-[#23583e] transition-all duration-500 shadow-2xl hover:shadow-[0_20px_40px_rgba(26,68,47,0.4)] hover:-translate-y-1"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
                 <span className="relative z-10 transition-colors group-hover:text-white">{slideData[currentSlide].btn}</span>
