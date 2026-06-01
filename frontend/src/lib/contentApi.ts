@@ -118,3 +118,91 @@ export async function updateSound(id: string, payload: SoundPayload): Promise<So
 export async function deleteSound(id: string): Promise<void> {
   await requestJson<void>(`/api/sounds/${id}`, { method: "DELETE" });
 }
+
+// ─── Pose Management ──────────────────────────────────────────────────────────
+
+export type PoseItem = {
+  id: string;
+  name: string;
+  sanskritName?: string;
+  poseNumber?: number;
+  category?: string;
+  shortCaption?: string;
+  shortIntro?: string;
+  spiritualEssence?: string;
+  ancientOrigin?: string;
+  mentalBenefits?: string[];
+  physicalBenefits?: string[];
+  chakraName?: string;
+  chakraDescription?: string;
+  imageUrl?: string;
+  set?: "Set 1" | "Set 2";
+  position?: number;
+  status: ContentStatus;
+  show?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type PosePayload = Omit<PoseItem, "id" | "createdAt" | "updatedAt">;
+
+export async function getPoses(): Promise<PoseItem[]> {
+  return requestJson<PoseItem[]>("/api/poses", { method: "GET" });
+}
+
+export async function createPose(payload: PosePayload): Promise<PoseItem> {
+  return requestJson<PoseItem>("/api/poses", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updatePose(id: string, payload: PosePayload): Promise<PoseItem> {
+  return requestJson<PoseItem>(`/api/poses/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deletePose(id: string): Promise<void> {
+  await requestJson<void>(`/api/poses/${id}`, { method: "DELETE" });
+}
+
+// ─── Yoga for Meditation ──────────────────────────────────────────────────────
+
+export type YogaItem = {
+  id: string;
+  name: string;
+  difficulty: string;
+  duration: number;
+  youtubeUrl: string;
+  imageUrl: string;
+  status: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type YogaPayload = Omit<YogaItem, "id" | "createdAt" | "updatedAt">;
+
+export async function getYogas(adminOnly = false): Promise<YogaItem[]> {
+  const path = adminOnly ? "/api/yoga/admin" : "/api/yoga";
+  return requestJson<YogaItem[]>(path, { method: "GET" });
+}
+
+export async function createYoga(payload: YogaPayload): Promise<YogaItem> {
+  return requestJson<YogaItem>("/api/yoga", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateYoga(id: string, payload: YogaPayload): Promise<YogaItem> {
+  return requestJson<YogaItem>(`/api/yoga/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteYoga(id: string): Promise<void> {
+  await requestJson<void>(`/api/yoga/${id}`, { method: "DELETE" });
+}

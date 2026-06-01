@@ -12,7 +12,6 @@ import { WellnessRetreats } from "../dashboard/WellnessRetreats";
 import { WellnessOTT } from "../dashboard/WellnessOTT";
 import { GamingHubSection } from "../GamingHubSection";
 import { ChakraSection } from "../dashboard/ChakraSection";
-import { HealingMusicSection } from "../dashboard/HealingMusicSection";
 import { InspirationalQuotes } from "../dashboard/InspirationalQuotes";
 import { CaseStudies } from "../dashboard/CaseStudies";
 import { FAQSection } from "../dashboard/FAQSection";
@@ -208,7 +207,6 @@ export function DashboardPage() {
         <GamingHubSection />
       </div>
       <ChakraSection />
-      <HealingMusicSection />
       <InspirationalQuotes />
       <CaseStudies />
       <FAQSection />
