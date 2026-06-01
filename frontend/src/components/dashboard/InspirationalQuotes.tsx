@@ -1,86 +1,77 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-const quotes = [
+const notes = [
     {
         id: 1,
-        image: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop",
-        quote: "Quiet the mind, and the soul will speak.",
-        author: "Ma Jaya Sati Bhagavati",
-        cta: "Breathe In Peace"
+        quote: "Breathe. You are exactly where you need to be.",
+        chant: "Cosmic OM Chant",
+        link: "/healing-music",
+        author: "Aisha Patel",
+        avatar: "https://images.unsplash.com/photo-1589156280159-27698a70f29e?q=80&w=150&auto=format&fit=crop"
     },
     {
         id: 2,
-        image: "https://images.unsplash.com/photo-1508672019048-805c876b67e2?q=80&w=600&auto=format&fit=crop",
-        quote: "Balance is not something you find, it's something you create.",
-        author: "Jana Kingsford",
-        cta: "Find Balance"
+        quote: "Stillness is where healing begins.",
+        chant: "Gayatri Resonance",
+        link: "/healing-music",
+        author: "Liam Carter",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop"
     },
     {
         id: 3,
-        image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=600&auto=format&fit=crop",
-        quote: "Look deep into nature, and then you will understand everything better.",
-        author: "Albert Einstein",
-        cta: "Connect To Nature"
+        quote: "Let go of what no longer serves you.",
+        chant: "Soma Lunar Nectar",
+        link: "/healing-music",
+        author: "Rohan Sharma",
+        avatar: "/rohan.jpg"
     },
     {
         id: 4,
-        image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=600&auto=format&fit=crop",
-        quote: "Stillness is where clarity begins.",
-        author: "Morning Meditation",
-        cta: "Embrace Stillness"
+        quote: "Every breath is a new beginning.",
+        chant: "Brahma Nada",
+        link: "/healing-music",
+        author: "Ethan Wright",
+        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150&auto=format&fit=crop"
     },
     {
         id: 5,
-        image: "https://images.unsplash.com/photo-1475503572774-15a45e5d60b9?q=80&w=600&auto=format&fit=crop",
-        quote: "Peace comes from within. Do not seek it without.",
-        author: "Buddha",
-        cta: "Look Within"
+        quote: "Your peace is your power.",
+        chant: "Maha Mrityunjaya",
+        link: "/healing-music",
+        author: "Priya Desai",
+        avatar: "/priya.jpg"
     },
     {
         id: 6,
-        image: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?q=80&w=600&auto=format&fit=crop",
-        quote: "The only journey is the one within.",
-        author: "Rainer Maria Rilke",
-        cta: "Reflect Deeply"
-    },
-    {
-        id: 7,
-        image: "https://images.unsplash.com/photo-1512438248247-f0f2a5a8b7f0?q=80&w=600&auto=format&fit=crop",
-        quote: "Healing takes courage, and we all have courage, even if we have to dig a little to find it.",
-        author: "Tori Amos",
-        cta: "Nurture Yourself"
-    },
-    {
-        id: 8,
-        image: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?q=80&w=600&auto=format&fit=crop",
-        quote: "Your calm mind is the ultimate weapon against your challenges.",
-        author: "Bryant McGill",
-        cta: "Cultivate Calm"
-    },
-    {
-        id: 9,
-        image: "https://images.unsplash.com/photo-1490682143684-14369e18dce8?q=80&w=600&auto=format&fit=crop",
-        quote: "Every moment is a fresh beginning.",
-        author: "T.S. Eliot",
-        cta: "Begin Again"
-    },
-    {
-        id: 10,
-        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=600&auto=format&fit=crop",
-        quote: "The soul always knows what to do to heal itself. The challenge is to silence the mind.",
-        author: "Caroline Myss",
-        cta: "Listen Closely"
+        quote: "Find beauty in the present moment.",
+        chant: "Anahata Heart Frequency",
+        link: "/healing-music",
+        author: "Sophia Chen",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop"
     }
 ];
 
 export const InspirationalQuotes = () => {
+    const gradients = [
+        'linear-gradient(135deg, #f0fdf4, #dcfce7)',
+        'linear-gradient(135deg, #fefce8, #f0fdf4)',
+        'linear-gradient(135deg, #f0fdfa, #dcfce7)'
+    ];
+
     return (
-       <section className="min-h-screen flex flex-col justify-center py-16 md:py-24 bg-[#EEF7F1] relative overflow-hidden">
+       <section 
+           className="min-h-screen flex flex-col justify-center py-16 md:py-24 bg-[#f0f5f0] relative overflow-hidden"
+           style={{
+               backgroundImage: 'radial-gradient(circle, #86c58640 1px, transparent 1px)',
+               backgroundSize: '24px 24px'
+           }}
+       >
             {/* Container Wrapper */}
             <div className="max-w-7xl mx-auto px-6 w-full">
-                {/* Centered Header Section */}
-                <div className="text-center mb-12 md:mb-16 space-y-4">
-                    <div className="flex items-center justify-center gap-2 mb-4">
+                {/* Left Aligned Header Section */}
+                <div className="text-left mb-12 md:mb-16 space-y-4">
+                    <div className="flex items-center justify-start gap-2 mb-4">
                         <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1a5d47]/10 text-[#1a5d47]">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" /></svg>
                         </span>
@@ -90,80 +81,100 @@ export const InspirationalQuotes = () => {
                         style={{ fontFamily: "'Cinzel', serif" }}
                     >
                         Daily Inspiration</h2>
-                    <p className="text-[#5f6f65] text-sm md:text-base max-w-2xl mx-auto break-words"
+                    <p className="text-[#5f6f65] text-sm md:text-base max-w-2xl break-words"
                        style={{ fontFamily: "'Poppins', sans-serif" }}
                     >
-                        Discover wisdom to guide your journey</p>
+                        <strong>The Nirvaha Circle:</strong> Discover wisdom to guide your journey</p>
+                </div>
+
+                {/* Notes Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 pb-12">
+                    {notes.map((note, idx) => (
+                        <div 
+                            key={note.id} 
+                            className="flex flex-col items-center group"
+                        >
+                            {/* Speech Bubble Wrapper for Hover */}
+                            <div 
+                                className="transition-all duration-300 group-hover:-translate-y-[6px] w-full flex flex-col items-center"
+                                style={{
+                                    boxShadow: '0 0 0 transparent' // initial
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,100,0,0.12)'}
+                                onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
+                            >
+                                {/* Speech Bubble */}
+                                <div 
+                                    className="relative mb-3 flex flex-col items-center justify-center shadow-sm w-full max-w-[280px] overflow-hidden"
+                                    style={{
+                                        background: gradients[idx % 3],
+                                        border: '1px solid rgba(134,197,134,0.4)',
+                                        borderRadius: '18px',
+                                        padding: '14px 16px',
+                                        backdropFilter: 'blur(10px)',
+                                    }}
+                                >
+                                    {/* Watermark SVG */}
+                                    <div className="absolute -bottom-4 -right-4 opacity-[0.06] pointer-events-none">
+                                        <svg width="64" height="64" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            {Array.from({ length: 12 }).map((_, i) => (
+                                                <path
+                                                    key={i}
+                                                    d="M100 20C120 40 140 70 100 100C60 70 80 40 100 20Z"
+                                                    fill="#1a3d2b"
+                                                    transform={`rotate(${i * 30} 100 100)`}
+                                                />
+                                            ))}
+                                            <circle cx="100" cy="100" r="70" stroke="#1a3d2b" strokeWidth="2" fill="none" />
+                                        </svg>
+                                    </div>
+
+                                    <p className="text-[#1a3d2b] italic text-center text-sm md:text-base mb-3 leading-relaxed relative z-10" style={{ fontFamily: "'Cinzel', serif" }}>
+                                        "{note.quote}"
+                                    </p>
+                                    <Link 
+                                        to={note.link}
+                                        className="bg-[#e8f5e9] text-[#2e7d32] text-[10px] font-semibold px-3 py-1 rounded-full flex items-center gap-1.5 border border-[#c8e6c9] hover:bg-[#c8e6c9] transition-colors cursor-pointer relative z-10"
+                                        style={{ boxShadow: '0 0 12px rgba(134,197,134,0.5)' }}
+                                    >
+                                        <span>🎵</span> {note.chant}
+                                    </Link>
+                                    {/* Speech Bubble Tail */}
+                                    <div 
+                                        className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 rotate-45 transform"
+                                        style={{
+                                            background: gradients[idx % 3],
+                                            borderRight: '1px solid rgba(134,197,134,0.4)',
+                                            borderBottom: '1px solid rgba(134,197,134,0.4)',
+                                            backdropFilter: 'blur(10px)',
+                                        }}
+                                    ></div>
+                                </div>
+                                
+                                {/* Avatar & Username (Clickable) */}
+                                <Link to={`/inspiration-story/${note.id}`} className="flex flex-col items-center gap-1 z-10 cursor-pointer group/avatar">
+                                    <div className="relative">
+                                        <img 
+                                            src={note.avatar} 
+                                            alt={note.author} 
+                                            className="w-12 h-12 rounded-full object-cover transition-transform group-hover/avatar:scale-110" 
+                                            style={{
+                                                border: '3px solid #86c586',
+                                                outline: '2px solid #c8e6c9',
+                                                outlineOffset: '3px'
+                                            }}
+                                        />
+                                        <div className="absolute inset-0 rounded-full bg-black/0 group-hover/avatar:bg-black/10 transition-colors"></div>
+                                    </div>
+                                    <span className="text-[10px] text-[#5f6f65] font-medium tracking-wide mt-2 group-hover/avatar:text-[#2e7d32] transition-colors">
+                                        {note.author}
+                                    </span>
+                                </Link>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
-
-            {/* Infinite Scrolling Layout */}
-            <div className="relative flex overflow-hidden pb-4 group/carousel w-full">
-                    <div className="flex gap-6 animate-marquee group-hover/carousel:pause w-max">
-                        {[...quotes, ...quotes].map((item, idx) => (
-                          <div
-                            key={`${item.id}-${idx}`}
-                            className="group min-w-[280px] h-[400px] cursor-pointer perspective-1000 flex-shrink-0"
-                          >
-                        <div className="relative w-full h-full duration-700 preserve-3d group-hover:my-rotate-y-180">
-
-                          <div className="absolute inset-0 backface-hidden rounded-3xl overflow-hidden shadow-lg border border-gray-100 bg-white">
-                            <img
-                              src={item.image}
-                              alt="Inspiration"
-                              className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
-                            />
-
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-
-                            <div className="absolute bottom-6 left-0 right-0 text-center">
-                              <span className="inline-block px-5 py-2 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-black tracking-[0.2em] text-white uppercase border border-white/20">
-                                {item.cta}
-                              </span>
-                          </div>
-                         </div>
-
-                         <div className="absolute inset-0 backface-hidden my-rotate-y-180 bg-[#1a5d47] rounded-3xl p-8 flex flex-col items-center justify-center text-center shadow-2xl overflow-hidden">
-
-                           <span className="text-7xl text-white/10">"</span>
-
-                            <p className="text-lg md:text-xl text-white italic break-words">
-                              {item.quote}
-                           </p>
-
-                           <div className="w-16 h-[1px] bg-white/20 my-4"></div>
-
-                           <span className="text-[11px] text-emerald-200 uppercase tracking-[0.3em] font-bold break-words">
-                             {item.author}
-                          </span>
-
-                        </div>
-                      </div>
-                    </div>
-                    ))}
-                    </div>
-                </div>
-
-            <style>{`
-                .no-scrollbar::-webkit-scrollbar { display: none; }
-                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-                .perspective-1000 { perspective: 1000px; }
-                .preserve-3d { transform-style: preserve-3d; }
-                .backface-hidden { backface-visibility: hidden; }
-                .my-rotate-y-180 { transform: rotateY(180deg); }
-                .group:hover .group-hover\\:my-rotate-y-180 { transform: rotateY(180deg); }
-                
-                @keyframes marquee {
-                    0% { transform: translateX(0%); }
-                    100% { transform: translateX(calc(-50% - 12px)); }
-                }
-                .animate-marquee {
-                    animation: marquee 50s linear infinite;
-                }
-                .group\\/carousel:hover .group-hover\\/carousel\\:pause {
-                    animation-play-state: paused;
-                }
-            `}</style>
         </section>
     );
 };

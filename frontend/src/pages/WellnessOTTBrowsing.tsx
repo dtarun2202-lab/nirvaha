@@ -218,7 +218,6 @@ export default function WellnessOTTBrowsing() {
                         className="flex items-center gap-2 group text-white/80 hover:text-[#2ed899] transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" />
-                        <span className="hidden md:inline font-bold text-xs tracking-widest uppercase">Dashboard</span>
                     </button>
                     
                     <h1 

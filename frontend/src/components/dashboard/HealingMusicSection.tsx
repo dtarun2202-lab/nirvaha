@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
-import { Volume2, VolumeX, Sparkles, RefreshCw, Layers, Compass, Play, Square, Award } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, RefreshCw, Layers, Compass, Play, Square, Award, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 /* ─── Web Audio Engine ────────────────────────────────────────────────── */
 
@@ -769,6 +769,8 @@ export function HealingMusicSection() {
   const [zenPoints, setZenPoints] = useState<number>(0);
   const [listenerLevel, setListenerLevel] = useState<string>("Novice Meditator");
   const [deepResonance, setDeepResonance] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [carouselIndex, setCarouselIndex] = useState<number>(0);
 
   // Gamified points calculator
   useEffect(() => {
@@ -1002,9 +1004,18 @@ export function HealingMusicSection() {
                 Primordial Resonance
               </span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-[#0F131A] tracking-tight" style={{ fontFamily: "'Cinzel', serif" }}>
-              Healing Music
-            </h2>
+            <div className="flex items-center gap-4">
+              <h2 className="text-4xl md:text-5xl font-bold text-[#0F131A] tracking-tight" style={{ fontFamily: "'Cinzel', serif" }}>
+                Healing Music
+              </h2>
+              <svg className="w-16 h-8 text-[#1a5d47]" viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round">
+                <motion.path 
+                  d="M0,10 Q10,0 20,10 T40,10 T60,10 T80,10 T100,10"
+                  animate={{ d: ["M0,10 Q10,20 20,10 T40,10 T60,10 T80,10 T100,10", "M0,10 Q10,0 20,10 T40,10 T60,10 T80,10 T100,10"] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                />
+              </svg>
+            </div>
             <p className="text-gray-500 text-sm md:text-base font-medium max-w-2xl leading-relaxed">
               Unlock cosmic vibrations and ancient Vedic chants. Engage with our gamified 
               soundboard to blend frequencies, Repair your cells, and expand your Zen energy directly in your dashboard.
@@ -1037,19 +1048,23 @@ export function HealingMusicSection() {
         </div>
 
         {/* Dashboard Mixer Control Strip */}
-        <div className="bg-white/50 border border-white/80 rounded-[24px] p-6 mb-8 shadow-sm">
+        <div className="bg-[#d1ecd8]/70 border border-[#1a5d47]/20 rounded-[24px] p-6 mb-8 shadow-sm">
           <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
-            {/* Spinning Mandala */}
+            {/* Spinning Mandala / Play Button for Carousel */}
             <div className="flex items-center gap-5 w-full lg:w-auto">
               <div className="relative w-16 h-16 flex-shrink-0 flex items-center justify-center">
                 <motion.div 
-                  className="absolute inset-0 rounded-full border-2 border-dashed border-[#1a5d47]/20"
+                  className="absolute inset-0 rounded-full border-2 border-dashed border-[#1a5d47]/20 pointer-events-none"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
                 />
                 <motion.div
-                  className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#1a5d47] to-teal-500 flex items-center justify-center shadow-md"
-                  animate={playingIds.length > 0 ? {
+                  className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#1a5d47] to-teal-500 flex items-center justify-center shadow-md cursor-pointer z-10"
+                  onClick={() => {
+                    const sound = filteredSounds[carouselIndex] || filteredSounds[0];
+                    if (sound) toggleSound(sound);
+                  }}
+                  animate={(filteredSounds[carouselIndex] && playingIds.includes(filteredSounds[carouselIndex].id)) ? {
                     scale: [1, 1.15, 1],
                     boxShadow: [
                       "0 0 10px rgba(26,93,71,0.2)",
@@ -1058,18 +1073,47 @@ export function HealingMusicSection() {
                     ]
                   } : { scale: 1 }}
                   transition={{ duration: 2, repeat: Infinity }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <Compass className={`w-5 h-5 text-white ${playingIds.length > 0 ? 'animate-spin' : ''}`} style={{ animationDuration: '6s' }} />
+                  {(filteredSounds[carouselIndex] && playingIds.includes(filteredSounds[carouselIndex].id)) ? (
+                    <Square className="w-4 h-4 text-white fill-white" />
+                  ) : (
+                    <Play className="w-4 h-4 text-white fill-white ml-0.5" />
+                  )}
                 </motion.div>
               </div>
 
               <div>
-                <h3 className="font-extrabold text-[#0F131A] text-base">Nada Soundboard</h3>
-                <p className="text-gray-500 text-xs mt-0.5">
-                  {playingIds.length > 0 
-                    ? `Active Mix: Blending ${playingIds.length} sacred sounds.` 
-                    : "Tap below to begin generating high-fidelity meditative hums."}
-                </p>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-extrabold text-[#0F131A] text-base">Nada Soundbox</h3>
+                  <div className="flex items-center gap-0.5 ml-1">
+                    <button 
+                      onClick={() => setCarouselIndex(prev => (prev === 0 ? Math.max(0, filteredSounds.length - 1) : prev - 1))}
+                      className="p-1 hover:bg-[#1a5d47]/10 rounded-full text-gray-400 hover:text-[#1a5d47] transition-colors"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => setCarouselIndex(prev => (prev === filteredSounds.length - 1 ? 0 : prev + 1))}
+                      className="p-1 hover:bg-[#1a5d47]/10 rounded-full text-gray-400 hover:text-[#1a5d47] transition-colors"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                {filteredSounds[carouselIndex] ? (
+                  <>
+                    <p className="text-[#1a5d47] font-bold text-xs mt-0.5">
+                      {filteredSounds[carouselIndex].name} <span className="text-gray-400 font-normal">· {filteredSounds[carouselIndex].frequency} Hz</span>
+                    </p>
+                    <p className="text-gray-500 text-[10px] mt-0.5 truncate max-w-[200px] sm:max-w-[250px]">
+                      {filteredSounds[carouselIndex].desc}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-gray-500 text-xs mt-0.5">Select a sound...</p>
+                )}
               </div>
             </div>
 
@@ -1166,9 +1210,9 @@ export function HealingMusicSection() {
           ))}
         </div>
 
-        {/* ─── 24 UNIQUE SHAPED Meditative Sounds Grid ─── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5">
-          {filteredSounds.map((sound, index) => {
+        {/* ─── 4 Curated Meditative Sounds Grid (Dashboard) ─── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {filteredSounds.slice(0, 4).map((sound, index) => {
             const isPlaying = playingIds.includes(sound.id);
 
             return (
@@ -1178,7 +1222,7 @@ export function HealingMusicSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-20px' }}
                 transition={{ duration: 0.4, delay: (index % 4) * 0.05 }}
-                className="group relative flex flex-col justify-between p-5 bg-white/45 border border-white/80 rounded-2xl shadow-sm hover:shadow-lg hover:border-white/100 hover:bg-white/60 transition-all duration-300 overflow-hidden cursor-pointer select-none"
+                className="group relative flex flex-col justify-between p-5 bg-[#d1ecd8]/50 border border-[#1a5d47]/10 rounded-2xl shadow-sm hover:shadow-lg hover:border-[#1a5d47]/30 hover:bg-[#d1ecd8]/80 transition-all duration-300 overflow-hidden cursor-pointer select-none"
                 onClick={() => toggleSound(sound)}
               >
                 <div className="space-y-3.5 pointer-events-none">
@@ -1269,7 +1313,134 @@ export function HealingMusicSection() {
           })}
         </div>
 
+        {/* View More Button */}
+        {filteredSounds.length > 4 && (
+          <div className="flex justify-center mt-10">
+            <motion.button
+              onClick={() => setIsModalOpen(true)}
+              className="px-6 py-3 rounded-full font-bold text-white bg-[#1a5d47] hover:bg-[#113d2f] shadow-lg flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Layers className="w-4 h-4" />
+              Explore Full Library ({filteredSounds.length} sounds)
+            </motion.button>
+          </div>
+        )}
+
       </div>
+
+      {/* ─── Full Library Popup Modal ─── */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="absolute inset-0 bg-[#EAF7EF]/80 backdrop-blur-md" onClick={() => setIsModalOpen(false)} />
+            
+            <motion.div
+              className="relative w-full max-w-7xl h-[90vh] bg-[#E4EFE8] rounded-[32px] shadow-2xl flex flex-col overflow-hidden border border-white/20"
+              initial={{ y: 50, scale: 0.95, opacity: 0 }}
+              animate={{ y: 0, scale: 1, opacity: 1 }}
+              exit={{ y: 20, scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+            >
+              {/* Modal Header */}
+              <div className="flex flex-wrap gap-4 items-center justify-between p-6 md:px-10 border-b border-[#1a5d47]/10 bg-white/60">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-[#1a5d47]/10 flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-[#1a5d47]" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-[#0F131A] font-['Cinzel']">Complete Sound Library</h2>
+                    <p className="text-sm text-gray-500 font-medium">Discover {filteredSounds.length} sacred frequencies</p>
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-3 rounded-full hover:bg-gray-200 text-gray-600 transition-colors self-start md:self-auto"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Modal Content - Scrollable Grid */}
+              <div className="flex-1 overflow-y-auto p-6 md:p-10 relative hide-scrollbar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 pb-20">
+                  {filteredSounds.map((sound, index) => {
+                    const isPlaying = playingIds.includes(sound.id);
+                    return (
+                      <motion.div
+                        key={sound.id}
+                        initial={{ opacity: 0, y: 25 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: '-20px' }}
+                        transition={{ duration: 0.4, delay: (index % 4) * 0.05 }}
+                        className="group relative flex flex-col justify-between p-5 bg-[#d1ecd8]/50 border border-[#1a5d47]/10 rounded-2xl shadow-sm hover:shadow-lg hover:border-[#1a5d47]/30 hover:bg-[#d1ecd8]/80 transition-all duration-300 overflow-hidden cursor-pointer select-none"
+                        onClick={() => toggleSound(sound)}
+                      >
+                        <div className="space-y-3.5 pointer-events-none">
+                          <div className="flex items-center justify-between">
+                            <div className="relative">
+                              <AnimatePresence>
+                                {isPlaying && (
+                                  <>
+                                    <motion.div
+                                      className="absolute inset-0 rounded-full blur-sm pointer-events-none"
+                                      style={{ background: sound.color, opacity: 0.25 }}
+                                      animate={{ scale: [1, 1.35, 1] }}
+                                      transition={{ duration: 2, repeat: Infinity }}
+                                    />
+                                    <motion.div
+                                      className={`absolute -inset-1.5 pointer-events-none border border-[#1a5d47]/30 ${sound.shapeClass}`}
+                                      animate={{ scale: [1, 1.12, 1], opacity: [0.8, 0, 0.8] }}
+                                      transition={{ duration: 2.5, repeat: Infinity }}
+                                    />
+                                  </>
+                                )}
+                              </AnimatePresence>
+                              <motion.div
+                                className={`relative z-10 w-11 h-11 bg-white/80 border border-white text-base flex items-center justify-center shadow-sm ${sound.shapeClass}`}
+                                style={isPlaying ? { background: `linear-gradient(135deg, ${sound.color}, #000)`, borderColor: sound.color, boxShadow: `0 0 12px ${sound.glow}` } : {}}
+                                whileHover={{ scale: 1.06 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                <span className={`block transition-transform duration-500 ${isPlaying ? 'scale-105' : 'group-hover:rotate-12'}`}>{sound.icon}</span>
+                              </motion.div>
+                            </div>
+                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{sound.category}</span>
+                          </div>
+                          <div className="space-y-0.5">
+                            <h3 className="text-sm font-bold text-[#0F131A] tracking-tight leading-snug">{sound.name}</h3>
+                            <p className="text-[10px] font-bold tracking-wide" style={{ color: sound.color }}>{sound.sanskrit} · {sound.frequency} Hz</p>
+                          </div>
+                          <p className="text-gray-500 text-xs leading-normal">{sound.desc}</p>
+                        </div>
+                        <div className="mt-4 pt-3.5 border-t border-[#1a5d47]/10 flex items-center justify-between">
+                          <span className="text-[9px] font-bold uppercase text-gray-500 tracking-wider">{isPlaying ? "Playing" : "Select"}</span>
+                          {isPlaying ? (
+                            <div className="flex items-end gap-[2px] h-2.5">
+                              {[0, 1, 2, 3].map((i) => (
+                                <motion.div key={i} className="w-[2px] rounded-full" style={{ backgroundColor: sound.color }} animate={{ height: ['3px', '10px', '5px', '10px', '3px'] }} transition={{ duration: 1 + Math.random() * 0.4, repeat: Infinity, delay: i * 0.1, ease: 'easeInOut' }} />
+                              ))}
+                            </div>
+                          ) : (
+                            <Play className="w-3 h-3 text-gray-400 group-hover:text-[#1a5d47] group-hover:translate-x-0.5 transition-all duration-300" />
+                          )}
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

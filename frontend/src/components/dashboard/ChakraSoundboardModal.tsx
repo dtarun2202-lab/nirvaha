@@ -18,6 +18,9 @@ interface Chakra {
   glowColor: string;
   bgGradient: string;
   description: string;
+  element: string;
+  sense: string;
+  location: string;
 }
 
 /* ─── long descriptions per chakra ─── */
@@ -81,19 +84,20 @@ function SoundButton({
       className="relative flex items-center gap-3 w-full rounded-xl px-4 py-3.5 border transition-all duration-300 cursor-pointer text-left overflow-hidden"
       style={{
         background: isPlaying
-          ? `linear-gradient(135deg, ${chakra.color}08, ${chakra.color}14)`
-          : 'rgba(243, 251, 246, 0.8)',
-        borderColor: isPlaying ? chakra.color + '60' : 'rgba(255,255,255,0.5)',
+          ? `linear-gradient(135deg, ${chakra.color}20, ${chakra.color}10)`
+          : 'rgba(255, 255, 255, 0.05)',
+        borderColor: isPlaying ? chakra.color : 'rgba(0,255,156,0.2)',
         boxShadow: isPlaying
-          ? `0 0 20px ${chakra.glowColor}, 0 4px 12px rgba(0,0,0,0.06)`
-          : '0 2px 8px rgba(0,0,0,0.04)',
+          ? `0 0 20px ${chakra.glowColor}, 0 4px 12px rgba(0,0,0,0.2)`
+          : '0 2px 8px rgba(0,0,0,0.1)',
       }}
       whileHover={{
         y: -2,
         scale: 1.02,
+        background: 'rgba(255, 255, 255, 0.1)',
         boxShadow: isPlaying
-          ? `0 0 28px ${chakra.glowColor}, 0 8px 20px rgba(0,0,0,0.08)`
-          : `0 4px 16px rgba(0,0,0,0.08)`,
+          ? `0 0 28px ${chakra.glowColor}, 0 8px 20px rgba(0,0,0,0.3)`
+          : `0 4px 16px rgba(0,0,0,0.2)`,
       }}
       whileTap={{ scale: 0.97 }}
     >
@@ -102,7 +106,7 @@ function SoundButton({
         <motion.div
           className="absolute inset-0 rounded-xl pointer-events-none"
           animate={{
-            opacity: [0.03, 0.08, 0.03],
+            opacity: [0.05, 0.15, 0.05],
           }}
           transition={{ duration: 2, repeat: Infinity }}
           style={{ background: chakra.color }}
@@ -110,12 +114,12 @@ function SoundButton({
       )}
 
       {/* Icon */}
-      <span className="text-xl relative z-10 flex-shrink-0">{info.icon}</span>
+      <span className="text-xl relative z-10 flex-shrink-0" style={{ color: isPlaying ? chakra.color : '#00FF9C' }}>{info.icon}</span>
 
       {/* Label */}
       <span
         className="text-sm font-medium relative z-10 flex-1 truncate"
-        style={{ color: isPlaying ? chakra.color : '#374151' }}
+        style={{ color: isPlaying ? chakra.color : 'white' }}
       >
         {info.label}
       </span>
@@ -126,7 +130,7 @@ function SoundButton({
           <EqBars color={chakra.color} />
         ) : (
           <svg
-            className="w-4 h-4 text-gray-400"
+            className="w-4 h-4 text-[#00FF9C]"
             fill="currentColor"
             viewBox="0 0 24 24"
           >
@@ -208,17 +212,16 @@ export function ChakraSoundboardModal({ chakra, chakraImage, onClose }: Props) {
           <motion.div
             className="relative w-full max-w-lg rounded-3xl overflow-hidden"
             style={{
-              background:
-                'linear-gradient(165deg, rgba(243, 251, 246, 0.92) 0%, rgba(238, 248, 241, 0.88) 50%, rgba(230, 245, 235, 0.85) 100%)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              border: '1px solid rgba(255,255,255,0.5)',
-              boxShadow: `0 32px 64px rgba(0,0,0,0.18), 0 0 40px ${chakra.glowColor}`,
+              background: '#0D1B2A',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              border: '1px solid #00FF9C',
+              boxShadow: `0 32px 64px rgba(0,0,0,0.5), 0 0 20px rgba(0,255,156,0.15)`,
             }}
-            initial={{ opacity: 0, scale: 0.92, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 20 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1.0 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
           >
             {/* Decorative top glow */}
             <div
@@ -229,18 +232,12 @@ export function ChakraSoundboardModal({ chakra, chakraImage, onClose }: Props) {
             {/* Close button */}
             <motion.button
               onClick={handleClose}
-              className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full flex items-center justify-center transition-colors"
-              style={{
-                background: 'rgba(15, 19, 26, 0.06)',
-              }}
-              whileHover={{
-                background: 'rgba(15, 19, 26, 0.12)',
-                scale: 1.1,
-              }}
+              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             >
               <svg
-                className="w-4 h-4 text-gray-600"
+                className="w-5 h-5 text-[#00FF9C]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -296,32 +293,39 @@ export function ChakraSoundboardModal({ chakra, chakraImage, onClose }: Props) {
                   </motion.div>
                 </div>
 
-                {/* Name */}
-                <h3
-                  className="text-2xl font-bold tracking-tight"
-                  style={{
-                    color: chakra.color,
-                    fontFamily: "'Cinzel', serif",
-                  }}
-                >
+                {/* Sanskrit Name */}
+                <h3 className="text-sm font-bold tracking-[0.2em] uppercase text-[#00FF9C] mb-1">
                   {chakra.sanskrit}
                 </h3>
 
-                {/* Frequency badge */}
-                <span
-                  className="mt-1.5 text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full"
-                  style={{
-                    background: chakra.color + '12',
-                    color: chakra.color,
-                  }}
-                >
-                  {chakra.frequency} Hz · Solfeggio
-                </span>
+                {/* Chakra Name */}
+                <h2 className="text-3xl font-bold tracking-tight text-white mb-4">
+                  {chakra.name} Chakra
+                </h2>
+
+                {/* Chips Row: Color, Element, Sense */}
+                <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
+                    <div className="w-3 h-3 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: chakra.color, color: chakra.color }}></div>
+                    <span className="text-xs font-medium text-gray-300">Color</span>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-300">
+                    <span>{chakra.element}</span>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-300">
+                    <span>{chakra.sense}</span>
+                  </div>
+                </div>
+
+                {/* Body Location */}
+                <p className="text-xs text-gray-400 mb-6">
+                  Located at: {chakra.location}
+                </p>
               </motion.div>
 
-              {/* Description */}
+              {/* Description (2-3 lines of meaning/benefits) */}
               <motion.p
-                className="text-sm text-gray-600 font-semibold text-center leading-relaxed mb-7 max-w-sm mx-auto"
+                className="text-sm text-gray-300 font-medium text-center leading-relaxed mb-8 max-w-sm mx-auto"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -331,11 +335,11 @@ export function ChakraSoundboardModal({ chakra, chakraImage, onClose }: Props) {
 
               {/* Divider */}
               <div className="flex items-center gap-3 mb-5">
-                <div className="flex-1 h-px bg-gray-200/60" />
-                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400">
-                  Sacred Mantra
+                <div className="flex-1 h-px bg-[#00FF9C]/20" />
+                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#00FF9C]">
+                  Sacred Sounds
                 </span>
-                <div className="flex-1 h-px bg-gray-200/60" />
+                <div className="flex-1 h-px bg-[#00FF9C]/20" />
               </div>
 
               {/* Sound buttons grid */}

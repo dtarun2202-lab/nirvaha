@@ -22,6 +22,9 @@ interface Chakra {
   bgGradient: string;   // card background
   pastelBg: string;     // light pastel card fill
   description: string;
+  element: string;
+  sense: string;
+  location: string;
 }
 
 const CHAKRAS: Chakra[] = [
@@ -35,6 +38,9 @@ const CHAKRAS: Chakra[] = [
     bgGradient: 'linear-gradient(135deg, rgba(220,38,38,0.12) 0%, rgba(220,38,38,0.04) 100%)',
     pastelBg: 'linear-gradient(145deg, #FEF2F2, #FEE2E2, #FFF5F5)',
     description: 'Grounding & stability',
+    element: 'Earth',
+    sense: 'Smell',
+    location: 'Base of spine',
   },
   {
     id: 2,
@@ -46,6 +52,9 @@ const CHAKRAS: Chakra[] = [
     bgGradient: 'linear-gradient(135deg, rgba(234,88,12,0.12) 0%, rgba(234,88,12,0.04) 100%)',
     pastelBg: 'linear-gradient(145deg, #FFF7ED, #FFEDD5, #FFFBF5)',
     description: 'Creativity & emotion',
+    element: 'Water',
+    sense: 'Taste',
+    location: 'Lower abdomen',
   },
   {
     id: 3,
@@ -57,6 +66,9 @@ const CHAKRAS: Chakra[] = [
     bgGradient: 'linear-gradient(135deg, rgba(202,138,4,0.12) 0%, rgba(202,138,4,0.04) 100%)',
     pastelBg: 'linear-gradient(145deg, #FEFCE8, #FEF9C3, #FFFEF5)',
     description: 'Confidence & power',
+    element: 'Fire',
+    sense: 'Sight',
+    location: 'Upper abdomen',
   },
   {
     id: 4,
@@ -68,6 +80,9 @@ const CHAKRAS: Chakra[] = [
     bgGradient: 'linear-gradient(135deg, rgba(22,163,74,0.12) 0%, rgba(22,163,74,0.04) 100%)',
     pastelBg: 'linear-gradient(145deg, #F0FDF4, #DCFCE7, #F5FFF8)',
     description: 'Love & compassion',
+    element: 'Air',
+    sense: 'Touch',
+    location: 'Center of chest',
   },
   {
     id: 5,
@@ -79,6 +94,9 @@ const CHAKRAS: Chakra[] = [
     bgGradient: 'linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(37,99,235,0.04) 100%)',
     pastelBg: 'linear-gradient(145deg, #EFF6FF, #DBEAFE, #F5F9FF)',
     description: 'Expression & truth',
+    element: 'Ether',
+    sense: 'Hearing',
+    location: 'Throat',
   },
   {
     id: 6,
@@ -90,6 +108,9 @@ const CHAKRAS: Chakra[] = [
     bgGradient: 'linear-gradient(135deg, rgba(79,70,229,0.12) 0%, rgba(79,70,229,0.04) 100%)',
     pastelBg: 'linear-gradient(145deg, #EEF2FF, #E0E7FF, #F5F3FF)',
     description: 'Intuition & clarity',
+    element: 'Light',
+    sense: 'Sixth Sense',
+    location: 'Forehead',
   },
   {
     id: 7,
@@ -101,6 +122,9 @@ const CHAKRAS: Chakra[] = [
     bgGradient: 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(124,58,237,0.04) 100%)',
     pastelBg: 'linear-gradient(145deg, #F5F3FF, #EDE9FE, #FAF5FF)',
     description: 'Spiritual connection',
+    element: 'Cosmic Energy',
+    sense: 'Beyond',
+    location: 'Top of head',
   },
 ];
 
@@ -155,20 +179,71 @@ export function ChakraSection() {
   }, []);
 
   return (
-    <section id="chakra-section" className="min-h-screen flex flex-col justify-center py-16 md:py-20 bg-[#EEF7F1] relative overflow-hidden">
-      {/* Subtle background pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage: `radial-gradient(circle, #1a5d47 1px, transparent 1px)`,
-          backgroundSize: '32px 32px',
-        }}
+    <section id="chakra-section" className="min-h-screen flex flex-col justify-center py-16 md:py-20 bg-[#EAF7EF] relative overflow-hidden">
+      
+      {/* Background Sanskrit & Geometric Shapes in light green transparency */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Large Lotus - Top Left */}
+        <svg className="absolute -left-20 -top-20 w-[600px] h-[600px] text-[#16A34A] opacity-[0.06] transform -rotate-12" viewBox="0 0 100 100">
+          <path d="M50 10 C40 40 40 80 50 90 C60 80 60 40 50 10 Z" fill="none" stroke="currentColor" strokeWidth="1"/>
+          <path d="M50 90 C30 80 10 60 20 30 C30 50 45 65 50 90 Z" fill="none" stroke="currentColor" strokeWidth="1"/>
+          <path d="M50 90 C70 80 90 60 80 30 C70 50 55 65 50 90 Z" fill="none" stroke="currentColor" strokeWidth="1"/>
+          <path d="M50 90 C20 90 5 70 5 50 C20 70 35 80 50 90 Z" fill="none" stroke="currentColor" strokeWidth="1"/>
+          <path d="M50 90 C80 90 95 70 95 50 C80 70 65 80 50 90 Z" fill="none" stroke="currentColor" strokeWidth="1"/>
+        </svg>
+
+        {/* Giant Om Symbol - Bottom Right */}
+        <svg className="absolute -right-10 -bottom-32 w-[700px] h-[700px] text-[#16A34A] opacity-[0.04] transform rotate-12" viewBox="0 0 100 100">
+          <text x="50" y="75" fontFamily="'Cinzel', serif" fontSize="70" textAnchor="middle" fill="currentColor">ॐ</text>
+        </svg>
+
+        {/* Seed of Life - Top Right/Center */}
+        <svg className="absolute right-[20%] top-[10%] w-[400px] h-[400px] text-[#16A34A] opacity-[0.05]" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" strokeWidth="1"/>
+          <circle cx="50" cy="30" r="20" fill="none" stroke="currentColor" strokeWidth="1"/>
+          <circle cx="50" cy="70" r="20" fill="none" stroke="currentColor" strokeWidth="1"/>
+          <circle cx="32.68" cy="40" r="20" fill="none" stroke="currentColor" strokeWidth="1"/>
+          <circle cx="67.32" cy="40" r="20" fill="none" stroke="currentColor" strokeWidth="1"/>
+          <circle cx="32.68" cy="60" r="20" fill="none" stroke="currentColor" strokeWidth="1"/>
+          <circle cx="67.32" cy="60" r="20" fill="none" stroke="currentColor" strokeWidth="1"/>
+        </svg>
+      </div>
+
+      {/* Soft deep green radial glow behind the path */}
+      <div 
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1200px] h-[600px] rounded-[100%] pointer-events-none blur-[120px]"
+        style={{ background: 'radial-gradient(ellipse, rgba(0,255,156,0.15), transparent 70%)' }}
       />
 
-      <div className="max-w-[1440px] mx-auto px-6 md:px-8 relative z-10">
+      {/* Floating Particles */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {Array.from({ length: 20 }).map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1.5 h-1.5 rounded-full bg-[#1A5D47]/30"
+            style={{
+              left: `${Math.random() * 100}%`,
+              bottom: `-20px`,
+            }}
+            animate={{
+              y: [0, -1000],
+              x: Math.sin(i) * 50,
+              opacity: [0, 1, 0]
+            }}
+            transition={{
+              duration: 10 + Math.random() * 20,
+              repeat: Infinity,
+              delay: Math.random() * 10,
+              ease: "linear"
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 relative z-10 w-full">
         {/* Header */}
         <motion.div
-          className="flex flex-col md:flex-row justify-between items-start md:items-end mb-14 gap-6"
+          className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-12 gap-6"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -176,7 +251,7 @@ export function ChakraSection() {
         >
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1a5d47]/10 text-[#1a5d47]">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#00FF9C]/10 text-[#00FF9C]">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10" />
                   <circle cx="12" cy="12" r="4" />
@@ -186,18 +261,18 @@ export function ChakraSection() {
                   <line x1="18" y1="12" x2="22" y2="12" />
                 </svg>
               </span>
-              <span className="text-[#1a5d47] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">
+              <span className="text-[#00FF9C] font-bold tracking-widest text-[10px] uppercase underline underline-offset-4 decoration-1">
                 Energy Centers
               </span>
             </div>
             <h2
-              className="text-4xl md:text-5xl font-bold text-[#0F131A] tracking-tight mb-2"
+              className="text-4xl md:text-5xl font-bold text-[#0D1B2A] tracking-tight mb-2"
               style={{ fontFamily: "'Cinzel', serif" }}
             >
               7 Chakras
             </h2>
-            <p className="text-gray-500 text-base font-medium tracking-tight">
-              Tap a chakra to explore.
+            <p className="text-[#1A5D47] text-base font-medium tracking-tight">
+              A journey from Crown to Root. Swipe horizontally to explore.
             </p>
           </div>
 
@@ -209,7 +284,7 @@ export function ChakraSection() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 onClick={handleStopAll}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0F131A]/5 hover:bg-[#0F131A]/10 text-[#0F131A]/70 text-sm font-medium transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0D1B2A]/5 hover:bg-[#0D1B2A]/10 text-[#0D1B2A] text-sm font-medium transition-colors border border-[#0D1B2A]/10"
               >
                 Clear Selection
               </motion.button>
@@ -217,99 +292,167 @@ export function ChakraSection() {
           </AnimatePresence>
         </motion.div>
 
-        {/* Chakra strip */}
-        <div ref={gridRef} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 md:gap-5">
-          {CHAKRAS.map((chakra, idx) => {
-            const isActive = activeChakra === chakra.id;
+        {/* Horizontal Zigzag Journey Container */}
+        <div className="relative w-full max-w-[1400px] mx-auto h-[600px] overflow-x-auto overflow-y-hidden snap-x snap-mandatory hide-scrollbar">
+          
+          <div className="relative w-[1200px] md:w-full min-w-[1000px] h-full mx-auto flex items-center">
+            
+            {/* SVG Zigzag Path */}
+            <svg 
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[400px] pointer-events-none drop-shadow-[0_0_8px_rgba(0,255,156,0.5)]" 
+              viewBox="0 0 1000 400" 
+              preserveAspectRatio="none"
+            >
+              <defs>
+                <linearGradient id="roadmapGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="10%" stopColor="#7C3AED" /> {/* Violet (Crown) */}
+                  <stop offset="23%" stopColor="#4F46E5" /> {/* Indigo (Third Eye) */}
+                  <stop offset="36%" stopColor="#2563EB" /> {/* Blue (Throat) */}
+                  <stop offset="50%" stopColor="#16A34A" /> {/* Green (Heart) */}
+                  <stop offset="64%" stopColor="#CA8A04" /> {/* Yellow (Solar Plexus) */}
+                  <stop offset="77%" stopColor="#EA580C" /> {/* Orange (Sacral) */}
+                  <stop offset="90%" stopColor="#DC2626" /> {/* Red (Root) */}
+                </linearGradient>
+                <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="6" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
 
-            return (
-              <motion.div
-                key={chakra.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.08, duration: 0.5 }}
-              >
-                <motion.button
-                  onClick={() => handleChakraClick(chakra)}
-                  className="group relative w-full flex flex-col items-center rounded-2xl border border-white/60 backdrop-blur-sm p-5 md:p-6 cursor-pointer transition-all duration-300 overflow-hidden"
-                  style={{ background: chakra.pastelBg }}
-                  whileHover={{ y: -4, scale: 1.02 }}
-                  whileTap={{ scale: 0.97 }}
-                  animate={isActive ? {
-                    scale: 1.04,
-                    y: [ -6, -12, -6 ],
-                    boxShadow: [
-                      `0 0 4px ${chakra.glowColor}`,
-                      `0 12px 32px ${chakra.glowColor}`,
-                      `0 4px 16px ${chakra.glowColor}`,
-                    ],
-                  } : { scale: 1, y: 0, boxShadow: `0 2px 12px rgba(0,0,0,0.04)` }}
-                  transition={isActive ? {
-                    y: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
-                    boxShadow: { duration: 4, repeat: Infinity, repeatType: 'reverse' },
-                    scale: { duration: 0.4 },
-                  } : { duration: 0.4 }}
+              <motion.path
+                d="M 100 200 C 165 200, 165 50, 230 50 C 295 50, 295 350, 360 350 C 425 350, 425 200, 500 200 C 575 200, 575 50, 640 50 C 705 50, 705 350, 770 350 C 835 350, 835 200, 900 200"
+                fill="none"
+                stroke="url(#roadmapGradient)"
+                strokeWidth="4"
+                strokeLinecap="round"
+                filter="url(#neonGlow)"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ duration: 2.5, ease: "easeInOut" }}
+              />
+            </svg>
+
+            {/* Nodes will be added here in Phase 2 */}
+            {CHAKRAS.map((chakra) => {
+              const isSelected = activeChakra === chakra.id;
+              const hasSelection = activeChakra !== null;
+              const opacityClass = hasSelection && !isSelected ? 'opacity-50' : 'opacity-100';
+              
+              // X positions mapping (10% to 90%)
+              // 7 Crown, 6 Third Eye, 5 Throat, 4 Heart, 3 Solar, 2 Sacral, 1 Root
+              let leftPercent = 0;
+              let topPercent = 0;
+              let labelSide: 'above' | 'below' = 'above';
+              
+              switch(chakra.id) {
+                case 7: leftPercent = 10; topPercent = 50; labelSide = 'above'; break;  // Crown (Center)
+                case 6: leftPercent = 23; topPercent = 12.5; labelSide = 'below'; break;  // Third Eye (Top) -> (12.5% of 100% height is equivalent to 50px of 400px centered in 600px)
+                case 5: leftPercent = 36; topPercent = 87.5; labelSide = 'above'; break;  // Throat (Bottom) -> 87.5%
+                case 4: leftPercent = 50; topPercent = 50; labelSide = 'below'; break;  // Heart (Center)
+                case 3: leftPercent = 64; topPercent = 12.5; labelSide = 'below'; break;  // Solar (Top)
+                case 2: leftPercent = 77; topPercent = 87.5; labelSide = 'above'; break;  // Sacral (Bottom)
+                case 1: leftPercent = 90; topPercent = 50; labelSide = 'above'; break;  // Root (Center)
+              }
+
+              // Adjust percentages so they perfectly match the SVG path coordinates visually
+              // The SVG is 400px tall, centered in the 600px container.
+              // Center = 300px (50%).
+              // Top = 150px (25%).
+              // Bottom = 450px (75%).
+              switch(chakra.id) {
+                case 7: leftPercent = 10; topPercent = 50; labelSide = 'above'; break;  // Crown (Center)
+                case 6: leftPercent = 23; topPercent = 25; labelSide = 'below'; break;  // Third Eye (Top)
+                case 5: leftPercent = 36; topPercent = 75; labelSide = 'above'; break;  // Throat (Bottom)
+                case 4: leftPercent = 50; topPercent = 50; labelSide = 'below'; break;  // Heart (Center)
+                case 3: leftPercent = 64; topPercent = 25; labelSide = 'below'; break;  // Solar (Top)
+                case 2: leftPercent = 77; topPercent = 75; labelSide = 'above'; break;  // Sacral (Bottom)
+                case 1: leftPercent = 90; topPercent = 50; labelSide = 'above'; break;  // Root (Center)
+              }
+
+              return (
+                <div 
+                  key={chakra.id} 
+                  className={`absolute snap-center transition-opacity duration-300 ${opacityClass}`} 
+                  style={{ left: `${leftPercent}%`, top: `${topPercent}%`, transform: 'translate(-50%, -50%)' }}
                 >
-                  {/* Ripple on click */}
-                  <AnimatePresence>
-                    {isActive && (
-                      <motion.div
-                        key={`ripple-${rippleKey}`}
-                        className="absolute inset-0 rounded-2xl pointer-events-none"
-                        initial={{ opacity: 0.5, scale: 0.5 }}
-                        animate={{ opacity: 0, scale: 2.5 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 1.2, ease: 'easeOut' }}
-                        style={{
-                          background: `radial-gradient(circle, ${chakra.glowColor} 0%, transparent 70%)`,
-                        }}
-                      />
-                    )}
-                  </AnimatePresence>
+                  
 
-                  {/* Chakra symbol */}
-                  <div className="relative mb-4">
-                    {/* Glow ring behind symbol when active */}
-                    {isActive && (
-                      <motion.div
-                        className="absolute inset-0 rounded-full blur-xl"
-                        style={{ background: chakra.glowColor }}
-                        animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.7, 0.4] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      />
-                    )}
-                    <motion.div
-                      animate={isActive ? { rotate: [0, 360] } : { rotate: 0 }}
-                      transition={isActive ? { duration: 12, repeat: Infinity, ease: 'linear' } : { duration: 0.5 }}
-                      className="relative z-10"
+
+                  {/* Chakra Orb (Node) */}
+                  <motion.div 
+                    className="relative z-40 cursor-pointer group"
+                    whileHover={{ scale: 1.15 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleChakraClick(chakra)}
+                  >
+                    {/* Hover Tooltip (Small Info Popup Box) */}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 w-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50">
+                      <div className="bg-[#0D1B2A] border border-[#00FF9C]/40 rounded-xl p-2.5 text-center shadow-[0_4px_15px_rgba(0,0,0,0.3)]">
+                        <p className="text-[11px] font-medium text-white/90 leading-snug">
+                          {chakra.description}
+                        </p>
+                      </div>
+                      {/* Triangle pointer */}
+                      <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#00FF9C]/40 mx-auto"></div>
+                    </div>
+
+                    {/* Outer 80px circle */}
+                    <div 
+                      className="relative w-[80px] h-[80px] flex items-center justify-center rounded-full transition-all duration-300"
+                      style={{ 
+                        boxShadow: isSelected ? `0 0 25px ${chakra.color}, inset 0 0 15px ${chakra.color}` : `0 0 10px ${chakra.color}40`,
+                        background: 'rgba(13, 27, 42, 0.5)',
+                        backdropFilter: 'blur(4px)'
+                      }}
                     >
-                      <ChakraSymbol chakra={chakra} size={64} />
-                    </motion.div>
+                      {/* Inner 56px dark bg */}
+                      <div className="absolute w-[56px] h-[56px] rounded-full bg-[#0D1B2A] border border-[#00FF9C]/20 flex items-center justify-center overflow-hidden">
+                        
+                        {/* Faint geometry behind orb */}
+                        <div 
+                          className="absolute inset-0 opacity-20 pointer-events-none"
+                          style={{ backgroundColor: chakra.color }}
+                        />
+
+                        {/* Inner Pulse on Hover */}
+                        <motion.div
+                          className="absolute inset-0 rounded-full blur-md opacity-0 group-hover:opacity-100"
+                          style={{ background: chakra.color }}
+                          animate={{ scale: [1, 1.2, 1], opacity: [0, 0.6, 0] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        />
+                        
+                        {/* Rotating Symbol */}
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+                          className="relative z-10 w-10 h-10"
+                        >
+                          <ChakraSymbol chakra={chakra} size={40} />
+                        </motion.div>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Chakra Name Underneath */}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 flex flex-col items-center whitespace-nowrap pointer-events-none">
+                    <span className="text-[#1A5D47] font-bold text-[10px] tracking-widest uppercase">{chakra.sanskrit}</span>
+                    <span className="text-[#0D1B2A] font-extrabold text-[15px] tracking-wide mt-0.5">{chakra.name}</span>
                   </div>
 
-                  {/* Sanskrit name as main bold title */}
-                  <h3
-                    className="text-base md:text-lg font-bold tracking-tight mb-2 transition-colors duration-300"
-                    style={{ color: isActive ? chakra.color : '#0F131A' }}
-                  >
-                    {chakra.sanskrit}
-                  </h3>
-
-                  {/* Description on hover */}
-                  <p className="text-[10px] text-gray-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center">
-                    {chakra.description}
-                  </p>
-                </motion.button>
-              </motion.div>
-            );
-          })}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* View More button */}
         <motion.div
           id="begin-journey-anchor"
-          className="flex justify-center mt-12"
+          className="flex justify-center mt-12 relative z-10"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -318,21 +461,14 @@ export function ChakraSection() {
           <motion.button
             onClick={() => navigate('/chakra-experience')}
             className="group flex items-center gap-2.5 px-8 py-3.5 rounded-full font-semibold text-sm tracking-wide transition-all duration-300
-                       bg-[#1a5d47] text-white hover:bg-[#113d2f] shadow-lg shadow-[#1a5d47]/20 hover:shadow-xl hover:shadow-[#1a5d47]/30"
+                       bg-[#00FF9C]/10 text-[#00FF9C] hover:bg-[#00FF9C]/20 border border-[#00FF9C]/30 shadow-[0_0_15px_rgba(0,255,156,0.1)]"
             whileHover={{ y: -2, scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
             <span>View More</span>
-            <svg
-              className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
           </motion.button>
         </motion.div>
+
       </div>
 
       {/* Soundboard Modal */}

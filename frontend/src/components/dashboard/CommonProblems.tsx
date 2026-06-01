@@ -25,7 +25,7 @@ export const CommonProblems = () => {
             accentLight: "#F9F3E8",
             modalGradient: "from-amber-400 to-orange-400",
 
-            image: "https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=600&h=400&fit=crop&q=80",
+            image: "/images/problems/burnout_hq.png",
             description: "Feeling exhausted and overwhelmed from work or life demands?",
             solutions: ["Practice daily meditation", "Set healthy boundaries", "Take regular breaks", "Engage in sound healing"],
             recommendations: [
@@ -49,7 +49,7 @@ export const CommonProblems = () => {
             accentLight: "#F0F5ED",
             modalGradient: "from-green-400 to-emerald-400",
 
-            image: "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=600&h=400&fit=crop&q=80",
+            image: "/images/problems/stress_hq.png",
 
             description: "Chronic stress can impact your health and productivity.",
             solutions: ["Breathing exercises", "Mindfulness practices", "Regular physical activity", "Connect with AI companion"],
@@ -74,7 +74,7 @@ export const CommonProblems = () => {
             accentLight: "#F2F5FA",
             modalGradient: "from-slate-700 to-blue-900",
 
-            image: "https://images.unsplash.com/photo-1518281361980-b26bfd556770?w=600&h=400&fit=crop&q=80",
+            image: "/images/problems/sleep_hq.png",
 
             description: "Quality sleep is essential for recovery and mental clarity.",
             solutions: ["Sleep meditation tracks", "Calming frequencies", "Evening routines", "Binaural beats"],
@@ -99,7 +99,7 @@ export const CommonProblems = () => {
             accentLight: "#F7F3FC",
             modalGradient: "from-purple-400 to-indigo-500",
 
-            image: "https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?w=600&h=400&fit=crop&q=80",
+            image: "/images/problems/anxiety_hq.png",
 
             description: "Anxiety can feel overwhelming, but you can find peace.",
             solutions: ["Guided anxiety relief", "Grounding techniques", "Crystal bowl therapy", "Community support"],
@@ -124,7 +124,7 @@ export const CommonProblems = () => {
             accentLight: "#FAF0ED",
             modalGradient: "from-rose-400 to-pink-400",
 
-            image: "https://images.unsplash.com/photo-1478147427282-58a87a120781?w=600&h=400&fit=crop&q=80",
+            image: "/images/problems/mood_hq.png",
 
             description: "Emotional fluctuations affect your daily life.",
             solutions: ["Chakra balancing", "Emotional regulation", "Journaling exercises", "Companion sessions"],
@@ -149,7 +149,7 @@ export const CommonProblems = () => {
             accentLight: "#F0F8FB",
             modalGradient: "from-cyan-400 to-teal-500",
 
-            image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&h=400&fit=crop&q=80",
+            image: "/images/problems/isolated_hq.png",
 
             description: "Connection is a fundamental human need.",
             solutions: ["Join community groups", "Attend live sessions", "Connect with companions", "Group retreats"],
@@ -165,7 +165,7 @@ export const CommonProblems = () => {
     return (
        <section className="min-h-screen flex flex-col justify-center py-8 bg-[#EEF7F1] relative">
             <div className="w-full px-6 md:px-12 lg:px-20">
-                <div className="text-center mb-8">
+                <div className="text-left mb-8">
                     <motion.h2
                         className="text-2xl md:text-4xl font-bold text-[#0F131A] mb-2 tracking-wide"
                         style={{ fontFamily: "'Cinzel', serif" }}

@@ -971,7 +971,7 @@ export default function HealingMusicPage() {
     : HEALING_SOUNDS.filter(s => s.category === activeCategory);
 
   return (
-    <div className="relative min-h-screen bg-[#060a08] overflow-x-hidden text-white py-24 px-6 md:px-12" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="relative min-h-screen bg-[#E4EFE8] overflow-x-hidden text-[#0F131A] py-24 px-6 md:px-12" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Dynamic ambient orb matching playing sound */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {playingIds.map((id, index) => {
@@ -1007,7 +1007,7 @@ export default function HealingMusicPage() {
         {/* Back Button */}
         <motion.button
           onClick={() => { stopAllSounds(); navigate('/chakra-experience'); }}
-          className="mb-8 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white/70 border border-white/10 hover:border-white/20 hover:text-white transition-all bg-black/35 backdrop-blur-md"
+          className="mb-8 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-[#1a5d47] border border-[#1a5d47]/20 hover:border-[#1a5d47]/40 hover:text-[#0F131A] transition-all bg-white/40 backdrop-blur-md"
           whileHover={{ scale: 1.04, x: -2 }}
           whileTap={{ scale: 0.96 }}
         >
@@ -1028,33 +1028,33 @@ export default function HealingMusicPage() {
                 Sacred Nada Resonance
               </span>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white" style={{ fontFamily: "'Cinzel', serif" }}>
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-[#0F131A]" style={{ fontFamily: "'Cinzel', serif" }}>
               Healing Music
             </h1>
-            <p className="text-white/50 text-base md:text-lg max-w-2xl leading-relaxed">
+            <p className="text-gray-500 text-base md:text-lg max-w-2xl leading-relaxed">
               Unlock cosmic vibrations and ancient Vedic chants. Engage with our gamified 
               soundboard to blend frequencies, Repair your cells, and expand your Zen energy.
             </p>
           </div>
 
           {/* Gamified Stats Block */}
-          <div className="lg:col-span-4 bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-3xl p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden group hover:border-[#10B981]/40 transition-all duration-300">
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#10B981]/5 to-transparent pointer-events-none" />
+          <div className="lg:col-span-4 bg-white/40 backdrop-blur-xl border border-white/60 rounded-3xl p-6 flex flex-col justify-between shadow-md relative overflow-hidden group hover:border-[#1a5d47]/30 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-tr from-[#1a5d47]/5 to-transparent pointer-events-none" />
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-[#10B981]" />
-                <span className="text-white/40 text-xs font-bold uppercase tracking-wider">Zen Rank</span>
+                <Award className="w-5 h-5 text-[#1a5d47]" />
+                <span className="text-gray-500 text-xs font-bold uppercase tracking-wider">Zen Rank</span>
               </div>
-              <span className="text-xs font-extrabold px-3 py-1 bg-[#10B981]/25 text-[#34D399] rounded-full border border-[#10B981]/20">
+              <span className="text-xs font-extrabold px-3 py-1 bg-[#1a5d47]/10 text-[#1a5d47] rounded-full border border-[#1a5d47]/10">
                 {listenerLevel}
               </span>
             </div>
 
             <div className="space-y-1">
-              <div className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-white to-[#10B981] bg-clip-text text-transparent">
-                {zenPoints} <span className="text-sm font-semibold text-[#10B981]">Z-Energy</span>
+              <div className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-[#0F131A] via-[#1a5d47] to-[#1a5d47] bg-clip-text text-transparent">
+                {zenPoints} <span className="text-sm font-semibold text-[#1a5d47]">Z-Energy</span>
               </div>
-              <p className="text-white/30 text-[10px] font-medium leading-normal">
+              <p className="text-gray-400 text-[10px] font-medium leading-normal">
                 {playingIds.length > 0 
                   ? `Pumping +${5 * playingIds.length} Z-Energy every 3 seconds from active sound layers.` 
                   : "Start a vibration below to harvest cosmic Zen Energy."}
@@ -1064,26 +1064,26 @@ export default function HealingMusicPage() {
         </div>
 
         {/* Dashboard Mixer Panel */}
-        <div className="bg-white/[0.02] border border-white/5 rounded-[28px] p-6 md:p-8 mb-10 backdrop-blur-2xl">
+        <div className="bg-[#d1ecd8]/70 border border-[#1a5d47]/20 rounded-[28px] p-6 md:p-8 mb-10 backdrop-blur-2xl shadow-sm">
           <div className="flex flex-col md:flex-row gap-6 md:gap-12 items-center justify-between">
             {/* Active Sound / Spinning Mandala */}
             <div className="flex items-center gap-6 w-full md:w-auto">
               <div className="relative w-20 h-20 flex-shrink-0 flex items-center justify-center">
                 {/* Mandala Background Ring */}
                 <motion.div 
-                  className="absolute inset-0 rounded-full border-2 border-dashed border-[#10B981]/30"
+                  className="absolute inset-0 rounded-full border-2 border-dashed border-[#1a5d47]/20"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
                 />
                 {/* Interactive Center Core */}
                 <motion.div
-                  className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#10B981] to-[#3B82F6] flex items-center justify-center shadow-lg cursor-pointer"
+                  className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#1a5d47] to-[#3B82F6] flex items-center justify-center shadow-md cursor-pointer"
                   animate={playingIds.length > 0 ? {
                     scale: [1, 1.15, 1],
                     boxShadow: [
-                      "0 0 20px rgba(16,185,129,0.3)",
-                      "0 0 40px rgba(59,130,246,0.6)",
-                      "0 0 20px rgba(16,185,129,0.3)"
+                      "0 0 10px rgba(26,93,71,0.2)",
+                      "0 0 24px rgba(26,93,71,0.4)",
+                      "0 0 10px rgba(26,93,71,0.2)"
                     ]
                   } : { scale: 1 }}
                   transition={{ duration: 2, repeat: Infinity }}
@@ -1093,8 +1093,8 @@ export default function HealingMusicPage() {
               </div>
 
               <div>
-                <h3 className="font-extrabold text-white text-lg">Resonance Mixer</h3>
-                <p className="text-white/40 text-xs mt-1">
+                <h3 className="font-extrabold text-[#0F131A] text-lg">Resonance Mixer</h3>
+                <p className="text-gray-500 text-xs mt-1">
                   {playingIds.length > 0 
                     ? `Blending ${playingIds.length} overlapping frequency layers in real-time.` 
                     : "Tap below to begin generating high-fidelity meditative hums."}
@@ -1105,17 +1105,17 @@ export default function HealingMusicPage() {
             {/* Quick Mixer Controls */}
             <div className="flex flex-wrap items-center gap-4 w-full md:w-auto justify-end">
               {/* Master Volume */}
-              <div className="flex items-center gap-3 bg-black/25 px-4 py-2.5 rounded-full border border-white/5">
-                {masterVolume === 0 ? <VolumeX className="w-4 h-4 text-white/50" /> : <Volume2 className="w-4 h-4 text-[#10B981]" />}
+              <div className="flex items-center gap-3 bg-white/60 px-4 py-2.5 rounded-full border border-white/80">
+                {masterVolume === 0 ? <VolumeX className="w-4 h-4 text-gray-400" /> : <Volume2 className="w-4 h-4 text-[#1a5d47]" />}
                 <input 
                   type="range" 
                   min="0" 
                   max="100" 
                   value={masterVolume} 
                   onChange={(e) => setMasterVolume(parseInt(e.target.value))}
-                  className="w-20 md:w-28 accent-[#10B981] h-1 bg-white/20 rounded-lg cursor-pointer"
+                  className="w-20 md:w-28 accent-[#1a5d47] h-1 bg-[#1a5d47]/20 rounded-lg cursor-pointer"
                 />
-                <span className="text-xs font-semibold text-white/60 w-6 text-right">{masterVolume}%</span>
+                <span className="text-xs font-semibold text-gray-500 w-6 text-right">{masterVolume}%</span>
               </div>
 
               {/* Toggle Deepen Vibrato */}
@@ -1123,8 +1123,8 @@ export default function HealingMusicPage() {
                 onClick={() => setDeepResonance(!deepResonance)}
                 className={`px-4 py-2.5 rounded-full text-xs font-semibold border transition-all flex items-center gap-2 ${
                   deepResonance 
-                    ? 'bg-[#10B981] text-white border-[#10B981] shadow-lg shadow-[#10B981]/25' 
-                    : 'bg-white/5 text-white/70 border-white/10 hover:border-white/20'
+                    ? 'bg-[#1a5d47] text-white border-[#1a5d47] shadow-sm' 
+                    : 'bg-white/60 text-gray-600 border-white/80 hover:bg-white/80'
                 }`}
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
@@ -1138,8 +1138,8 @@ export default function HealingMusicPage() {
                 onClick={() => setMixerMode(!mixerMode)}
                 className={`px-4 py-2.5 rounded-full text-xs font-semibold border transition-all ${
                   mixerMode 
-                    ? 'bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-[#10B981] border-[#10B981]/30' 
-                    : 'bg-white/5 text-white/60 border-white/10 hover:border-white/20'
+                    ? 'bg-[#1a5d47]/10 text-[#1a5d47] border-[#1a5d47]/20' 
+                    : 'bg-white/60 text-gray-500 border-white/80'
                 }`}
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
@@ -1177,15 +1177,15 @@ export default function HealingMusicPage() {
         </div>
 
         {/* Categories Tab Selector */}
-        <div className="flex gap-2 overflow-x-auto pb-4 mb-8 border-b border-white/5">
+        <div className="flex gap-2 overflow-x-auto pb-4 mb-8 border-b border-[#1a5d47]/10">
           {categories.map(cat => (
             <motion.button
               key={cat}
               onClick={() => setActiveCategory(cat)}
               className={`px-5 py-2.5 rounded-full text-xs font-semibold tracking-wider whitespace-nowrap transition-all border ${
                 activeCategory === cat 
-                  ? 'bg-white text-black border-white' 
-                  : 'bg-white/5 text-white/60 border-white/10 hover:border-white/20'
+                  ? 'bg-[#1a5d47] text-white border-[#1a5d47]' 
+                  : 'bg-white/40 text-gray-500 border-white/80 hover:bg-white/60 hover:text-gray-700'
               }`}
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.97 }}
@@ -1207,12 +1207,12 @@ export default function HealingMusicPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.5, delay: (index % 4) * 0.08 }}
-                className="group relative flex flex-col justify-between p-6 bg-white/[0.02] border border-white/5 rounded-3xl backdrop-blur-md shadow-lg hover:shadow-2xl hover:border-white/15 transition-all duration-500 overflow-hidden cursor-pointer select-none"
+                className="group relative flex flex-col justify-between p-6 bg-[#d1ecd8]/50 border border-[#1a5d47]/10 rounded-3xl backdrop-blur-md shadow-sm hover:shadow-lg hover:border-[#1a5d47]/30 hover:bg-[#d1ecd8]/80 transition-all duration-500 overflow-hidden cursor-pointer select-none"
                 onClick={() => toggleSound(sound)}
               >
                 {/* Background soft color glow */}
                 <div 
-                  className="absolute -top-12 -right-12 w-28 h-28 rounded-full blur-3xl opacity-20 pointer-events-none group-hover:scale-150 transition-transform duration-500" 
+                  className="absolute -top-12 -right-12 w-28 h-28 rounded-full blur-3xl opacity-30 pointer-events-none group-hover:scale-150 transition-transform duration-500" 
                   style={{ backgroundColor: sound.color }}
                 />
 
@@ -1232,7 +1232,7 @@ export default function HealingMusicPage() {
                               transition={{ duration: 2, repeat: Infinity }}
                             />
                             <motion.div
-                              className={`absolute -inset-2 pointer-events-none border-2 border-[#10B981]/40 ${sound.shapeClass}`}
+                              className={`absolute -inset-2 pointer-events-none border-2 border-[#1a5d47]/40 ${sound.shapeClass}`}
                               animate={{ scale: [1, 1.15, 1], opacity: [0.8, 0, 0.8] }}
                               transition={{ duration: 2.5, repeat: Infinity }}
                             />
@@ -1241,7 +1241,7 @@ export default function HealingMusicPage() {
                       </AnimatePresence>
 
                       <motion.div
-                        className={`relative z-10 w-14 h-14 bg-gradient-to-tr from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 border border-white/15 text-xl flex items-center justify-center shadow-lg transition-transform duration-500 ${sound.shapeClass}`}
+                        className={`relative z-10 w-14 h-14 bg-white/80 hover:bg-white border border-white text-xl flex items-center justify-center shadow-sm transition-transform duration-500 ${sound.shapeClass}`}
                         style={isPlaying ? {
                           background: `linear-gradient(135deg, ${sound.color}, #000)`,
                           borderColor: sound.color,
@@ -1256,14 +1256,14 @@ export default function HealingMusicPage() {
                       </motion.div>
                     </div>
 
-                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">
                       {sound.category}
                     </span>
                   </div>
 
                   {/* Sound Info */}
                   <div className="space-y-1">
-                    <h3 className="text-lg font-bold text-white tracking-tight leading-snug">
+                    <h3 className="text-lg font-bold text-[#0F131A] tracking-tight leading-snug">
                       {sound.name}
                     </h3>
                     <p className="text-xs font-semibold tracking-wide" style={{ color: sound.color }}>
@@ -1272,14 +1272,14 @@ export default function HealingMusicPage() {
                   </div>
 
                   {/* Sound Description */}
-                  <p className="text-white/40 text-xs font-medium leading-relaxed">
+                  <p className="text-gray-500 text-xs font-medium leading-relaxed">
                     {sound.desc}
                   </p>
                 </div>
 
                 {/* Playback indicator footer */}
-                <div className="mt-5 pt-4 border-t border-white/[0.03] flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase text-white/30 tracking-wider">
+                <div className="mt-5 pt-4 border-t border-[#1a5d47]/10 flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider">
                     {isPlaying ? "Vibrating Now" : "Ready to play"}
                   </span>
                   
@@ -1296,7 +1296,7 @@ export default function HealingMusicPage() {
                       ))}
                     </div>
                   ) : (
-                    <Play className="w-3.5 h-3.5 text-white/30 group-hover:text-[#10B981] group-hover:translate-x-0.5 transition-all duration-300" />
+                    <Play className="w-3.5 h-3.5 text-gray-300 group-hover:text-[#1a5d47] group-hover:translate-x-0.5 transition-all duration-300" />
                   )}
                 </div>
               </motion.div>
@@ -1305,7 +1305,7 @@ export default function HealingMusicPage() {
         </div>
         
         {/* Footer closing notice */}
-        <div className="mt-16 text-center text-white/20 text-xs font-medium">
+        <div className="mt-16 text-center text-gray-400 text-xs font-medium">
           NIRVAHA NADA YOGA · HOLOGRAPHIC SOUND EMBODIMENT · {new Date().getFullYear()}
         </div>
 

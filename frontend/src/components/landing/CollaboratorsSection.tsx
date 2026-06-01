@@ -80,7 +80,7 @@ const CollaboratorsSection: React.FC = () => {
               <img
                 src={partner.image}
                 alt={partner.name}
-                className="w-full h-full object-contain filter grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500 relative z-10 mix-blend-multiply"
+                className="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-all duration-500 relative z-10 mix-blend-multiply"
                 onError={(e) => { 
                   (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${partner.name}&background=ffffff&color=1a5d47&bold=true`; 
                 }}

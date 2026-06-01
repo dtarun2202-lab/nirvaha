@@ -43,6 +43,21 @@ export default function NirvahaStreamIntro() {
         }}
       />
 
+      {/* Nirvaha Logo at Top Right */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+        className="absolute top-8 right-8 z-50 w-24 h-24 md:w-32 md:h-32 pointer-events-none"
+      >
+        <img
+          src="/logo-transparent.png"
+          alt="Nirvaha Logo"
+          className="w-full h-full object-contain filter drop-shadow-[0_0_15px_rgba(46,216,153,0.5)]"
+          onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/logo.png" }}
+        />
+      </motion.div>
+
       {/* Center content */}
       <div className="relative z-10 flex flex-col items-center justify-center gap-6">
         {/* Nirvaha Logo / Icon */}
