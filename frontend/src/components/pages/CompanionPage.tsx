@@ -374,6 +374,18 @@ export function CompanionPage() {
   const [error, setError] = useState<string | null>(null);
   const applicationIdKey = "nirvaha_companion_application_id";
 
+  // Dynamic CMS config for the Companion/Seeker page
+  const [companionPageConfig, setCompanionPageConfig] = useState({
+    heroTitle: "Find Your Perfect",
+    heroHighlight: "Spiritual Guide",
+    heroSubtitle: "Book 1-on-1 sessions with experienced spiritual teachers, meditation guides, and wellness coaches. Pay per hour or per call.",
+    ctaBookTitle: "Book a Healing Session",
+    ctaBookDesc: "Connect with experienced guides for personalized wellness & spiritual support.",
+    ctaApplyTitle: "Apply as a Companion",
+    ctaApplyDesc: "Share your spiritual wisdom, lead guided sessions, and earn on Nirvaha.",
+    footerTagline: "Choose your journey — receive healing or help others heal.",
+  });
+
   useEffect(() => {
     const fetchCompanions = async () => {
       try {
@@ -388,6 +400,24 @@ export function CompanionPage() {
     };
 
     fetchCompanions();
+
+    // Fetch Companion page CMS config
+    const fetchCompanionConfig = async () => {
+      try {
+        const res = await fetch(`${(await import("@/config/backend")).default.API_BASE_URL}/api/content/companion_page_config`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.value) {
+            const parsed = JSON.parse(data.value);
+            setCompanionPageConfig(prev => ({ ...prev, ...parsed }));
+          }
+        }
+      } catch (err) {
+        console.warn("Could not load companion page config from CMS", err);
+      }
+    };
+
+    fetchCompanionConfig();
   }, []);
 
   const fetchDashboardSessions = async () => {
@@ -821,8 +851,22 @@ export function CompanionPage() {
     (minRating !== null ? 1 : 0) +
     (selectedLanguages.length > 0 ? 1 : 0);
 
+  // Merge: backend-approved companions take priority; supplement with static list for IDs not yet in backend
+  const mergedCompanionsList = useMemo(() => {
+    const backendIds = new Set(companions.map(c => String(c._id || c.id)));
+    const staticOnly = companionsList.filter(c => !backendIds.has(String(c.id)));
+    const backendNormalized = companions.map(c => ({
+      ...c,
+      id: String(c._id || c.id),
+      price: c.hourlyRate || c.price || "₹1000",
+      experienceYears: c.experienceYears || 3,
+      availabilitySlots: c.availabilitySlots || ["morning", "afternoon"],
+    }));
+    return [...backendNormalized, ...staticOnly];
+  }, [companions]);
+
   const filteredItems = useMemo(() => {
-    let result = [...companionsList];
+    let result = [...mergedCompanionsList];
 
     // 1. Category Filter
     if (selectedCategories.length > 0) {
@@ -910,7 +954,7 @@ export function CompanionPage() {
 
     return result;
   }, [
-    companionsList,
+    mergedCompanionsList,
     selectedCategories,
     priceRanges,
     availabilities,
@@ -1551,12 +1595,11 @@ export function CompanionPage() {
                 className="text-center mb-16"
               >
                 <h1 className="text-6xl md:text-8xl font-bold mb-6 tracking-tight text-[#1B4332] font-black">
-                  Find Your Perfect <br/>
-                  <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Spiritual Guide</span>
+                  {companionPageConfig.heroTitle} <br/>
+                  <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{companionPageConfig.heroHighlight}</span>
                 </h1>
                 <p className="max-w-3xl mx-auto text-xl text-emerald-800/70 mb-10 leading-relaxed font-medium">
-                  Book 1-on-1 sessions with experienced spiritual teachers, meditation
-                  guides, and wellness coaches. Pay per hour or per call.
+                  {companionPageConfig.heroSubtitle}
                 </p>
 
                 {/* Interactive CTA Section */}
@@ -1583,8 +1626,8 @@ export function CompanionPage() {
                           <Sparkles className="w-6 h-6 text-emerald-400/50 group-hover:text-emerald-300 animate-pulse" />
                         </div>
                         <div>
-                          <h3 className="text-2xl font-black text-white mb-2 tracking-tight">Book a Healing Session</h3>
-                          <p className="text-emerald-100/70 font-medium line-clamp-2">Connect with experienced guides for personalized wellness & spiritual support.</p>
+                          <h3 className="text-2xl font-black text-white mb-2 tracking-tight">{companionPageConfig.ctaBookTitle}</h3>
+                          <p className="text-emerald-100/70 font-medium line-clamp-2">{companionPageConfig.ctaBookDesc}</p>
                           <div className="mt-6 flex items-center text-emerald-300 font-bold group-hover:text-white transition-colors gap-2 text-sm uppercase tracking-wider">
                             Find a Guide <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                           </div>
@@ -1610,8 +1653,8 @@ export function CompanionPage() {
                           <TrendingUp className="w-6 h-6 text-emerald-500/30 group-hover:text-emerald-500 animate-pulse" />
                         </div>
                         <div>
-                          <h3 className="text-2xl font-black text-emerald-950 mb-2 tracking-tight">Apply as a Companion</h3>
-                          <p className="text-emerald-800/60 font-medium line-clamp-2">Share your spiritual wisdom, lead guided sessions, and earn on Nirvaha.</p>
+                          <h3 className="text-2xl font-black text-emerald-950 mb-2 tracking-tight">{companionPageConfig.ctaApplyTitle}</h3>
+                          <p className="text-emerald-800/60 font-medium line-clamp-2">{companionPageConfig.ctaApplyDesc}</p>
                           <div className="mt-6 flex items-center text-emerald-700 font-bold group-hover:text-emerald-900 transition-colors gap-2 text-sm uppercase tracking-wider">
                             Apply Now <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                           </div>
@@ -1622,7 +1665,7 @@ export function CompanionPage() {
 
                   <div className="mt-4 flex flex-col items-center">
                     <p className="text-emerald-800/60 text-sm font-medium tracking-wide">
-                      Choose your journey — receive healing or help others heal.
+                      {companionPageConfig.footerTagline}
                     </p>
                   </div>
                 </div>

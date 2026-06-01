@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
+import BACKEND_CONFIG from '../../config/backend';
 
 const defaultPillars = [
     {
@@ -40,17 +41,37 @@ const WhatIsNirvaha: React.FC = () => {
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
     const [pillars, setPillars] = useState(defaultPillars);
 
-    // Load pillars from localStorage
     useEffect(() => {
-        const savedPillars = localStorage.getItem("nirvaha_pillars");
-        if (savedPillars) {
+        const fetchPillars = async () => {
             try {
-                setPillars(JSON.parse(savedPillars));
-            } catch (e) {
-                console.error("Failed to load pillars from localStorage", e);
-                setPillars(defaultPillars);
+                const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/content/landing_pillars`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.value) {
+                        const parsed = JSON.parse(data.value);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            setPillars(parsed);
+                            return;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Failed to fetch pillars from backend, trying localStorage", err);
             }
-        }
+
+            // Fallback to localStorage
+            const savedPillars = localStorage.getItem("nirvaha_pillars");
+            if (savedPillars) {
+                try {
+                    setPillars(JSON.parse(savedPillars));
+                } catch (e) {
+                    console.error("Failed to load pillars from localStorage", e);
+                    setPillars(defaultPillars);
+                }
+            }
+        };
+
+        fetchPillars();
     }, []);
 
     return (
