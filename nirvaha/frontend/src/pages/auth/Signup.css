@@ -1,0 +1,55 @@
+/* Customized Animations and Premium Styling overrides for Nirvaha Signup */
+
+/* Custom Fade In Animation for Checkmarks */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Chrome Autofill Styling Overrides for Premium Aesthetic */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #FAF9F6 inset !important;
+  -webkit-text-fill-color: #27272a !important; /* zinc-800 */
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Scrollbar styling for the form side (Right) */
+.signup-form-side::-webkit-scrollbar {
+  width: 6px;
+}
+
+.signup-form-side::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.signup-form-side::-webkit-scrollbar-thumb {
+  background: #e4e4e7; /* zinc-200 */
+  border-radius: 4px;
+}
+
+.signup-form-side::-webkit-scrollbar-thumb:hover {
+  background: #d4d4d8; /* zinc-300 */
+}
+
+/* Smooth transition for inputs when changing states */
+input {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Button micro-interactions */
+button {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
