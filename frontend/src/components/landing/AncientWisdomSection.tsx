@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import DecorativeShapes from './DecorativeShapes';
+import BACKEND_CONFIG from '../../config/backend';
 
 const defaultGoals = [
     {
@@ -48,17 +49,39 @@ export function AncientWisdomSection() {
     const [currentIndex, setCurrentIndex] = useState(defaultGoals.length); // Start in middle set
     const [isTransitioning, setIsTransitioning] = useState(false);
 
-    // Load goals from localStorage
     useEffect(() => {
-        const savedGoals = localStorage.getItem("nirvaha_goals");
-        if (savedGoals) {
+        const fetchGoals = async () => {
             try {
-                setGoals(JSON.parse(savedGoals));
-                setCurrentIndex(JSON.parse(savedGoals).length);
-            } catch (e) {
-                console.error("Failed to load goals from localStorage", e);
+                const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/content/landing_goals`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.value) {
+                        const parsed = JSON.parse(data.value);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            setGoals(parsed);
+                            setCurrentIndex(parsed.length);
+                            return;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Failed to fetch goals from backend, trying localStorage", err);
             }
-        }
+
+            // Fallback to localStorage
+            const savedGoals = localStorage.getItem("nirvaha_goals");
+            if (savedGoals) {
+                try {
+                    const parsed = JSON.parse(savedGoals);
+                    setGoals(parsed);
+                    setCurrentIndex(parsed.length);
+                } catch (e) {
+                    console.error("Failed to load goals from localStorage", e);
+                }
+            }
+        };
+
+        fetchGoals();
     }, []);
 
     // Create triple buffer for infinite loop illusion

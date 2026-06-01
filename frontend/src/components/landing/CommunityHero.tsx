@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import BACKEND_CONFIG from "../../config/backend";
 
 const CommunityHero = () => {
   const navigate = useNavigate();
@@ -9,6 +10,14 @@ const CommunityHero = () => {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const phrases = ["INNER HARMONY", "PURPOSE OF LIFE", "PEACE WITHIN"];
   const [showScrollDown, setShowScrollDown] = useState(true);
+
+  // Dynamic CMS States
+  const [heroData, setHeroData] = useState({
+    title: "FIND YOUR",
+    subtitle: "Experience the convergence of ancient wisdom and modern technology for your complete holistic healing journey.",
+    buttonText: "Start Your Journey",
+    imageUrl: "/landing-page.jpeg"
+  });
 
   useEffect(() => {
     if (videoRef.current) {
@@ -21,6 +30,44 @@ const CommunityHero = () => {
       setPhraseIndex((prev) => (prev + 1) % phrases.length);
     }, 3000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const fetchHeroData = async () => {
+      try {
+        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/content/landing_hero`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.value) {
+            const parsed = JSON.parse(data.value);
+            setHeroData({
+              title: parsed.title || "FIND YOUR",
+              subtitle: parsed.subtitle || "Experience the convergence of ancient wisdom and modern technology for your complete holistic healing journey.",
+              buttonText: parsed.buttonText || "Start Your Journey",
+              imageUrl: parsed.imageUrl || "/landing-page.jpeg"
+            });
+            return;
+          }
+        }
+
+        // Fallback to old landing endpoint
+        const fallbackRes = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/landing`);
+        if (fallbackRes.ok) {
+          const data = await fallbackRes.json();
+          if (data && data.hero) {
+            setHeroData({
+              title: data.hero.title || "FIND YOUR",
+              subtitle: data.hero.subtitle || "Experience the convergence of ancient wisdom and modern technology for your complete holistic healing journey.",
+              buttonText: data.hero.buttonText || "Start Your Journey",
+              imageUrl: data.hero.imageUrl || "/landing-page.jpeg"
+            });
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to fetch landing hero content from backend", err);
+      }
+    };
+    fetchHeroData();
   }, []);
 
   useEffect(() => {
@@ -40,7 +87,7 @@ const CommunityHero = () => {
       {/* 1. Breathing Image Background */}
       <motion.div 
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url('/landing-page.jpeg')` }}
+        style={{ backgroundImage: `url('${heroData.imageUrl}')` }}
         animate={{ 
           scale: [1, 1.05, 1],
           opacity: [0.85, 1, 0.85]
@@ -173,7 +220,7 @@ const CommunityHero = () => {
             className="text-5xl md:text-7xl lg:text-8xl font-black text-emerald-950 drop-shadow-[0_4px_20px_rgba(255,255,255,0.8)] tracking-tighter leading-tight"
             style={{ fontFamily: "'Cinzel', serif" }}
           >
-            FIND YOUR{' '}
+            {heroData.title}{' '}
             <span className="text-emerald-800">
               <AnimatePresence mode="wait">
                 <motion.span
@@ -197,7 +244,7 @@ const CommunityHero = () => {
             className="mt-6 text-xl md:text-2xl text-emerald-950/80 max-w-3xl mx-auto leading-relaxed font-medium italic drop-shadow-[0_2px_10px_rgba(255,255,255,0.8)]"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
-            Experience the convergence of ancient wisdom and modern technology for your complete holistic healing journey.
+            {heroData.subtitle}
           </motion.p>
           
           <motion.div
@@ -211,7 +258,7 @@ const CommunityHero = () => {
               className="px-12 py-5 rounded-full bg-emerald-400 text-black font-bold text-lg hover:bg-emerald-300 transition-colors duration-300 shadow-2xl"
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
-              Start Your Journey
+              {heroData.buttonText}
             </button>
           </motion.div>
         </motion.div>

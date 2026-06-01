@@ -51,18 +51,18 @@ const STATIC_PROBLEMS = [
         accentColor: "#D4A574",
         accentLight: "#F9F3E8",
         modalGradient: "from-amber-400 to-orange-400",
-        image: "https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=600&h=400&fit=crop&q=80",
+        image: "/images/problems/burnout_hq.png",
         description: "Feeling exhausted and overwhelmed from work or life demands?",
         solutions: ["Practice daily meditation", "Set healthy boundaries", "Take regular breaks", "Engage in sound healing"],
         recommendations: [
-            { icon: Clock, text: "Burnout Rest Session" },
-            { icon: Headphones, text: "Energy Reset Frequency" },
-            { icon: MessageCircle, text: "Talk to Recovery Coach" },
-            { icon: Calendar, text: "Book Rest Session" }
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
         ]
     },
     {
-        title: "Stress",
+        title: "Excess Stress",
         icon: Zap,
         color: "text-green-600",
         bgColor: "bg-green-50",
@@ -74,14 +74,14 @@ const STATIC_PROBLEMS = [
         accentColor: "#A8C99F",
         accentLight: "#F0F5ED",
         modalGradient: "from-green-400 to-emerald-400",
-        image: "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=600&h=400&fit=crop&q=80",
+        image: "/images/problems/stress_hq.png",
         description: "Chronic stress can impact your health and productivity.",
         solutions: ["Breathing exercises", "Mindfulness practices", "Regular physical activity", "Connect with AI companion"],
         recommendations: [
-            { icon: Clock, text: "Stress Relief Session" },
-            { icon: Headphones, text: "Calming Nature Sounds" },
-            { icon: MessageCircle, text: "Stress Management Tips" },
-            { icon: Calendar, text: "Book Stress Session" }
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
         ]
     },
     {
@@ -97,14 +97,14 @@ const STATIC_PROBLEMS = [
         accentColor: "#9FA8BA",
         accentLight: "#F2F5FA",
         modalGradient: "from-slate-700 to-blue-900",
-        image: "https://images.unsplash.com/photo-1518281361980-b26bfd556770?w=600&h=400&fit=crop&q=80",
+        image: "/images/problems/sleep_hq.png",
         description: "Quality sleep is essential for recovery and mental clarity.",
         solutions: ["Sleep meditation tracks", "Calming frequencies", "Evening routines", "Binaural beats"],
         recommendations: [
-            { icon: Clock, text: "Deep Sleep Session" },
-            { icon: Headphones, text: "Delta Wave Frequency" },
-            { icon: MessageCircle, text: "Sleep Coach Chat" },
-            { icon: Calendar, text: "Book Sleep Session" }
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
         ]
     },
     {
@@ -120,14 +120,14 @@ const STATIC_PROBLEMS = [
         accentColor: "#D8C5E5",
         accentLight: "#F7F3FC",
         modalGradient: "from-purple-400 to-indigo-500",
-        image: "https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?w=600&h=400&fit=crop&q=80",
+        image: "/images/problems/anxiety_hq.png",
         description: "Anxiety can feel overwhelming, but you can find peace.",
         solutions: ["Guided anxiety relief", "Grounding techniques", "Crystal bowl therapy", "Community support"],
         recommendations: [
-            { icon: Clock, text: "Anxiety Relief Session" },
-            { icon: Headphones, text: "Grounding Frequency" },
-            { icon: MessageCircle, text: "Talk to Anxiety Coach" },
-            { icon: Calendar, text: "Book Grounding Session" }
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
         ]
     },
     {
@@ -143,14 +143,14 @@ const STATIC_PROBLEMS = [
         accentColor: "#E5B8A8",
         accentLight: "#FAF0ED",
         modalGradient: "from-rose-400 to-pink-400",
-        image: "https://images.unsplash.com/photo-1478147427282-58a87a120781?w=600&h=400&fit=crop&q=80",
+        image: "/images/problems/mood_hq.png",
         description: "Emotional fluctuations affect your daily life.",
         solutions: ["Chakra balancing", "Emotional regulation", "Journaling exercises", "Companion sessions"],
         recommendations: [
-            { icon: Clock, text: "Mood Stabilization Session" },
-            { icon: Headphones, text: "Heart Balance Frequency" },
-            { icon: MessageCircle, text: "Emotional Regulation Tips" },
-            { icon: Calendar, text: "Book Emotion Session" }
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
         ]
     },
     {
@@ -166,14 +166,14 @@ const STATIC_PROBLEMS = [
         accentColor: "#A8D4E0",
         accentLight: "#F0F8FB",
         modalGradient: "from-cyan-400 to-teal-500",
-        image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&h=400&fit=crop&q=80",
+        image: "/images/problems/isolated_hq.png",
         description: "Connection is a fundamental human need.",
         solutions: ["Join community groups", "Attend live sessions", "Connect with companions", "Group retreats"],
         recommendations: [
-            { icon: Clock, text: "Connection Session" },
-            { icon: Headphones, text: "Connection Healing Frequency" },
-            { icon: MessageCircle, text: "Join Companion Chat" },
-            { icon: Calendar, text: "Book Group Session" }
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
         ]
     },
 ];
@@ -232,157 +232,7 @@ export const CommonProblems = () => {
         };
     }, []);
 
-    const problems = [
-        {
-            title: "Burnout",
-            icon: Flame,
-            color: "text-amber-700",
-            bgColor: "bg-amber-50",
-            borderColor: "border-amber-200",
-            hoverBg: "hover:bg-amber-50",
-            activeBg: "bg-amber-100",
-            gradientFrom: "from-amber-500",
-            gradientTo: "to-orange-400",
-            accentColor: "#D4A574",
-            accentLight: "#F9F3E8",
-            modalGradient: "from-amber-400 to-orange-400",
 
-            image: "/images/problems/burnout_hq.png",
-            description: "Feeling exhausted and overwhelmed from work or life demands?",
-            solutions: ["Practice daily meditation", "Set healthy boundaries", "Take regular breaks", "Engage in sound healing"],
-            recommendations: [
-                { icon: Headphones, text: "Stress Relief Meditation" },
-                { icon: Play, text: "432 Hz Healing Frequency" },
-                { icon: MessageCircle, text: "Talk to AI Companion" },
-                { icon: Calendar, text: "Book 1:1 Session" }
-            ]
-        },
-        {
-            title: "Excess Stress",
-            icon: Zap,
-            color: "text-green-600",
-            bgColor: "bg-green-50",
-            borderColor: "border-green-200",
-            hoverBg: "hover:bg-green-50",
-            activeBg: "bg-green-100",
-            gradientFrom: "from-green-500",
-            gradientTo: "to-emerald-400",
-            accentColor: "#A8C99F",
-            accentLight: "#F0F5ED",
-            modalGradient: "from-green-400 to-emerald-400",
-
-            image: "/images/problems/stress_hq.png",
-
-            description: "Chronic stress can impact your health and productivity.",
-            solutions: ["Breathing exercises", "Mindfulness practices", "Regular physical activity", "Connect with AI companion"],
-            recommendations: [
-                { icon: Headphones, text: "Stress Relief Meditation" },
-                { icon: Play, text: "432 Hz Healing Frequency" },
-                { icon: MessageCircle, text: "Talk to AI Companion" },
-                { icon: Calendar, text: "Book 1:1 Session" }
-            ]
-        },
-        {
-            title: "Sleep Issues",
-            icon: Moon,
-            color: "text-slate-700",
-            bgColor: "bg-slate-50",
-            borderColor: "border-slate-300",
-            hoverBg: "hover:bg-slate-50",
-            activeBg: "bg-slate-200",
-            gradientFrom: "from-slate-600",
-            gradientTo: "to-blue-700",
-            accentColor: "#9FA8BA",
-            accentLight: "#F2F5FA",
-            modalGradient: "from-slate-700 to-blue-900",
-
-            image: "/images/problems/sleep_hq.png",
-
-            description: "Quality sleep is essential for recovery and mental clarity.",
-            solutions: ["Sleep meditation tracks", "Calming frequencies", "Evening routines", "Binaural beats"],
-            recommendations: [
-                { icon: Headphones, text: "Stress Relief Meditation" },
-                { icon: Play, text: "432 Hz Healing Frequency" },
-                { icon: MessageCircle, text: "Talk to AI Companion" },
-                { icon: Calendar, text: "Book 1:1 Session" }
-            ]
-        },
-        {
-            title: "High Anxiety",
-            icon: Cloud,
-            color: "text-purple-600",
-            bgColor: "bg-purple-50",
-            borderColor: "border-purple-200",
-            hoverBg: "hover:bg-purple-50",
-            activeBg: "bg-purple-100",
-            gradientFrom: "from-purple-400",
-            gradientTo: "to-indigo-500",
-            accentColor: "#D8C5E5",
-            accentLight: "#F7F3FC",
-            modalGradient: "from-purple-400 to-indigo-500",
-
-            image: "/images/problems/anxiety_hq.png",
-
-            description: "Anxiety can feel overwhelming, but you can find peace.",
-            solutions: ["Guided anxiety relief", "Grounding techniques", "Crystal bowl therapy", "Community support"],
-            recommendations: [
-                { icon: Headphones, text: "Stress Relief Meditation" },
-                { icon: Play, text: "432 Hz Healing Frequency" },
-                { icon: MessageCircle, text: "Talk to AI Companion" },
-                { icon: Calendar, text: "Book 1:1 Session" }
-            ]
-        },
-        {
-            title: "Mood Swings",
-            icon: Activity,
-            color: "text-rose-500",
-            bgColor: "bg-rose-50",
-            borderColor: "border-rose-200",
-            hoverBg: "hover:bg-rose-50",
-            activeBg: "bg-rose-100",
-            gradientFrom: "from-rose-400",
-            gradientTo: "to-pink-400",
-            accentColor: "#E5B8A8",
-            accentLight: "#FAF0ED",
-            modalGradient: "from-rose-400 to-pink-400",
-
-            image: "/images/problems/mood_hq.png",
-
-            description: "Emotional fluctuations affect your daily life.",
-            solutions: ["Chakra balancing", "Emotional regulation", "Journaling exercises", "Companion sessions"],
-            recommendations: [
-                { icon: Headphones, text: "Stress Relief Meditation" },
-                { icon: Play, text: "432 Hz Healing Frequency" },
-                { icon: MessageCircle, text: "Talk to AI Companion" },
-                { icon: Calendar, text: "Book 1:1 Session" }
-            ]
-        },
-        {
-            title: "Feeling Isolated",
-            icon: Users,
-            color: "text-cyan-600",
-            bgColor: "bg-cyan-50",
-            borderColor: "border-cyan-200",
-            hoverBg: "hover:bg-cyan-50",
-            activeBg: "bg-cyan-100",
-            gradientFrom: "from-cyan-400",
-            gradientTo: "to-teal-500",
-            accentColor: "#A8D4E0",
-            accentLight: "#F0F8FB",
-            modalGradient: "from-cyan-400 to-teal-500",
-
-            image: "/images/problems/isolated_hq.png",
-
-            description: "Connection is a fundamental human need.",
-            solutions: ["Join community groups", "Attend live sessions", "Connect with companions", "Group retreats"],
-            recommendations: [
-                { icon: Headphones, text: "Stress Relief Meditation" },
-                { icon: Play, text: "432 Hz Healing Frequency" },
-                { icon: MessageCircle, text: "Talk to AI Companion" },
-                { icon: Calendar, text: "Book 1:1 Session" }
-            ]
-        },
-    ];
 
     return (
        <section className="min-h-screen flex flex-col justify-center py-8 bg-[#EEF7F1] relative">

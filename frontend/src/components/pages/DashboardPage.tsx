@@ -10,6 +10,7 @@ import { FeaturesBentoGrid } from "../dashboard/FeaturesBentoGrid";
 import { CommonProblems } from "../dashboard/CommonProblems";
 import { WellnessRetreats } from "../dashboard/WellnessRetreats";
 import { WellnessOTT } from "../dashboard/WellnessOTT";
+import CertificationCoursesSection from "../dashboard/CertificationCoursesSection";
 import { GamingHubSection } from "../GamingHubSection";
 import { ChakraSection } from "../dashboard/ChakraSection";
 import { InspirationalQuotes } from "../dashboard/InspirationalQuotes";
@@ -203,6 +204,7 @@ export function DashboardPage() {
       <CommonProblems />
       <WellnessRetreats />
       <WellnessOTT />
+      <CertificationCoursesSection />
       <div id="gaming-hub">
         <GamingHubSection />
       </div>
