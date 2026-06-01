@@ -18,6 +18,8 @@ import {
   Palette,
   MessageSquare,
   Compass,
+  Play,
+  HelpCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -122,6 +124,16 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           path: "/admin/wellness-retreats",
         },
         {
+          title: "Wellness OTT",
+          icon: Play,
+          path: "/admin/wellness-ott",
+        },
+        {
+          title: "Common Problems",
+          icon: HelpCircle,
+          path: "/admin/common-problems",
+        },
+        {
           title: "Content Management",
           icon: FileText,
           children: [
@@ -131,9 +143,24 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               path: "/admin/content/meditation",
             },
             {
+              title: "Yoga for Meditation",
+              icon: Music,
+              path: "/admin/content/yoga",
+            },
+            {
+              title: "Pose Management",
+              icon: FileText,
+              path: "/admin/content/poses",
+            },
+            {
               title: "Sound Healing",
               icon: Headphones,
               path: "/admin/content/sound",
+            },
+            {
+              title: "Healing Frequencies",
+              icon: Headphones,
+              path: "/admin/content/healing-frequencies",
             },
             {
               title: "Marketplace",

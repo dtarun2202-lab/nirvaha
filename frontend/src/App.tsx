@@ -33,11 +33,21 @@ import { CompanionPage } from "./components/pages/CompanionPage";
 import { ProfilePage } from "./components/ProfilePage";
 import { Navigation } from "./components/Navigation";
 import { DashboardPage } from "./components/pages/DashboardPage";
-
+import AIChatbotWidget from "./components/AIChatbotWidget";
+import PathwaysPage from './pages/PathwaysPage';
+import PathwayDetailPage from './pages/PathwayDetailPage';
+import PathwayJourney from './pages/PathwayJourney';
+import SyllabusPage from './pages/SyllabusPage';
+import NirvahaAcademyPage from './pages/NirvahaAcademyPage';
 import LibraryDetailPage from './pages/LibraryDetailPage';
 import StoryDetailPage from './pages/StoryDetailPage';
 import ChakraExperiencePage from './pages/ChakraExperiencePage';
 import HealingMusicPage from './pages/HealingMusicPage';
+import InspirationStoryPage from './pages/InspirationStoryPage';
+import LifeQuizPage from './pages/LifeQuizPage';
+import AncientCharacterPage from './pages/AncientCharacterPage';
+import TempleOfBalancePage from './pages/TempleOfBalancePage';
+import AutographPage from './pages/AutographPage';
 
 import { FeaturesBentoGrid } from "./components/dashboard/FeaturesBentoGrid";
 import { CommonProblems } from "./components/dashboard/CommonProblems";
@@ -58,6 +68,9 @@ import { SettingsPage } from "./admin/pages/SettingsPage";
 import { UserManagementPage } from "./admin/pages/UserManagementPage";
 import { MeditationContent } from "./admin/pages/content/MeditationContent";
 import { SoundHealingContent } from "./admin/pages/content/SoundHealingContent";
+import { HealingFrequenciesContent } from "./admin/pages/content/HealingFrequenciesContent";
+import { PosesContent } from "./admin/pages/content/PosesContent";
+import YogaContent from "./admin/pages/content/YogaContent";
 import { ProductsContent } from "./admin/pages/content/ProductsContent";
 import { ContentUpdatePage } from "./admin/pages/ContentUpdatePage";
 import { MarketplaceManagementPage } from "./admin/pages/MarketplaceManagementPage";
@@ -66,6 +79,9 @@ import { ContactManagementPage } from "./admin/pages/ContactManagementPage";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { SuccessStoriesManager } from "./components/admin/SuccessStoriesManager";
 import { WellnessRetreatsManager } from "./components/admin/WellnessRetreatsManager";
+import { WellnessOTTProvider } from "./contexts/WellnessOTTContext";
+import { WellnessOTTManagementPage } from "./admin/pages/WellnessOTTManagementPage";
+import { CommonProblemsManagementPage } from "./admin/pages/CommonProblemsManagementPage";
 
 /**
  * Dashboard Routes Component
@@ -93,6 +109,11 @@ function AppInner() {
         {/* Public Landing Page */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/certifications" element={<CertificationsPage />} />
+        <Route path="/academy" element={<NirvahaAcademyPage />} />
+        <Route path="/pathways" element={<PathwaysPage />} />
+        <Route path="/pathways/:id" element={<PathwayDetailPage />} />
+        <Route path="/pathways/:id/journey" element={<PathwayJourney />} />
+        <Route path="/pathways/:id/syllabus" element={<SyllabusPage />} />
         <Route path="/learn" element={<LearningCatalogPage />} />
         <Route path="/learn/:pathId" element={<LearningPathPage />} />
         <Route path="/learn/:pathId/play" element={<CoursePlayerPage />} />
@@ -103,6 +124,11 @@ function AppInner() {
         <Route path="/story/:id" element={<StoryDetailPage />} />
         <Route path="/chakra-experience" element={<ChakraExperiencePage />} />
         <Route path="/healing-music" element={<HealingMusicPage />} />
+        <Route path="/inspiration-story/:id" element={<InspirationStoryPage />} />
+        <Route path="/life-quiz" element={<LifeQuizPage />} />
+        <Route path="/ancient-character" element={<AncientCharacterPage />} />
+        <Route path="/temple-of-balance" element={<TempleOfBalancePage />} />
+        <Route path="/add-your-autograph" element={<AutographPage />} />
 
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
@@ -142,6 +168,9 @@ function AppInner() {
           <Route path="content" element={<ContentManagementPage />} />
           <Route path="content/meditation" element={<MeditationContent />} />
           <Route path="content/sound" element={<SoundHealingContent />} />
+          <Route path="content/healing-frequencies" element={<HealingFrequenciesContent />} />
+          <Route path="content/poses" element={<PosesContent />} />
+          <Route path="content/yoga" element={<YogaContent />} />
           <Route path="content/products" element={<ProductsContent />} />
           <Route path="content/landing" element={<ContentManagementPage />} />
           <Route path="content/dynamic" element={<ContentManagementPage />} />
@@ -149,6 +178,8 @@ function AppInner() {
           <Route path="users" element={<UserManagementPage />} />
           <Route path="success-stories" element={<SuccessStoriesManager />} />
           <Route path="wellness-retreats" element={<WellnessRetreatsManager />} />
+          <Route path="wellness-ott" element={<WellnessOTTManagementPage />} />
+          <Route path="common-problems" element={<CommonProblemsManagementPage />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Route>
 
@@ -166,6 +197,9 @@ function AppInner() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
+      {/* Global AI Chatbot Widget */}
+      <AIChatbotWidget />
+
       {/* Global Toasters */}
       <Toaster />
       <Sonner />
@@ -178,7 +212,9 @@ export default function App() {
   return (
     <Router>
       <SocketProvider>
-        <AppInner />
+        <WellnessOTTProvider>
+          <AppInner />
+        </WellnessOTTProvider>
       </SocketProvider>
     </Router>
   );

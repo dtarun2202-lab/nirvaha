@@ -6,9 +6,11 @@ import {
   Menu,
   X,
   ChevronDown,
+  Search,
 } from "lucide-react";
 
 import { HeaderNirvahaRectContext } from '../../contexts/HeaderContext';
+import { pathwaysData } from '../../data/pathwaysData';
 
 interface HeaderProps {
   onNirvahaClick?: () => void;
@@ -28,6 +30,35 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
   const [featuresMenuOpen, setFeaturesMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Search functionality state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  const searchablePages = [
+    { name: "Home / Landing", path: "/" },
+    { name: "Nirvaha Academy / Pathways", path: "/pathways" },
+    { name: "Stories & Testimonials", path: "/stories" },
+    { name: "Breathing Exercise", path: "/breathing" },
+    { name: "Chakra Experience", path: "/chakra-experience" },
+    { name: "Healing Music Frequencies", path: "/healing-music" },
+    { name: "Meditation Space", path: "/dashboard/meditation" },
+    { name: "Sound Healing Space", path: "/dashboard/sound" },
+    { name: "AI Guide Chat", path: "/dashboard/chatbot" },
+    { name: "Community Forum", path: "/dashboard/community" },
+    { name: "Marketplace Hub", path: "/dashboard/marketplace" },
+    { name: "Companion Mentorship", path: "/dashboard/companion" },
+  ];
+
+  const filteredPages = searchQuery.trim() === "" ? [] : searchablePages.filter(page =>
+    page.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredPathways = searchQuery.trim() === "" ? [] : pathwaysData.filter(pathway =>
+    pathway.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    pathway.desc.toLowerCase().includes(searchQuery.toLowerCase())
+  ).slice(0, 5);
+
   useEffect(() => {
     const updateRect = () => {
       if (nirvahaRef.current) {
@@ -42,6 +73,25 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
     return () => {
       window.removeEventListener('resize', updateRect);
       window.removeEventListener('scroll', updateRect);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsSearchFocused(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
@@ -85,7 +135,10 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
                 <img
                   src={logoSrc}
                   alt={logoAlt}
-                  className="h-14 w-auto sm:h-16 sm:w-auto object-contain rounded-lg drop-shadow-lg"
+                  className="h-14 w-auto sm:h-16 sm:w-auto object-contain"
+                  style={{
+                    filter: 'drop-shadow(0px 4px 12px rgba(16, 185, 129, 0.22))'
+                  }}
                 />
                 {/* Text removed as requested */}
               </button>
@@ -160,8 +213,11 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
               </motion.button>
             </div>
 
-            {/* Auth Buttons (Right) */}
-            <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+            {/* Right side search & auth buttons */}
+            <div className="hidden lg:flex items-center gap-4 flex-shrink-0">
+
+
+              {/* Existing Auth Buttons */}
               {user ? (
                 <Link
                   to="/dashboard/overview"
@@ -210,9 +266,10 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-black/40 backdrop-blur-2xl border-b border-white/10 overflow-hidden"
+              className="lg:hidden bg-black/60 backdrop-blur-2xl border-b border-white/10 overflow-hidden"
             >
               <div className="px-4 py-6 space-y-4">
+
                 <button
                   onClick={() => handleNavigate('/')}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-white/10 rounded-xl"

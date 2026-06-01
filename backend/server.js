@@ -28,6 +28,7 @@ const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const meditationRoutes = require('./routes/meditationRoutes');
 const soundRoutes = require('./routes/soundRoutes');
+const poseRoutes = require('./routes/poseRoutes');
 const companionRoutes = require('./routes/companionRoutes');
 const contentRoutes = require('./routes/contentRoutes');
 const marketplaceRoutes = require('./routes/marketplaceRoutes');
@@ -42,6 +43,10 @@ const profileRoutes = require('./routes/profileRoutes');
 const reflectionRoutes = require('./routes/reflectionRoutes');
 const successStoriesRoutes = require('./routes/successStoriesRoutes');
 const wellnessRetreatRoutes = require('./routes/wellnessRetreatRoutes');
+const wellnessSessionRoutes = require('./routes/wellnessSessionRoutes');
+const commonProblemRoutes = require('./routes/commonProblemRoutes');
+const essentialGuidanceRoutes = require('./routes/essentialGuidanceRoutes');
+const healingFrequenciesRoutes = require('./routes/healingFrequenciesRoutes');
 const { syncAllApprovedCompanionsToUsers } = require('./utils/companionStatus');
 
 // Import models for seeding
@@ -51,6 +56,7 @@ const Sound = require('./models/Sound');
 const Post = require('./models/Post');
 const MentorProfile = require('./models/MentorProfile');
 const Hashtag = require('./models/Hashtag');
+const Pose = require('./models/Pose');
 
 const app = express();
 app.disable('x-powered-by');
@@ -295,66 +301,7 @@ async function seedMongo() {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   }
 
-  // Seed community posts
-  const postCount = await Post.countDocuments();
-  if (postCount === 0) {
-    const now = Date.now();
-    const seedPosts = [
-      {
-        id: `post-${now}-1`,
-        userId: 'seed1',
-        userName: 'Elena Rodriguez',
-        userRole: 'Community Member',
-        userInitial: 'E',
-        avatarColor: '#2D6A4F',
-        timestampValue: now - 1000 * 60 * 5, // 5 mins ago
-        title: 'Finding peace in the chaos',
-        body: 'Today was incredibly overwhelming. I felt like I couldn\'t catch my breath with all the deadlines. But I forced myself to step away for 10 minutes and just sit by the window. It didn\'t solve my problems, but it gave me the space to breathe. Sometimes that\'s all we can do. How do you all ground yourselves on hard days? #anxiety #grounding #mentalhealth',
-        hashtags: ['anxiety', 'grounding', 'mentalhealth'],
-        likes: 42,
-        liked: false,
-        comments: [],
-        isCertified: false,
-        isOnline: true,
-      },
-      {
-        id: `post-${now}-2`,
-        userId: 'seed2',
-        userName: 'Marcus Chen',
-        userRole: 'Community Member',
-        userInitial: 'M',
-        avatarColor: '#52B788',
-        timestampValue: now - 1000 * 60 * 45, // 45 mins ago
-        title: 'Grief comes in waves',
-        body: 'It\'s been a year since I lost my dad. Some days I feel fine, but today the grief hit me like a physical weight. I\'m learning that moving on doesn\'t mean forgetting, it means carrying the love forward. To anyone else missing someone today, I see you. You\'re not alone in this heavy feeling. #grief #healing #loss',
-        hashtags: ['grief', 'healing', 'loss'],
-        likes: 134,
-        liked: false,
-        comments: [],
-        isCertified: false,
-        isOnline: true,
-      },
-      {
-        id: `post-${now}-3`,
-        userId: 'seed3',
-        userName: 'Dr. Sarah Jenkins',
-        userRole: 'Clinical Psychologist',
-        userInitial: 'S',
-        avatarColor: '#1B4332',
-        timestampValue: now - 1000 * 60 * 60 * 2, // 2 hours ago
-        title: 'A reminder about boundaries',
-        body: 'Saying \'no\' is a complete sentence. You do not owe anyone an explanation for protecting your peace and your energy. It feels uncomfortable at first, but it is the most profound act of self-care. What is one boundary you\'re struggling to set this week? Let\'s discuss. #boundaries #selfcare #psychology',
-        hashtags: ['boundaries', 'selfcare', 'psychology'],
-        likes: 289,
-        liked: false,
-        comments: [],
-        isCertified: true,
-        isOnline: true,
-      }
-    ];
-    await Post.insertMany(seedPosts);
-    console.log('✓ Seeded initial community posts');
-  }
+  // Community posts are created by real users only — no seed data.
 
   // Seed mentor profiles
   const mentorCount = await MentorProfile.countDocuments();
@@ -417,6 +364,681 @@ async function seedMongo() {
     ];
     await Hashtag.insertMany(defaultHashtags);
     console.log('✓ Seeded initial default hashtags');
+  }
+
+  // Seed Wellness Sessions
+  const WellnessSession = require('./models/WellnessSession');
+  const sessionCount = await WellnessSession.countDocuments();
+  if (sessionCount === 0) {
+    const defaultSessions = [
+      {
+        title: "Morning Calm",
+        category: "Meditation",
+        mood: ["Calm", "Focused"],
+        tags: ["Focus", "Morning", "Clarity"],
+        duration: "10 min",
+        thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2400&auto=format&fit=crop",
+        banner: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2400&auto=format&fit=crop",
+        audioSource: "/audio/meditation/Indoor-Calm-Meditation.mp3",
+        description: "Start your day with clarity and intention. A gentle awakening for the mind and body to optimize energy and presence.",
+        match: "98% Match",
+        year: "2026",
+        rating: "TV-G",
+        type: 'Series',
+        isOriginal: true,
+        displayOrder: 1,
+        isActive: true,
+        seasons: [
+          {
+            seasonNumber: 1,
+            level: 'Beginner',
+            episodes: [
+              {
+                id: "1",
+                title: "Sunrise Breathing",
+                duration: "15 min",
+                thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
+                description: "Connect with your breath and set a strong positive intention for the day ahead.",
+                videoUrl: "/audio/eposide 1 mind waves.mp3.mp3"
+              },
+              {
+                id: "2",
+                title: "Peaceful Mind",
+                duration: "20 min",
+                thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=600&auto=format&fit=crop",
+                description: "Clear out stale energy with a dynamic deep breathing rhythm that resets the nervous system.",
+                videoUrl: "/audio/eposide 2 root cause.mp3.mp3"
+              },
+              {
+                id: "3",
+                title: "Focus Energy",
+                duration: "18 min",
+                thumbnail: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=600&auto=format&fit=crop",
+                description: "Settle into silent presence and release lingering mental worries or busy chatter.",
+                videoUrl: "/audio/eposide 3 stillness ladder.mp3.mp3"
+              },
+              {
+                id: "4",
+                title: "Calm Reset",
+                duration: "25 min",
+                thumbnail: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=600&auto=format&fit=crop",
+                description: "A gentle wind-down session guiding your awareness into deeply restorative delta wave sleep.",
+                videoUrl: "/audio/eposide 4 Abhyas engine.mp3.mp3"
+              },
+              {
+                id: "5",
+                title: "Deep Presence",
+                duration: "20 min",
+                thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop",
+                description: "Settle into silent, deep presence, cultivating ultimate awareness of the present moment.",
+                videoUrl: "/audio/eposide 5 Vairagya Method.mp3.mp3"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Deep Sleep Guide",
+        category: "Sleep Stories",
+        mood: ["Relaxed", "Sleepy"],
+        tags: ["Sleep", "Relaxation", "Rest"],
+        duration: "45 min",
+        thumbnail: "https://images.squarespace-cdn.com/content/v1/57b5ef68c534a5cc06edc769/b50a955f-e95f-42c1-beb6-4e74d753bfbb/restorative+yoga",
+        banner: "https://images.squarespace-cdn.com/content/v1/57b5ef68c534a5cc06edc769/b50a955f-e95f-42c1-beb6-4e74d753bfbb/restorative+yoga",
+        audioSource: "/audio/sleep/sleep-delta.mp3",
+        description: "Drift into a restorative, deep slumber. Let go of the day's tension and embrace the peaceful night.",
+        match: "95% Match",
+        year: "2026",
+        rating: "TV-PG",
+        type: 'Series',
+        displayOrder: 2,
+        isActive: true,
+        seasons: [
+          {
+            seasonNumber: 1,
+            level: 'Beginner',
+            episodes: [
+              {
+                id: "1",
+                title: "Sunset Wind-down",
+                duration: "15 min",
+                thumbnail: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop",
+                description: "Unwind your body from the day's stress with gentle box breathing and mindfulness.",
+                videoUrl: "/audio/eposide 1 gita 3.mp3.mp3"
+              },
+              {
+                id: "2",
+                title: "Ocean Sleep Waves",
+                duration: "20 min",
+                thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
+                description: "Drift away to the soothing sound of rolling ocean waves recorded live at high tide.",
+                videoUrl: "/audio/eposide 2 gita ch 2.mp3.mp3"
+              },
+              {
+                id: "3",
+                title: "Celestial Journey",
+                duration: "25 min",
+                thumbnail: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=600&auto=format&fit=crop",
+                description: "A cosmic visualization guiding your mind through the quiet depths of the night sky.",
+                videoUrl: "/audio/eposiode 3 gita ch 4.mp3.mp3"
+              },
+              {
+                id: "4",
+                title: "Whispering Pines",
+                duration: "30 min",
+                thumbnail: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=600&auto=format&fit=crop",
+                description: "Listen to a peaceful forest tale designed to trigger deep delta sleep cycles.",
+                videoUrl: "/audio/eposide 4 gita ch 5.mp3.mp3"
+              },
+              {
+                id: "5",
+                title: "Midnight Harmony",
+                duration: "45 min",
+                thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop",
+                description: "Settle into final restorative sleep with smooth binaural soundscapes and soft rain.",
+                videoUrl: "/audio/eposide 5 gita ch 6.mp3.mp3"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Anxiety Relief",
+        category: "Anxiety Relief",
+        mood: ["Relieved", "Grounded"],
+        tags: ["Anxiety", "Calm", "Grounding"],
+        duration: "20 min",
+        thumbnail: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=2400&auto=format&fit=crop",
+        banner: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=2400&auto=format&fit=crop",
+        audioSource: "/audio/stress/stress-nature.mp3",
+        description: "Ground yourself completely in the present moment. A powerful tool designed to dissolve overwhelming thoughts, panic, and fast heartbeats.",
+        match: "99% Match",
+        year: "2025",
+        rating: "TV-14",
+        type: 'Series',
+        displayOrder: 3,
+        isActive: true,
+        seasons: [
+          {
+            seasonNumber: 1,
+            level: 'Beginner',
+            episodes: [
+              {
+                id: "1",
+                title: "Calming the Storm",
+                duration: "15 min",
+                thumbnail: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=600&auto=format&fit=crop",
+                description: "A quick emergency anchor session to lower high levels of acute nervous adrenaline.",
+                videoUrl: "/audio/Mind Reset 1 when mind stops.mp3.mp3"
+              },
+              {
+                id: "2",
+                title: "Somatic Calm Flow",
+                duration: "18 min",
+                thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=600&auto=format&fit=crop",
+                description: "Gentle physical releases designed to open tightness in the chest, throat, and shoulders.",
+                videoUrl: "/audio/Mind Reset 2 Worst Case.mp3.mp3"
+              },
+              {
+                id: "3",
+                title: "Heart-Mind Connection",
+                duration: "20 min",
+                thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
+                description: "Synchronize your breathing with positive heart affirmations to generate deep safety.",
+                videoUrl: "/audio/Mind reset 3 Small decision big pressure.mp3.mp3"
+              },
+              {
+                id: "4",
+                title: "Grounded Presence",
+                duration: "22 min",
+                thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop",
+                description: "A meditation session engaging the 5-4-3-2-1 sensory technique for absolute presence.",
+                videoUrl: "/audio/Mind reset 4 Repeat repeat thinking.mp3.mp3"
+              },
+              {
+                id: "5",
+                title: "Panic De-escalation",
+                duration: "15 min",
+                thumbnail: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop",
+                description: "An emergency grounding technique for sudden waves of intense worry or overwhelming panic.",
+                videoUrl: "/audio/mind reser 5 what is clarity.mp3.mp3"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Focus Flow",
+        category: "Focus Training",
+        mood: ["Focused", "Energized"],
+        tags: ["Work", "Study", "Flow"],
+        duration: "30 min",
+        thumbnail: "https://lonestarneurology.net/wp-content/uploads/2025/08/3-Mental-Clarity-and-Cognitive-Function-from-Yoga.jpg",
+        banner: "https://lonestarneurology.net/wp-content/uploads/2025/08/3-Mental-Clarity-and-Cognitive-Function-from-Yoga.jpg",
+        audioSource: "/audio/focus/Clear-Mind-Frequencies.mp3",
+        description: "Sharpen your concentration and unlock deep work states. Experience absolute precision-engineered mindfulness designed for focus.",
+        match: "92% Match",
+        year: "2026",
+        rating: "TV-G",
+        type: 'Series',
+        isOriginal: true,
+        displayOrder: 4,
+        isActive: true,
+        seasons: [
+          {
+            seasonNumber: 1,
+            level: 'Beginner',
+            episodes: [
+              {
+                id: "1",
+                title: "Entering Deep Work",
+                duration: "10 min",
+                thumbnail: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop",
+                description: "Tune your focus to absolute stillness, blocking out exterior distractions.",
+                videoUrl: "/audio/Lifestyle OS - Dinacharya episode 1.mp3"
+              },
+              {
+                id: "2",
+                title: "Cognitive Ignition",
+                duration: "12 min",
+                thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop",
+                description: "Ignite mental sharpness with focused, rapid inhalation techniques.",
+                videoUrl: "/audio/Lifestyle OS 2 - Guna Santulan episode 2.mp3"
+              },
+              {
+                id: "3",
+                title: "The Flow Trigger",
+                duration: "15 min",
+                thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
+                description: "Utilize specific sensory blocks to drop straight into effortless focus states.",
+                videoUrl: "/audio/Lifestyle OS 3 - Sync Food & Mind episode 3.mp3"
+              },
+              {
+                id: "4",
+                title: "Digital Detox Reset",
+                duration: "18 min",
+                thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=600&auto=format&fit=crop",
+                description: "Cleanse your working memory of digital fatigue and reset attention span.",
+                videoUrl: "/audio/Lifestyle OS 4 - Art of sleep episode 4.mp3"
+              },
+              {
+                id: "5",
+                title: "Peak Performance Focus",
+                duration: "20 min",
+                thumbnail: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=600&auto=format&fit=crop",
+                description: "Elevate task performance with high-vibration focus breathing techniques.",
+                videoUrl: "/audio/Lifestyle OS 5 - Control your senses episode 5.mp3"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Chakra Balance",
+        category: "Spiritual Guidance",
+        mood: ["Energized", "Balanced"],
+        tags: ["Energy", "Balance", "Vitality"],
+        duration: "15 min",
+        thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=2400&auto=format&fit=crop",
+        banner: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=2400&auto=format&fit=crop",
+        audioSource: "/audio/meditation/Crystal-Frequency-Healing.mp3",
+        description: "Realign your core energetic centers. Experience a revitalizing surge of spiritual harmony and inner light.",
+        match: "88% Match",
+        year: "2024",
+        rating: "TV-PG",
+        type: 'Series',
+        displayOrder: 5,
+        isActive: true,
+        seasons: [
+          {
+            seasonNumber: 1,
+            level: 'Beginner',
+            episodes: [
+              {
+                id: "1",
+                title: "Root Alignment",
+                duration: "10 min",
+                thumbnail: "https://images.unsplash.com/photo-1528319725582-ddc096101511?q=80&w=600&auto=format&fit=crop",
+                description: "Root your energy into stability, safety, and deep connection with the earth.",
+                videoUrl: "/audio/Career anxiety and overthinking eposide 1.mp3"
+              },
+              {
+                id: "2",
+                title: "Sacred Fire",
+                duration: "12 min",
+                thumbnail: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop",
+                description: "Stoke your internal solar fire to balance confidence and emotional power.",
+                videoUrl: "/audio/Fear of Failure & Rejection eposide 2.mp3"
+              },
+              {
+                id: "3",
+                title: "Heart Awakening",
+                duration: "15 min",
+                thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
+                description: "Open your energetic heart center to compassion, love, and unconditional joy.",
+                videoUrl: "/audio/Healing After Heartbreak eposide 3.mp3"
+              },
+              {
+                id: "4",
+                title: "Truth & Expression",
+                duration: "15 min",
+                thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=600&auto=format&fit=crop",
+                description: "Clear your throat chakra to communicate your absolute truth and inner expression.",
+                videoUrl: "/audio/Identity — “Who am I really” eposide 4.mp3"
+              },
+              {
+                id: "5",
+                title: "Third Eye Sight",
+                duration: "20 min",
+                thumbnail: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?q=80&w=600&auto=format&fit=crop",
+                description: "Awaken spiritual intuition and cosmic vision with pineal activation exercises.",
+                videoUrl: "/audio/Jealousy, comparison, insecurity eposide 5.mp3"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Breathwork Basics",
+        category: "Breathwork",
+        mood: ["Calm", "Relaxed"],
+        tags: ["Breath", "Beginner", "Relaxation"],
+        duration: "12 min",
+        thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=2400&auto=format&fit=crop",
+        banner: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=2400&auto=format&fit=crop",
+        audioSource: "/audio/meditation/Indoor-Calm-Meditation.mp3",
+        description: "Master the fundamentals of conscious breathing. The ultimate starting point to optimize parasympathetic health.",
+        match: "96% Match",
+        year: "2025",
+        rating: "TV-G",
+        type: 'Series',
+        displayOrder: 6,
+        isActive: true,
+        seasons: [
+          {
+            seasonNumber: 1,
+            level: 'Beginner',
+            episodes: [
+              {
+                id: "1",
+                title: "Diaphragmatic Breath",
+                duration: "12 min",
+                thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=600&auto=format&fit=crop",
+                description: "Optimize vagus nerve stimulation with deep diaphragmatic expansions.",
+                videoUrl: "/audio/meditation/Indoor-Calm-Meditation.mp3"
+              },
+              {
+                id: "2",
+                title: "The Box Breath",
+                duration: "15 min",
+                thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=600&auto=format&fit=crop",
+                description: "A 4-4-4-4 holding sequence designed by Navy SEALs to secure complete stress regulation.",
+                videoUrl: "/audio/meditation/Indoor-Calm-Meditation.mp3"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Midday Reset",
+        category: "Inner Peace",
+        mood: ["Relieved", "Energized"],
+        tags: ["Work", "Quick", "Reset"],
+        duration: "8 min",
+        thumbnail: "https://images.unsplash.com/photo-1524863479829-916d8e77f114?q=80&w=2400&auto=format&fit=crop",
+        banner: "https://images.unsplash.com/photo-1524863479829-916d8e77f114?q=80&w=2400&auto=format&fit=crop",
+        audioSource: "/audio/stress/stress-nature.mp3",
+        description: "A quick physical recalibration. Release modern office fatigue and structural spine tension in minutes.",
+        match: "91% Match",
+        year: "2026",
+        rating: "TV-PG",
+        type: 'Film',
+        displayOrder: 7,
+        isActive: true
+      },
+      {
+        title: "Sleep Story: The Forest",
+        category: "Sleep Stories",
+        mood: ["Sleepy", "Imaginative"],
+        tags: ["Story", "Nature", "Sleep"],
+        duration: "35 min",
+        thumbnail: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2400&auto=format&fit=crop",
+        banner: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2400&auto=format&fit=crop",
+        audioSource: "/audio/sleep/sleep-delta.mp3",
+        description: "Wander through an ancient, mystical pine woodland. Drift off seamlessly under soft rain sounds.",
+        match: "94% Match",
+        year: "2025",
+        rating: "TV-PG",
+        type: 'Film',
+        isOriginal: true,
+        displayOrder: 8,
+        isActive: true
+      },
+      {
+        title: "Burnout Recovery",
+        category: "Emotional Healing",
+        mood: ["Inspired", "Focused"],
+        tags: ["Creativity", "Focus", "Art"],
+        duration: "25 min",
+        thumbnail: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=2400&auto=format&fit=crop",
+        banner: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=2400&auto=format&fit=crop",
+        audioSource: "/audio/focus/Clear-Mind-Frequencies.mp3",
+        description: "Stimulate nervous relaxation and gently heal deep professional exhaustion with somatic meditations.",
+        match: "89% Match",
+        year: "2026",
+        rating: "TV-G",
+        type: 'Series',
+        displayOrder: 9,
+        isActive: true,
+        seasons: [
+          {
+            seasonNumber: 1,
+            level: 'Beginner',
+            episodes: [
+              {
+                id: "1",
+                title: "Slowing the Engine",
+                duration: "18 min",
+                thumbnail: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=600&auto=format&fit=crop",
+                description: "Understand the biological mechanisms of burnout and learn how to downshift.",
+                videoUrl: "/audio/focus/Clear-Mind-Frequencies.mp3"
+              },
+              {
+                id: "2",
+                title: "Deep Somatic Recharging",
+                duration: "22 min",
+                thumbnail: "https://images.unsplash.com/photo-1524863479829-916d8e77f114?q=80&w=600&auto=format&fit=crop",
+                description: "Re-ignite deep mitochondrial energy through targeted progressive physical relaxation.",
+                videoUrl: "/audio/focus/Clear-Mind-Frequencies.mp3"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        title: "Morning Movement",
+        category: "Yoga Programs",
+        mood: ["Energized", "Awake"],
+        tags: ["Morning", "Movement", "Vitality"],
+        duration: "20 min",
+        thumbnail: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=2400&auto=format&fit=crop",
+        banner: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=2400&auto=format&fit=crop",
+        audioSource: "/audio/meditation/Crystal-Frequency-Healing.mp3",
+        description: "Wake up your body with gentle, highly fluid Hatha yoga stretches and dynamic deep breath coordination.",
+        match: "97% Match",
+        year: "2026",
+        rating: "TV-PG",
+        type: 'Series',
+        displayOrder: 10,
+        isActive: true,
+        seasons: [
+          {
+            seasonNumber: 1,
+            level: 'Beginner',
+            episodes: [
+              {
+                id: "1",
+                title: "Spinal Mobilization",
+                duration: "15 min",
+                thumbnail: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop",
+                description: "Flowing movements designed to decompress vertebrae and stimulate cerebrospinal fluid.",
+                videoUrl: "/audio/meditation/Crystal-Frequency-Healing.mp3"
+              },
+              {
+                id: "2",
+                title: "Sun Salutations",
+                duration: "20 min",
+                thumbnail: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=600&auto=format&fit=crop",
+                description: "A seamless dynamic sequence to activate core energy hubs and build early sweat.",
+                videoUrl: "/audio/meditation/Crystal-Frequency-Healing.mp3"
+              }
+            ]
+          }
+        ]
+      }
+    ];
+
+    await WellnessSession.insertMany(defaultSessions);
+    console.log('✓ Seeded initial Wellness OTT Sessions');
+  }
+
+  // Seed Common Problems
+  const CommonProblem = require('./models/CommonProblem');
+  const problemCount = await CommonProblem.countDocuments();
+  if (problemCount === 0) {
+    const defaultDropdowns = [
+      { title: "The mind seeks closure", description: "Unfinished thoughts replay because the brain wants resolution." },
+      { title: "Fear keeps loops alive", description: "Stress and fear keep repetitive thinking active." },
+      { title: "Thinking vs Looping", description: "Thinking solves problems. Looping repeats without progress." }
+    ];
+
+    const defaultProblems = [
+      {
+        title: "Burnout",
+        icon: "Flame",
+        color: "text-amber-700",
+        bgColor: "bg-amber-50",
+        borderColor: "border-amber-200",
+        hoverBg: "hover:bg-amber-50",
+        activeBg: "bg-amber-100",
+        gradientFrom: "from-amber-500",
+        gradientTo: "to-orange-400",
+        accentColor: "#D4A574",
+        accentLight: "#F9F3E8",
+        modalGradient: "from-amber-400 to-orange-400",
+        image: "https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=600&h=400&fit=crop&q=80",
+        description: "Feeling exhausted and overwhelmed from work or life demands?",
+        solutions: ["Practice daily meditation", "Set healthy boundaries", "Take regular breaks", "Engage in sound healing"],
+        recommendations: [
+          { icon: "Clock", text: "Burnout Rest Session" },
+          { icon: "Headphones", text: "Energy Reset Frequency" },
+          { icon: "MessageCircle", text: "Talk to Recovery Coach" },
+          { icon: "Calendar", text: "Book Rest Session" }
+        ],
+        dropdownSectionTitle: "Why the mind keeps repeating",
+        dropdowns: defaultDropdowns,
+        displayOrder: 1,
+        isActive: true
+      },
+      {
+        title: "Stress",
+        icon: "Zap",
+        color: "text-green-600",
+        bgColor: "bg-green-50",
+        borderColor: "border-green-200",
+        hoverBg: "hover:bg-green-50",
+        activeBg: "bg-green-100",
+        gradientFrom: "from-green-500",
+        gradientTo: "to-emerald-400",
+        accentColor: "#A8C99F",
+        accentLight: "#F0F5ED",
+        modalGradient: "from-green-400 to-emerald-400",
+        image: "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=600&h=400&fit=crop&q=80",
+        description: "Chronic stress can impact your health and productivity.",
+        solutions: ["Breathing exercises", "Mindfulness practices", "Regular physical activity", "Connect with AI companion"],
+        recommendations: [
+          { icon: "Clock", text: "Stress Relief Session" },
+          { icon: "Headphones", text: "Calming Nature Sounds" },
+          { icon: "MessageCircle", text: "Stress Management Tips" },
+          { icon: "Calendar", text: "Book Stress Session" }
+        ],
+        dropdownSectionTitle: "Why the mind keeps repeating",
+        dropdowns: defaultDropdowns,
+        displayOrder: 2,
+        isActive: true
+      },
+      {
+        title: "Sleep Issues",
+        icon: "Moon",
+        color: "text-slate-700",
+        bgColor: "bg-slate-50",
+        borderColor: "border-slate-300",
+        hoverBg: "hover:bg-slate-50",
+        activeBg: "bg-slate-200",
+        gradientFrom: "from-slate-600",
+        gradientTo: "to-blue-700",
+        accentColor: "#9FA8BA",
+        accentLight: "#F2F5FA",
+        modalGradient: "from-slate-700 to-blue-900",
+        image: "https://images.unsplash.com/photo-1518281361980-b26bfd556770?w=600&h=400&fit=crop&q=80",
+        description: "Quality sleep is essential for recovery and mental clarity.",
+        solutions: ["Sleep meditation tracks", "Calming frequencies", "Evening routines", "Binaural beats"],
+        recommendations: [
+          { icon: "Clock", text: "Deep Sleep Session" },
+          { icon: "Headphones", text: "Delta Wave Frequency" },
+          { icon: "MessageCircle", text: "Sleep Coach Chat" },
+          { icon: "Calendar", text: "Book Sleep Session" }
+        ],
+        dropdownSectionTitle: "Why the mind keeps repeating",
+        dropdowns: defaultDropdowns,
+        displayOrder: 3,
+        isActive: true
+      },
+      {
+        title: "High Anxiety",
+        icon: "Cloud",
+        color: "text-purple-600",
+        bgColor: "bg-purple-50",
+        borderColor: "border-purple-200",
+        hoverBg: "hover:bg-purple-50",
+        activeBg: "bg-purple-100",
+        gradientFrom: "from-purple-400",
+        gradientTo: "to-indigo-500",
+        accentColor: "#D8C5E5",
+        accentLight: "#F7F3FC",
+        modalGradient: "from-purple-400 to-indigo-500",
+        image: "https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?w=600&h=400&fit=crop&q=80",
+        description: "Anxiety can feel overwhelming, but you can find peace.",
+        solutions: ["Guided anxiety relief", "Grounding techniques", "Crystal bowl therapy", "Community support"],
+        recommendations: [
+          { icon: "Clock", text: "Anxiety Relief Session" },
+          { icon: "Headphones", text: "Grounding Frequency" },
+          { icon: "MessageCircle", text: "Talk to Anxiety Coach" },
+          { icon: "Calendar", text: "Book Grounding Session" }
+        ],
+        dropdownSectionTitle: "Why the mind keeps repeating",
+        dropdowns: defaultDropdowns,
+        displayOrder: 4,
+        isActive: true
+      },
+      {
+        title: "Mood Swings",
+        icon: "Activity",
+        color: "text-rose-500",
+        bgColor: "bg-rose-50",
+        borderColor: "border-rose-200",
+        hoverBg: "hover:bg-rose-50",
+        activeBg: "bg-rose-100",
+        gradientFrom: "from-rose-400",
+        gradientTo: "to-pink-400",
+        accentColor: "#E5B8A8",
+        accentLight: "#FAF0ED",
+        modalGradient: "from-rose-400 to-pink-400",
+        image: "https://images.unsplash.com/photo-1478147427282-58a87a120781?w=600&h=400&fit=crop&q=80",
+        description: "Emotional fluctuations affect your daily life.",
+        solutions: ["Chakra balancing", "Emotional regulation", "Journaling exercises", "Companion sessions"],
+        recommendations: [
+          { icon: "Clock", text: "Mood Stabilization Session" },
+          { icon: "Headphones", text: "Heart Balance Frequency" },
+          { icon: "MessageCircle", text: "Emotional Regulation Tips" },
+          { icon: "Calendar", text: "Book Emotion Session" }
+        ],
+        dropdownSectionTitle: "Why the mind keeps repeating",
+        dropdowns: defaultDropdowns,
+        displayOrder: 5,
+        isActive: true
+      },
+      {
+        title: "Feeling Isolated",
+        icon: "Users",
+        color: "text-cyan-600",
+        bgColor: "bg-cyan-50",
+        borderColor: "border-cyan-200",
+        hoverBg: "hover:bg-cyan-50",
+        activeBg: "bg-cyan-100",
+        gradientFrom: "from-cyan-400",
+        gradientTo: "to-teal-500",
+        accentColor: "#A8D4E0",
+        accentLight: "#F0F8FB",
+        modalGradient: "from-cyan-400 to-teal-500",
+        image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&h=400&fit=crop&q=80",
+        description: "Connection is a fundamental human need.",
+        solutions: ["Join community groups", "Attend live sessions", "Connect with companions", "Group retreats"],
+        recommendations: [
+          { icon: "Clock", text: "Connection Session" },
+          { icon: "Headphones", text: "Connection Healing Frequency" },
+          { icon: "MessageCircle", text: "Join Companion Chat" },
+          { icon: "Calendar", text: "Book Group Session" }
+        ],
+        dropdownSectionTitle: "Why the mind keeps repeating",
+        dropdowns: defaultDropdowns,
+        displayOrder: 6,
+        isActive: true
+      }
+    ];
+
+    await CommonProblem.insertMany(defaultProblems);
+    console.log('✓ Seeded initial Common Problems');
   }
 }
 
@@ -494,6 +1116,10 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/reflect', reflectionRoutes);
 app.use('/api/success-stories', successStoriesRoutes);
 app.use('/api/wellness-retreats', wellnessRetreatRoutes);
+app.use('/api/wellness-sessions', wellnessSessionRoutes);
+app.use('/api/common-problems', commonProblemRoutes);
+app.use('/api/essential-guidance', essentialGuidanceRoutes);
+app.use('/api/healing-frequencies', healingFrequenciesRoutes);
 app.use('/api', utilityRoutes);
 
 // Legacy route compatibility (for existing frontend code)
@@ -523,11 +1149,12 @@ app.post('/api/upload/media', upload.fields([
   { name: 'thumbnail', maxCount: 1 },
   { name: 'banner',    maxCount: 1 },
   { name: 'audio',     maxCount: 1 },
+  { name: 'image',     maxCount: 1 },
 ]), (req, res) => {
   try {
     const BASE = process.env.BASE_URL || `http://localhost:${PORT}`;
     const result = {};
-    ['thumbnail', 'banner', 'audio'].forEach(field => {
+    ['thumbnail', 'banner', 'audio', 'image'].forEach(field => {
       if (req.files && req.files[field] && req.files[field][0]) {
         result[`${field}Url`] = `${BASE}/uploads/${req.files[field][0].filename}`;
       }
@@ -538,6 +1165,11 @@ app.post('/api/upload/media', upload.fields([
     res.status(500).json({ error: 'Media upload failed', message: error.message });
   }
 });
+
+// Register pose and yoga routes
+app.use('/api/poses', poseRoutes);
+const yogaRoutes = require('./routes/yogaRoutes');
+app.use('/api/yoga', yogaRoutes);
 
 // Start server
 async function startServer() {

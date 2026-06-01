@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, ArrowLeft, Search, Bell, User, Info, X, Clock, PlayCircle, Settings, LogOut, CheckCircle, Pause, Volume2, Sparkles, Tv, ListPlus, ChevronRight } from 'lucide-react';
-import { wellnessSessions, WellnessSession, Episode } from '../data/wellnessSessions';
+import { useWellnessOTT } from '../contexts/WellnessOTTContext';
+import { WellnessSession, Episode } from '../data/wellnessSessions';
 
 // Interface for continue watching
 interface ContinueWatchingItem {
@@ -135,6 +136,7 @@ const SessionRow = ({
 };
 
 export default function WellnessOTTBrowsing() {
+    const { sessions: wellnessSessions } = useWellnessOTT();
     const navigate = useNavigate();
 
     // States
@@ -168,12 +170,12 @@ export default function WellnessOTTBrowsing() {
         if (activeTab === 'Films') return wellnessSessions.filter(s => s.type === 'Film');
         if (activeTab === 'New & Popular') return [...wellnessSessions].sort((a, b) => parseInt(b.match) - parseInt(a.match));
         return wellnessSessions;
-    }, [activeTab]);
+    }, [activeTab, wellnessSessions]);
 
     const featured = displayedSessions[0] || wellnessSessions[0];
     
     // Dynamic Categorizations
-    const originals = useMemo(() => wellnessSessions.filter(s => s.isOriginal), []);
+    const originals = useMemo(() => wellnessSessions.filter(s => s.isOriginal), [wellnessSessions]);
     const trending = useMemo(() => [...displayedSessions].sort((a, b) => parseInt(b.match) - parseInt(a.match)).slice(0, 6), [displayedSessions]);
     const sleepSessions = useMemo(() => displayedSessions.filter(s => s.category === "Sleep Stories" || s.mood.includes("Sleepy")), [displayedSessions]);
     const anxietySessions = useMemo(() => displayedSessions.filter(s => s.category === "Anxiety Relief" || s.mood.includes("Relieved")), [displayedSessions]);
@@ -190,7 +192,7 @@ export default function WellnessOTTBrowsing() {
             s.tags.some(t => t.toLowerCase().includes(q)) ||
             s.mood.some(m => m.toLowerCase().includes(q))
         );
-    }, [searchQuery]);
+    }, [searchQuery, wellnessSessions]);
 
     // Mock Data
     const navItems = ['Home', 'Series', 'Films', 'New & Popular'];
@@ -218,7 +220,6 @@ export default function WellnessOTTBrowsing() {
                         className="flex items-center gap-2 group text-white/80 hover:text-[#2ed899] transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" />
-                        <span className="hidden md:inline font-bold text-xs tracking-widest uppercase">Dashboard</span>
                     </button>
                     
                     <h1 

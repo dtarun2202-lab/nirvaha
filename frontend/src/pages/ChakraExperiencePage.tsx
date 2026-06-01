@@ -837,15 +837,6 @@ export default function ChakraExperiencePage() {
                 >
                   Return to Dashboard
                 </motion.button>
-                <motion.button
-                  onClick={() => { stopSound(); navigate('/healing-music'); }}
-                  className="px-8 py-3.5 rounded-full font-semibold text-sm text-white"
-                  style={{ background: 'linear-gradient(135deg, #10B981, #3B82F6)', boxShadow: '0 8px 32px rgba(16,185,129,0.3)' }}
-                  whileHover={{ scale: 1.05, boxShadow: '0 12px 40px rgba(16,185,129,0.45)' }}
-                  whileTap={{ scale: 0.96 }}
-                >
-                  Explore Healing Music
-                </motion.button>
               </div>
             </motion.div>
           </div>

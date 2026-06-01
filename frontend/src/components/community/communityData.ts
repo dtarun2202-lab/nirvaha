@@ -24,6 +24,7 @@ export interface Post {
   hashtags: string[];
   likes: number;
   liked: boolean;
+  likedBy: string[];
   comments: Comment[];
   isCertified: boolean;
   isOnline: boolean;

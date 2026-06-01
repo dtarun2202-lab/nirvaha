@@ -8,31 +8,31 @@ const defaultPillars = [
         id: "01",
         title: "Systemic Diagnostics",
         desc: "We analyze your organizational pulse through confidential, culturally-aware assessments to identify latent stressors.",
-        image: "/1.png"
+        image: "/pillar_systemic_diagnostics.png"
     },
     {
         id: "02",
         title: "Scalable Protocols",
         desc: "Deployment of curated wellness frameworks that adapt to team size, location, and operational intensity.",
-        image: "/2.png"
+        image: "/pillar_scalable_protocols.png"
     },
     {
         id: "03",
         title: "Leadership Synergy",
         desc: "Equipping managers with high-EQ toolkits to foster psychological safety and resilient decision-making.",
-        image: "/3.png"
+        image: "/pillar_leadership_synergy.png"
     },
     {
         id: "04",
         title: "Cultural Integration",
         desc: "Weaving emotional intelligence into the daily fabric of operations, transforming wellness from a perk to a practice.",
-        image: "/4.png"
+        image: "/pillar_cultural_integration.png"
     },
     {
         id: "05",
         title: "Impact & ROI",
         desc: "Real-time analytics measuring engagement, retention shifts, and emotional capital growth.",
-        image: "/5.png"
+        image: "/pillar_impact_roi.png"
     }
 ];
 

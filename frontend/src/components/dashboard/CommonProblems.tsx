@@ -1,171 +1,243 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { Cloud, Moon, Zap, Activity, Users, Flame, X, Play, Headphones, MessageCircle, Calendar, Check, Pause, Send, Volume2, Clock } from 'lucide-react';
+import {
+    Cloud, Moon, Zap, Activity, Users, Flame, X, Play, Headphones, MessageCircle,
+    Calendar, Check, Pause, Send, Volume2, Clock, Heart, Brain, Sun, Star, Shield,
+    Coffee, Eye, Frown, AlertTriangle, Droplets, type LucideIcon
+} from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import BACKEND_CONFIG from '../../config/backend';
 
+// Icon name string → Lucide component mapping
+const ICON_MAP: Record<string, LucideIcon> = {
+    Flame, Zap, Moon, Cloud, Activity, Users, Heart, Brain, Sun, Star, Shield,
+    Coffee, Eye, Frown, AlertTriangle, Droplets, Clock, Headphones, MessageCircle, Calendar
+};
+
+const resolveIcon = (name: string): LucideIcon => ICON_MAP[name] || Flame;
+
+const getProblemAudioSrc = (title: string) => {
+    switch (title) {
+        case "Burnout":
+            return "/audio/burnout-432hz.mp3";
+        case "Stress":
+        case "Excess Stress":
+            return "/audio/stress-nature.mp3";
+        case "Sleep Issues":
+            return "/audio/sleep-delta.mp3";
+        case "High Anxiety":
+            return "/audio/anxiety-crystal-bowl.mp3";
+        case "Mood Swings":
+            return "/audio/mood-heart-frequency.mp3";
+        case "Feeling Isolated":
+            return "/audio/isolated-sound-bath.mp3";
+        default:
+            return "/audio/burnout-432hz.mp3";
+    }
+};
+
+// Static fallback data (used when API is unreachable)
+const STATIC_PROBLEMS = [
+    {
+        title: "Burnout",
+        icon: Flame,
+        color: "text-amber-700",
+        bgColor: "bg-amber-50",
+        borderColor: "border-amber-200",
+        hoverBg: "hover:bg-amber-50",
+        activeBg: "bg-amber-100",
+        gradientFrom: "from-amber-500",
+        gradientTo: "to-orange-400",
+        accentColor: "#D4A574",
+        accentLight: "#F9F3E8",
+        modalGradient: "from-amber-400 to-orange-400",
+        image: "/images/problems/burnout_hq.png",
+        description: "Feeling exhausted and overwhelmed from work or life demands?",
+        solutions: ["Practice daily meditation", "Set healthy boundaries", "Take regular breaks", "Engage in sound healing"],
+        recommendations: [
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
+        ]
+    },
+    {
+        title: "Excess Stress",
+        icon: Zap,
+        color: "text-green-600",
+        bgColor: "bg-green-50",
+        borderColor: "border-green-200",
+        hoverBg: "hover:bg-green-50",
+        activeBg: "bg-green-100",
+        gradientFrom: "from-green-500",
+        gradientTo: "to-emerald-400",
+        accentColor: "#A8C99F",
+        accentLight: "#F0F5ED",
+        modalGradient: "from-green-400 to-emerald-400",
+        image: "/images/problems/stress_hq.png",
+        description: "Chronic stress can impact your health and productivity.",
+        solutions: ["Breathing exercises", "Mindfulness practices", "Regular physical activity", "Connect with AI companion"],
+        recommendations: [
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
+        ]
+    },
+    {
+        title: "Sleep Issues",
+        icon: Moon,
+        color: "text-slate-700",
+        bgColor: "bg-slate-50",
+        borderColor: "border-slate-300",
+        hoverBg: "hover:bg-slate-50",
+        activeBg: "bg-slate-200",
+        gradientFrom: "from-slate-600",
+        gradientTo: "to-blue-700",
+        accentColor: "#9FA8BA",
+        accentLight: "#F2F5FA",
+        modalGradient: "from-slate-700 to-blue-900",
+        image: "/images/problems/sleep_hq.png",
+        description: "Quality sleep is essential for recovery and mental clarity.",
+        solutions: ["Sleep meditation tracks", "Calming frequencies", "Evening routines", "Binaural beats"],
+        recommendations: [
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
+        ]
+    },
+    {
+        title: "High Anxiety",
+        icon: Cloud,
+        color: "text-purple-600",
+        bgColor: "bg-purple-50",
+        borderColor: "border-purple-200",
+        hoverBg: "hover:bg-purple-50",
+        activeBg: "bg-purple-100",
+        gradientFrom: "from-purple-400",
+        gradientTo: "to-indigo-500",
+        accentColor: "#D8C5E5",
+        accentLight: "#F7F3FC",
+        modalGradient: "from-purple-400 to-indigo-500",
+        image: "/images/problems/anxiety_hq.png",
+        description: "Anxiety can feel overwhelming, but you can find peace.",
+        solutions: ["Guided anxiety relief", "Grounding techniques", "Crystal bowl therapy", "Community support"],
+        recommendations: [
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
+        ]
+    },
+    {
+        title: "Mood Swings",
+        icon: Activity,
+        color: "text-rose-500",
+        bgColor: "bg-rose-50",
+        borderColor: "border-rose-200",
+        hoverBg: "hover:bg-rose-50",
+        activeBg: "bg-rose-100",
+        gradientFrom: "from-rose-400",
+        gradientTo: "to-pink-400",
+        accentColor: "#E5B8A8",
+        accentLight: "#FAF0ED",
+        modalGradient: "from-rose-400 to-pink-400",
+        image: "/images/problems/mood_hq.png",
+        description: "Emotional fluctuations affect your daily life.",
+        solutions: ["Chakra balancing", "Emotional regulation", "Journaling exercises", "Companion sessions"],
+        recommendations: [
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
+        ]
+    },
+    {
+        title: "Feeling Isolated",
+        icon: Users,
+        color: "text-cyan-600",
+        bgColor: "bg-cyan-50",
+        borderColor: "border-cyan-200",
+        hoverBg: "hover:bg-cyan-50",
+        activeBg: "bg-cyan-100",
+        gradientFrom: "from-cyan-400",
+        gradientTo: "to-teal-500",
+        accentColor: "#A8D4E0",
+        accentLight: "#F0F8FB",
+        modalGradient: "from-cyan-400 to-teal-500",
+        image: "/images/problems/isolated_hq.png",
+        description: "Connection is a fundamental human need.",
+        solutions: ["Join community groups", "Attend live sessions", "Connect with companions", "Group retreats"],
+        recommendations: [
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
+        ]
+    },
+];
+
 export const CommonProblems = () => {
-    const navigate = useNavigate();
     const [modalProblem, setModalProblem] = useState<any | null>(null);
     const [activeActionModal, setActiveActionModal] = useState<string | null>(null);
+    const problemAudioRef = useRef<HTMLAudioElement | null>(null);
+    const [problems, setProblems] = useState<any[]>(STATIC_PROBLEMS);
 
-    const problems = [
-        {
-            title: "Burnout",
-            icon: Flame,
-            color: "text-amber-700",
-            bgColor: "bg-amber-50",
-            borderColor: "border-amber-200",
-            hoverBg: "hover:bg-amber-50",
-            activeBg: "bg-amber-100",
-            gradientFrom: "from-amber-500",
-            gradientTo: "to-orange-400",
-            accentColor: "#D4A574",
-            accentLight: "#F9F3E8",
-            modalGradient: "from-amber-400 to-orange-400",
+    // Fetch dynamic problems from the API
+    useEffect(() => {
+        const fetchProblems = async () => {
+            try {
+                const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/common-problems`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.problems?.length > 0) {
+                        // Map DB data to component-compatible format
+                        const mapped = data.problems.map((p: any) => ({
+                            ...p,
+                            icon: resolveIcon(p.icon),
+                            recommendations: (p.recommendations || []).map((rec: any) => ({
+                                ...rec,
+                                icon: resolveIcon(rec.icon)
+                            }))
+                        }));
+                        setProblems(mapped);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch common problems:", err);
+                // Falls back to STATIC_PROBLEMS already in state
+            }
+        };
+        fetchProblems();
+    }, []);
 
-            image: "https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=600&h=400&fit=crop&q=80",
-            description: "Feeling exhausted and overwhelmed from work or life demands?",
-            solutions: ["Practice daily meditation", "Set healthy boundaries", "Take regular breaks", "Engage in sound healing"],
-            recommendations: [
-                { icon: Headphones, text: "Stress Relief Meditation" },
-                { icon: Play, text: "432 Hz Healing Frequency" },
-                { icon: MessageCircle, text: "Talk to AI Companion" },
-                { icon: Calendar, text: "Book 1:1 Session" }
-            ]
-        },
-        {
-            title: "Excess Stress",
-            icon: Zap,
-            color: "text-green-600",
-            bgColor: "bg-green-50",
-            borderColor: "border-green-200",
-            hoverBg: "hover:bg-green-50",
-            activeBg: "bg-green-100",
-            gradientFrom: "from-green-500",
-            gradientTo: "to-emerald-400",
-            accentColor: "#A8C99F",
-            accentLight: "#F0F5ED",
-            modalGradient: "from-green-400 to-emerald-400",
+    const handleProblemClick = (problem: any) => {
+        // Stop any previous audio
+        if (problemAudioRef.current) {
+            problemAudioRef.current.pause();
+            problemAudioRef.current.src = '';
+            problemAudioRef.current = null;
+        }
+        // Don't auto-play - only set the modal
+        setModalProblem(problem);
+    };
 
-            image: "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=600&h=400&fit=crop&q=80",
+    useEffect(() => {
+        return () => {
+            if (problemAudioRef.current) {
+                problemAudioRef.current.pause();
+                problemAudioRef.current = null;
+            }
+        };
+    }, []);
 
-            description: "Chronic stress can impact your health and productivity.",
-            solutions: ["Breathing exercises", "Mindfulness practices", "Regular physical activity", "Connect with AI companion"],
-            recommendations: [
-                { icon: Headphones, text: "Stress Relief Meditation" },
-                { icon: Play, text: "432 Hz Healing Frequency" },
-                { icon: MessageCircle, text: "Talk to AI Companion" },
-                { icon: Calendar, text: "Book 1:1 Session" }
-            ]
-        },
-        {
-            title: "Sleep Issues",
-            icon: Moon,
-            color: "text-slate-700",
-            bgColor: "bg-slate-50",
-            borderColor: "border-slate-300",
-            hoverBg: "hover:bg-slate-50",
-            activeBg: "bg-slate-200",
-            gradientFrom: "from-slate-600",
-            gradientTo: "to-blue-700",
-            accentColor: "#9FA8BA",
-            accentLight: "#F2F5FA",
-            modalGradient: "from-slate-700 to-blue-900",
 
-            image: "https://images.unsplash.com/photo-1518281361980-b26bfd556770?w=600&h=400&fit=crop&q=80",
-
-            description: "Quality sleep is essential for recovery and mental clarity.",
-            solutions: ["Sleep meditation tracks", "Calming frequencies", "Evening routines", "Binaural beats"],
-            recommendations: [
-                { icon: Headphones, text: "Stress Relief Meditation" },
-                { icon: Play, text: "432 Hz Healing Frequency" },
-                { icon: MessageCircle, text: "Talk to AI Companion" },
-                { icon: Calendar, text: "Book 1:1 Session" }
-            ]
-        },
-        {
-            title: "High Anxiety",
-            icon: Cloud,
-            color: "text-purple-600",
-            bgColor: "bg-purple-50",
-            borderColor: "border-purple-200",
-            hoverBg: "hover:bg-purple-50",
-            activeBg: "bg-purple-100",
-            gradientFrom: "from-purple-400",
-            gradientTo: "to-indigo-500",
-            accentColor: "#D8C5E5",
-            accentLight: "#F7F3FC",
-            modalGradient: "from-purple-400 to-indigo-500",
-
-            image: "https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?w=600&h=400&fit=crop&q=80",
-
-            description: "Anxiety can feel overwhelming, but you can find peace.",
-            solutions: ["Guided anxiety relief", "Grounding techniques", "Crystal bowl therapy", "Community support"],
-            recommendations: [
-                { icon: Headphones, text: "Stress Relief Meditation" },
-                { icon: Play, text: "432 Hz Healing Frequency" },
-                { icon: MessageCircle, text: "Talk to AI Companion" },
-                { icon: Calendar, text: "Book 1:1 Session" }
-            ]
-        },
-        {
-            title: "Mood Swings",
-            icon: Activity,
-            color: "text-rose-500",
-            bgColor: "bg-rose-50",
-            borderColor: "border-rose-200",
-            hoverBg: "hover:bg-rose-50",
-            activeBg: "bg-rose-100",
-            gradientFrom: "from-rose-400",
-            gradientTo: "to-pink-400",
-            accentColor: "#E5B8A8",
-            accentLight: "#FAF0ED",
-            modalGradient: "from-rose-400 to-pink-400",
-
-            image: "https://images.unsplash.com/photo-1478147427282-58a87a120781?w=600&h=400&fit=crop&q=80",
-
-            description: "Emotional fluctuations affect your daily life.",
-            solutions: ["Chakra balancing", "Emotional regulation", "Journaling exercises", "Companion sessions"],
-            recommendations: [
-                { icon: Headphones, text: "Stress Relief Meditation" },
-                { icon: Play, text: "432 Hz Healing Frequency" },
-                { icon: MessageCircle, text: "Talk to AI Companion" },
-                { icon: Calendar, text: "Book 1:1 Session" }
-            ]
-        },
-        {
-            title: "Feeling Isolated",
-            icon: Users,
-            color: "text-cyan-600",
-            bgColor: "bg-cyan-50",
-            borderColor: "border-cyan-200",
-            hoverBg: "hover:bg-cyan-50",
-            activeBg: "bg-cyan-100",
-            gradientFrom: "from-cyan-400",
-            gradientTo: "to-teal-500",
-            accentColor: "#A8D4E0",
-            accentLight: "#F0F8FB",
-            modalGradient: "from-cyan-400 to-teal-500",
-
-            image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&h=400&fit=crop&q=80",
-
-            description: "Connection is a fundamental human need.",
-            solutions: ["Join community groups", "Attend live sessions", "Connect with companions", "Group retreats"],
-            recommendations: [
-                { icon: Headphones, text: "Stress Relief Meditation" },
-                { icon: Play, text: "432 Hz Healing Frequency" },
-                { icon: MessageCircle, text: "Talk to AI Companion" },
-                { icon: Calendar, text: "Book 1:1 Session" }
-            ]
-        },
-    ];
 
     return (
        <section className="min-h-screen flex flex-col justify-center py-8 bg-[#EEF7F1] relative">
             <div className="w-full px-6 md:px-12 lg:px-20">
-                <div className="text-center mb-8">
+                <div className="text-left mb-8">
                     <motion.h2
                         className="text-2xl md:text-4xl font-bold text-[#0F131A] mb-2 tracking-wide"
                         style={{ fontFamily: "'Cinzel', serif" }}
@@ -187,7 +259,7 @@ export const CommonProblems = () => {
                          transition={{ delay: idx * 0.1 }}
                          whileHover={{ scale: 1.02, y: -4 }}
                          whileTap={{ scale: 0.98 }}
-                         onClick={() => setModalProblem(p)}
+                         onClick={() => handleProblemClick(p)}
                          className="group rounded-2xl border-2 transition-all duration-300 cursor-pointer overflow-hidden bg-white hover:shadow-xl"
                          style={{
                             borderColor: '#E5E7EB'
@@ -406,20 +478,29 @@ export const CommonProblems = () => {
 };
 
 const ActionMiniModal = ({ actionName, problemTitle, onClose }: { actionName: string, problemTitle: string, onClose: () => void }) => {
-    const isMeditation = (actionName.includes('Meditation') && !actionName.includes('Circle')) || actionName.includes('Breathwork') || actionName.includes('Grounding') || actionName.includes('Exercise');
-    const isHealing = actionName.includes('Healing') || actionName.includes('Frequenc') || actionName.includes('Music') || actionName.includes('Sound') || actionName.includes('Bowl') || actionName.includes('Bath') || actionName.includes('Therapy');
-    const isChat = actionName.includes('AI') || actionName.includes('Chat') || actionName.includes('Tips') || actionName.includes('Tracking') || actionName.includes('Support') || actionName.includes('Join Community');
-    const isBooking = actionName.includes('Book') || actionName.includes('Coaching') || actionName.includes('Session') || actionName.includes('Workshop') || actionName.includes('Circle');
+    // Mutually exclusive action type — priority: chat > booking > healing > meditation
+    const getActionType = (): 'chat' | 'booking' | 'healing' | 'meditation' => {
+        if (actionName.includes('Book')) return 'booking';
+        if (actionName.includes('Rest Session') || actionName.includes('Relief Session') || actionName.includes('Sleep Session') || actionName.includes('Stabilization Session') || actionName.includes('Connection Session')) {
+            return 'meditation';
+        }
+        if (actionName.includes('AI') || actionName.includes('Chat') || actionName.includes('Tips') || actionName.includes('Coach') || actionName.includes('Companion') || actionName.includes('Talk to') || actionName.includes('Join')) return 'chat';
+        if (actionName.includes('Audio') || actionName.includes('Healing') || actionName.includes('Frequenc') || actionName.includes('Music') || actionName.includes('Sound') || actionName.includes('Bowl') || actionName.includes('Bath') || actionName.includes('Therapy')) return 'healing';
+        if (actionName.includes('Meditation') || actionName.includes('Breathwork') || actionName.includes('Grounding') || actionName.includes('Exercise')) return 'meditation';
+        return 'healing'; // safe fallback
+    };
+    const actionType = getActionType();
     
     const getAudioSrc = (title: string) => {
         switch(title) {
             case "Burnout": return "/audio/burnout-432hz.mp3";
+            case "Stress":
             case "Excess Stress": return "/audio/stress-nature.mp3";
             case "Sleep Issues": return "/audio/sleep-delta.mp3";
             case "High Anxiety": return "/audio/anxiety-crystal-bowl.mp3";
             case "Mood Swings": return "/audio/mood-heart-frequency.mp3";
             case "Feeling Isolated": return "/audio/isolated-sound-bath.mp3";
-            default: return "/audio/meditation.mp3";
+            default: return "/audio/meditation/Indoor-Calm-Meditation.mp3";
         }
     };
     
@@ -427,6 +508,12 @@ const ActionMiniModal = ({ actionName, problemTitle, onClose }: { actionName: st
     
     const [isPlaying, setIsPlaying] = useState(false);
     const [chatMsg, setChatMsg] = useState('');
+
+    useEffect(() => {
+        if (actionType === 'healing') {
+            setIsPlaying(true);
+        }
+    }, [actionType]);
 
     return (
         <motion.div
@@ -444,10 +531,10 @@ const ActionMiniModal = ({ actionName, problemTitle, onClose }: { actionName: st
                 onClick={(e) => e.stopPropagation()}
                 className="relative bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-[0_0_30px_rgba(26,93,71,0.15)] flex flex-col"
             >
-                {isMeditation && <MeditationVariant onClose={onClose} actionName={actionName} />}
-                {isHealing && <HealingVariant onClose={onClose} actionName={actionName} audioSrc={audioSrc} isPlaying={isPlaying} setIsPlaying={setIsPlaying} />}
-                {isChat && <ChatVariant onClose={onClose} chatMsg={chatMsg} setChatMsg={setChatMsg} actionName={actionName} />}
-                {isBooking && <BookingVariant onClose={onClose} actionName={actionName} />}
+                {actionType === 'meditation' && <MeditationVariant onClose={onClose} actionName={actionName} />}
+                {actionType === 'healing' && <HealingVariant onClose={onClose} actionName={actionName} audioSrc={audioSrc} isPlaying={isPlaying} setIsPlaying={setIsPlaying} />}
+                {actionType === 'chat' && <ChatVariant onClose={onClose} chatMsg={chatMsg} setChatMsg={setChatMsg} actionName={actionName} problemTitle={problemTitle} />}
+                {actionType === 'booking' && <BookingVariant onClose={onClose} actionName={actionName} problemTitle={problemTitle} />}
             </motion.div>
         </motion.div>
     )
@@ -456,7 +543,6 @@ const ActionMiniModal = ({ actionName, problemTitle, onClose }: { actionName: st
 const MeditationVariant = ({ onClose, actionName }: { onClose: () => void, actionName: string }) => {
     const [isActive, setIsActive] = useState(false);
     const [timeLeft, setTimeLeft] = useState(300);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
     const { user, refreshProfile } = useAuth();
     const [hasLogged, setHasLogged] = useState(false);
 
@@ -479,31 +565,18 @@ const MeditationVariant = ({ onClose, actionName }: { onClose: () => void, actio
 
     const getMeditationDescription = (action: string) => {
         if(action.includes("Sleep")) return "A soothing 5-minute session to quiet the mind and prepare your body for deep, restorative rest.";
-        if(action.includes("Grounding")) return "A 5-minute grounding practice to reconnect with the present moment and ease anxious thoughts.";
-        if(action.includes("Chakra")) return "A 5-minute energetic alignment session to balance your chakras and stabilize your mood.";
-        if(action.includes("Loving")) return "A 5-minute compassion practice to foster a deep sense of connection and warmth within yourself.";
-        if(action.includes("Breathwork")) return "A 5-minute guided breathwork session to instantly lower cortisol and calm the nervous system.";
+        if(action.includes("Anxiety") || action.includes("Grounding")) return "A 5-minute grounding practice to reconnect with the present moment and ease anxious thoughts.";
+        if(action.includes("Mood") || action.includes("Stabilization") || action.includes("Chakra")) return "A 5-minute energetic alignment session to balance your emotions and stabilize your mood.";
+        if(action.includes("Connection") || action.includes("Loving") || action.includes("Isolated")) return "A 5-minute compassion practice to foster a deep sense of connection and warmth within yourself.";
+        if(action.includes("Stress") || action.includes("Breathwork")) return "A 5-minute guided breathwork session to instantly lower cortisol and calm the nervous system.";
+        if(action.includes("Burnout") || action.includes("Rest")) return "A gentle 5-minute relaxation breathing exercise to soothe chronic fatigue and restore vitality.";
         return "A 5-minute guided session to instantly lower cortisol and calm the nervous system.";
     };
 
     useEffect(() => {
-        audioRef.current = new Audio('/meditation.mp3');
-        audioRef.current.loop = true;
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.src = "";
-            }
-        };
-    }, []);
-
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
+        let interval: ReturnType<typeof setInterval>;
         if (isActive && timeLeft > 0) {
             interval = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
-            audioRef.current?.play().catch(e => console.log(e));
-        } else {
-            audioRef.current?.pause();
         }
         if (timeLeft === 0 && isActive) {
             setIsActive(false);
@@ -596,6 +669,8 @@ const HealingVariant = ({ onClose, isPlaying, setIsPlaying, actionName, audioSrc
     useEffect(() => {
         const audio = new Audio(audioSrc);
         audioRef.current = audio;
+        audio.volume = 1; // Set volume to maximum
+        audio.crossOrigin = "anonymous";
 
         const handleMetadata = () => setDuration(audio.duration || 0);
         const handleTimeUpdate = () => setProgress(audio.currentTime || 0);
@@ -698,17 +773,29 @@ const HealingVariant = ({ onClose, isPlaying, setIsPlaying, actionName, audioSrc
     );
 };
 
-const ChatVariant = ({ onClose, chatMsg, setChatMsg, actionName }: { onClose: () => void, chatMsg: string, setChatMsg: any, actionName: string }) => {
-    const getInitialMessage = (action: string) => {
-        if(action.includes("Stress")) return "I notice you've been feeling overwhelmed. Let's work through this stress together. What's on your mind?";
-        if(action.includes("Sleep")) return "Struggling to rest? Let's review some gentle sleep hygiene tips to help you wind down.";
-        if(action.includes("Anxiety")) return "I'm here for you. Take a slow breath. What is making you feel anxious right now?";
-        if(action.includes("Emotion")) return "Tracking your emotions is a great step. How are you feeling in your body right now?";
-        if(action.includes("Community")) return "Welcome to the community space. You are not alone. Would you like to connect with others feeling similarly?";
-        return "I notice you've been feeling overwhelmed. How can I support your energy today?";
+const ChatVariant = ({ onClose, chatMsg, setChatMsg, actionName, problemTitle }: { onClose: () => void, chatMsg: string, setChatMsg: any, actionName: string, problemTitle: string }) => {
+    const { user } = useAuth();
+    
+    const getInitialMessage = (problem: string) => {
+        switch (problem) {
+            case "Burnout":
+                return "I understand you're feeling burned out and exhausted. Let's talk about it. How are you holding up, and what is draining your energy the most today?";
+            case "Stress":
+                return "I notice you've been feeling overwhelmed by stress. Let's work through this together. What's weighing on your mind the most right now?";
+            case "Sleep Issues":
+                return "Struggling to rest? Quality sleep is so important for recovery. Let's review some gentle sleep hygiene tips. What's keeping you up at night?";
+            case "High Anxiety":
+                return "I'm here for you. Take a slow, deep breath with me. Anxiety can feel overwhelming, but you're safe in this moment. What is making you feel anxious right now?";
+            case "Mood Swings":
+                return "Emotional fluctuations can be exhausting. Tracking your emotions is a great first step. How are you feeling in your body right now?";
+            case "Feeling Isolated":
+                return "Welcome to your sanctuary space. You are not alone — connection is a fundamental human need. I'm here to support your journey. How are you feeling right now?";
+            default:
+                return "I'm here to support you on your wellness journey. How can I help you feel better today?";
+        }
     };
 
-    const [messages, setMessages] = useState([{ text: getInitialMessage(actionName), isAi: true }]);
+    const [messages, setMessages] = useState([{ text: getInitialMessage(problemTitle), isAi: true }]);
     const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -720,22 +807,43 @@ const ChatVariant = ({ onClose, chatMsg, setChatMsg, actionName }: { onClose: ()
         scrollToBottom();
     }, [messages, isTyping]);
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!chatMsg.trim()) return;
-        setMessages(prev => [...prev, { text: chatMsg, isAi: false }]);
+        const userText = chatMsg;
+        setMessages(prev => [...prev, { text: userText, isAi: false }]);
         setChatMsg('');
         setIsTyping(true);
-        
-        const responses = [
-            "I hear you. Take a slow, deep breath. You are safe in this moment.",
-            "It's completely okay to feel this way. Let's gently release that tension together.",
-            "Thank you for sharing that with me. Grounding yourself for just 60 seconds can shift your energy."
-        ];
-        
-        setTimeout(() => {
-            setIsTyping(false);
-            setMessages(prev => [...prev, { text: responses[Math.floor(Math.random() * responses.length)], isAi: true }]);
-        }, 2000);
+
+        try {
+            const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/reflect`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userText, userId: user?.id, problemContext: problemTitle }),
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (data.reply) {
+                    setIsTyping(false);
+                    setMessages(prev => [...prev, { text: data.reply, isAi: true }]);
+                    return;
+                }
+            }
+            throw new Error("Failed to fetch reflection");
+        } catch (error) {
+            console.error("Companion Chat Error:", error);
+            
+            const responses = [
+                "I hear you. Take a slow, deep breath. You are safe in this moment.",
+                "It's completely okay to feel this way. Let's gently release that tension together.",
+                "Thank you for sharing that with me. Grounding yourself for just 60 seconds can shift your energy."
+            ];
+            
+            setTimeout(() => {
+                setIsTyping(false);
+                setMessages(prev => [...prev, { text: responses[Math.floor(Math.random() * responses.length)], isAi: true }]);
+            }, 1500);
+        }
     };
 
     return (
@@ -792,61 +900,66 @@ const ChatVariant = ({ onClose, chatMsg, setChatMsg, actionName }: { onClose: ()
     );
 };
 
-const BookingVariant = ({ onClose, actionName }: { onClose: () => void, actionName: string }) => {
+const BookingVariant = ({ onClose, actionName, problemTitle }: { onClose: () => void, actionName: string, problemTitle: string }) => {
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [isConfirmed, setIsConfirmed] = useState(false);
     const times = ["09:00 AM", "11:30 AM", "02:00 PM", "04:30 PM", "06:00 PM"];
 
-    const getBookingContent = (action: string) => {
-        if (action === "Group Wellness Session") {
-            return {
-                desc: "Join a guided breathwork session to release physical and mental tension.",
-                name: "David Alura",
-                title: "Wellness Facilitator & Breathwork Guide",
-                image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop"
-            };
+    const getBookingContent = (problem: string) => {
+        switch (problem) {
+            case "Burnout":
+                return {
+                    desc: "A restorative session to rebuild your energy reserves and prevent burnout relapse.",
+                    name: "Dr. Sarah Jenkins",
+                    title: "Burnout Recovery Specialist",
+                    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop"
+                };
+            case "Stress":
+                return {
+                    desc: "Join a guided breathwork session to release physical and mental tension.",
+                    name: "David Alura",
+                    title: "Wellness Facilitator & Breathwork Guide",
+                    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop"
+                };
+            case "Sleep Issues":
+                return {
+                    desc: "Develop a personalized evening routine for deep, restorative rest.",
+                    name: "Dr. Elena Rostova",
+                    title: "Sleep Recovery Specialist",
+                    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&auto=format&fit=crop"
+                };
+            case "High Anxiety":
+                return {
+                    desc: "A safe, grounded support session to help you navigate anxiety.",
+                    name: "Dr. Michael Chen",
+                    title: "Grounding & Anxiety Support Mentor",
+                    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&auto=format&fit=crop"
+                };
+            case "Mood Swings":
+                return {
+                    desc: "A reflective, balanced session to navigate emotional fluctuations.",
+                    name: "Maya Lin",
+                    title: "Emotional Wellness Mentor",
+                    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=200&auto=format&fit=crop"
+                };
+            case "Feeling Isolated":
+                return {
+                    desc: "An emotionally warm, community-based gathering for shared connection.",
+                    name: "James Holden",
+                    title: "Community Circle Facilitator",
+                    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop"
+                };
+            default:
+                return {
+                    desc: "Connect with a certified wellness mentor.",
+                    name: "Dr. Sarah Jenkins",
+                    title: "Holistic Therapist",
+                    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop"
+                };
         }
-        if (action === "Emotional Wellness Session") {
-            return {
-                desc: "A reflective, balanced session to navigate emotional fluctuations.",
-                name: "Maya Lin",
-                title: "Emotional Wellness Mentor",
-                image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=200&auto=format&fit=crop"
-            };
-        }
-        if (action === "Anxiety Relief Session") {
-            return {
-                desc: "A safe, grounded support session to help you navigate anxiety.",
-                name: "Dr. Michael Chen",
-                title: "Grounding & Anxiety Support Mentor",
-                image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&auto=format&fit=crop"
-            };
-        }
-        if (action === "Meditation Circle") {
-            return {
-                desc: "An emotionally warm, community-based gathering for shared connection.",
-                name: "James Holden",
-                title: "Community Circle Facilitator",
-                image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop"
-            };
-        }
-        if (action === "Sleep Coaching Session") {
-            return {
-                desc: "Develop a personalized evening routine for deep, restorative rest.",
-                name: "Dr. Elena Rostova",
-                title: "Sleep Recovery Specialist",
-                image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&auto=format&fit=crop"
-            };
-        }
-        return {
-            desc: "Connect with a certified wellness mentor.",
-            name: "Dr. Sarah Jenkins",
-            title: "Holistic Therapist",
-            image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop"
-        };
     };
 
-    const bookingContent = getBookingContent(actionName);
+    const bookingContent = getBookingContent(problemTitle);
     
     if (isConfirmed) {
         return (

@@ -71,11 +71,18 @@ export function CommunityPage() {
   const dedup = (arr: Post[]): Post[] =>
     Array.from(new Map(arr.map(p => [(p as any)._id?.toString() || p.id, p])).values());
 
-  // Normalize post — ensure id field is always set from _id or id
-  const normalizePost = (p: any): Post => ({
-    ...p,
-    id: p.id || p._id?.toString(),
-  });
+  // Normalize post — ensure id field is always set from _id or id,
+  // and compute per-user liked from likedBy array
+  const normalizePost = (p: any): Post => {
+    const likedBy: string[] = Array.isArray(p.likedBy) ? p.likedBy : [];
+    return {
+      ...p,
+      id: p.id || p._id?.toString(),
+      likedBy,
+      likes: likedBy.length > 0 ? likedBy.length : (p.likes ?? 0),
+      liked: user?.id ? likedBy.includes(user.id) : false,
+    };
+  };
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -97,14 +104,19 @@ export function CommunityPage() {
       const params = new URLSearchParams();
       if (filter === "Popular") params.set("sort", "popular");
       else params.set("sort", "recent");
-      
+
       if (searchQuery.trim()) params.set("q", searchQuery.trim());
-      
-      let currentHashtag = hashtagFilter.trim();
-      if (filter === "Mindfulness") currentHashtag = "#mindfulness";
-      if (filter === "Healing") currentHashtag = "#healing";
-      
-      if (currentHashtag) {
+
+      // Mindfulness and Healing tabs use category-based filtering on the backend
+      if (filter === "Mindfulness") {
+        params.set("category", "mindfulness");
+      } else if (filter === "Healing") {
+        params.set("category", "healing");
+      }
+
+      // Hashtag filter (from clicking a trending tag)
+      const currentHashtag = hashtagFilter.trim();
+      if (currentHashtag && filter !== "Mindfulness" && filter !== "Healing") {
         params.set("hashtag", currentHashtag.startsWith("#") ? currentHashtag : `#${currentHashtag}`);
       }
       
@@ -151,49 +163,27 @@ export function CommunityPage() {
   useEffect(() => { setPage(1); fetchPosts(1, false); }, [filter, searchQuery, hashtagFilter]);
   useEffect(() => { fetchTrending(); }, []);
 
+  // Determine whether a newly socket-received post belongs in the current tab.
+  // Relies entirely on the categories/hashtags the backend assigned — no keyword guessing.
   const shouldShowPost = (post: Post, currentFilter: string, currentTag: string) => {
+    // Recent and Popular show all posts
     if (currentFilter === "Recent" || currentFilter === "All" || currentFilter === "Popular") return true;
 
-    const normalizedText = `${post.title || ""} ${post.body || ""} ${post.content || ""}`.toLowerCase();
-    const hasCategory = (category: string) =>
-      post.categories?.some((c) => c.toLowerCase() === category) ?? false;
-
-    const hasKeyword = (keywords: string[]) =>
-      keywords.some((keyword) => normalizedText.includes(keyword.toLowerCase()));
-
-    const hasTag = (tags: string[]) =>
-      post.hashtags?.some((t: string) => {
-        const lowerTag = t.toLowerCase();
-        return tags.some((tag) => tag === lowerTag || tag === `#${lowerTag}`);
-      });
-
-    const matchesTagOrCategory = (tag: string) => {
-      const cleanTag = tag.toLowerCase().replace(/^#/, "");
-      return hasCategory(cleanTag) || hasTag([cleanTag, `#${cleanTag}`]);
-    };
-
     if (currentFilter === "Mindfulness") {
-      const mindfulnessTags = [
-        "#mindfulness", "#meditation", "#calm", "#breathing", "#presence", "#awareness", "#zen", "#gratitude", "#focus", "#stillness"
-      ];
-      const mindfulnessKeywords = [
-        "mindful", "meditat", "breathe", "calm", "relax", "presence", "awareness", "zen", "gratitude", "focus", "stillness", "peace"
-      ];
-      return hasCategory("mindfulness") || hasTag(mindfulnessTags) || hasKeyword(mindfulnessKeywords);
+      return post.categories?.some((c) => c.toLowerCase() === "mindfulness") ?? false;
     }
 
     if (currentFilter === "Healing") {
-      const healingTags = [
-        "#healing", "#stressrelief", "#anxiety", "#recovery", "#selfcare", "#energyhealing", "#reiki", "#chakra", "#therapy", "#grief"
-      ];
-      const healingKeywords = [
-        "heal", "recover", "anxiety", "stress", "trauma", "therapy", "grief", "reiki", "chakra", "energy", "self-care", "self care", "recovery", "emotion", "release"
-      ];
-      return hasCategory("healing") || hasTag(healingTags) || hasKeyword(healingKeywords);
+      return post.categories?.some((c) => c.toLowerCase() === "healing") ?? false;
     }
 
+    // Hashtag tab
     if (currentTag.trim()) {
-      return matchesTagOrCategory(currentTag);
+      const clean = currentTag.toLowerCase().replace(/^#/, "");
+      return post.hashtags?.some((t: string) => {
+        const lt = t.toLowerCase().replace(/^#/, "");
+        return lt === clean;
+      }) ?? false;
     }
 
     return false;
@@ -215,8 +205,17 @@ export function CommunityPage() {
       fetchTrending();
     };
 
-    const onPostLiked = ({ id, likes }: { id: string; likes: number }) => {
-      setPosts(prev => prev.map(p => matchId(p, id) ? { ...p, likes } : p));
+    const onPostLiked = ({ id, likes, likedBy }: { id: string; likes: number; likedBy: string[] }) => {
+      setPosts(prev => prev.map(p => {
+        if (!matchId(p, id)) return p;
+        const lb = Array.isArray(likedBy) ? likedBy : [];
+        return {
+          ...p,
+          likes,
+          likedBy: lb,
+          liked: user?.id ? lb.includes(user.id) : false,
+        };
+      }));
     };
 
     const onCommentAdded = ({ postId, comment }: { postId: string; comment: any }) => {
@@ -295,7 +294,7 @@ export function CommunityPage() {
     if (!postContent.trim()) return;
 
     if (containsBannedWord(postContent)) {
-      showToast("Please keep the community peaceful and respectful 🌿");
+      showToast("Your post contains inappropriate language. Please edit and try again.");
       return;
     }
     const hashtags = (postContent.match(/#[a-zA-Z0-9_]+/g) || []).map(t => t.toLowerCase());
@@ -334,19 +333,8 @@ export function CommunityPage() {
         showToast(errorMsg);
       }
     } catch (err) {
-      // Real network failure fallback
-      const fallback: Post = {
-        id: `local-${Date.now()}`,
-        ...payload,
-        timestampValue: Date.now(),
-        likes: 0,
-        liked: false,
-        comments: [],
-        isCertified: false,
-        isOnline: true,
-      };
-      setPosts(prev => dedup([fallback, ...prev]));
-      showToast("Post shared (offline) 🌿");
+      // Network failure — show error, do not inject uncategorized local post
+      showToast("Failed to share post. Please check your connection and try again.");
     }
     setPostContent("");
     setTagSuggestions([]);
@@ -501,6 +489,7 @@ export function CommunityPage() {
                       hashtagFilter={hashtagFilter}
                       hashtagTotal={hashtagTotal}
                       currentUser={currentUser}
+                      currentUserId={user?.id || 'anonymous'}
                       onPostsChange={setPosts}
                       onToast={showToast}
                       onProfileClick={handleProfileClick}

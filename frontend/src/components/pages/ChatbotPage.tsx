@@ -30,6 +30,44 @@ import { toast } from "react-toastify";
 type Message = { type: "ai" | "user"; content: string; timestamp: string };
 type Session = { id: string; title: string; messages: Message[]; createdAt: number; updatedAt: number };
 
+// Helper to format timestamps (ISO strings or epoch numbers) into user-friendly time
+const formatFriendlyTimestamp = (timestamp: string | number | undefined): string => {
+  if (!timestamp) return "";
+  let date: Date;
+  if (typeof timestamp === "number") {
+    date = new Date(timestamp);
+  } else {
+    date = new Date(timestamp);
+    if (isNaN(date.getTime())) {
+      // If it's already a formatted string, return it as fallback
+      return timestamp;
+    }
+  }
+
+  const now = new Date();
+  
+  // Format to local timezone time string, e.g. "10:50 PM"
+  const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  // Check if it's today
+  const isToday = now.toDateString() === date.toDateString();
+  
+  // Check if it's yesterday
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const isYesterday = yesterday.toDateString() === date.toDateString();
+
+  if (isToday) {
+    return `Today, ${timeStr}`;
+  } else if (isYesterday) {
+    return `Yesterday, ${timeStr}`;
+  } else {
+    // If older, display like: "May 31, 10:50 PM"
+    const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    return `${dateStr}, ${timeStr}`;
+  }
+};
+
 export function ChatbotPage() {
   const { user, setCurrentUser } = useAuth();
   const { settings, setMusicEnabled, setChatbotPersona } = useSettings();
@@ -136,7 +174,7 @@ export function ChatbotPage() {
     () => ({
       type: "ai",
       content: "Namaste 🙏 I'm your NIRVAHA AI spiritual guide. How can I support your reflection today?",
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      timestamp: new Date().toISOString(),
     }),
     []
   );
@@ -184,27 +222,45 @@ export function ChatbotPage() {
     try {
       const backendSessions = await fetchBackendHistory();
       if (backendSessions && backendSessions.length) {
-        saveSessions(backendSessions);
-        setCurrentSessionId(backendSessions[0].id);
+        // Merge without wiping local-only sessions (e.g. active New Reflection)
+        setSessions(prev => {
+          const backendIds = new Set(backendSessions.map((s: Session) => s.id));
+          const localOnly = prev.filter(s => !backendIds.has(s.id));
+          const merged = [...localOnly, ...backendSessions];
+          localStorage.setItem(getStorageKey(), JSON.stringify(merged));
+          return merged;
+        });
         setLastSyncLabel(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+        // Never touch currentSessionId during background sync
       }
     } finally {
       setIsSyncingHistory(false);
     }
   };
 
-  // Logic: Start empty if requested
+  // Logic: Start a new reflection — uses functional updater to avoid stale closure
   const startNewChat = (customSessions?: Session[] | React.MouseEvent) => {
     const id = crypto.randomUUID?.() || `${Date.now()}`;
     const newSession: Session = {
       id,
       title: "New Reflection",
-      messages: [], // Empty start
+      messages: [],
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
-    const activeSessions = Array.isArray(customSessions) ? customSessions : sessions;
-    saveSessions([newSession, ...activeSessions]);
+    if (Array.isArray(customSessions)) {
+      // Called programmatically with an explicit list (e.g. after clear)
+      const next = [newSession, ...customSessions];
+      setSessions(next);
+      localStorage.setItem(getStorageKey(), JSON.stringify(next));
+    } else {
+      // Called from UI button — use functional updater so we always read latest state
+      setSessions(prev => {
+        const next = [newSession, ...prev];
+        localStorage.setItem(getStorageKey(), JSON.stringify(next));
+        return next;
+      });
+    }
     setCurrentSessionId(id);
     setInputValue("");
   };
@@ -326,18 +382,27 @@ export function ChatbotPage() {
       if (user?.id && user.id !== 'anonymous') {
         const backendSessions = await fetchBackendHistory();
         if (backendSessions && backendSessions.length) {
-          saveSessions(backendSessions);
-          setCurrentSessionId(backendSessions[0].id);
+          // Merge: keep any locally-created sessions (e.g. active New Reflection)
+          // that don't exist in the backend list, then append backend sessions.
+          setSessions(prev => {
+            const backendIds = new Set(backendSessions.map((s: Session) => s.id));
+            const localOnly = prev.filter(s => !backendIds.has(s.id));
+            const merged = [...localOnly, ...backendSessions];
+            localStorage.setItem(key, JSON.stringify(merged));
+            return merged;
+          });
+          // Only set active session if nothing is selected yet
+          setCurrentSessionId(prev => prev ?? backendSessions[0].id);
           return;
         }
       }
 
       if (saved) {
         try {
-          const parsed = JSON.parse(saved);
+          const parsed: Session[] = JSON.parse(saved);
           if (parsed.length) {
             setSessions(parsed);
-            setCurrentSessionId(parsed[0].id);
+            setCurrentSessionId(prev => prev ?? parsed[0].id);
             return;
           }
         } catch {
@@ -345,7 +410,7 @@ export function ChatbotPage() {
         }
       }
 
-      // If no sessions, initialize with an empty reflection session
+      // No sessions anywhere — start fresh
       startNewChat([]);
     };
 
@@ -367,163 +432,314 @@ export function ChatbotPage() {
   }, [messages, isTyping]);
 
   const generateAIResponse = (message: string, history: Message[]): string => {
-    const lower = message.toLowerCase();
-    
-    // Find last user topic if any
-    const lastUserMsg = history.filter(m => m.type === "user").pop();
+    const lower = message.trim().toLowerCase();
+    const wordCount = message.trim().split(/\s+/).length;
+
+    // ── Intent classification (mirrors backend logic) ──────────────────────
+    const educationalPatterns: RegExp[] = [
+      /^(what is|what are|what does|what do|what was|what were)\b/,
+      /^(explain|describe|define|tell me about|how does|how do|how is|how are|why is|why are|why does|why do)\b/,
+      /^(give me|show me|list|compare|difference between|pros and cons|advantages|disadvantages)\b/,
+      /\b(algorithm|theorem|equation|formula|concept|theory|principle|law|model|architecture|protocol|framework|language|database|network|system|software|hardware|programming|coding|machine learning|deep learning|neural|ai|cloud|computing|data science|statistics|mathematics|physics|chemistry|biology|history|geography|economics|finance|accounting|marketing|management|engineering|science|technology)\b/,
+      /\b(python|javascript|java|react|node|sql|html|css|api|rest|http|tcp|ip|dns|cpu|gpu|ram|linux|windows|docker|kubernetes|aws|azure|gcp)\b/,
+      /\b(bayes|newton|einstein|darwin|calculus|algebra|geometry|trigonometry|probability|quantum|relativity|evolution|photosynthesis|mitosis|dna|rna|atom|molecule|ecosystem)\b/,
+    ];
+    const wellnessPatterns: RegExp[] = [
+      /\b(feel|feeling|felt|emotion|emotional|mood|mental|anxiety|anxious|stress|stressed|depress|sad|lonely|hurt|grief|anger|angry|fear|scared|worry|worried|panic|overwhelm|burnout|exhausted|tired|sleep|insomnia|meditat|mindful|breath|chakra|healing|spiritual|soul|energy|aura|companion|therapy|therapist|counsel|self.worth|confidence|purpose|meaning|relationship|love|breakup|divorce|family|friend|conflict)\b/,
+    ];
+    const isWellness = wellnessPatterns.some(p => p.test(lower));
+    const isEducational = !isWellness && educationalPatterns.some(p => p.test(lower));
+
+    // ── Educational intent — answer the question directly ─────────────────
+    if (isEducational) {
+      const isDetailed = lower.includes("detail") || lower.includes("tell me more") || lower.includes("elaborate") || lower.includes("in depth");
+      if (isDetailed) {
+        return "My offline knowledge on this specific topic is limited, so for the most accurate and detailed explanation I'd recommend checking a trusted source like Wikipedia, Khan Academy, or the relevant documentation. Is there a particular aspect of this you'd like me to focus on?";
+      }
+      return "That's an interesting question. I can share a general overview, though for precise technical details a dedicated resource will serve you better. What specifically would you like to understand about this topic?";
+    }
+
+    // Detect response length intent (wellness only from here)
+    const wantsDetailed = lower.includes("explain") || lower.includes("detail") || lower.includes("tell me more") || lower.includes("elaborate") || lower.includes("guide me") || lower.includes("step by step") || lower.includes("how do i") || lower.includes("what should i");
+    const isShort = wordCount <= 6;
+
+    // Context from conversation history
     const lastAiMsg = history.filter(m => m.type === "ai").pop();
-    const lastUserContent = lastUserMsg ? lastUserMsg.content.toLowerCase() : "";
+    const recentUserMsgs = history.filter(m => m.type === "user").slice(-3).map(m => m.content.toLowerCase());
 
-    let validation = "";
-    let guidance = "";
-    let reflectionQuestion = "";
+    // ── Greetings ──────────────────────────────────────────────────────────
+    if (/^(hi|hello|hey|namaste|good morning|good evening|good afternoon|hola)\b/.test(lower)) {
+      const greetings = [
+        "Namaste. Good to have you here. What's on your mind today?",
+        "Hello. This is your space to reflect, explore, or just think out loud. What would you like to talk about?",
+        "Hey, glad you're here. How are you feeling right now?",
+      ];
+      return greetings[Math.floor(Math.random() * greetings.length)];
+    }
 
-    // Helper check to see if user is explicitly asking for tools, help, suggestions, etc.
-    const isAskingForSuggestions = lower.includes("how") || lower.includes("tool") || lower.includes("suggest") || lower.includes("help") || lower.includes("do") || lower.includes("exercise") || lower.includes("recom");
+    // ── Gratitude ──────────────────────────────────────────────────────────
+    if (lower.includes("thank") || lower.includes("thanks") || lower.includes("grateful")) {
+      return "Glad this was helpful. Come back anytime you need a moment to think or reset. Take care of yourself.";
+    }
 
-    // 1. Emotion & Intent Matching
-    if (lower.includes("stress") || lower.includes("overwhelm") || lower.includes("anxious") || lower.includes("panic")) {
-      validation = "I hear the weight in your words. Feeling overwhelmed or stressed is a heavy burden, but it is also your mind asking for a gentle pause. Take a slow breath with me.";
-      if (isAskingForSuggestions) {
-        guidance = "If you feel ready to explore tools, our Meditation section offers Guided Breathwork sessions, and our Sound Healing frequencies are designed to help soothe the nervous system.";
-      } else {
-        guidance = "Allow yourself a moment to step back from all the demands. There is no need to resolve everything this very second. Let your shoulders drop and feel the ground beneath you.";
+    // ── Stress / Overwhelm / Anxiety / Panic ──────────────────────────────
+    if (lower.includes("stress") || lower.includes("overwhelm") || lower.includes("anxious") || lower.includes("anxiety") || lower.includes("panic") || lower.includes("too much") || lower.includes("can't cope") || lower.includes("burnout")) {
+      if (wantsDetailed) {
+        return "Feeling overwhelmed often means your mind has been carrying more than it can comfortably manage. A good starting point is to slow your breathing — breathe in for four counts, hold for four, and exhale for six. This activates the part of your nervous system responsible for calm.\n\nFrom there, try writing down everything that feels urgent and pick just one thing to focus on today. The Guided Breathwork sessions in the Meditation section can also help reset your nervous system in as little as five minutes.\n\nBe patient with yourself. Clarity comes when the pressure eases, not before.";
       }
-      reflectionQuestion = "When you breathe in right now, where in your body do you feel the tension holding on?";
-    } else if (lower.includes("sad") || lower.includes("lonely") || lower.includes("hurt") || lower.includes("cry") || lower.includes("grief") || lower.includes("depress")) {
-      validation = "I am holding space for you. Sadness and grief are not signs of weakness, but visitors showing how deeply you care and feel. You do not have to carry this alone.";
-      if (isAskingForSuggestions) {
-        guidance = "If you feel you need deeper support, you can connect with our Nirvaha Companions for one-on-one personalized, compassionate guidance.";
-      } else {
-        guidance = "It is completely okay to not be okay right now. There is no rush to feel better. Let the feeling be, and treat yourself with absolute kindness.";
+      if (isShort) {
+        return "Feeling overwhelmed often means your mind has been carrying more than it can comfortably manage. Take a few slow breaths and focus on one thing at a time rather than everything at once. Small, steady steps create more clarity than trying to solve it all right now.";
       }
-      reflectionQuestion = "Would you like to sit with this feeling in silence for a moment, or is there a specific thought you want to express?";
-    } else if (lower.includes("happy") || lower.includes("good") || lower.includes("great") || lower.includes("peaceful")) {
-      validation = "What a beautiful space you are in. Celebrating moments of joy and peace is a wonderful way to ground them in your heart.";
-      guidance = "Savoring these moments of clarity helps build a gentle inner sanctuary. You don't need to do anything to optimize or change it—just be fully present in this lightness.";
-      reflectionQuestion = "What is one little thing that brought you this feeling of peace today?";
-    } else if (lower.includes("meditat") || lower.includes("breath")) {
-      validation = "Meditation is a gentle return to yourself. It is not about silencing the mind, but about listening to it with kindness.";
-      guidance = "Our Meditation section offers structured guided paths for mindfulness, stress relief, and deep sleep. You can start with a short 5-minute session to ease in.";
-      reflectionQuestion = "Have you meditated before, or are we beginning a new chapter together today?";
-    } else if (lower.includes("sound") || lower.includes("healing") || lower.includes("music") || lower.includes("frequency")) {
-      validation = "Sound has a beautiful way of bypassing the busy mind and speaking directly to our nervous system.";
-      guidance = "In our Sound Healing library, you can tune into specific healing frequencies like 432Hz for grounding or 528Hz for relaxation.";
-      reflectionQuestion = "Is there a particular sound or instrument, like singing bowls or rain, that helps you feel safe?";
-    } else if (lower.includes("companion") || lower.includes("mentor") || lower.includes("expert") || lower.includes("guide")) {
-      validation = "Seeking a mentor or companion is a courageous step on the path of self-discovery.";
-      guidance = "Our Nirvaha Companions are wellness experts who offer personalized, compassionate guidance. You can browse through their profiles to find someone who resonates with you.";
-      reflectionQuestion = "Are you looking for support with something specific, like anxiety, sleep, or daily mindfulness?";
-    } else if (lower.includes("marketplace") || lower.includes("buy") || lower.includes("product")) {
-      validation = "Creating a soothing physical space is a lovely way to support your inner wellness journey.";
-      guidance = "In the Nirvaha Marketplace, you can find curated items like essential oils, grounding crystals, and wellness journals to complement your practice.";
-      reflectionQuestion = "Are you looking for something to help with your physical space, or a gift for a loved one?";
-    } else if (lower.includes("hello") || lower.includes("hi") || lower.includes("namaste") || lower.includes("hey")) {
-      validation = "Namaste 🙏 I am your NIRVAHA AI spiritual guide, here to listen and walk with you.";
-      guidance = "I am here to offer a safe, quiet space for you to reflect, pause, or talk through whatever is on your mind.";
-      reflectionQuestion = "How does your heart feel in this exact moment?";
-    } else if (lower.includes("thank") || lower.includes("thanks")) {
-      validation = "You are so welcome. Gratitude is a beautiful reflection of a warm heart.";
-      guidance = "Remember, you can return to this space anytime you need to pause, breathe, or reflect.";
-      reflectionQuestion = "Is there anything else you would like to reflect on before you move forward today?";
-    } else {
-      // Memory / Context fallbacks
-      if (lastAiMsg && lastAiMsg.content.includes("where in your body")) {
-        validation = "Thank you for bringing awareness to that part of your body. Sensing where tension lives is the first step toward releasing it.";
-        guidance = "Allow yourself to imagine sending a warm, soft breath to that area, letting it soften with each exhale.";
-        reflectionQuestion = "Would you like to try a short breathing pause together now?";
-      } else if (lastAiMsg && lastAiMsg.content.includes("How does your heart feel")) {
-        validation = "I hear you, and I honor whatever feeling you are sitting with right now. Every emotion has its own wisdom.";
-        guidance = "There is no right or wrong way to feel. Just allowing yourself to be present is a profound form of self-care.";
-        reflectionQuestion = "What feels like the most supportive thing for you right now?";
-      } else {
-        validation = "Thank you for sharing that reflection with me. Every thought and emotion is a stepping stone on your journey of self-discovery.";
-        guidance = "I am here to listen and support you. You don't have to navigate these paths alone.";
-        reflectionQuestion = "What is the primary feeling or thought that stays with you after sharing this?";
+      return "Feeling overwhelmed often means your mind has been carrying more than it can comfortably manage. Take a few slow breaths and focus on one thing at a time rather than everything at once. Small, steady steps can create clarity and reduce pressure. Be gentle with yourself today.";
+    }
+
+    // ── Sadness / Grief / Loneliness / Depression ─────────────────────────
+    if (lower.includes("sad") || lower.includes("lonely") || lower.includes("hurt") || lower.includes("cry") || lower.includes("grief") || lower.includes("depress") || lower.includes("empty") || lower.includes("numb") || lower.includes("lost") || lower.includes("hopeless")) {
+      if (wantsDetailed) {
+        return "Sadness and grief are not signs of weakness. They usually point to something you care about deeply, and that matters.\n\nWhen you're in this space, the most useful thing is often not to fix the feeling but to give it room. Try writing a few honest sentences in a journal, or simply sit quietly for a few minutes without trying to change how you feel.\n\nIf you'd like to talk to someone, the Nirvaha Companions section connects you with real people who offer one-on-one support. You don't have to work through this alone.";
+      }
+      if (isShort) {
+        return "That kind of heaviness is real, and it's okay to feel it. You don't have to explain or justify it. Try to take things one slow, gentle breath at a time right now.";
+      }
+      return "Sadness often points to something that genuinely matters to you. You don't need to rush through it or make it go away. Giving yourself permission to feel it without judgment is already a meaningful step. Try writing a few thoughts down in a journal to help clear your mental space.";
+    }
+
+    // ── Anger / Frustration ───────────────────────────────────────────────
+    if (lower.includes("angry") || lower.includes("anger") || lower.includes("frustrat") || lower.includes("furious") || lower.includes("irritat") || lower.includes("annoyed") || lower.includes("rage")) {
+      if (isShort) {
+        return "Anger usually points to a boundary that's been crossed or a need that hasn't been met. Take a few slow exhales to release the physical tension before addressing whatever triggered it.";
+      }
+      return "Anger is one of the more honest emotions — it usually signals that something important to you has been ignored or crossed. Before reacting, a few slow exhales can help shift you out of reaction mode. Giving yourself a quiet space to breathe first is a powerful next step.";
+    }
+
+    // ── Fear / Worry ──────────────────────────────────────────────────────
+    if (lower.includes("fear") || lower.includes("afraid") || lower.includes("scared") || lower.includes("worry") || lower.includes("worried") || lower.includes("nervous") || lower.includes("dread")) {
+      if (isShort) {
+        return "Anxiety often pulls attention toward future uncertainties. Try bringing your focus back to the present moment through slow breathing or a short mindful pause. You don't need to solve everything right now.";
+      }
+      return "Anxiety often pulls attention toward future uncertainties. Try bringing your focus back to right now — notice five things around you, feel your feet on the floor, and take a slow breath. You don't need to solve everything at once. One step at a time is enough.";
+    }
+
+    // ── Joy / Happiness / Gratitude / Peace ───────────────────────────────
+    if (lower.includes("happy") || lower.includes("joyful") || lower.includes("excited") || lower.includes("grateful") || lower.includes("content") || lower.includes("peaceful") || lower.includes("great") || lower.includes("wonderful") || lower.includes("amazing") || lower.includes("blessed")) {
+      const joyResponses = [
+        "That's good to hear. These moments are worth pausing on rather than rushing past. What's been contributing to this feeling?",
+        "Glad to hear it. A little lightness goes a long way. What's been going well for you?",
+        "That kind of peace is worth noticing. What brought you here today?",
+      ];
+      return joyResponses[Math.floor(Math.random() * joyResponses.length)];
+    }
+
+    // ── Sleep / Rest ──────────────────────────────────────────────────────
+    if (lower.includes("sleep") || lower.includes("insomnia") || lower.includes("can't sleep") || lower.includes("tired") || lower.includes("exhausted") || lower.includes("rest")) {
+      if (wantsDetailed) {
+        return "When sleep feels out of reach, it usually means the nervous system hasn't had a chance to wind down. A few things that genuinely help: step away from screens 30 minutes before bed, keep the room cool and dark, and try a slow body scan starting from your feet and moving upward.\n\nThe Sound Healing section has a Sleep Therapy collection with delta wave frequencies designed to guide the brain into deep rest. Try listening to one of these tracks for 10 minutes tonight.";
+      }
+      return "When sleep feels out of reach, it usually means the nervous system is still running. Try dimming lights, stepping away from screens, and taking a few slow breaths before bed. A simple next step is to head to the Sound Healing section and play a relaxing delta wave frequency as you wind down.";
+    }
+
+    // ── Meditation / Breathwork ───────────────────────────────────────────
+    if (lower.includes("meditat") || lower.includes("mindful") || lower.includes("breathwork") || lower.includes("breath") || lower.includes("breathing")) {
+      if (wantsDetailed) {
+        return "Meditation is simpler than most people think. You don't need to empty your mind — the practice is just noticing when your attention has wandered and gently bringing it back, without judgment. That moment of noticing is the meditation.\n\nThe Meditation section has guided sessions for every level, from 5-minute breathing exercises to longer immersive practices. Starting with just 5 minutes a day creates real changes in stress and focus within a couple of weeks. A good starting point is trying one of the short 5-minute exercises in the Meditation page.";
+      }
+      if (isShort) {
+        return "Meditation is simply the practice of returning — to your breath, to the present moment, to yourself. Even one mindful breath counts. You can start by taking a slow inhale and counting to four, then exhaling for four.";
+      }
+      return "Meditation isn't about achieving a perfectly quiet mind. It's about learning to be present with whatever arises without being swept away by it. To begin, try a short guided breathing session on the Meditation page today.";
+    }
+
+    // ── Sound Healing / Frequencies / Music ──────────────────────────────
+    if (lower.includes("sound healing") || lower.includes("frequency") || lower.includes("singing bowl") || lower.includes("binaural") || lower.includes("432") || lower.includes("528") || lower.includes("healing music")) {
+      if (wantsDetailed) {
+        return "Sound healing uses specific frequencies to influence brainwave states and the nervous system. Some common ones: 396Hz supports grounding and releasing fear, 432Hz promotes calm and clarity, 528Hz is associated with deep relaxation, and 639Hz supports heart-centered connection.\n\nThe Sound Healing library is organized by mood and intention, so you can choose based on how you're feeling. Tibetan singing bowls are particularly effective for nervous system regulation. Try selecting a singing bowl track on the Sound Healing page and letting the vibrations ground you.";
+      }
+      return "Specific sound frequencies can shift brainwave states, calm the nervous system, and support emotional release. A great next step is to visit the Sound Healing library and choose a calming frequency like 432Hz to begin.";
+    }
+
+    // ── General sound/music ───────────────────────────────────────────────
+    if (lower.includes("music") || lower.includes("listen") || lower.includes("audio") || lower.includes("sound")) {
+      return "Sound is one of the most direct ways to shift how you feel. The Sound Healing library has collections for every state, from energizing focus music to deeply calming sleep frequencies. Try exploring the library to find a track that matches your current mood.";
+    }
+
+    // ── Yoga / Movement / Body ────────────────────────────────────────────
+    if (lower.includes("yoga") || lower.includes("movement") || lower.includes("body") || lower.includes("stretch") || lower.includes("exercise") || lower.includes("physical")) {
+      return "Movement is one of the most effective ways to release stored tension and reconnect with yourself. Even 10 minutes of conscious movement, whether yoga, walking, or gentle stretching, can shift your energy noticeably. Try taking a short walk or doing a few light stretches to start.";
+    }
+
+    // ── Chakras / Energy / Spiritual ─────────────────────────────────────
+    if (lower.includes("chakra") || lower.includes("energy") || lower.includes("spiritual") || lower.includes("soul") || lower.includes("spirit") || lower.includes("aura") || lower.includes("vibration") || lower.includes("consciousness")) {
+      if (wantsDetailed) {
+        return "The chakra system maps seven primary energy centers, each connected to different aspects of life. The root relates to safety and grounding, the sacral to creativity and emotion, the solar plexus to confidence and identity, the heart to love and connection, the throat to expression and truth, the third eye to intuition and clarity, and the crown to awareness and presence.\n\nThe Chakra Experience section offers sound frequencies and guided practices for each center. Try starting with a grounding Root Chakra track to build a sense of safety and presence.";
+      }
+      return "Our energy and emotional state are closely connected. When something feels blocked or off, it often reflects an imbalance in how we're relating to ourselves or the world around us. The Chakra Experience section uses sound frequencies and guided practices to help restore that inner alignment. A helpful first step is to focus on your Root Chakra to bring stability to your energy.";
+    }
+
+    // ── Companion / Mentor / Support ──────────────────────────────────────
+    if (lower.includes("companion") || lower.includes("mentor") || lower.includes("therapist") || lower.includes("counselor") || lower.includes("someone to talk") || lower.includes("human support") || lower.includes("one on one")) {
+      return "Reaching out for support is a practical and courageous step. The Nirvaha Companions section connects you with trained wellness guides who offer personalized one-on-one sessions. Try browsing their profiles to find a guide whose approach aligns with what you need today.";
+    }
+
+    // ── Purpose / Direction / Life questions ─────────────────────────────
+    if (lower.includes("purpose") || lower.includes("meaning") || lower.includes("direction") || lower.includes("what am i doing") || lower.includes("lost") || lower.includes("confused") || lower.includes("don't know") || lower.includes("stuck")) {
+      if (isShort) {
+        return "Feeling uncertain about direction is often the beginning of a deeper search, not a sign that something is wrong. Try listing one or two small things that bring you simple joy today.";
+      }
+      return "Feeling without direction often means you've outgrown something but haven't yet found what comes next. Rather than searching for a grand answer, it can help to ask smaller questions: what feels alive in me right now, what drains me, or what would I do if I weren't afraid. Focus on one small choice that aligns with your values today.";
+    }
+
+    // ── Relationships ─────────────────────────────────────────────────────
+    if (lower.includes("relationship") || lower.includes("partner") || lower.includes("family") || lower.includes("friend") || lower.includes("conflict") || lower.includes("argument") || lower.includes("breakup") || lower.includes("divorce") || lower.includes("love")) {
+      if (isShort) {
+        return "Relationships are often where our deepest growth happens. Give yourself space to breathe and process before trying to resolve any tension.";
+      }
+      return "Relationships tend to reflect both our strengths and the parts of ourselves still asking for attention. Whatever is arising right now, approaching it with curiosity rather than judgment, toward the other person and toward yourself, usually opens more space than trying to force a resolution. Take a step back and focus on grounding yourself first.";
+    }
+
+    // ── Self-worth / Confidence / Identity ───────────────────────────────
+    if (lower.includes("confidence") || lower.includes("self-worth") || lower.includes("self esteem") || lower.includes("not good enough") || lower.includes("failure") || lower.includes("worthless") || lower.includes("insecure") || lower.includes("doubt")) {
+      if (isShort) {
+        return "The inner critic is rarely accurate. Try noting one small thing you did well today, or one quality you appreciate about yourself.";
+      }
+      return "The voice that says you're not enough is usually an old story, not a current truth. Self-worth isn't something you earn through achievement — it's something you return to by recognizing your value separate from what you do or produce. Practice breathing through the doubt and letting the criticism fade.";
+    }
+
+    // ── Gratitude practice ────────────────────────────────────────────────
+    if (lower.includes("gratitude") || lower.includes("appreciate") || lower.includes("thankful") || lower.includes("bless")) {
+      return "Gratitude doesn't deny difficulty — it trains the mind to notice what's also true alongside the hard things. Even naming three small things you appreciate each morning can shift your baseline mood over time. Try taking a moment to write down one small thing you're glad to have right now.";
+    }
+
+    // ── Journaling / Reflection ───────────────────────────────────────────
+    if (lower.includes("journal") || lower.includes("reflect") || lower.includes("write") || lower.includes("diary")) {
+      return "Writing externalizes what's swirling internally, giving it form and making it easier to work with. You don't need to write perfectly or at length — even a few honest sentences each day can create real clarity over time. Start by writing down three thoughts exactly as they appear in your mind.";
+    }
+
+    // ── Short / unclear input — context-aware fallback ────────────────────
+    if (isShort) {
+      const shortFallbacks = [
+        "What's on your mind? I'm here.",
+        "This space is yours. What would feel most helpful to explore today?",
+        "Take your time. What's present for you right now?",
+      ];
+      return shortFallbacks[Math.floor(Math.random() * shortFallbacks.length)];
+    }
+
+    // ── Context-aware follow-up ───────────────────────────────────────────
+    if (lastAiMsg) {
+      const lastAi = lastAiMsg.content.toLowerCase();
+      if (lastAi.includes("breath") || lastAi.includes("inhale") || lastAi.includes("exhale")) {
+        return "Even a few conscious breaths create a real shift. Take a moment to notice any sensations in your body or shifts in your thoughts as you stay with this breath.";
+      }
+      if (lastAi.includes("what's") || lastAi.includes("what is") || lastAi.includes("how are")) {
+        return "Every reflection, however small, is a step toward greater self-awareness. Allow yourself to rest in this awareness for a moment.";
       }
     }
 
-    if (guidance) {
-      return `${validation}\n\n${guidance}\n\n${reflectionQuestion}`;
-    }
-    return `${validation}\n\n${reflectionQuestion}`;
+    // ── General / open-ended fallback ─────────────────────────────────────
+    const generalFallbacks = [
+      "Whatever you're working through, you don't have to navigate it alone. Take a gentle breath and allow yourself to sit with this moment without pressure.",
+      "Sometimes the most valuable thing is having a space to say what's true without it needing to be resolved immediately. Give yourself permission to just be present here.",
+      "That's worth sitting with. Take a quiet breath and notice how it feels to let go of needing an immediate answer.",
+    ];
+    return generalFallbacks[Math.floor(Math.random() * generalFallbacks.length)];
   };
 
   const handleSend = async () => {
     if (!inputValue.trim() || !currentSessionId) return;
 
+    // Capture these synchronously before any async work
+    const activeSessionId = currentSessionId;
+    const sentMessage = inputValue.trim();
+
     const userMsg: Message = {
       type: "user",
-      content: inputValue,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      content: sentMessage,
+      timestamp: new Date().toISOString(),
     };
 
-    const updatedSessions = sessions.map(s => {
-      if (s.id === currentSessionId) {
+    // Append user message using functional updater — always targets latest state
+    setSessions(prev => {
+      const next = prev.map(s => {
+        if (s.id !== activeSessionId) return s;
         const isDefaultTitle = s.title === "New Reflection";
         return {
           ...s,
-          title: isDefaultTitle ? inputValue.slice(0, 30) : s.title,
+          title: isDefaultTitle ? sentMessage.slice(0, 30) : s.title,
           messages: [...s.messages, userMsg],
-          updatedAt: Date.now()
+          updatedAt: Date.now(),
         };
-      }
-      return s;
+      });
+      localStorage.setItem(getStorageKey(), JSON.stringify(next));
+      return next;
     });
 
-    saveSessions(updatedSessions);
-    const sentMessage = inputValue;
     setInputValue("");
     setIsTyping(true);
+
+    // Snapshot of messages for AI context (before the user message was appended)
+    const contextMessages = messages;
+
+    // Strip any markdown symbols before storing or displaying
+    const stripMarkdown = (text: string): string =>
+      text
+        .replace(/^#{1,6}\s+/gm, '')           // headings: ## Title → Title
+        .replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1') // bold/italic: **text** → text
+        .replace(/`{1,3}[^`]*`{1,3}/g, (m) =>   // inline/block code: keep content
+          m.replace(/`/g, ''))
+        .replace(/^[\s]*[-*•]\s+/gm, '')         // bullet points: - item → item
+        .replace(/^\d+\.\s+/gm, (m, offset, str) => { // numbered lists: only strip if multi-line
+          const lines = str.split('\n').filter((l: string) => /^\d+\.\s/.test(l.trim()));
+          return lines.length > 1 ? '' : m;
+        })
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // links: [text](url) → text
+        .replace(/_{1,2}([^_]+)_{1,2}/g, '$1')   // underscore italic/bold
+        .replace(/\n{3,}/g, '\n\n')               // collapse excess blank lines
+        .trim();
+
+    const appendAiReply = (replyText: string) => {
+      const aiResponse: Message = {
+        type: "ai",
+        content: stripMarkdown(replyText),
+        timestamp: new Date().toISOString(),
+      };
+      // Use functional updater so we always append to the freshest state
+      setSessions(prev => {
+        const next = prev.map(s =>
+          s.id === activeSessionId
+            ? { ...s, messages: [...s.messages, aiResponse], updatedAt: Date.now() }
+            : s
+        );
+        localStorage.setItem(getStorageKey(), JSON.stringify(next));
+        return next;
+      });
+    };
 
     // Try backend first
     try {
       const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/reflect`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: sentMessage, userId: user?.id }),
+        body: JSON.stringify({
+          message: sentMessage,
+          userId: user?.id,
+          // Send last 6 messages (3 exchanges) so the backend has follow-up context
+          recentMessages: contextMessages.slice(-6).map(m => ({ type: m.type, content: m.content })),
+        }),
       });
 
       if (res.ok) {
         const data = await res.json();
-        const replyText = data.reply || generateAIResponse(sentMessage, messages);
-        
-        const aiResponse: Message = {
-          type: "ai",
-          content: replyText,
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        };
-
-        // Empathetic timing delay
+        const replyText = data.reply || generateAIResponse(sentMessage, contextMessages);
         await new Promise(resolve => setTimeout(resolve, 800));
-
-        const withAi = updatedSessions.map(s =>
-          s.id === currentSessionId ? { ...s, messages: [...s.messages, aiResponse], updatedAt: Date.now() } : s
-        );
-
-        saveSessions(withAi);
+        appendAiReply(replyText);
       } else {
         throw new Error("Backend not responding");
       }
     } catch (error) {
       console.error("AI Reflection Error:", error);
-      // Use frontend AI response system as fallback
-      const replyText = generateAIResponse(sentMessage, messages);
-      
-      const aiResponse: Message = {
-        type: "ai",
-        content: replyText,
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      };
-
-      // Empathetic timing delay for fallback
+      const replyText = generateAIResponse(sentMessage, contextMessages);
       await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const withAi = updatedSessions.map(s =>
-        s.id === currentSessionId ? { ...s, messages: [...s.messages, aiResponse], updatedAt: Date.now() } : s
-      );
-
-      saveSessions(withAi);
+      appendAiReply(replyText);
     } finally {
       setIsTyping(false);
     }
@@ -605,13 +821,15 @@ export function ChatbotPage() {
                       : 'text-white/60 hover:bg-white/5'
                       }`}
                   >
-                    <div className="flex items-center gap-3 truncate">
+                    <div className="flex items-center gap-3 truncate flex-1 min-w-0">
                       <MessageSquare className="w-4 h-4 shrink-0 opacity-50" />
-                      <span className="text-sm truncate font-medium">{s.title}</span>
+                      <div className="flex items-start truncate min-w-0 text-left">
+                        <span className="text-sm truncate font-medium leading-tight">{s.title}</span>
+                      </div>
                     </div>
                     <Trash2
                       onClick={(e) => deleteSession(s.id, e)}
-                      className="w-3.5 h-3.5 shrink-0 opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity cursor-pointer"
+                      className="w-3.5 h-3.5 shrink-0 opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity cursor-pointer ml-2"
                     />
                   </button>
                 ))}
@@ -838,13 +1056,13 @@ export function ChatbotPage() {
                   animate={{ opacity: 1, y: 0 }}
                   className={`flex w-full ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`flex gap-4 max-w-[85%] ${msg.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                  <div className={`flex gap-4 max-w-[75%] ${msg.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                     {msg.type === 'ai' && (
                       <div className="w-8 h-8 rounded-lg bg-[#F0F7F4] flex items-center justify-center shrink-0 mt-1">
                         <BrainCircuit className="w-5 h-5 text-[#2D6A4F]" />
                       </div>
                     )}
-                    <div className="flex flex-col gap-1.5">
+                    <div className={`flex flex-col gap-1.5 ${msg.type === 'user' ? 'items-end' : 'items-start'}`}>
                       <div className={`px-5 py-3.5 rounded-2xl text-[15px] leading-relaxed shadow-sm ${msg.type === 'user'
                         ? 'bg-[#2D6A4F] text-white rounded-tr-none'
                         : 'bg-[#F8FAF9] text-[#1A2E2A] border border-gray-100 rounded-tl-none'
@@ -852,7 +1070,7 @@ export function ChatbotPage() {
                         {msg.content}
                       </div>
                       <span className={`text-[10px] font-semibold tracking-wider text-gray-400 px-1 uppercase ${msg.type === 'user' ? 'text-right' : 'text-left'}`}>
-                        {msg.timestamp}
+                        {formatFriendlyTimestamp(msg.timestamp)}
                       </span>
                     </div>
                   </div>
