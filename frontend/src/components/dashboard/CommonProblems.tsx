@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'motion/react';
+﻿import { motion, AnimatePresence } from 'motion/react';
 import {
     Cloud, Moon, Zap, Activity, Users, Flame, X, Play, Headphones, MessageCircle,
     Calendar, Check, Pause, Send, Volume2, Clock, Heart, Brain, Sun, Star, Shield,
@@ -8,7 +8,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import BACKEND_CONFIG from '../../config/backend';
 
-// Icon name string → Lucide component mapping
+// Icon name string â†’ Lucide component mapping
 const ICON_MAP: Record<string, LucideIcon> = {
     Flame, Zap, Moon, Cloud, Activity, Users, Heart, Brain, Sun, Star, Shield,
     Coffee, Eye, Frown, AlertTriangle, Droplets, Clock, Headphones, MessageCircle, Calendar
@@ -477,7 +477,7 @@ export const CommonProblems = () => {
 };
 
 const ActionMiniModal = ({ actionName, problemTitle, onClose }: { actionName: string, problemTitle: string, onClose: () => void }) => {
-    // Mutually exclusive action type — priority: chat > booking > healing > meditation
+    // Mutually exclusive action type â€” priority: chat > booking > healing > meditation
     const getActionType = (): 'chat' | 'booking' | 'healing' | 'meditation' => {
         if (actionName.includes('Book')) return 'booking';
         if (actionName.includes('Rest Session') || actionName.includes('Relief Session') || actionName.includes('Sleep Session') || actionName.includes('Stabilization Session') || actionName.includes('Connection Session')) {
@@ -788,7 +788,7 @@ const ChatVariant = ({ onClose, chatMsg, setChatMsg, actionName, problemTitle }:
             case "Mood Swings":
                 return "Emotional fluctuations can be exhausting. Tracking your emotions is a great first step. How are you feeling in your body right now?";
             case "Feeling Isolated":
-                return "Welcome to your sanctuary space. You are not alone — connection is a fundamental human need. I'm here to support your journey. How are you feeling right now?";
+                return "Welcome to your sanctuary space. You are not alone â€” connection is a fundamental human need. I'm here to support your journey. How are you feeling right now?";
             default:
                 return "I'm here to support you on your wellness journey. How can I help you feel better today?";
         }
