@@ -6,7 +6,7 @@ const features = [
     {
         title: "Guided Meditation",
         description: "Experience personalized meditation sessions that adapt to your emotional state. Our AI-powered guidance helps you find peace, clarity, and balance through ancient techniques reimagined for modern life.",
-        image: "/Indoor Calm Meditation.png",
+        image: "/guided_meditation_pop.png",
         color: "#1a5d47"
     },
     {
@@ -69,9 +69,11 @@ export const FeaturesBentoGrid = () => {
 
     return (
         <section className="min-h-screen flex flex-col justify-center py-8 bg-[#EEF7F1] relative overflow-hidden">
-            <div className="w-full px-6 md:px-12 lg:px-20">
-                {/* Cards Carousel */}
-                <div className="relative h-[550px] flex items-center justify-center">
+            <div className="w-full px-6 md:px-12 lg:px-20 flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+                {/* LEFT SIDE: Cards Carousel & Controls */}
+                <div className="w-full lg:w-[55%] flex flex-col items-center">
+                    {/* Cards Carousel */}
+                    <div className="relative h-[450px] w-full flex items-center justify-center">
                     <div className="relative flex items-center justify-center w-full">
                         {getVisibleCards().map((card, idx) => {
                             const position = card.position;
@@ -83,13 +85,13 @@ export const FeaturesBentoGrid = () => {
                                     key={`${card.originalIndex}-${position}`}
                                     className="absolute rounded-[2rem] overflow-hidden shadow-2xl cursor-pointer"
                                     style={{
-                                        width: isActive ? '550px' : '480px',
-                                        height: isActive ? '520px' : '460px',
+                                        width: isActive ? '360px' : '300px',
+                                        height: isActive ? '420px' : '360px',
                                         zIndex: 10 - absPos,
                                     }}
                                     initial={false}
                                     animate={{
-                                        x: position * 200,
+                                        x: position * 150,
                                         scale: isActive ? 1 : 0.85 - absPos * 0.05,
                                         opacity: absPos > 1 ? 0.3 : isActive ? 1 : 0.7,
                                         rotateY: position * -8,
@@ -116,17 +118,17 @@ export const FeaturesBentoGrid = () => {
                 </div>
 
                 {/* Slider Controls */}
-                <div className="flex items-center justify-center gap-4 mt-12">
+                <div className="flex items-center justify-center gap-4 mt-8 w-full max-w-[500px]">
                     {/* Left Arrow */}
                     <button
                         onClick={handlePrev}
-                        className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#1a5d47] transition-colors"
+                        className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#1a5d47] transition-colors flex-shrink-0"
                     >
                         <ChevronLeft className="w-6 h-6" />
                     </button>
 
                     {/* Gradient Slider Track with Avatar */}
-                    <div className="relative w-[400px] md:w-[600px] h-3 rounded-full overflow-visible"
+                    <div className="relative w-full h-3 rounded-full overflow-visible"
                         style={{
                             background: `linear-gradient(to right, #f59e0b, #fbbf24, #fb923c, #f97316, #ef4444, #ec4899, #d946ef, #a855f7)`
                         }}
@@ -166,14 +168,15 @@ export const FeaturesBentoGrid = () => {
                     {/* Right Arrow */}
                     <button
                         onClick={handleNext}
-                        className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#1a5d47] transition-colors"
+                        className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#1a5d47] transition-colors flex-shrink-0"
                     >
                         <ChevronRight className="w-6 h-6" />
                     </button>
                 </div>
+                </div>
 
-                {/* Feature Content */}
-                <div className="mt-12 text-center max-w-3xl mx-auto">
+                {/* RIGHT SIDE: Feature Content */}
+                <div className="w-full lg:w-[45%] text-center lg:text-left flex flex-col justify-center">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={activeIndex}
@@ -185,13 +188,13 @@ export const FeaturesBentoGrid = () => {
                             className="cursor-pointer"
                         >
                             <h3
-                                className="text-2xl md:text-3xl font-bold text-[#0F131A] mb-4 tracking-wide"
+                                className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#0F131A] mb-6 tracking-wide"
                                 style={{ fontFamily: "'Cinzel', serif" }}
                             >
                                 {features[activeIndex].title}
                             </h3>
                             <p
-                                className="text-[#5f6f65] text-base md:text-lg leading-relaxed font-medium"
+                                className="text-[#5f6f65] text-lg md:text-xl leading-relaxed font-medium"
                                 style={{ fontFamily: "'Poppins', sans-serif" }}
                             >
                                 {features[activeIndex].description}

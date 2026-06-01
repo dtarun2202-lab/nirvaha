@@ -29,6 +29,7 @@ import { CompanionPage } from "./components/pages/CompanionPage";
 import { ProfilePage } from "./components/ProfilePage";
 import { Navigation } from "./components/Navigation";
 import { DashboardPage } from "./components/pages/DashboardPage";
+import AIChatbotWidget from "./components/AIChatbotWidget";
 import PathwaysPage from './pages/PathwaysPage';
 import PathwayDetailPage from './pages/PathwayDetailPage';
 import PathwayJourney from './pages/PathwayJourney';
@@ -37,6 +38,11 @@ import LibraryDetailPage from './pages/LibraryDetailPage';
 import StoryDetailPage from './pages/StoryDetailPage';
 import ChakraExperiencePage from './pages/ChakraExperiencePage';
 import HealingMusicPage from './pages/HealingMusicPage';
+import InspirationStoryPage from './pages/InspirationStoryPage';
+import LifeQuizPage from './pages/LifeQuizPage';
+import AncientCharacterPage from './pages/AncientCharacterPage';
+import TempleOfBalancePage from './pages/TempleOfBalancePage';
+import AutographPage from './pages/AutographPage';
 
 import { FeaturesBentoGrid } from "./components/dashboard/FeaturesBentoGrid";
 import { CommonProblems } from "./components/dashboard/CommonProblems";
@@ -109,6 +115,11 @@ function AppInner() {
         <Route path="/story/:id" element={<StoryDetailPage />} />
         <Route path="/chakra-experience" element={<ChakraExperiencePage />} />
         <Route path="/healing-music" element={<HealingMusicPage />} />
+        <Route path="/inspiration-story/:id" element={<InspirationStoryPage />} />
+        <Route path="/life-quiz" element={<LifeQuizPage />} />
+        <Route path="/ancient-character" element={<AncientCharacterPage />} />
+        <Route path="/temple-of-balance" element={<TempleOfBalancePage />} />
+        <Route path="/add-your-autograph" element={<AutographPage />} />
 
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
@@ -176,6 +187,9 @@ function AppInner() {
         {/* Catch-all redirect to landing */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
+      {/* Global AI Chatbot Widget */}
+      <AIChatbotWidget />
 
       {/* Global Toasters */}
       <Toaster />
