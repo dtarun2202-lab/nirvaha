@@ -232,7 +232,7 @@ export const CommonProblems = () => {
         };
     }, []);
 
-    const problems = [
+    const problemsList = [
         {
             title: "Burnout",
             icon: Flame,
@@ -400,7 +400,7 @@ export const CommonProblems = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {problems.map((p, idx) => (
+                    {problemsList.map((p, idx) => (
                        <motion.div
                          key={idx}
                          initial={{ opacity: 0, y: 20 }}
