@@ -206,7 +206,7 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
   };
 
   const featureItems = [
-    { id: "certification", label: "Nirvaha Certification Courses" },
+    { id: "certification", label: "Nirvaha Certification" },
     { id: "meditation", label: "Meditation" },
     { id: "sound", label: "Sound Healing" },
     { id: "chatbot", label: "AI Guide" },

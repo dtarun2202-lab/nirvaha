@@ -104,7 +104,7 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
   };
 
   const featureItems = [
-    { id: "certification", label: "Nirvaha Certification Courses", path: "/pathways" },
+    { id: "certification", label: "Nirvaha Certification", path: "/pathways" },
     { id: "meditation", label: "Meditation", path: "/dashboard/meditation" },
     { id: "sound", label: "Sound Healing", path: "/dashboard/sound" },
     { id: "chatbot", label: "AI Guide", path: "/dashboard/chatbot" },
