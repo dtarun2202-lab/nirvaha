@@ -15,8 +15,8 @@ const notes = [
         quote: "Stillness is where healing begins.",
         chant: "Gayatri Resonance",
         link: "/healing-music",
-        author: "Liam Carter",
-        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop"
+        author: "Arjun Verma",
+        avatar: "/arjun verma.png"
     },
     {
         id: 3,
@@ -31,8 +31,8 @@ const notes = [
         quote: "Every breath is a new beginning.",
         chant: "Brahma Nada",
         link: "/healing-music",
-        author: "Ethan Wright",
-        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150&auto=format&fit=crop"
+        author: "Aditya Rao",
+        avatar: "https://images.unsplash.com/photo-1552058544-f2b08422138a?q=80&w=150&auto=format&fit=crop"
     },
     {
         id: 5,
@@ -47,8 +47,8 @@ const notes = [
         quote: "Find beauty in the present moment.",
         chant: "Anahata Heart Frequency",
         link: "/healing-music",
-        author: "Sophia Chen",
-        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop"
+        author: "Kavya Iyer",
+        avatar: "/kavya.png"
     }
 ];
 

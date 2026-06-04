@@ -40,6 +40,15 @@ export const STATEMENT_CARDS: StatementCard[] = [
 
 export const THEMES: CardTheme[] = [
     {
+        id: 'light-green-gold',
+        name: 'Vedic Green & Gold',
+        bgColor: '#eaf5ef',
+        textColor: '#0a1f0f',
+        accentColor: '#D4AF37',
+        autographColor: '#B4952F',
+        fontFamily: 'Georgia, serif'
+    },
+    {
         id: 'dark-temple',
         name: 'Dark Temple Bronze',
         bgColor: '#1A0F00',

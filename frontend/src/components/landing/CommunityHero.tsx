@@ -8,7 +8,6 @@ const CommunityHero = () => {
 
   const [phraseIndex, setPhraseIndex] = useState(0);
   const phrases = ["INNER HARMONY", "PURPOSE OF LIFE", "PEACE WITHIN"];
-  const [showScrollDown, setShowScrollDown] = useState(true);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -23,17 +22,6 @@ const CommunityHero = () => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setShowScrollDown(false);
-      } else {
-        setShowScrollDown(true);
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#eaf5ef]">
@@ -204,7 +192,7 @@ const CommunityHero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.5, duration: 1.5 }}
-            className="mt-12"
+            className="mt-12 flex flex-col md:flex-row items-center justify-center gap-6"
           >
             <button
               onClick={() => navigate('/signup')}
@@ -217,47 +205,7 @@ const CommunityHero = () => {
         </motion.div>
       </div>
 
-      {/* Scroll Down Indicator */}
-      <AnimatePresence>
-        {showScrollDown && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.5 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[25] flex flex-col items-center gap-2 cursor-pointer"
-            onClick={() => {
-              window.scrollTo({
-                top: window.innerHeight,
-                behavior: "smooth",
-              });
-            }}
-          >
-            <span className="text-emerald-950/60 font-semibold uppercase tracking-[0.25em] text-xs font-sans drop-shadow-[0_2px_4px_rgba(255,255,255,0.6)]">
-              Scroll Down
-            </span>
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="w-6 h-10 border-2 border-emerald-900/40 rounded-full flex justify-center p-1.5 backdrop-blur-[2px] bg-white/10 shadow-lg"
-            >
-              <motion.div
-                animate={{ y: [0, 12, 0] }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="w-1.5 h-1.5 bg-emerald-900 rounded-full"
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
     </section>
   );
 };

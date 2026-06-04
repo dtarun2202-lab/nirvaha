@@ -8,7 +8,8 @@ import heroBg2 from "../../assets/meditation/hero-bg2.jpg";
 
 import { FeaturesBentoGrid } from "../dashboard/FeaturesBentoGrid";
 import { CommonProblems } from "../dashboard/CommonProblems";
-import { WellnessRetreats } from "../dashboard/WellnessRetreats";
+
+import { TrustedNetwork } from "../dashboard/TrustedNetwork";
 import { WellnessOTT } from "../dashboard/WellnessOTT";
 import { GamingHubSection } from "../GamingHubSection";
 import { ChakraSection } from "../dashboard/ChakraSection";
@@ -200,8 +201,9 @@ export function DashboardPage() {
       <div id="start-practice" className="bg-[#D7EDE3] py-12"></div>
 
       <FeaturesBentoGrid />
+      <TrustedNetwork />
       <CommonProblems />
-      <WellnessRetreats />
+
       <WellnessOTT />
       <div id="gaming-hub">
         <GamingHubSection />

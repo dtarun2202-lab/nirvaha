@@ -104,6 +104,7 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
   };
 
   const featureItems = [
+    { id: "certification", label: "Nirvaha Certification Courses", path: "/pathways" },
     { id: "meditation", label: "Meditation", path: "/dashboard/meditation" },
     { id: "sound", label: "Sound Healing", path: "/dashboard/sound" },
     { id: "chatbot", label: "AI Guide", path: "/dashboard/chatbot" },
@@ -193,7 +194,7 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.05 }}
                           onClick={() => handleNavigate(item.path)}
-                          className="w-full flex items-center gap-3 px-6 py-4 text-white/70 hover:text-white hover:bg-white/10 transition-all text-left"
+                          className="w-full flex items-center justify-start gap-3 px-6 py-4 text-white/70 hover:text-white hover:bg-white/10 transition-all text-left"
                         >
                           <span className="text-lg font-semibold">{item.label}</span>
                         </motion.button>

@@ -189,6 +189,7 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
         case 'companion': navigate('/dashboard/companion'); break;
         case 'gaming-hub': navigate('/dashboard/overview?scrollTo=gaming-hub'); break;
         case 'profile': navigate('/dashboard/profile'); break;
+        case 'certification': navigate('/pathways'); break;
         default: navigate(`/dashboard/${page}`);
       }
     }
@@ -205,6 +206,7 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
   };
 
   const featureItems = [
+    { id: "certification", label: "Nirvaha Certification Courses" },
     { id: "meditation", label: "Meditation" },
     { id: "sound", label: "Sound Healing" },
     { id: "chatbot", label: "AI Guide" },
@@ -294,7 +296,7 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
                           handleNavigate(item.id);
                           setFeaturesMenuOpen(false);
                         }}
-                        className={`w-full flex items-center gap-3 px-6 py-3 transition-all ${
+                        className={`w-full flex items-center justify-start gap-3 px-6 py-3 transition-all text-left ${
                           currentPage === item.id ? "text-emerald-300" : "text-white/80"
                         }`}
                       >

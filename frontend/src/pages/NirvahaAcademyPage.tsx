@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { DashboardFooter } from '../components/dashboard/DashboardFooter';
 
@@ -104,14 +105,25 @@ const impactSkills = [
 const tags = ['Skill-Focused', 'Assessment-Based', 'Industry Relevant', 'No Prior Expertise Needed'];
 
 const NirvahaAcademyPage: React.FC = () => {
-    
+    const navigate = useNavigate();
 
     return (
         <div className="min-h-screen bg-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
             <Navigation currentPage="academy" />
 
+            {/* Back Button */}
+            <div className="absolute top-8 left-8 md:top-12 md:left-12 z-[100]">
+                <button 
+                    onClick={() => navigate('/')}
+                    className="flex items-center gap-2 text-[#0F131A]/70 hover:text-[#1a5d47] transition-colors group"
+                >
+                    <ArrowLeft className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" />
+                    <span className="font-bold tracking-widest text-xs uppercase">Back to Browse</span>
+                </button>
+            </div>
+
             {/* ===== HERO SECTION ===== */}
-            <section className="relative overflow-hidden bg-white border-b border-gray-100">
+            <section className="relative overflow-hidden bg-white border-b border-gray-100 pt-16">
                 <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
                     <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
                         {/* Left */}

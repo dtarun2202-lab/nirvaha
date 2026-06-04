@@ -96,35 +96,38 @@ export const generateCertificateSVG = (name: string, score: number, date: string
     return `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
         <!-- Background -->
-        <rect width="800" height="600" fill="#0D1B0D" />
+        <rect width="800" height="600" fill="#eaf5ef" />
         
+        <!-- Watermark -->
+        <image href="/logo-transparent.png" x="250" y="150" width="300" height="300" opacity="0.15" style="filter: invert(75%) sepia(35%) saturate(700%) hue-rotate(5deg) brightness(95%) contrast(90%);" />
+
         <!-- Border -->
         <rect x="20" y="20" width="760" height="560" fill="none" stroke="#D4AF37" stroke-width="4" />
         <rect x="30" y="30" width="740" height="540" fill="none" stroke="#D4AF37" stroke-width="1" opacity="0.5" />
         
         <!-- Inner Glow / Decorative circles -->
-        <circle cx="400" cy="300" r="250" fill="none" stroke="#86efac" stroke-width="1" opacity="0.1" />
-        <circle cx="400" cy="300" r="200" fill="none" stroke="#86efac" stroke-width="1" opacity="0.05" />
+        <circle cx="400" cy="300" r="250" fill="none" stroke="#166534" stroke-width="1" opacity="0.1" />
+        <circle cx="400" cy="300" r="200" fill="none" stroke="#166534" stroke-width="1" opacity="0.05" />
         
         <!-- Headers -->
-        <text x="400" y="100" font-family="serif" font-size="24" fill="#86efac" text-anchor="middle" letter-spacing="4">UNDERSTAND LIFE VIA QUIZ</text>
+        <text x="400" y="100" font-family="serif" font-size="24" fill="#166534" text-anchor="middle" letter-spacing="4">UNDERSTAND LIFE VIA QUIZ</text>
         <text x="400" y="160" font-family="serif" font-size="42" fill="#D4AF37" text-anchor="middle" font-weight="bold">CERTIFICATE OF JUDGMENT</text>
         
         <!-- Body -->
-        <text x="400" y="240" font-family="sans-serif" font-size="16" fill="#a1a1aa" text-anchor="middle">This certifies that</text>
+        <text x="400" y="240" font-family="sans-serif" font-size="16" fill="#4b5563" text-anchor="middle">This certifies that</text>
         
         <!-- Name -->
-        <text x="400" y="310" font-family="serif" font-size="48" fill="#ffffff" text-anchor="middle" font-style="italic">${name}</text>
+        <text x="400" y="310" font-family="serif" font-size="48" fill="#0a1f0f" text-anchor="middle" font-style="italic">${name}</text>
         <line x1="200" y1="330" x2="600" y2="330" stroke="#D4AF37" stroke-width="1" opacity="0.5" />
         
         <!-- Statement -->
-        <text x="400" y="380" font-family="sans-serif" font-size="16" fill="#a1a1aa" text-anchor="middle">has successfully met the passing standard in the</text>
-        <text x="400" y="410" font-family="sans-serif" font-size="16" fill="#a1a1aa" text-anchor="middle">scenario-based life assessment, demonstrating excellent</text>
-        <text x="400" y="440" font-family="sans-serif" font-size="16" fill="#a1a1aa" text-anchor="middle">judgment, integrity, and emotional balance.</text>
+        <text x="400" y="380" font-family="sans-serif" font-size="16" fill="#4b5563" text-anchor="middle">has successfully met the passing standard in the</text>
+        <text x="400" y="410" font-family="sans-serif" font-size="16" fill="#4b5563" text-anchor="middle">scenario-based life assessment, demonstrating excellent</text>
+        <text x="400" y="440" font-family="sans-serif" font-size="16" fill="#4b5563" text-anchor="middle">judgment, integrity, and emotional balance.</text>
         
         <!-- Score & Details -->
-        <text x="200" y="520" font-family="sans-serif" font-size="14" fill="#86efac" text-anchor="middle">LIFE SCORE: ${score}/100</text>
-        <text x="400" y="520" font-family="sans-serif" font-size="14" fill="#a1a1aa" text-anchor="middle">DATE: ${date}</text>
-        <text x="600" y="520" font-family="sans-serif" font-size="12" fill="#52525b" text-anchor="middle">ID: ${id}</text>
+        <text x="200" y="520" font-family="sans-serif" font-size="14" fill="#166534" text-anchor="middle">LIFE SCORE: ${score}/100</text>
+        <text x="400" y="520" font-family="sans-serif" font-size="14" fill="#4b5563" text-anchor="middle">DATE: ${date}</text>
+        <text x="600" y="520" font-family="sans-serif" font-size="12" fill="#4b5563" text-anchor="middle">ID: ${id}</text>
     </svg>`;
 };

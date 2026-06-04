@@ -4,27 +4,27 @@ import Globe from 'react-globe.gl';
 import HandsOverlay from '../HandsOverlay';
 
 const markers = [
-  { lat: 19.0, lng: 72.8, label: "Mumbai", story: "Priya M. · Anxiety Relief · 30 days" },
-  { lat: 28.6, lng: 77.1, label: "Delhi", story: "Rohit K. · Burnout Recovery · 21 days" },
-  { lat: 51.5, lng: -0.12, label: "London", story: "Sarah L. · Sleep Healing · 14 days" },
-  { lat: 40.7, lng: -74.0, label: "New York", story: "James R. · Stress Relief · 45 days" },
-  { lat: 25.2, lng: 55.3, label: "Dubai", story: "Aisha K. · Spiritual Growth · 60 days" },
-  { lat: 1.3, lng: 103.8, label: "Singapore", story: "Wei L. · Mental Clarity · 28 days" },
-  { lat: -33.8, lng: 151.2, label: "Sydney", story: "Emma T. · Inner Peace · 35 days" },
-  { lat: 43.6, lng: -79.3, label: "Toronto", story: "Marcus J. · Pain Relief · 60 days" },
-  { lat: 12.9, lng: 77.5, label: "Bangalore", story: "Anika S. · Awakening · 90 days" },
-  { lat: 52.3, lng: 4.9, label: "Amsterdam", story: "Lena V. · Sound Healing · 40 days" },
-  { lat: 35.6, lng: 139.6, label: "Tokyo", story: "Kenji S. · Zen Focus · 21 days" },
-  { lat: 48.8, lng: 2.3, label: "Paris", story: "Chloe D. · Emotional Balance · 30 days" },
-  { lat: -33.9, lng: 18.4, label: "Cape Town", story: "Thabo M. · Grounding · 14 days" },
-  { lat: -22.9, lng: -43.1, label: "Rio de Janeiro", story: "Isabella Costa · Joy Awakening · 45 days" },
-  { lat: 37.7, lng: -122.4, label: "San Francisco", story: "David Chen · Tech Detox · 60 days" },
-  { lat: 52.5, lng: 13.4, label: "Berlin", story: "Lukas B. · Mindful Living · 28 days" },
-  { lat: 37.5, lng: 126.9, label: "Seoul", story: "Ji-Yoon P. · Deep Rest · 35 days" },
-  { lat: -34.6, lng: -58.3, label: "Buenos Aires", story: "Mateo G. · Heart Healing · 90 days" },
-  { lat: 19.4, lng: -99.1, label: "Mexico City", story: "Sofia R. · Vitality Boost · 40 days" },
-  { lat: 41.0, lng: 28.9, label: "Istanbul", story: "Emre Y. · Inner Harmony · 21 days" },
-  { lat: 34.0, lng: -118.2, label: "Los Angeles", story: "Mia W. · Creative Flow · 30 days" }
+  { lat: 19.0, lng: 72.8, label: "Siddhivinayak Temple", story: "Priya M. · Anxiety Relief · 30 days" },
+  { lat: 28.6, lng: 77.1, label: "Lotus Temple", story: "Rohit K. · Burnout Recovery · 21 days" },
+  { lat: 51.5, lng: -0.12, label: "Bhaktivedanta Manor", story: "Sarah L. · Sleep Healing · 14 days" },
+  { lat: 40.7, lng: -74.0, label: "ISKCON New York", story: "James R. · Stress Relief · 45 days" },
+  { lat: 25.2, lng: 55.3, label: "BAPS Hindu Mandir Dubai", story: "Aisha K. · Spiritual Growth · 60 days" },
+  { lat: 1.3, lng: 103.8, label: "Sri Mariamman Temple", story: "Wei L. · Mental Clarity · 28 days" },
+  { lat: -33.8, lng: 151.2, label: "ISKCON Sydney", story: "Emma T. · Inner Peace · 35 days" },
+  { lat: 43.6, lng: -79.3, label: "ISKCON Toronto", story: "Marcus J. · Pain Relief · 60 days" },
+  { lat: 12.9, lng: 77.5, label: "ISKCON Bangalore", story: "Anika S. · Awakening · 90 days" },
+  { lat: 52.3, lng: 4.9, label: "Radha Madana Mohana Temple", story: "Lena V. · Sound Healing · 40 days" },
+  { lat: 35.6, lng: 139.6, label: "ISKCON Tokyo", story: "Kenji S. · Zen Focus · 21 days" },
+  { lat: 48.8, lng: 2.3, label: "Radha-Paris Temple", story: "Chloe D. · Emotional Balance · 30 days" },
+  { lat: -33.9, lng: 18.4, label: "Sri Siva Subramaniya Temple", story: "Thabo M. · Grounding · 14 days" },
+  { lat: -22.9, lng: -43.1, label: "Nova Gokula Temple", story: "Isabella Costa · Joy Awakening · 45 days" },
+  { lat: 37.7, lng: -122.4, label: "Golden Gate Mandir", story: "David Chen · Tech Detox · 60 days" },
+  { lat: 52.5, lng: 13.4, label: "ISKCON Berlin", story: "Lukas B. · Mindful Living · 28 days" },
+  { lat: 37.5, lng: 126.9, label: "ISKCON Seoul", story: "Ji-Yoon P. · Deep Rest · 35 days" },
+  { lat: -34.6, lng: -58.3, label: "ISKCON Buenos Aires", story: "Mateo G. · Heart Healing · 90 days" },
+  { lat: 19.4, lng: -99.1, label: "ISKCON Mexico City", story: "Sofia R. · Vitality Boost · 40 days" },
+  { lat: 41.0, lng: 28.9, label: "Hagia Sophia", story: "Emre Y. · Inner Harmony · 21 days" },
+  { lat: 34.0, lng: -118.2, label: "Vedanta Temple LA", story: "Mia W. · Creative Flow · 30 days" }
 ];
 
 function LotusStat({ number, label, delay = 0 }: { number: string, label: string, delay?: number }) {
@@ -110,7 +110,7 @@ function LotusStat({ number, label, delay = 0 }: { number: string, label: string
       {/* Stat text */}
       <div>
         <div style={{
-          fontSize: '42px',
+          fontSize: number.length > 6 ? '32px' : '42px',
           fontWeight: '800',
           color: '#86efac',
           fontFamily: 'serif',
@@ -188,6 +188,10 @@ function NirvahGlobe() {
                 htmlLng="lng"
                 htmlElement={(d: any) => {
                     const el = document.createElement('div');
+                    el.style.cursor = 'pointer';
+                    el.onclick = () => {
+                        window.open(`https://www.google.com/search?q=${encodeURIComponent(d.label)}`, '_blank');
+                    };
                     el.innerHTML = `
                         <div style="
                             background: rgba(10,31,15,0.85);
@@ -202,7 +206,11 @@ function NirvahGlobe() {
                             backdrop-filter: blur(2px);
                             transform: translate(-50%, -100%);
                             margin-top: -6px;
-                        ">
+                            cursor: pointer;
+                            transition: transform 0.2s, background 0.2s;
+                        " 
+                        onmouseover="this.style.transform='translate(-50%, -100%) scale(1.1)'; this.style.background='rgba(22,101,52,0.9)';" 
+                        onmouseout="this.style.transform='translate(-50%, -100%) scale(1)'; this.style.background='rgba(10,31,15,0.85)';">
                             <b style="color:#86efac">📍 ${d.label}</b>
                         </div>
                     `;
@@ -382,9 +390,9 @@ export const CaseStudies = () => {
 
                     {/* Right Side: Stats */}
                     <div className="flex flex-col justify-center gap-[48px] lg:border-l lg:border-white/10 lg:pl-16 py-8 w-full max-w-sm">
-                        <LotusStat number="5,284+" label="Lives Changed" delay={0} />
-                        <LotusStat number="47" label="Countries Reached" delay={300} />
-                        <LotusStat number="1.2M" label="Meditation Minutes" delay={600} />
+                        <LotusStat number="6 Continents" label="Touched by Indian Heritage" delay={0} />
+                        <LotusStat number="100+ Nations" label="With Indian Cultural Centers" delay={300} />
+                        <LotusStat number="5,000+ Years" label="of Living Civilization" delay={600} />
                     </div>
                 </div>
 

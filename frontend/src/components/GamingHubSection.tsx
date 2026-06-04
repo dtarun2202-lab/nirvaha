@@ -1,18 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Check, Gamepad2, Play, ChevronRight, ChevronLeft, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const features = [
     {
-        id: 'understand-life',
+        id: 'life-quiz',
         title: 'Understand Life',
         category: 'Judgment Assessment',
         description: 'Face realistic life situations, choose your response, and discover your true judgment score.',
         benefits: ['Official Certificate', 'Score out of 100'],
-        image: '/yoga poses/understand-life  logo.jpg',
-        color: 'bg-[#D4AF37]',
-        textGradient: 'from-[#D4AF37] to-[#B4952F]'
+        image: '/understand-life.png',
+        thumbnails: ['/NA01.png', '/NA02.png', '/NA03.png', '/NA04.png'],
+        themeHex: '#D4AF37',
+        themeDarkHex: '#B4952F',
+        themeLightHex: '#F9F1D8'
     },
     {
         id: 'ancient-character',
@@ -21,8 +23,10 @@ const features = [
         description: 'Answer a few reflective questions to discover which ancient character qualities most reflect your present nature.',
         benefits: ['Downloadable Result Card', 'Resonance Percentage'],
         image: '/ancient character.png',
-        color: 'bg-[#059669]',
-        textGradient: 'from-[#059669] to-[#047857]'
+        thumbnails: ['/image 01.png', '/image 02.png', '/image 03.png', '/image 04.png'],
+        themeHex: '#059669',
+        themeDarkHex: '#047857',
+        themeLightHex: '#D1FAE5'
     },
     {
         id: 'temple-of-balance',
@@ -31,8 +35,10 @@ const features = [
         description: 'Place life tiles on a 5x5 grid to maintain harmony. Survive 12 turns without letting any life value collapse.',
         benefits: ['Strategic Thinking', 'Balance Assessment'],
         image: '/temple of balance.png',
-        color: 'bg-[#B45309]',
-        textGradient: 'from-[#B45309] to-[#92400E]'
+        thumbnails: ['/story1.png', '/story2.png', '/story3.png', '/story4.png'],
+        themeHex: '#B45309',
+        themeDarkHex: '#92400E',
+        themeLightHex: '#FEF3C7'
     },
     {
         id: 'add-your-autograph',
@@ -41,15 +47,29 @@ const features = [
         description: 'Personalize beautifully crafted statement cards about ancient India with your own signature autograph.',
         benefits: ['Custom Design', 'Digital Heritage'],
         image: '/add your signature.png',
-        color: 'bg-[#0f3460]',
-        textGradient: 'from-[#0f3460] to-[#0a2342]'
+        thumbnails: ['/nirvaha1.png', '/nirvaha2.png', '/nirvaha3.png', '/nirvaha4.png'],
+        themeHex: '#0f3460',
+        themeDarkHex: '#0a2342',
+        themeLightHex: '#E2E8F0'
     }
 ];
 
 export const GamingHubSection = () => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [direction, setDirection] = useState(1);
+    const [isPaused, setIsPaused] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (isPaused) return;
+
+        const timer = setInterval(() => {
+            setDirection(1);
+            setActiveIndex((prev) => (prev + 1) % features.length);
+        }, 5000); // Swipe every 5 seconds
+
+        return () => clearInterval(timer);
+    }, [isPaused]);
 
     const handleNext = () => {
         setDirection(1);
@@ -61,173 +81,190 @@ export const GamingHubSection = () => {
         setActiveIndex((prev) => (prev - 1 + features.length) % features.length);
     };
 
+    const activeFeature = features[activeIndex];
+
     return (
-        <section className="pt-10 pb-20 bg-[#F8FAFC] relative overflow-hidden min-h-[800px] flex flex-col justify-center">
-            {/* Background Accents */}
+        <section className="pt-10 pb-20 relative overflow-hidden min-h-[700px] flex flex-col justify-center" style={{ backgroundColor: activeFeature.themeLightHex, transition: 'background-color 0.5s ease' }}>
+            {/* Background Accents similar to Steam */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#1a5d47]/5 rounded-full blur-3xl" />
-                <div className="absolute bottom-0 -left-20 w-[30rem] h-[30rem] bg-emerald-900/5 rounded-full blur-3xl" />
+                <div className="absolute top-0 w-full h-[500px] opacity-20" style={{ background: `linear-gradient(to bottom, ${activeFeature.themeHex}, transparent)` }} />
             </div>
 
-            <div className="max-w-[1200px] mx-auto px-6 md:px-8 relative z-10 w-full">
-
-                {/* Header */}
-                <div className="flex flex-col items-center text-center mb-12">
-                    <div className="flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full bg-white shadow-sm border border-gray-100">
-                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#1a5d47]/10 text-[#1a5d47]">
-                            <Gamepad2 className="w-3 h-3" />
-                        </span>
-                        <span className="text-[#1a5d47] font-bold tracking-widest text-[10px] uppercase">Nirvaha Arcade</span>
-                    </div>
-                    <h2
-                        className="text-4xl md:text-5xl font-bold text-[#0F131A] tracking-tight mb-4"
+            <div className="max-w-[1200px] mx-auto px-6 md:px-12 relative z-10 w-full">
+                
+                {/* Main Section Header */}
+                <div className="text-left mb-6">
+                    <h2 
+                        className="text-2xl md:text-4xl font-bold text-[#0F131A] mb-2 tracking-wide"
                         style={{ fontFamily: "'Cinzel', serif" }}
                     >
-                        Gamified Wellness Queue
+                        Gaming Hub
                     </h2>
-                    <p 
-                        className="text-[#5f6f65] text-base md:text-lg max-w-2xl mx-auto leading-relaxed"
-                        style={{ fontFamily: "'Poppins', sans-serif" }}
-                    >
-                        Discover interactive experiences designed to engage your mind, challenge your strategy, and restore your spirit.
-                    </p>
+                </div>
+
+                {/* Sub-Header: "FEATURED & RECOMMENDED" */}
+                <div className="mb-4">
+                    <h3 className="text-[#166534] text-[14px] md:text-[16px] font-semibold tracking-[0.1em] uppercase drop-shadow-sm">
+                        Featured & Recommended
+                    </h3>
                 </div>
 
                 {/* Main Card Queue Container */}
-                <div className="relative h-[650px] md:h-[500px] w-full max-w-[1000px] mx-auto perspective-[1200px]">
-                    <AnimatePresence mode="wait" custom={direction}>
-                        <motion.div
-                            key={activeIndex}
-                            custom={direction}
-                            initial={{ 
-                                opacity: 0, 
-                                x: direction > 0 ? 150 : -150, 
-                                scale: 0.85,
-                                rotateY: direction > 0 ? -10 : 10,
-                                z: -100
-                            }}
-                            animate={{ 
-                                opacity: 1, 
-                                x: 0, 
-                                scale: 1,
-                                rotateY: 0,
-                                z: 0
-                            }}
-                            exit={{ 
-                                opacity: 0, 
-                                x: direction > 0 ? -150 : 150, 
-                                scale: 0.85,
-                                rotateY: direction > 0 ? 10 : -10,
-                                z: -100
-                            }}
-                            transition={{ 
-                                type: "spring", 
-                                stiffness: 250, 
-                                damping: 25,
-                                mass: 0.8
-                            }}
-                            className="absolute inset-0 w-full h-full rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row bg-white cursor-pointer group"
-                            onClick={handleNext}
-                        >
-                            {/* Left Side: Image */}
-                            <div className="w-full md:w-1/2 relative h-[250px] md:h-full overflow-hidden">
-                                <motion.img 
-                                    src={features[activeIndex].image} 
-                                    alt={features[activeIndex].title} 
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/80 via-black/30 to-transparent" />
-                                
-                                <div className="absolute bottom-6 left-6 right-6 md:hidden">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <div className={`w-2 h-2 rounded-full ${features[activeIndex].color}`} />
-                                        <span className="text-white font-bold text-[10px] tracking-widest uppercase">{features[activeIndex].category}</span>
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-white" style={{ fontFamily: "'Cinzel', serif" }}>
-                                        {features[activeIndex].title}
-                                    </h3>
-                                </div>
-                            </div>
+                <div 
+                    className="relative w-full mx-auto group perspective-[1000px]"
+                    onMouseEnter={() => setIsPaused(true)}
+                    onMouseLeave={() => setIsPaused(false)}
+                >
+                    <div 
+                        className="flex bg-white/90 backdrop-blur-xl border border-white/40 shadow-2xl rounded-3xl overflow-hidden transform transition-all duration-500 hover:scale-[1.02]"
+                        style={{ boxShadow: `0 20px 40px -10px ${activeFeature.themeHex}40` }}
+                    >
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={activeIndex}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.4, ease: "easeOut" }}
+                                className="w-full flex flex-col md:flex-row cursor-pointer relative"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/${features[activeIndex].id}`);
+                                }}
+                            >
+                                {/* Hover Glow Effect */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-0 group-hover:opacity-100 transform -translate-x-full group-hover:translate-x-full transition-all duration-1000 ease-in-out z-20 pointer-events-none" />
 
-                            {/* Right Side: Content */}
-                            <div className="w-full md:w-1/2 flex flex-col justify-center px-8 py-8 md:p-12 relative bg-white">
-                                {/* Desktop Title Area */}
-                                <div className="hidden md:block mb-6">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <span className={`w-10 h-10 rounded-xl ${features[activeIndex].color} flex items-center justify-center text-white shadow-md`}>
-                                            <Gamepad2 className="w-5 h-5" />
-                                        </span>
-                                        <span className="text-slate-500 font-bold text-xs tracking-[0.15em] uppercase">
-                                            {features[activeIndex].category}
-                                        </span>
-                                    </div>
-                                    <h3 className="text-3xl lg:text-4xl font-bold text-slate-900 leading-tight" style={{ fontFamily: "'Cinzel', serif" }}>
-                                        {features[activeIndex].title}
-                                    </h3>
+                                {/* Left Side: Large Main Image */}
+                                <div className="w-full md:w-[60%] relative aspect-[16/9] md:aspect-auto md:h-[480px] flex items-center justify-center p-6 md:p-10 overflow-hidden bg-white/40">
+                                    <motion.img 
+                                        src={features[activeIndex].image} 
+                                        alt={features[activeIndex].title} 
+                                        className="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.15)] relative z-10"
+                                        whileHover={{ scale: 1.05 }}
+                                        transition={{ duration: 0.6, ease: "easeOut" }}
+                                    />
+                                    {/* Decorative background circle */}
+                                    <div 
+                                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 rounded-full blur-3xl pointer-events-none transition-colors duration-500" 
+                                        style={{ backgroundColor: `${activeFeature.themeHex}20` }}
+                                    />
                                 </div>
-                                
-                                <p className="text-slate-600 text-base md:text-lg leading-relaxed mb-8">
-                                    {features[activeIndex].description}
-                                </p>
-                                
-                                <div className="space-y-4 mb-10">
-                                    {features[activeIndex].benefits.map((benefit, i) => (
-                                        <div key={i} className="flex items-center gap-3">
-                                            <div className={`w-6 h-6 rounded-full ${features[activeIndex].color} bg-opacity-10 flex items-center justify-center`}>
-                                                <Check className={`w-3.5 h-3.5`} style={{ color: features[activeIndex].color.replace('bg-', '') }} />
-                                            </div>
-                                            <span className="text-slate-700 font-medium">{benefit}</span>
+
+                                {/* Right Side: Content Panel */}
+                                <div className="w-full md:w-[40%] flex flex-col justify-between p-6 md:p-10 bg-white/40 border-l border-white/40 relative overflow-hidden backdrop-blur-xl">
+                                    
+                                    {/* Decorative Background Elements */}
+                                    <div 
+                                        className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[80px] pointer-events-none opacity-20 transform translate-x-1/3 -translate-y-1/3 transition-colors duration-700"
+                                        style={{ backgroundColor: activeFeature.themeHex }}
+                                    />
+                                    <div 
+                                        className="absolute bottom-0 left-0 w-48 h-48 rounded-full blur-[60px] pointer-events-none opacity-20 transform -translate-x-1/3 translate-y-1/3 transition-colors duration-700"
+                                        style={{ backgroundColor: activeFeature.themeDarkHex }}
+                                    />
+                                    
+                                    {/* Subtle pattern overlay */}
+                                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+
+                                    <div className="relative z-10 flex flex-col h-full">
+                                        <div>
+                                        {/* Status Badge */}
+                                        <div 
+                                            className="inline-flex items-center gap-1.5 text-[12px] font-bold px-3 py-1 rounded-full mb-4 border transition-colors duration-500"
+                                            style={{ 
+                                                backgroundColor: `${activeFeature.themeHex}15`, 
+                                                color: activeFeature.themeHex,
+                                                borderColor: `${activeFeature.themeHex}30` 
+                                            }}
+                                        >
+                                            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: activeFeature.themeHex }}></span>
+                                            Now Available
                                         </div>
-                                    ))}
-                                </div>
 
-                                <div className="mt-auto">
-                                    <button 
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            navigate(`/${features[activeIndex].id}`);
-                                        }}
-                                        className={`
-                                            w-full md:w-auto px-8 py-4 rounded-xl font-bold text-white shadow-lg 
-                                            flex items-center justify-center gap-3 group/btn relative overflow-hidden
-                                            ${features[activeIndex].color} hover:shadow-xl transition-all
-                                        `}
-                                    >
-                                        <div className="absolute inset-0 bg-black/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 ease-out" />
-                                        <span className="relative z-10 flex items-center gap-2">
-                                            Play Now
-                                            <div className="bg-white/20 p-1 rounded-full group-hover/btn:bg-white/30 transition-colors">
-                                                <Play className="w-4 h-4 fill-current" />
+                                        {/* Title */}
+                                        <div className="mb-4">
+                                            <h3 className="text-3xl md:text-4xl font-black text-[#0a1f0f] leading-tight tracking-tight">
+                                                {features[activeIndex].title}
+                                            </h3>
+                                        </div>
+                                        
+                                        {/* Short Info / Description */}
+                                        <div className="mb-6">
+                                            <p className="text-[#166534]/80 text-[15px] md:text-[16px] leading-relaxed line-clamp-4 font-medium">
+                                                {features[activeIndex].description}
+                                            </p>
+                                        </div>
+                                        
+                                        {/* Benefits */}
+                                        <div className="flex flex-wrap gap-2 mb-8">
+                                            {features[activeIndex].benefits.map((benefit, idx) => (
+                                                <span 
+                                                    key={idx} 
+                                                    className="bg-white text-[12px] font-semibold px-4 py-1.5 rounded-full shadow-sm border transition-colors duration-500"
+                                                    style={{ color: activeFeature.themeDarkHex, borderColor: `${activeFeature.themeHex}30` }}
+                                                >
+                                                    {benefit}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Price / Play section */}
+                                    <div className="mt-auto">
+                                        <div 
+                                            className="flex items-center justify-between p-1 rounded-full shadow-lg group/btn transition-all duration-500 hover:shadow-xl"
+                                            style={{ 
+                                                background: `linear-gradient(to right, ${activeFeature.themeHex}, ${activeFeature.themeDarkHex})`,
+                                                boxShadow: `0 10px 25px -5px ${activeFeature.themeHex}60`
+                                            }}
+                                        >
+                                            <div className="text-white font-bold px-5 text-sm uppercase tracking-wider">
+                                                Free to Play
                                             </div>
-                                        </span>
-                                    </button>
+                                            <div 
+                                                className="bg-white rounded-full px-6 py-2.5 font-bold text-sm flex items-center gap-2 transition-colors duration-300 group-hover/btn:bg-opacity-90"
+                                                style={{ color: activeFeature.themeDarkHex }}
+                                            >
+                                                Start Now
+                                                <ArrowRight className="w-4 h-4" strokeWidth={3} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    </div>
+
                                 </div>
-                            </div>
-                        </motion.div>
-                    </AnimatePresence>
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
                     
-                    {/* Steam-style Next/Prev Buttons */}
-                    <div className="absolute -left-5 md:-left-8 top-1/2 -translate-y-1/2 z-20">
+                    {/* Steam-style Next/Prev Buttons (Outside the box) */}
+                    <div className="absolute -left-8 md:-left-12 top-[45%] -translate-y-1/2 z-20">
                         <button 
                             onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-                            className="w-10 h-10 md:w-14 md:h-14 bg-white/90 backdrop-blur-md shadow-xl rounded-full border border-gray-100 flex items-center justify-center text-slate-400 hover:text-[#1a5d47] hover:scale-110 transition-all cursor-pointer"
+                            className="w-10 h-16 flex items-center justify-center group opacity-50 hover:opacity-100 transition-opacity"
                         >
-                            <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
+                            <div className="w-8 h-12 bg-[#166534]/10 group-hover:bg-gradient-to-r from-[#166534]/20 to-transparent flex items-center justify-center rounded-l">
+                                <ChevronLeft className="w-8 h-8 text-[#166534] group-hover:scale-110 transition-transform" strokeWidth={1.5} />
+                            </div>
                         </button>
                     </div>
 
-                    <div className="absolute -right-5 md:-right-8 top-1/2 -translate-y-1/2 z-20">
+                    <div className="absolute -right-8 md:-right-12 top-[45%] -translate-y-1/2 z-20">
                         <button 
                             onClick={(e) => { e.stopPropagation(); handleNext(); }}
-                            className="w-10 h-10 md:w-14 md:h-14 bg-white/90 backdrop-blur-md shadow-xl rounded-full border border-gray-100 flex items-center justify-center text-slate-400 hover:text-[#1a5d47] hover:scale-110 transition-all cursor-pointer"
+                            className="w-10 h-16 flex items-center justify-center group opacity-50 hover:opacity-100 transition-opacity"
                         >
-                            <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
+                            <div className="w-8 h-12 bg-[#166534]/10 group-hover:bg-gradient-to-l from-[#166534]/20 to-transparent flex items-center justify-center rounded-r">
+                                <ChevronRight className="w-8 h-8 text-[#166534] group-hover:scale-110 transition-transform" strokeWidth={1.5} />
+                            </div>
                         </button>
                     </div>
                 </div>
 
-                {/* Queue Indicators */}
-                <div className="flex justify-center items-center gap-3 mt-10">
+                {/* Queue Indicators (Rectangles at bottom) */}
+                <div className="flex justify-center items-center gap-1.5 mt-6">
                     {features.map((_, idx) => (
                         <button
                             key={idx}
@@ -235,11 +272,14 @@ export const GamingHubSection = () => {
                                 setDirection(idx > activeIndex ? 1 : -1);
                                 setActiveIndex(idx);
                             }}
-                            className={`h-2 rounded-full transition-all duration-300 ${
+                            className={`h-[8px] rounded-full transition-all duration-300 ${
                                 idx === activeIndex 
-                                ? 'w-10 bg-[#1a5d47]' 
-                                : 'w-2 bg-gray-300 hover:bg-gray-400'
+                                ? 'w-[32px]' 
+                                : 'w-[12px] opacity-40 hover:opacity-80'
                             }`}
+                            style={{ 
+                                backgroundColor: idx === activeIndex ? activeFeature.themeHex : '#000000' 
+                            }}
                             aria-label={`Go to item ${idx + 1}`}
                         />
                     ))}

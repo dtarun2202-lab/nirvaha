@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Clock, Search, Sparkles, Filter, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Clock, Search, Sparkles, Filter, ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react';
 import SEOHead from '../components/common/SEOHead';
 import { pathwaysData, Pathway } from '../data/pathwaysData';
 
@@ -24,11 +24,22 @@ const PathwaysPage: React.FC = () => {
     });
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-[#1a5d47] selection:text-white font-sans overflow-x-hidden">
+        <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-[#1a5d47] selection:text-white font-sans overflow-x-hidden relative">
             <SEOHead 
                 title="Pathways | Nirvaha Academy"
                 description="Expand Awareness Through Modern Learning. Discover immersive pathways for emotional intelligence, mindfulness, and holistic wellness."
             />
+
+            {/* Back Button */}
+            <div className="absolute top-8 left-8 md:top-12 md:left-12 z-50">
+                <button 
+                    onClick={() => navigate('/')}
+                    className="flex items-center gap-2 text-white/70 hover:text-emerald-400 transition-colors group"
+                >
+                    <ArrowLeft className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" />
+                    <span className="font-bold tracking-widest text-xs uppercase">Back to Browse</span>
+                </button>
+            </div>
 
             {/* Cinematic Hero */}
             <header className="relative w-full pt-32 pb-24 md:pt-48 md:pb-32 px-6 flex flex-col items-center justify-center text-center overflow-hidden min-h-[70vh]">

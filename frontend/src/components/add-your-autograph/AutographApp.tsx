@@ -80,20 +80,32 @@ export const AutographApp = () => {
                     >
                         {/* Inner Border Accent */}
                         <div 
-                            className="absolute inset-5 border opacity-30 pointer-events-none"
+                            className="absolute inset-5 border opacity-30 pointer-events-none z-10"
                             style={{ borderColor: selectedTheme.accentColor }}
                         />
 
+                        {/* Background Logo Watermark */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">
+                            <img 
+                                src="/logo-transparent.png" 
+                                alt="" 
+                                className="w-[60%] h-[60%] object-contain opacity-[0.12]" 
+                                style={{ 
+                                    filter: 'invert(75%) sepia(35%) saturate(700%) hue-rotate(5deg) brightness(95%) contrast(90%)'
+                                }}
+                            />
+                        </div>
+
                         {/* Top: Category Label */}
                         <div 
-                            className="text-sm uppercase tracking-[0.4em] font-sans font-bold opacity-80"
+                            className="text-sm uppercase tracking-[0.4em] font-sans font-bold opacity-80 relative z-10"
                             style={{ color: selectedTheme.accentColor }}
                         >
                             {selectedCard.category}
                         </div>
 
                         {/* Center: Main Statement */}
-                        <div className="text-4xl sm:text-5xl lg:text-6xl leading-[1.2] font-medium my-16 text-balance">
+                        <div className="text-4xl sm:text-5xl lg:text-6xl leading-[1.2] font-medium my-16 text-balance relative z-10">
                             "{selectedCard.text}"
                         </div>
 

@@ -1,4 +1,4 @@
-﻿import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
     Cloud, Moon, Zap, Activity, Users, Flame, X, Play, Headphones, MessageCircle,
     Calendar, Check, Pause, Send, Volume2, Clock, Heart, Brain, Sun, Star, Shield,
@@ -51,7 +51,7 @@ const STATIC_PROBLEMS = [
         accentColor: "#D4A574",
         accentLight: "#F9F3E8",
         modalGradient: "from-amber-400 to-orange-400",
-        image: "https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=600&h=400&fit=crop&q=80",
+        image: "/images/problems/burnout_hq.png",
         description: "Feeling exhausted and overwhelmed from work or life demands?",
         solutions: ["Practice daily meditation", "Set healthy boundaries", "Take regular breaks", "Engage in sound healing"],
         recommendations: [
@@ -74,7 +74,7 @@ const STATIC_PROBLEMS = [
         accentColor: "#A8C99F",
         accentLight: "#F0F5ED",
         modalGradient: "from-green-400 to-emerald-400",
-        image: "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=600&h=400&fit=crop&q=80",
+        image: "/images/problems/stress_hq.png",
         description: "Chronic stress can impact your health and productivity.",
         solutions: ["Breathing exercises", "Mindfulness practices", "Regular physical activity", "Connect with AI companion"],
         recommendations: [
@@ -97,7 +97,7 @@ const STATIC_PROBLEMS = [
         accentColor: "#9FA8BA",
         accentLight: "#F2F5FA",
         modalGradient: "from-slate-700 to-blue-900",
-        image: "https://images.unsplash.com/photo-1518281361980-b26bfd556770?w=600&h=400&fit=crop&q=80",
+        image: "/images/problems/sleep_hq.png",
         description: "Quality sleep is essential for recovery and mental clarity.",
         solutions: ["Sleep meditation tracks", "Calming frequencies", "Evening routines", "Binaural beats"],
         recommendations: [
@@ -120,7 +120,7 @@ const STATIC_PROBLEMS = [
         accentColor: "#D8C5E5",
         accentLight: "#F7F3FC",
         modalGradient: "from-purple-400 to-indigo-500",
-        image: "https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?w=600&h=400&fit=crop&q=80",
+        image: "/images/problems/anxiety_hq.png",
         description: "Anxiety can feel overwhelming, but you can find peace.",
         solutions: ["Guided anxiety relief", "Grounding techniques", "Crystal bowl therapy", "Community support"],
         recommendations: [
@@ -143,7 +143,7 @@ const STATIC_PROBLEMS = [
         accentColor: "#E5B8A8",
         accentLight: "#FAF0ED",
         modalGradient: "from-rose-400 to-pink-400",
-        image: "https://images.unsplash.com/photo-1478147427282-58a87a120781?w=600&h=400&fit=crop&q=80",
+        image: "/images/problems/mood_hq.png",
         description: "Emotional fluctuations affect your daily life.",
         solutions: ["Chakra balancing", "Emotional regulation", "Journaling exercises", "Companion sessions"],
         recommendations: [
@@ -166,7 +166,7 @@ const STATIC_PROBLEMS = [
         accentColor: "#A8D4E0",
         accentLight: "#F0F8FB",
         modalGradient: "from-cyan-400 to-teal-500",
-        image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&h=400&fit=crop&q=80",
+        image: "/images/problems/isolated_hq.png",
         description: "Connection is a fundamental human need.",
         solutions: ["Join community groups", "Attend live sessions", "Connect with companions", "Group retreats"],
         recommendations: [

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Music, PlayCircle, Heart, Sparkles, MessageCircle, Send, ThumbsUp, CornerDownRight } from 'lucide-react';
 import { DashboardFooter } from '../components/dashboard/DashboardFooter';
 
@@ -19,8 +19,8 @@ const stories = {
         image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1200&auto=format&fit=crop"
     },
     "2": {
-        name: "Liam Carter",
-        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop",
+        name: "Arjun Verma",
+        avatar: "/arjun verma.png",
         quote: "Stillness is where healing begins.",
         title: "Rebuilding After Loss",
         trauma: "After losing my father unexpectedly, grief completely consumed me. I isolated myself from friends and fell into a deep depression. I couldn't find the energy to talk to anyone, not even therapists.",
@@ -47,8 +47,8 @@ const stories = {
         image: "https://images.unsplash.com/photo-1518002171953-a080ee817e1f?q=80&w=1200&auto=format&fit=crop"
     },
     "4": {
-        name: "Ethan Wright",
-        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150&auto=format&fit=crop",
+        name: "Aditya Rao",
+        avatar: "https://images.unsplash.com/photo-1552058544-f2b08422138a?q=80&w=150&auto=format&fit=crop",
         quote: "Every breath is a new beginning.",
         title: "Recovering from Addiction",
         trauma: "I struggled with substance abuse for the better part of my twenties. Even after getting clean, the mental noise and cravings were deafening. I needed a way to rewire my brain.",
@@ -75,8 +75,8 @@ const stories = {
         image: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?q=80&w=1200&auto=format&fit=crop"
     },
     "6": {
-        name: "Sophia Chen",
-        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop",
+        name: "Kavya Iyer",
+        avatar: "/kavya.png",
         quote: "Find beauty in the present moment.",
         title: "Navigating Chronic Illness",
         trauma: "Being diagnosed with an autoimmune disease at 25 felt like a death sentence to my old life. The physical pain was secondary to the anger and resentment I felt toward my own body.",
@@ -92,6 +92,7 @@ const stories = {
 
 export default function InspirationStoryPage() {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
     const story = id ? stories[id as keyof typeof stories] : null;
     
     // Comments State
