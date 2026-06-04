@@ -44,10 +44,10 @@ export const AutographApp = () => {
     };
 
     return (
-        <div className="w-full bg-[#080808] text-gray-200 rounded-3xl border border-gray-800 overflow-hidden shadow-2xl font-sans flex flex-col min-h-[900px]">
+        <div className="w-full bg-[#080808] text-gray-200 rounded-3xl border border-gray-800 overflow-hidden shadow-2xl font-sans flex flex-col lg:flex-row min-h-[900px] lg:max-h-[900px]">
             
-            {/* Top Panel: Live Preview */}
-            <div className="w-full bg-[#111] flex flex-col relative min-h-[600px] border-b border-gray-800">
+            {/* Left Panel: Live Preview */}
+            <div className="w-full lg:w-[60%] bg-[#111] flex flex-col relative min-h-[600px] lg:min-h-full border-b lg:border-b-0 lg:border-r border-gray-800">
                 
                 {/* Preview Header / Download button */}
                 <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-10 bg-gradient-to-b from-black/80 to-transparent">
@@ -105,7 +105,7 @@ export const AutographApp = () => {
                         </div>
 
                         {/* Center: Main Statement */}
-                        <div className="text-4xl sm:text-5xl lg:text-6xl leading-[1.2] font-medium my-16 text-balance relative z-10">
+                        <div className="text-3xl sm:text-4xl xl:text-5xl leading-[1.2] font-medium my-12 text-balance relative z-10">
                             "{selectedCard.text}"
                         </div>
 
@@ -118,7 +118,7 @@ export const AutographApp = () => {
                             
                             {/* Autograph */}
                             <div 
-                                className="text-4xl sm:text-5xl lg:text-6xl transition-all duration-300"
+                                className="text-3xl sm:text-4xl xl:text-5xl transition-all duration-300"
                                 style={{ 
                                     color: selectedTheme.autographColor,
                                     ...selectedStyle.styleObj
@@ -131,11 +131,11 @@ export const AutographApp = () => {
                 </div>
             </div>
 
-            {/* Bottom Panel: Controls */}
-            <div className="w-full bg-[#0A0A0A] p-8 lg:p-12">
-                <h3 className="text-sm font-bold text-gray-400 tracking-widest uppercase mb-8 text-center">Customize Your Card</h3>
+            {/* Right Panel: Controls */}
+            <div className="w-full lg:w-[40%] bg-[#0A0A0A] p-8 lg:p-10 overflow-y-auto custom-scrollbar relative">
+                <h3 className="text-sm font-bold text-gray-400 tracking-widest uppercase mb-8 text-center lg:text-left sticky top-0 bg-[#0A0A0A] py-4 z-20">Customize Your Card</h3>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 max-w-7xl mx-auto">
+                <div className="flex flex-col gap-10">
                     
                     {/* Column 1: Name & Theme */}
                     <div className="space-y-8">
@@ -182,7 +182,7 @@ export const AutographApp = () => {
                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">
                             3. Signature Style
                         </label>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                             {SIGNATURE_STYLES.map(style => (
                                 <button
                                     key={style.id}
@@ -207,7 +207,7 @@ export const AutographApp = () => {
                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">
                             4. Statement Content
                         </label>
-                        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar pb-8">
                             {STATEMENT_CARDS.map(card => (
                                 <button
                                     key={card.id}

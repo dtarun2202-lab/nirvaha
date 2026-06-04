@@ -55,40 +55,33 @@ export const calculateLifeScore = (answers: number[]): ScoreResult => {
     // 4. Pass / Fail Logic
     // PASS: Life Score >= 75 AND no dimension critically low (< 50)
     let passed = totalScore >= 75;
-    const weakestDimensions: Dimension[] = [];
-    const strongestDimensions: Dimension[] = [];
 
     SCORING_DIMENSIONS.forEach(dim => {
         const score = normalizedDimensions[dim.id];
         if (score < 50) {
             passed = false;
         }
-        if (score <= 60) {
-            weakestDimensions.push(dim.id);
-        }
-        if (score >= 85) {
-            strongestDimensions.push(dim.id);
-        }
     });
 
-    // Fallback if empty
-    if (weakestDimensions.length === 0) {
-        // find the absolute lowest
-        const lowest = Object.entries(normalizedDimensions).sort((a, b) => a[1] - b[1])[0][0] as Dimension;
-        weakestDimensions.push(lowest);
-    }
-    if (strongestDimensions.length === 0) {
-        // find the absolute highest
-        const highest = Object.entries(normalizedDimensions).sort((a, b) => b[1] - a[1])[0][0] as Dimension;
-        strongestDimensions.push(highest);
-    }
+    // Sort dimensions by score (descending)
+    const sortedDimensions = Object.entries(normalizedDimensions)
+        .sort((a, b) => b[1] - a[1])
+        .map(([id]) => id as Dimension);
+
+    const strongestDimensions = sortedDimensions.slice(0, 2);
+    
+    // Weakest are the bottom 2, excluding any that are already in strongest
+    const weakestDimensions = sortedDimensions
+        .filter(d => !strongestDimensions.includes(d))
+        .reverse()
+        .slice(0, 2);
 
     return {
         totalScore,
         dimensions: normalizedDimensions,
         passed,
-        weakestDimensions: weakestDimensions.slice(0, 2), // top 2
-        strongestDimensions: strongestDimensions.slice(0, 2) // top 2
+        weakestDimensions,
+        strongestDimensions
     };
 };
 

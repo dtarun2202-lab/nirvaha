@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, Download, RotateCcw, AlertCircle, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Download, RotateCcw, AlertCircle, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { LIFE_QUIZ_QUESTIONS, SCORING_DIMENSIONS } from './LifeQuizData';
 import { calculateLifeScore, generateCertificateSVG, ScoreResult } from './LifeQuizEngine';
 
@@ -10,7 +10,7 @@ export const LifeQuizApp = () => {
     const [screen, setScreen] = useState<Screen>('loading');
     const [userName, setUserName] = useState('');
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-    const [answers, setAnswers] = useState<number[]>(Array(15).fill(-1));
+    const [answers, setAnswers] = useState<number[]>(Array(LIFE_QUIZ_QUESTIONS.length).fill(-1));
     const [scoreResult, setScoreResult] = useState<ScoreResult | null>(null);
 
     useEffect(() => {
@@ -29,7 +29,7 @@ export const LifeQuizApp = () => {
 
     const beginQuestions = () => {
         setCurrentQuestionIndex(0);
-        setAnswers(Array(15).fill(-1));
+        setAnswers(Array(LIFE_QUIZ_QUESTIONS.length).fill(-1));
         setScreen('question');
     };
 
@@ -49,10 +49,16 @@ export const LifeQuizApp = () => {
         }
     };
 
+    const previousQuestion = () => {
+        if (currentQuestionIndex > 0) {
+            setCurrentQuestionIndex(prev => prev - 1);
+        }
+    };
+
     const restartAssessment = () => {
         setScreen('welcome');
         setUserName('');
-        setAnswers(Array(15).fill(-1));
+        setAnswers(Array(LIFE_QUIZ_QUESTIONS.length).fill(-1));
         setScoreResult(null);
         setCurrentQuestionIndex(0);
     };
@@ -111,44 +117,47 @@ export const LifeQuizApp = () => {
     const renderWelcome = () => (
         <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-            className="flex flex-col items-center justify-center max-w-xl mx-auto text-center"
+            className="flex flex-col md:flex-row items-center justify-center max-w-5xl mx-auto gap-8 md:gap-16 px-4"
         >
-            <div className="mb-6 flex justify-center w-full">
+            <div className="flex-1 flex justify-center md:justify-end w-full">
                 <img 
                     src="/yoga poses/understand-life  logo.jpg" 
                     alt="Understand Life via Quiz Logo" 
-                    className="w-full max-w-sm md:max-w-md h-auto object-contain drop-shadow-[0_0_30px_rgba(212,175,55,0.2)]" 
+                    className="w-full max-w-sm md:max-w-md lg:max-w-lg h-auto object-contain drop-shadow-[0_0_30px_rgba(212,175,55,0.2)]" 
                 />
             </div>
-            {/* Screen reader text since logo contains the text */}
-            <h1 className="sr-only">
-                Understand Life via Quiz
-            </h1>
-            <h2 className="text-xl text-[#D4AF37] mb-6 tracking-wide uppercase font-medium text-sm">
-                A Scenario-Based Life Assessment
-            </h2>
-            <p className="text-zinc-400 mb-10 leading-relaxed">
-                Face realistic life situations, choose your response, and discover how strong your judgment is across six hidden dimensions of character.
-            </p>
             
-            <div className="w-full max-w-sm space-y-6">
-                <div className="text-left">
-                    <label className="block text-zinc-500 text-xs font-bold uppercase mb-2 ml-1">Your Name</label>
-                    <input 
-                        type="text" 
-                        value={userName}
-                        onChange={(e) => setUserName(e.target.value)}
-                        placeholder="Enter your full name for the certificate"
-                        className="w-full bg-[#111111] border border-zinc-800 text-white px-5 py-4 rounded-xl focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all"
-                    />
+            <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left w-full">
+                {/* Screen reader text since logo contains the text */}
+                <h1 className="sr-only">
+                    Understand Life via Quiz
+                </h1>
+                <h2 className="text-xl text-[#D4AF37] mb-6 tracking-wide uppercase font-medium text-sm">
+                    A Scenario-Based Life Assessment
+                </h2>
+                <p className="text-zinc-400 mb-10 leading-relaxed max-w-md">
+                    Face realistic life situations, choose your response, and discover how strong your judgment is across six hidden dimensions of character.
+                </p>
+                
+                <div className="w-full max-w-sm space-y-6">
+                    <div className="text-left">
+                        <label className="block text-zinc-500 text-xs font-bold uppercase mb-2 ml-1">Your Name</label>
+                        <input 
+                            type="text" 
+                            value={userName}
+                            onChange={(e) => setUserName(e.target.value)}
+                            placeholder="Enter your full name for the certificate"
+                            className="w-full bg-[#111111] border border-zinc-800 text-white px-5 py-4 rounded-xl focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all"
+                        />
+                    </div>
+                    <button 
+                        onClick={startAssessment}
+                        disabled={!userName.trim()}
+                        className="w-full bg-gradient-to-r from-[#1a3d2b] to-[#112a1d] border border-[#86efac]/30 hover:border-[#86efac] text-white font-bold py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(26,61,43,0.4)]"
+                    >
+                        Start Assessment <ChevronRight className="w-5 h-5" />
+                    </button>
                 </div>
-                <button 
-                    onClick={startAssessment}
-                    disabled={!userName.trim()}
-                    className="w-full bg-gradient-to-r from-[#1a3d2b] to-[#112a1d] border border-[#86efac]/30 hover:border-[#86efac] text-white font-bold py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(26,61,43,0.4)]"
-                >
-                    Start Assessment <ChevronRight className="w-5 h-5" />
-                </button>
             </div>
         </motion.div>
     );
@@ -163,7 +172,7 @@ export const LifeQuizApp = () => {
             <ul className="space-y-6 mb-12 text-zinc-300">
                 <li className="flex items-start gap-4">
                     <div className="mt-1 w-2 h-2 rounded-full bg-[#D4AF37] shrink-0" />
-                    <p>This is a <strong>scenario-based assessment</strong> containing 15 situations.</p>
+                    <p>This is a <strong>scenario-based assessment</strong> containing {LIFE_QUIZ_QUESTIONS.length} situations.</p>
                 </li>
                 <li className="flex items-start gap-4">
                     <div className="mt-1 w-2 h-2 rounded-full bg-[#D4AF37] shrink-0" />
@@ -250,7 +259,15 @@ export const LifeQuizApp = () => {
                     </div>
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex justify-between mt-4">
+                    <button 
+                        onClick={previousQuestion}
+                        disabled={currentQuestionIndex === 0}
+                        className={`bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-8 py-4 rounded-xl transition-colors flex items-center gap-2 ${currentQuestionIndex === 0 ? 'opacity-0 pointer-events-none' : ''}`}
+                    >
+                        <ChevronLeft className="w-5 h-5" /> Previous
+                    </button>
+                    
                     <button 
                         onClick={nextQuestion}
                         disabled={!hasAnswered}
@@ -264,110 +281,288 @@ export const LifeQuizApp = () => {
         );
     };
 
+    const getScoreColor = (score: number) => {
+        if (score >= 75) return '#00FF9C';
+        if (score > 50) return '#FFB347';
+        return '#FF4D6D';
+    };
+
+    const DIMENSION_META: Record<string, { icon: string, color: string }> = {
+        judgment: { icon: '🧠', color: '#7C9EFF' },
+        integrity: { icon: '⚖️', color: '#FFD700' },
+        emotionalBalance: { icon: '💚', color: '#00FF9C' },
+        responsibility: { icon: '🛡️', color: '#60A5FA' },
+        compassion: { icon: '❤️', color: '#FB7185' },
+        foresight: { icon: '🔭', color: '#B47FFF' }
+    };
+
     const renderResult = () => {
         if (!scoreResult) return null;
-        
+
+        const mainColor = getScoreColor(scoreResult.totalScore);
+        const radius = 140;
+        const circumference = Math.PI * radius;
+        const dashoffset = circumference - (scoreResult.totalScore / 100) * circumference;
+
         return (
             <motion.div 
-                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                className="max-w-4xl mx-auto w-full"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                className="max-w-[720px] mx-auto w-full bg-[#0A0F0A] py-[60px] px-[40px] text-white flex flex-col items-center rounded-3xl border border-[#1A2A1A]"
             >
-                <div className="bg-[#111111] border border-zinc-800 rounded-3xl p-8 md:p-14 shadow-2xl text-center relative overflow-hidden">
-                    
-                    {/* Status Header */}
-                    <div className="mb-10">
-                        {scoreResult.passed ? (
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a3d2b]/30 border border-[#86efac]/30 text-[#86efac] font-bold text-sm tracking-widest uppercase mb-6">
-                                <CheckCircle2 className="w-4 h-4" /> Passed Standard
-                            </div>
-                        ) : (
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-900/30 border border-rose-500/30 text-rose-400 font-bold text-sm tracking-widest uppercase mb-6">
-                                <AlertCircle className="w-4 h-4" /> Not Passed Yet
-                            </div>
-                        )}
-                        <h2 className="text-3xl text-white font-bold" style={{ fontFamily: "'Cinzel', serif" }}>Assessment Outcome</h2>
+                {/* SECTION 1 — HEADER */}
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.0 }} className="text-center w-full mb-12">
+                    <div className="text-[#00FF9C] text-[10px] tracking-[4px] uppercase font-bold mb-4">
+                        Understand Life via Quiz
                     </div>
+                    <h2 className="text-[32px] font-bold text-white mb-2" style={{ fontFamily: "'Cinzel', serif" }}>
+                        Assessment Outcome
+                    </h2>
+                    <p className="text-[14px] text-[#8892A4]" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                        Here is how your judgment was measured.
+                    </p>
+                </motion.div>
 
-                    {/* Score Display */}
-                    <div className="relative w-64 h-64 mx-auto mb-10 flex items-center justify-center">
-                        <svg className="absolute inset-0 w-full h-full transform -rotate-90">
-                            <circle cx="128" cy="128" r="120" fill="none" stroke="#27272a" strokeWidth="8" />
-                            <circle 
-                                cx="128" cy="128" r="120" 
-                                fill="none" 
-                                stroke={scoreResult.passed ? "#D4AF37" : "#f43f5e"} 
-                                strokeWidth="8" 
-                                strokeDasharray={2 * Math.PI * 120}
-                                strokeDashoffset={2 * Math.PI * 120 * (1 - scoreResult.totalScore / 100)}
-                                className="transition-all duration-1500 ease-out"
-                            />
-                        </svg>
-                        <div className="text-center">
-                            <div className="text-7xl font-bold text-white mb-2">{scoreResult.totalScore}</div>
-                            <div className="text-zinc-500 text-sm uppercase tracking-widest font-bold">Life Score</div>
-                        </div>
-                    </div>
-
-                    {/* Analysis Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 text-left">
-                        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6">
-                            <h4 className="text-[#86efac] font-bold uppercase tracking-wider text-xs mb-4">Strongest Dimensions</h4>
-                            <ul className="space-y-3">
-                                {scoreResult.strongestDimensions.map(d => (
-                                    <li key={d} className="flex justify-between items-center">
-                                        <span className="text-white font-medium">{getDimensionLabel(d)}</span>
-                                        <span className="text-zinc-500">{scoreResult.dimensions[d]}/100</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6">
-                            <h4 className="text-rose-400 font-bold uppercase tracking-wider text-xs mb-4">Areas to Strengthen</h4>
-                            <ul className="space-y-3">
-                                {scoreResult.weakestDimensions.map(d => (
-                                    <li key={d} className="flex justify-between items-center">
-                                        <span className="text-white font-medium">{getDimensionLabel(d)}</span>
-                                        <span className="text-zinc-500">{scoreResult.dimensions[d]}/100</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
-
-                    {/* Reflective Guidance */}
-                    <div className="mb-12">
-                        <p className="text-zinc-400 leading-relaxed max-w-2xl mx-auto">
-                            {scoreResult.passed 
-                            ? "Your responses demonstrate a highly balanced approach to complex life scenarios. You show a strong capacity for considered judgment while maintaining integrity and compassion. Keep cultivating these dimensions."
-                            : "Your current profile shows specific areas where judgment or emotional balance could be strengthened. Life is a continuous learning process. Reflect on the dimensions highlighted above and consider how different choices might yield better long-term outcomes."}
-                        </p>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <button 
-                            onClick={restartAssessment}
-                            className="w-full sm:w-auto px-8 py-4 rounded-xl border border-zinc-700 hover:bg-zinc-800 text-white font-bold transition-colors flex items-center justify-center gap-2"
-                        >
-                            <RotateCcw className="w-5 h-5" /> Retake Assessment
-                        </button>
+                {/* SECTION 2 — SPEEDOMETER GAUGE */}
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }} 
+                    animate={{ opacity: 1, scale: 1 }} 
+                    transition={{ delay: 0.3 }}
+                    className="relative w-[320px] h-[160px] mb-6 flex flex-col items-center"
+                >
+                    <svg className="w-full h-full overflow-visible" viewBox="0 0 320 160">
+                        {/* Track */}
+                        <path 
+                            d="M 20 160 A 140 140 0 0 1 300 160" 
+                            fill="none" 
+                            stroke="#1A2A1A" 
+                            strokeWidth="16" 
+                            strokeLinecap="round" 
+                        />
+                        {/* Fill */}
+                        <motion.path 
+                            d="M 20 160 A 140 140 0 0 1 300 160" 
+                            fill="none" 
+                            stroke={mainColor} 
+                            strokeWidth="16" 
+                            strokeLinecap="round" 
+                            strokeDasharray={circumference}
+                            initial={{ strokeDashoffset: circumference }}
+                            animate={{ strokeDashoffset: dashoffset }}
+                            transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 }}
+                        />
                         
-                        {scoreResult.passed && (
+                        {/* Needle */}
+                        <motion.g 
+                            style={{ transformOrigin: '160px 160px' }}
+                            initial={{ rotate: -90 }}
+                            animate={{ rotate: -90 + (scoreResult.totalScore / 100) * 180 }}
+                            transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 }}
+                        >
+                            <line x1="160" y1="160" x2="160" y2="40" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                            <circle cx="160" cy="160" r="4" fill="white" />
+                        </motion.g>
+                    </svg>
+
+                    {/* Labels */}
+                    <div className="absolute top-[160px] w-full flex justify-between px-2">
+                        <span className="text-[11px] text-[#8892A4]">0</span>
+                        <span className="text-[11px] text-[#8892A4] mt-[-165px]">50</span>
+                        <span className="text-[11px] text-[#8892A4]">100</span>
+                    </div>
+
+                    {/* Center Score Display */}
+                    <div className="absolute bottom-2 flex flex-col items-center">
+                        <motion.div 
+                            className="text-[56px] font-bold leading-none mb-1" 
+                            style={{ fontFamily: "'Cinzel', serif", color: mainColor }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.5 }}
+                        >
+                            {scoreResult.totalScore}
+                        </motion.div>
+                        <div className="text-[11px] text-[#8892A4] tracking-[3px]">LIFE SCORE</div>
+                    </div>
+                </motion.div>
+
+                {/* PASS/FAIL BADGE */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 10 }} 
+                    animate={{ opacity: 1, y: 0 }} 
+                    transition={{ delay: 1.8 }}
+                    className="mb-14"
+                >
+                    {scoreResult.passed ? (
+                        <div className="px-4 py-1.5 rounded-full bg-[#00FF9C15] border border-[#00FF9C] text-[#00FF9C] text-[12px] font-bold">
+                            ✓ ASSESSMENT PASSED
+                        </div>
+                    ) : (
+                        <div className="px-4 py-1.5 rounded-full bg-[#FF4D6D15] border border-[#FF4D6D] text-[#FF4D6D] text-[12px] font-bold">
+                            KEEP GROWING
+                        </div>
+                    )}
+                </motion.div>
+
+                {/* SECTION 3 — 6 DIMENSION BARS */}
+                <motion.div 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    transition={{ delay: 2.0 }}
+                    className="w-full mb-12"
+                >
+                    <div className="text-[13px] text-[#8892A4] uppercase tracking-[2px] mb-[20px] font-medium" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                        Dimension Breakdown
+                    </div>
+                    
+                    <div className="flex flex-col gap-[18px]">
+                        {Object.entries(scoreResult.dimensions).sort((a,b) => b[1] - a[1]).map(([dimId, score], idx) => {
+                            const meta = DIMENSION_META[dimId];
+                            const label = getDimensionLabel(dimId);
+                            // Top 2: green, Middle 2: amber, Bottom 2: red
+                            let barColor = '#00FF9C';
+                            if (idx >= 2 && idx <= 3) barColor = '#FFB347';
+                            if (idx >= 4) barColor = '#FF4D6D';
+
+                            return (
+                                <div key={dimId} className="flex items-center justify-between w-full">
+                                    <div className="flex items-center gap-3 w-40 shrink-0">
+                                        <div className="w-5 h-5 flex items-center justify-center rounded-full text-xs" style={{ backgroundColor: `${meta.color}20` }}>
+                                            {meta.icon}
+                                        </div>
+                                        <span className="text-[14px] text-white font-semibold">{label}</span>
+                                    </div>
+
+                                    <div className="flex-1 mx-4 relative h-[6px] bg-[#1A2A1A] rounded-[50px] overflow-hidden">
+                                        <motion.div 
+                                            className="absolute top-0 left-0 h-full rounded-[50px]"
+                                            style={{ backgroundColor: barColor }}
+                                            initial={{ width: '0%' }}
+                                            animate={{ width: `${score}%` }}
+                                            transition={{ duration: 1.2, ease: "easeOut", delay: 2.0 + (idx * 0.1) }}
+                                        />
+                                    </div>
+
+                                    <div className="text-[13px] text-[#8892A4] w-12 text-right shrink-0">
+                                        {score}/100
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </motion.div>
+
+                {/* SECTION 4 — STRONGEST & WEAKEST */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }} 
+                    animate={{ opacity: 1, y: 0 }} 
+                    transition={{ delay: 2.5 }}
+                    className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"
+                >
+                    <div className="bg-[#00FF9C05] border border-[#00FF9C26] rounded-[16px] p-[20px]">
+                        <div className="flex items-center gap-2 mb-4">
+                            <span className="text-[10px] text-[#00FF9C] tracking-[2px] uppercase font-bold">STRONGEST</span>
+                            <span className="text-[#00FF9C] text-sm">🏆</span>
+                        </div>
+                        <div className="space-y-3">
+                            {scoreResult.strongestDimensions.map(d => (
+                                <div key={d} className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-[#00FF9C]" />
+                                    <span className="text-[13px] text-white flex-1">{getDimensionLabel(d)}</span>
+                                    <span className="text-[13px] text-white font-bold">{scoreResult.dimensions[d]}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    <div className="bg-[#FFB34705] border border-[#FFB34726] rounded-[16px] p-[20px]">
+                        <div className="flex items-center gap-2 mb-4">
+                            <span className="text-[10px] text-[#FFB347] tracking-[2px] uppercase font-bold">STRENGTHEN</span>
+                            <span className="text-[#FFB347] text-sm">🎯</span>
+                        </div>
+                        <div className="space-y-3">
+                            {scoreResult.weakestDimensions.map(d => (
+                                <div key={d} className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-[#FFB347]" />
+                                    <span className="text-[13px] text-white flex-1">{getDimensionLabel(d)}</span>
+                                    <span className="text-[13px] text-white font-bold">{scoreResult.dimensions[d]}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* SECTION 5 — REFLECTION PARAGRAPH */}
+                <motion.div 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    transition={{ delay: 2.8 }}
+                    className="w-full bg-[#0D1F14] border border-[#1A2A1A] rounded-[16px] p-[24px_28px] mb-12 relative"
+                >
+                    <div className="absolute top-4 left-4 text-[#00FF9C] text-[32px] leading-none" style={{ fontFamily: "Georgia, serif" }}>"</div>
+                    <p className="text-[15px] text-[#C4CDD6] leading-[1.8] text-center pt-2 mb-4" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                        {scoreResult.passed 
+                        ? "Your responses demonstrate a highly balanced approach to complex life scenarios. You show a strong capacity for considered judgment while maintaining integrity and compassion."
+                        : "Your current profile shows specific areas where judgment or emotional balance could be strengthened. Life is a continuous learning process. Consider how different choices yield better long-term outcomes."}
+                    </p>
+                    <div className="text-center text-[12px] text-[#8892A4] italic">
+                        Reflect. Grow. Return.
+                    </div>
+                </motion.div>
+
+                {/* SECTION 6 — ACTION BUTTONS */}
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }} 
+                    animate={{ opacity: 1, scale: 1 }} 
+                    transition={{ delay: 3.0 }}
+                    className="flex flex-col sm:flex-row items-center justify-center gap-[16px] w-full"
+                >
+                    {scoreResult.passed ? (
+                        <>
                             <button 
                                 onClick={handleDownloadCertificate}
-                                className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:opacity-90 text-black font-bold transition-opacity flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(212,175,55,0.3)]"
+                                className="w-full sm:w-auto bg-[#00FF9C] text-[#0A0F0A] font-bold rounded-[50px] px-[36px] py-[14px] flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,255,156,0.3)] transition-transform hover:scale-105"
                             >
                                 <Download className="w-5 h-5" /> Download Certificate
                             </button>
-                        )}
-                    </div>
-                </div>
+                            <button 
+                                onClick={restartAssessment}
+                                className="w-full sm:w-auto bg-transparent border border-[#1A2A1A] text-[#8892A4] rounded-[50px] px-[36px] py-[14px] hover:border-[#8892A4] transition-colors"
+                            >
+                                Retake Assessment
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <button 
+                                onClick={restartAssessment}
+                                className="w-full sm:w-auto bg-[#FFB347] text-[#0A0F0A] font-bold rounded-[50px] px-[36px] py-[14px] transition-transform hover:scale-105"
+                            >
+                                Retake Assessment
+                            </button>
+                            <button 
+                                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} // Simple action for See Weak Areas
+                                className="w-full sm:w-auto bg-transparent border border-[#FF4D6D30] text-[#FF4D6D] rounded-[50px] px-[36px] py-[14px] hover:bg-[#FF4D6D10] transition-colors"
+                            >
+                                See Weak Areas
+                            </button>
+                        </>
+                    )}
+                </motion.div>
             </motion.div>
         );
     };
 
     return (
         <div className="min-h-screen bg-[#0D1B0D] py-20 px-4 md:px-8 flex flex-col justify-center relative overflow-hidden font-sans">
+            {/* Nirvaha Logo */}
+            <div className="absolute top-6 right-6 md:top-8 md:right-12 z-50">
+                <img 
+                    src="/logo1.png" 
+                    alt="Nirvaha" 
+                    className="h-20 md:h-28 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity drop-shadow-[0_2px_15px_rgba(212,175,55,0.15)]" 
+                />
+            </div>
+
             {/* Global background effects */}
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#1a3d2b] opacity-20 blur-[120px] rounded-full pointer-events-none" />
             <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#D4AF37] opacity-5 blur-[150px] rounded-full pointer-events-none" />

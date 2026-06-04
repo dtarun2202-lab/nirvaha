@@ -178,6 +178,48 @@ const STATIC_PROBLEMS = [
     },
 ];
 
+const AccordionItem = ({ title, content, accentColor, accentLight }: { title: string, content: string, accentColor: string, accentLight: string }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+        <div 
+            className="overflow-hidden transition-all duration-300 mb-[8px] rounded-[14px]"
+            style={{
+                backgroundColor: isOpen ? accentLight : '#FAFAFA',
+                border: `1px solid ${isOpen ? `${accentColor}4D` : '#F0F0F0'}`
+            }}
+        >
+            <button 
+                type="button"
+                className="w-full flex items-center justify-between px-[18px] py-[14px] cursor-pointer focus:outline-none"
+                onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
+            >
+                <span className="text-[14px] font-semibold text-[#374151]" style={{ color: accentColor }}>{title}</span>
+                <svg 
+                    className={`w-4 h-4 transition-transform duration-300 ${isOpen ? 'rotate-90' : 'rotate-0'}`} 
+                    style={{ color: accentColor }}
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+            <div 
+                className="transition-all duration-300 ease-in-out px-[18px]"
+                style={{
+                    maxHeight: isOpen ? '200px' : '0px',
+                    opacity: isOpen ? 1 : 0,
+                    paddingBottom: isOpen ? '14px' : '0px',
+                    marginTop: isOpen ? '-4px' : '0px'
+                }}
+            >
+                <p className="text-[13px] text-[#6B7280] font-normal" style={{ lineHeight: 1.6 }}>
+                    {content}
+                </p>
+            </div>
+        </div>
+    );
+};
+
+
 export const CommonProblems = () => {
     const [modalProblem, setModalProblem] = useState<any | null>(null);
     const [activeActionModal, setActiveActionModal] = useState<string | null>(null);
@@ -310,149 +352,157 @@ export const CommonProblems = () => {
                             exit={{ scale: 0.9, opacity: 0 }}
                             transition={{ type: 'spring', damping: 30, stiffness: 400 }}
                             onClick={(e) => e.stopPropagation()}
-                           className="relative bg-white rounded-2xl w-full max-w-[650px] max-h-[90vh] shadow-2xl flex flex-col overflow-hidden mx-auto"
+                            className="relative bg-white rounded-[28px] border border-[#F0F0F0] w-full max-w-[620px] max-h-[88vh] shadow-[0_24px_80px_rgba(0,0,0,0.08)] flex flex-col overflow-hidden mx-auto"
                         >
+                            {/* Background Image Watermark */}
+                            <div 
+                                className="absolute inset-0 z-0 pointer-events-none opacity-[0.12] mix-blend-luminosity"
+                                style={{
+                                    backgroundImage: `url(${modalProblem.image})`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                    backgroundRepeat: 'no-repeat'
+                                }}
+                            />
+
                             {/* Header with gradient bar */}
-                            <div className="h-3 min-h-[12px] w-full shrink-0" style={{
-                                background: `linear-gradient(to right, ${modalProblem.accentColor}, ${modalProblem.accentColor}40)`,
-                                boxShadow: `0 0 20px ${modalProblem.accentColor}10`
+                            <div className="h-1 min-h-[4px] w-full shrink-0 relative z-10" style={{
+                                background: `linear-gradient(to right, ${modalProblem.accentColor}, ${modalProblem.accentColor}40)`
                             }} />
 
                             {/* X Close Button */}
                             <button
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); setModalProblem(null); }}
-                                className="absolute top-5 right-5 w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors z-[60] cursor-pointer"
+                                className="absolute top-[28px] right-[28px] w-[28px] h-[28px] bg-white/80 backdrop-blur-sm hover:bg-[#EBEBEB] rounded-full flex items-center justify-center text-[#9CA3AF] transition-colors z-[60] cursor-pointer outline-none border-none"
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-4 h-4" />
                             </button>
 
-                            {/* Title Section - fixed at top */}
-                            <div className="px-6 pt-6 pb-2 shrink-0">
-                                <h3
-                                   className="text-2xl font-bold text-[#0F131A] tracking-wide"
-                                   style={{ fontFamily: "'Cinzel', serif" }}
+                            {/* Title Section */}
+                            <div className="px-[28px] pt-[28px] pb-4 shrink-0 relative z-10">
+                                <div 
+                                    className="inline-block rounded-[50px] px-[12px] py-[4px] uppercase font-bold text-[10px]"
+                                    style={{ 
+                                        backgroundColor: modalProblem.accentLight, 
+                                        color: modalProblem.accentColor,
+                                        letterSpacing: '3px' 
+                                    }}
                                 >
                                     {modalProblem.title}
-                               </h3>
+                                </div>
+                                <h3
+                                   className="font-bold text-[#1A1A1A] mt-[10px]"
+                                   style={{ fontFamily: "'Cinzel', serif", fontSize: '26px' }}
+                                >
+                                    {modalProblem.title}
+                                </h3>
                                 <p
-                                  className="text-sm text-[#5f6f65] mt-1 leading-relaxed"
-                                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                               >
+                                  className="text-[14px] text-[#6B7280] mt-1 line-clamp-2"
+                                  style={{ fontFamily: "'Poppins', sans-serif", lineHeight: 1.7 }}
+                                >
                                   {modalProblem.description}
                                </p>
                             </div>
 
                             {/* Scrollable Content */}
-                            <div className="flex-1 overflow-y-auto px-6 py-4">
+                            <div className="flex-1 overflow-y-auto px-[28px] pb-[10px] relative" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+                                <style>{`
+                                    .flex-1.overflow-y-auto::-webkit-scrollbar {
+                                        display: none;
+                                    }
+                                    .quick-action-btn:hover {
+                                        background-color: var(--hover-bg) !important;
+                                        border-color: var(--hover-bg) !important;
+                                    }
+                                    .quick-action-btn:hover svg, .quick-action-btn:hover span {
+                                        color: white !important;
+                                    }
+                                `}</style>
+                                
                                 {/* Solutions */}
-                                <div className="mb-6">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                                        How We Help
+                                <div className="mb-6 mt-2">
+                                    <p className="text-[10px] text-[#9CA3AF] uppercase mb-[14px] font-semibold" style={{ letterSpacing: '3px' }}>
+                                        HOW WE HELP
                                     </p>
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-2 gap-[14px]">
                                         {modalProblem.solutions.map((solution: string, sIdx: number) => (
-                                            <div key={sIdx} className="flex items-center gap-2">
-                                                <Check className="w-5 h-5" style={{ color: modalProblem.accentColor }} />
-                                                <span className="text-sm text-gray-700 font-semibold">{solution}</span>
+                                            <div key={sIdx} className="flex items-start gap-[8px]">
+                                                <div className="rounded-full w-4 h-4 flex items-center justify-center shrink-0 mt-0.5" style={{ backgroundColor: modalProblem.accentColor }}>
+                                                    <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                                                </div>
+                                                <span className="text-[13px] text-[#374151] font-medium" style={{ lineHeight: 1.5 }}>{solution}</span>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
 
+                                <div className="h-[1px] w-full my-[20px]" style={{ background: 'linear-gradient(to right, transparent, #F0F0F0, transparent)' }} />
+
                                 {/* Recommendations Grid */}
                                 <div className="mb-6">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                                        Quick Actions
+                                    <p className="text-[10px] text-[#9CA3AF] uppercase mb-[14px] font-semibold" style={{ letterSpacing: '3px' }}>
+                                        QUICK ACTIONS
                                     </p>
-                                    <div className="flex justify-center gap-6">
+                                    <div className="flex flex-row flex-wrap gap-[10px]">
                                         {modalProblem.recommendations.map((rec: any, rIdx: number) => (
                                             <button
                                                 key={rIdx}
                                                 type="button"
                                                 onClick={(e) => { e.stopPropagation(); setActiveActionModal(rec.text); }}
-                                                className="w-28 h-28 flex flex-col items-center justify-center gap-2 p-3 rounded-xl transition-all cursor-pointer hover:scale-105 active:scale-95"
+                                                className="quick-action-btn group h-[48px] rounded-[50px] px-[20px] flex items-center gap-[8px] transition-all duration-200 cursor-pointer"
                                                 style={{
                                                     backgroundColor: modalProblem.accentLight,
-                                                    border: `1px solid ${modalProblem.accentColor}20`,
-                                                    boxShadow: `0 0 12px ${modalProblem.accentColor}08`
-                                                }}
+                                                    border: `1px solid ${modalProblem.accentColor}33`,
+                                                    '--hover-bg': modalProblem.accentColor,
+                                                } as React.CSSProperties}
                                             >
-                                                <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{
-                                                    background: `linear-gradient(135deg, ${modalProblem.accentColor}, ${modalProblem.accentColor}80)`,
-                                                    boxShadow: `0 0 15px ${modalProblem.accentColor}15`
-                                                }}>
-                                                    <rec.icon className="w-6 h-6 text-white" />
-                                                </div>
-                                                <span className="text-xs font-medium text-gray-700 text-center line-clamp-2">{rec.text}</span>
+                                                <rec.icon className="w-[18px] h-[18px] transition-colors duration-200" style={{ color: modalProblem.accentColor }} />
+                                                <span className="text-[13px] text-[#374151] font-medium whitespace-nowrap transition-colors duration-200">{rec.text}</span>
                                             </button>
                                         ))}
                                     </div>
                                 </div>
 
+                                <div className="h-[1px] w-full my-[20px]" style={{ background: 'linear-gradient(to right, transparent, #F0F0F0, transparent)' }} />
+
                                 {/* NEW DROPDOWN BOXES */}
-                                <div className="mb-6">
-                                    <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2" style={{
-                                        borderBottomColor: `${modalProblem.accentColor}40`,
-                                        borderBottomWidth: '2px'
-                                    }}>
+                                <div className="mb-8">
+                                    <h3 className="text-[15px] font-semibold text-[#1A1A1A] mb-[12px]" style={{ fontFamily: "'Poppins', sans-serif" }}>
                                         Why the mind keeps repeating
-                                  </h3>
-
-                                  <div className="space-y-3">
-
-                                    <details className="rounded-md bg-white px-4 py-3 transition-all" style={{
-                                        borderWidth: '1px',
-                                        borderColor: `${modalProblem.accentColor}20`
-                                    }}>
-                                        <summary className="cursor-pointer font-bold text-gray-800" style={{
-                                            color: modalProblem.accentColor
-                                        }}>
-                                            The mind seeks closure
-                                      </summary>
-                                      <p className="mt-2 text-sm text-gray-700 font-semibold">
-                                          Unfinished thoughts replay because the brain wants resolution.
-                                      </p>
-                                  </details>
-
-                                  <details className="rounded-md bg-white px-4 py-3 transition-all" style={{
-                                        borderWidth: '1px',
-                                        borderColor: `${modalProblem.accentColor}20`
-                                    }}>
-                                      <summary className="cursor-pointer font-bold text-gray-800" style={{
-                                            color: modalProblem.accentColor
-                                        }}>
-                                          Fear keeps loops alive
-                                      </summary>
-                                      <p className="mt-2 text-sm text-gray-700 font-semibold">
-                                          Stress and fear keep repetitive thinking active.
-                                      </p>
-                                  </details>
-
-                                  <details className="rounded-md bg-white px-4 py-3 transition-all" style={{
-                                        borderWidth: '1px',
-                                        borderColor: `${modalProblem.accentColor}20`
-                                    }}>
-                                      <summary className="cursor-pointer font-bold text-gray-800" style={{
-                                            color: modalProblem.accentColor
-                                        }}>
-                                        Thinking vs Looping
-                                      </summary>
-                                      <p className="mt-2 text-sm text-gray-700 font-semibold">
-                                          Thinking solves problems. Looping repeats without progress.
-                                       </p>
-                                  </details>
-
+                                    </h3>
+                                    <div className="space-y-[8px]">
+                                        <AccordionItem 
+                                            title="The mind seeks closure" 
+                                            content="Unfinished thoughts replay because the brain wants resolution." 
+                                            accentColor={modalProblem.accentColor}
+                                            accentLight={modalProblem.accentLight}
+                                        />
+                                        <AccordionItem 
+                                            title="Fear keeps loops alive" 
+                                            content="Stress and fear keep repetitive thinking active." 
+                                            accentColor={modalProblem.accentColor}
+                                            accentLight={modalProblem.accentLight}
+                                        />
+                                        <AccordionItem 
+                                            title="Thinking vs Looping" 
+                                            content="Thinking solves problems. Looping repeats without progress." 
+                                            accentColor={modalProblem.accentColor}
+                                            accentLight={modalProblem.accentLight}
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                            </div>
+                            
+                            {/* Fade mask for scroll area */}
+                            <div className="h-[40px] w-full absolute bottom-[68px] left-0 pointer-events-none z-10" style={{ background: 'linear-gradient(to bottom, transparent, white)' }} />
 
-                            {/* Action Button - fixed at bottom, outside scrollable area */}
-                            <div className="shrink-0 bg-white px-6 pt-4 pb-4 flex justify-center border-t border-gray-200">
+                            {/* Action Button - fixed at bottom */}
+                            <div className="shrink-0 bg-white/90 backdrop-blur-md px-[28px] py-[16px] flex justify-center border-t border-[#F5F5F5] z-20 relative">
                                 <button
                                     type="button"
                                     onClick={(e) => { e.stopPropagation(); setModalProblem(null); }}
-                                    className="px-12 py-3 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 transition-all cursor-pointer"
+                                    className="min-w-[120px] px-[32px] py-[10px] rounded-[50px] border-[1.5px] border-[#E5E7EB] bg-white text-[#6B7280] font-semibold text-[13px] hover:border-[#374151] hover:text-[#374151] transition-all duration-200 cursor-pointer"
                                 >
                                     Close
                                 </button>

@@ -7,7 +7,7 @@ const CommunityHero = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const [phraseIndex, setPhraseIndex] = useState(0);
-  const phrases = ["INNER HARMONY", "PURPOSE OF LIFE", "PEACE WITHIN"];
+  const phrases = ["CENTER", "PEACE", "SOLUTION", "REASON", "SOLUTION", "PEACE"];
 
   useEffect(() => {
     if (videoRef.current) {
@@ -158,11 +158,11 @@ const CommunityHero = () => {
           transition={{ duration: 2, ease: "easeOut" }}
         >
           <h1 
-            className="text-5xl md:text-7xl lg:text-8xl font-black text-emerald-950 drop-shadow-[0_4px_20px_rgba(255,255,255,0.8)] tracking-tighter leading-tight"
+            className="flex flex-col md:flex-row items-center justify-center text-5xl md:text-7xl lg:text-8xl font-black text-emerald-950 drop-shadow-[0_4px_20px_rgba(255,255,255,0.8)] tracking-tighter leading-tight"
             style={{ fontFamily: "'Cinzel', serif" }}
           >
-            FIND YOUR{' '}
-            <span className="text-emerald-800">
+            <span className="whitespace-nowrap md:mr-4">FIND YOUR</span>
+            <span className="text-emerald-800 inline-flex justify-center min-w-[280px] md:min-w-[380px] lg:min-w-[480px]">
               <AnimatePresence mode="wait">
                 <motion.span
                   key={phraseIndex}
@@ -170,7 +170,7 @@ const CommunityHero = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -30 }}
                   transition={{ duration: 0.5 }}
-                  className="inline-block"
+                  className="inline-block whitespace-nowrap"
                 >
                   {phrases[phraseIndex]}
                 </motion.span>

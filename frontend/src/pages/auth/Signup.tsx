@@ -9,6 +9,72 @@ import BACKEND_CONFIG from "../../config/backend";
 import "./Signup.css";
 import { useAuth } from "../../contexts/AuthContext";
 
+const CultureCollageContent = () => (
+  <div className="flex flex-col gap-10 pb-12 pt-32 px-12">
+    <div>
+      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold tracking-wide uppercase mb-6 backdrop-blur-sm shadow-sm shadow-emerald-950/20">
+        <Sparkles size={13} className="animate-pulse" />
+        <span>Cultural Heritage</span>
+      </div>
+
+      <h1 className="text-4xl xl:text-5xl font-bold tracking-tight text-white leading-[1.15] mb-5 font-serif">
+        Embrace Ancient <br />
+        <span className="relative inline-block mt-1">
+          <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-200 drop-shadow-[0_0_25px_rgba(52,211,153,0.25)]">
+            Wisdom
+          </span>
+        </span>
+      </h1>
+
+      <p className="text-zinc-300 text-[1.05rem] leading-relaxed opacity-90 font-light">
+        Nirvaha brings the profound depths of Indian cultural heritage into your modern life. Our philosophy is rooted in thousands of years of Vedic traditions, designed to restore your inner balance.
+      </p>
+    </div>
+    
+    {/* Collage Grid 1 */}
+    <div className="grid grid-cols-2 gap-4">
+      <img src="/temple of balance.png" alt="Temple" className="rounded-2xl object-cover h-48 w-full shadow-lg border border-white/10" />
+      <img src="/spiritual_bg.png" alt="Spiritual" className="rounded-2xl object-cover h-48 w-full shadow-lg border border-white/10 translate-y-6" />
+    </div>
+    
+    <div className="bg-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur-sm mt-6 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+      <h3 className="font-bold text-lg mb-2 text-emerald-100 flex items-center gap-2">
+        <ShieldCheck size={18} className="text-emerald-400" /> Yoga & Meditation
+      </h3>
+      <p className="text-sm text-zinc-300 font-light leading-relaxed">
+        Experience inner tranquility through authentic practices designed to balance your chakras and align your spirit.
+      </p>
+    </div>
+    
+    {/* Collage Grid 2 */}
+    <div className="grid grid-cols-2 gap-4 mt-4">
+      <img src="/yoga-meditation.jpg" alt="Meditation" className="rounded-2xl object-cover h-56 w-full shadow-lg border border-white/10 -translate-y-4" />
+      <img src="/retreats-hero.png" alt="Retreats" className="rounded-2xl object-cover h-40 w-full shadow-lg border border-white/10" />
+    </div>
+
+    <div className="bg-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur-sm shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+      <h3 className="font-bold text-lg mb-2 text-emerald-100 flex items-center gap-2">
+        <Globe size={18} className="text-emerald-400" /> Global Community
+      </h3>
+      <p className="text-sm text-zinc-300 font-light leading-relaxed">
+        Connect with seekers and practitioners worldwide, fostering a collective consciousness rooted in mindfulness and spiritual growth.
+      </p>
+    </div>
+    
+    {/* Single Image */}
+    <img src="/spiritual.png" alt="Spiritual Growth" className="rounded-2xl object-cover h-64 w-full mt-2 shadow-lg border border-white/10" />
+    
+    <p className="text-sm text-emerald-300/80 font-light italic text-center py-6">
+      "The journey of a thousand miles begins with a single step."
+    </p>
+    
+    {/* Footer Brand copyright */}
+    <div className="text-xs text-zinc-500 font-light tracking-wide text-center">
+      © 2026 Nirvaha Inc. All rights reserved.
+    </div>
+  </div>
+);
+
 const Signup: React.FC = () => {
   const navigate = useNavigate();
   const { signupWithEmail, loginWithGoogle, loginWithGithub } = useAuth();
@@ -132,125 +198,57 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="signup-container lg:grid lg:grid-cols-12 min-h-screen bg-[#FAF9F6] font-sans selection:bg-emerald-100 selection:text-emerald-900 overflow-x-hidden">
+    <div className="signup-container lg:grid lg:grid-cols-12 min-h-screen lg:h-screen bg-[#FAF9F6] font-sans selection:bg-emerald-100 selection:text-emerald-900 lg:overflow-hidden">
       
-      {/* Left Section: Visual & Value Prop */}
-      <div className="signup-visual-side lg:col-span-5 relative hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-[#062118] via-[#0d2f23] to-[#030f0b] text-white overflow-hidden shadow-2xl">
+      {/* Left Section: Scroll Info & Culture Collage */}
+      <div className="signup-visual-side lg:col-span-5 relative hidden lg:flex flex-col bg-gradient-to-br from-[#062118] via-[#0d2f23] to-[#030f0b] text-white overflow-hidden shadow-2xl h-screen">
         
         {/* Animated Ambient Light/Glow Circles */}
         <motion.div 
-          animate={{
-            x: [0, 20, -15, 0],
-            y: [0, -30, 20, 0],
-            scale: [1, 1.1, 0.95, 1],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          animate={{ x: [0, 20, -15, 0], y: [0, -30, 20, 0], scale: [1, 1.1, 0.95, 1] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
           className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-emerald-500/10 blur-[100px] pointer-events-none" 
         />
         <motion.div 
-          animate={{
-            x: [0, -30, 25, 0],
-            y: [0, 40, -15, 0],
-            scale: [1, 0.9, 1.15, 1],
-          }}
-          transition={{
-            duration: 18,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          animate={{ x: [0, -30, 25, 0], y: [0, 40, -15, 0], scale: [1, 0.9, 1.15, 1] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
           className="absolute -bottom-20 -right-20 w-[450px] h-[450px] rounded-full bg-teal-500/10 blur-[120px] pointer-events-none" 
         />
-        <div className="absolute top-1/3 left-1/4 w-80 h-80 rounded-full bg-emerald-600/5 blur-[90px] pointer-events-none animate-pulse" />
 
         {/* Ambient Subtle Particle Effect Overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none opacity-40" />
 
-        {/* Brand Header */}
-        <div className="relative z-10 flex items-center gap-3.5">
-          <div className="w-11 h-11 bg-white/5 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/10 shadow-lg shadow-black/10">
-            <img src="/logo.png" alt="Nirvaha" className="w-7 h-7 object-contain" />
-          </div>
-          <span className="font-serif tracking-widest text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-100 to-zinc-300">
-            NIRVAHA
-          </span>
-        </div>
-        
-        {/* Middle Value Props Section */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="relative z-10 my-auto max-w-[420px]"
-        >
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold tracking-wide uppercase mb-6 backdrop-blur-sm shadow-sm shadow-emerald-950/20">
-            <Sparkles size={13} className="animate-pulse" />
-            <span>Emotional Sanctuary</span>
-          </div>
-
-          <h1 className="text-4xl xl:text-5xl font-bold tracking-tight text-white leading-[1.15] mb-5 font-serif">
-            Start your journey to <br />
-            <span className="relative inline-block mt-1">
-              <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-200 drop-shadow-[0_0_25px_rgba(52,211,153,0.25)]">
-                Inner Balance
+        {/* Endless Scrollable Content Container */}
+        <div className="relative z-10 w-full h-full overflow-hidden">
+            {/* Fixed Brand Header */}
+            <div className="absolute top-12 left-12 z-50 flex items-center gap-3.5 bg-black/10 p-2 pr-5 rounded-2xl backdrop-blur-sm border border-white/5">
+              <div className="w-11 h-11 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/10 shadow-lg shadow-black/10">
+                <img src="/logo.png" alt="Nirvaha" className="w-7 h-7 object-contain" />
+              </div>
+              <span className="font-serif tracking-widest text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-100 to-zinc-300 drop-shadow-md">
+                NIRVAHA
               </span>
-            </span>
-          </h1>
-
-          <p className="text-zinc-300 text-[1.05rem] leading-relaxed mb-10 opacity-90 font-light">
-            Join thousands of seekers finding peace through ancient wisdom and modern AI.
-          </p>
-          
-          {/* Glass Feature list */}
-          <div className="flex flex-col gap-4">
-            <div className="group flex gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] backdrop-blur-md hover:bg-white/[0.05] hover:border-white/[0.12] hover:shadow-[0_12px_40px_rgba(0,0,0,0.12)] transition-all duration-300 transform hover:-translate-y-0.5">
-              <div className="flex-shrink-0 w-11 h-11 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20 text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-300">
-                <ShieldCheck size={20} />
-              </div>
-              <div>
-                <h4 className="font-semibold text-white text-[0.95rem] mb-1">Secure & Private</h4>
-                <p className="text-zinc-400 text-xs leading-relaxed font-light">Your spiritual journey is personal and safe with us.</p>
-              </div>
             </div>
-
-            <div className="group flex gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] backdrop-blur-md hover:bg-white/[0.05] hover:border-white/[0.12] hover:shadow-[0_12px_40px_rgba(0,0,0,0.12)] transition-all duration-300 transform hover:-translate-y-0.5">
-              <div className="flex-shrink-0 w-11 h-11 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20 text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-300">
-                <Zap size={20} />
-              </div>
-              <div>
-                <h4 className="font-semibold text-white text-[0.95rem] mb-1">AI-Powered Insights</h4>
-                <p className="text-zinc-400 text-xs leading-relaxed font-light">Real-time guidance tailored to your emotional state.</p>
-              </div>
-            </div>
-
-            <div className="group flex gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] backdrop-blur-md hover:bg-white/[0.05] hover:border-white/[0.12] hover:shadow-[0_12px_40px_rgba(0,0,0,0.12)] transition-all duration-300 transform hover:-translate-y-0.5">
-              <div className="flex-shrink-0 w-11 h-11 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20 text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-300">
-                <Globe size={20} />
-              </div>
-              <div>
-                <h4 className="font-semibold text-white text-[0.95rem] mb-1">Global Community</h4>
-                <p className="text-zinc-400 text-xs leading-relaxed font-light">Connect with healers and practitioners worldwide.</p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-        
-        {/* Footer Brand copyright */}
-        <div className="relative z-10 text-xs text-zinc-500 font-light tracking-wide">
-          © 2026 Nirvaha Inc. All rights reserved.
+            
+            {/* Infinite Scrolling Wrapper */}
+            <motion.div 
+              animate={{ y: ["0%", "-50%"] }}
+              transition={{ duration: 45, ease: "linear", repeat: Infinity }}
+              className="flex flex-col w-full h-fit"
+            >
+              <CultureCollageContent />
+              <CultureCollageContent />
+            </motion.div>
         </div>
       </div>
 
       {/* Right Section: Form */}
-      <div className="signup-form-side lg:col-span-7 flex items-center justify-center p-6 md:p-12 lg:p-16 overflow-y-auto">
+      <div className="signup-form-side lg:col-span-7 flex items-start justify-center p-6 md:p-12 lg:p-16 overflow-y-auto h-full lg:h-screen custom-scrollbar">
         <motion.div 
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full max-w-[500px] bg-white border border-zinc-100/90 shadow-[0_20px_50px_rgba(0,0,0,0.03)] rounded-3xl p-8 md:p-11 hover:shadow-[0_30px_70px_rgba(0,0,0,0.05)] transition-shadow duration-500"
+          className="w-full max-w-[500px] bg-white border border-zinc-100/90 shadow-[0_20px_50px_rgba(0,0,0,0.03)] rounded-3xl p-8 md:p-11 hover:shadow-[0_30px_70px_rgba(0,0,0,0.05)] transition-shadow duration-500 my-auto"
         >
           {/* Brand header for mobile layout */}
           <div className="flex lg:hidden items-center justify-center gap-2.5 mb-8">

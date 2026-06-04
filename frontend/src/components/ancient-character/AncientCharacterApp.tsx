@@ -1,10 +1,188 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Download, RotateCcw } from 'lucide-react';
+import { Download, RotateCcw, ChevronRight, Sparkles } from 'lucide-react';
 import { QUIZ_QUESTIONS, QuizOption } from './AncientCharacterData';
 import { calculateResult, generateDownloadCardSVG, QuizResult } from './AncientCharacterEngine';
 
 type ScreenState = 'welcome' | 'question' | 'result';
+
+const CollectibleCard = ({ result, accentColor }: { result: QuizResult, accentColor: string }) => {
+    const { primaryMatch, matchPercentage } = result;
+    const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
+    const [isFlipped, setIsFlipped] = useState(false);
+    
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (isFlipped) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        setMousePos({ x, y });
+    };
+    
+    const handleMouseLeave = () => {
+        if (isFlipped) return;
+        setMousePos({ x: 0.5, y: 0.5 });
+    };
+
+    const handleClick = () => {
+        setIsFlipped(!isFlipped);
+    };
+
+    // Calculate rotation: max 8 degrees
+    const tiltY = (mousePos.x - 0.5) * 16; 
+    const tiltX = (0.5 - mousePos.y) * 16;
+    
+    const currentRotateY = isFlipped ? 180 : tiltY;
+    const currentRotateX = isFlipped ? 0 : tiltX;
+
+    return (
+        <motion.div 
+            className="w-[340px] h-[480px] relative cursor-pointer"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            onClick={handleClick}
+            style={{
+                perspective: '1000px',
+            }}
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+        >
+            <motion.div
+                className="w-full h-full relative"
+                animate={{
+                    rotateX: currentRotateX,
+                    rotateY: currentRotateY
+                }}
+                transition={{ 
+                    type: 'spring', 
+                    stiffness: isFlipped ? 100 : 300, 
+                    damping: isFlipped ? 15 : 20 
+                }}
+                style={{
+                    transformStyle: 'preserve-3d',
+                }}
+            >
+                {/* FRONT FACE */}
+                <div 
+                    className="absolute inset-0 w-full h-full rounded-[20px] flex flex-col justify-between p-6 overflow-hidden"
+                    style={{
+                        background: `linear-gradient(135deg, #1A0F00 0%, ${accentColor}33 50%, #0A0A0F 100%)`,
+                        border: `1px solid ${accentColor}66`,
+                        boxShadow: `0 0 40px ${accentColor}33, 0 40px 80px rgba(0,0,0,0.6)`,
+                        backfaceVisibility: 'hidden',
+                        WebkitBackfaceVisibility: 'hidden'
+                    }}
+                >
+                    {/* Sheen Effect */}
+                    <motion.div 
+                        className="absolute inset-0 z-0 pointer-events-none"
+                        style={{
+                            background: 'linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.3) 50%, transparent 80%)',
+                            backgroundSize: '200% 200%'
+                        }}
+                        animate={{ backgroundPosition: ['200% 0%', '-200% 0%'] }}
+                        transition={{ duration: 3, repeat: Infinity, repeatDelay: 6, ease: "linear" }}
+                    />
+
+                    {/* Top: Emblem */}
+                    <div className="relative z-10 flex justify-center mt-4">
+                        <div className="w-[80px] h-[80px] rounded-full flex items-center justify-center border-2"
+                             style={{ 
+                                 background: `radial-gradient(circle, ${accentColor}40 0%, transparent 70%)`,
+                                 borderColor: `${accentColor}80` 
+                             }}>
+                            <span className="text-4xl text-white font-bold" style={{ fontFamily: "'Cinzel', serif" }}>
+                                {primaryMatch.name.charAt(0)}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Middle: Details */}
+                    <div className="relative z-10 text-center flex flex-col items-center">
+                        <span className="text-[10px] text-gray-400 tracking-[2px] uppercase mb-2 font-bold">Check Your Ancient Character</span>
+                        <h2 className="text-[32px] font-bold leading-none mb-2" style={{ color: accentColor, fontFamily: "'Cinzel', serif" }}>
+                            {primaryMatch.name}
+                        </h2>
+                        <span className="text-[14px] text-white italic mb-4" style={{ fontFamily: "'Cinzel', serif" }}>
+                            {primaryMatch.label}
+                        </span>
+                        <div className="px-3 py-1 rounded-full border text-[11px] font-bold"
+                             style={{ borderColor: accentColor, backgroundColor: `${accentColor}15`, color: accentColor }}>
+                            {matchPercentage}% Resonance
+                        </div>
+                    </div>
+
+                    {/* Bottom: Qualities & Footer */}
+                    <div className="relative z-10 flex flex-col items-center">
+                        <div className="flex gap-2 mb-6">
+                            {primaryMatch.qualities.slice(0, 3).map(q => (
+                                <span key={q} className="text-[9px] px-2 py-1 rounded-full border uppercase font-bold"
+                                      style={{ borderColor: `${accentColor}40`, backgroundColor: `${accentColor}15`, color: accentColor }}>
+                                    {q}
+                                </span>
+                            ))}
+                        </div>
+                        <div className="text-center">
+                            <div className="text-[10px] text-gray-300 uppercase tracking-widest mb-1 font-bold">Certificate of Character Match</div>
+                            <div className="text-[8px] text-gray-500 font-bold tracking-widest">
+                                {new Date().toLocaleDateString()} • ID: {Math.random().toString(36).substring(2, 10).toUpperCase()}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {/* BACK FACE */}
+                <div 
+                    className="absolute inset-0 w-full h-full rounded-[20px] overflow-hidden flex flex-col items-center justify-center"
+                    style={{
+                        backfaceVisibility: 'hidden',
+                        WebkitBackfaceVisibility: 'hidden',
+                        transform: 'rotateY(180deg)',
+                        border: `1px solid ${accentColor}66`,
+                        boxShadow: `0 0 40px ${accentColor}33`,
+                        background: '#0A0A0F'
+                    }}
+                >
+                    {primaryMatch.image ? (
+                        <img 
+                            src={primaryMatch.image} 
+                            alt={primaryMatch.name} 
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
+                            <div className="w-[120px] h-[120px] rounded-full flex items-center justify-center border-2 mb-6"
+                                 style={{ 
+                                     background: `radial-gradient(circle, ${accentColor}40 0%, transparent 70%)`,
+                                     borderColor: `${accentColor}80` 
+                                 }}>
+                                <span className="text-6xl text-white font-bold" style={{ fontFamily: "'Cinzel', serif" }}>
+                                    {primaryMatch.name.charAt(0)}
+                                </span>
+                            </div>
+                            <h2 className="text-[28px] font-bold" style={{ color: accentColor, fontFamily: "'Cinzel', serif" }}>
+                                {primaryMatch.name}
+                            </h2>
+                            <p className="text-[#C4CDD6] text-sm mt-2">{primaryMatch.label}</p>
+                        </div>
+                    )}
+                    
+                    {primaryMatch.image && (
+                        <>
+                            <div className="absolute inset-0 pointer-events-none" style={{ background: `linear-gradient(to top, #0A0A0F 0%, transparent 40%)` }} />
+                            <div className="absolute bottom-6 w-full text-center z-10 pointer-events-none">
+                                <span className="text-[13px] font-bold uppercase tracking-[4px] text-white shadow-md">
+                                    {primaryMatch.name}
+                                </span>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+};
 
 export const AncientCharacterApp = () => {
     const [currentScreen, setCurrentScreen] = useState<ScreenState>('welcome');
@@ -55,32 +233,44 @@ export const AncientCharacterApp = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="flex flex-col items-center justify-center min-h-[600px] text-center px-4"
+            className="flex flex-col items-center justify-center min-h-[800px] w-full text-center px-4 relative"
         >
-            <div className="w-24 h-24 mb-8 rounded-full border border-gray-700 flex items-center justify-center bg-gray-900/50 shadow-2xl">
-                <div className="w-16 h-16 rounded-full border border-gray-600 flex items-center justify-center opacity-80">
-                    <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                </div>
+            {/* Background Image */}
+            <div className="absolute inset-0 z-0 pointer-events-none rounded-3xl overflow-hidden">
+                <img 
+                    src="/human krishna.png" 
+                    alt="Ancient Character Background" 
+                    className="w-full h-full object-cover opacity-40 mix-blend-luminosity"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
             </div>
-            
-            <h1 className="text-4xl md:text-6xl font-serif text-gray-100 mb-4 tracking-wide">
-                Check Your<br/>Ancient Character
-            </h1>
-            
-            <p className="text-xl text-gray-400 font-light tracking-widest mb-8 uppercase">
-                A Reflective Character Quiz
-            </p>
-            
-            <p className="text-gray-400 max-w-lg mx-auto mb-12 text-lg leading-relaxed">
-                Answer a few questions to discover which ancient character qualities most reflect your present nature.
-            </p>
 
-            <button 
-                onClick={handleStart}
-                className="px-10 py-4 bg-gray-100 text-gray-900 rounded-full font-medium text-lg hover:bg-white hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-            >
-                Start Quiz
-            </button>
+            <div className="relative z-10 flex flex-col items-center">
+                <div className="w-24 h-24 mb-8 rounded-full border border-gray-700 flex items-center justify-center bg-gray-900/80 shadow-2xl backdrop-blur-sm">
+                    <div className="w-16 h-16 rounded-full border border-gray-500 flex items-center justify-center opacity-80">
+                        <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                    </div>
+                </div>
+                
+                <h1 className="text-4xl md:text-6xl font-serif text-gray-100 mb-4 tracking-wide drop-shadow-xl">
+                    Check Your<br/>Ancient Character
+                </h1>
+                
+                <p className="text-xl text-gray-300 font-light tracking-widest mb-8 uppercase drop-shadow-md">
+                    A Reflective Character Quiz
+                </p>
+                
+                <p className="text-gray-300 max-w-lg mx-auto mb-12 text-lg leading-relaxed drop-shadow-md font-medium">
+                    Answer a few questions to discover which ancient character qualities most reflect your present nature.
+                </p>
+
+                <button 
+                    onClick={handleStart}
+                    className="px-10 py-4 bg-gray-100 text-gray-900 rounded-full font-bold text-lg hover:bg-white hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,255,255,0.15)]"
+                >
+                    Start Quiz
+                </button>
+            </div>
         </motion.div>
     );
 
@@ -140,99 +330,194 @@ export const AncientCharacterApp = () => {
         );
     };
 
+    const getAccentColor = (name: string, fallback: string) => {
+        const map: Record<string, string> = {
+            'Rama': '#C8A96E',
+            'Krishna': '#6B8CFF',
+            'Hanuman': '#FF8C42',
+            'Arjuna': '#4CAF7D',
+            'Sita': '#E8879C',
+            'Karna': '#D4782A'
+        };
+        return map[name] || fallback;
+    };
+
     const renderResult = () => {
         if (!result) return null;
         
         const { primaryMatch, secondaryMatch, matchPercentage } = result;
+        const accentColor = getAccentColor(primaryMatch.name, primaryMatch.colors.primary);
 
         return (
             <motion.div 
                 key="result"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8 }}
-                className="w-full max-w-4xl mx-auto py-12 px-4 relative z-10"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="w-full max-w-[1024px] mx-auto py-[60px] px-[40px] relative z-10 bg-[#0A0A0F]"
+                style={{ fontFamily: "'Poppins', sans-serif" }}
             >
-                {/* Optional Background Image for Character */}
-                {primaryMatch.image && (
-                    <div className="absolute inset-0 z-[-1] opacity-20 pointer-events-none rounded-3xl overflow-hidden mask-image-linear-gradient">
-                        <img 
-                            src={primaryMatch.image} 
-                            alt={primaryMatch.name} 
-                            className="w-full h-full object-cover mix-blend-overlay"
-                        />
-                        <div className="absolute inset-0 bg-black/60" />
-                    </div>
-                )}
+                {/* Subtle particle effect abstraction */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#C8A96E 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-                <div className="text-center mb-16 relative">
-                    <p className="text-gray-400 tracking-widest uppercase mb-4">Your Character Match</p>
-                    <h1 className="text-5xl md:text-7xl font-serif mb-6" style={{ color: primaryMatch.colors.primary }}>
-                        {primaryMatch.name}
-                    </h1>
-                    <p className="text-2xl font-light text-gray-300 mb-8 tracking-wider">
-                        {primaryMatch.label}
-                    </p>
+                <div className="flex flex-col lg:flex-row gap-12 mb-16 relative z-10 items-start">
                     
-                    <div className="inline-flex items-center justify-center px-6 py-2 rounded-full border" style={{ borderColor: primaryMatch.colors.primary, backgroundColor: `${primaryMatch.colors.primary}15` }}>
-                        <span className="font-medium" style={{ color: primaryMatch.colors.primary }}>
-                            {matchPercentage}% Resonance
-                        </span>
-                    </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-12 mb-16">
-                    <div>
-                        <p className="text-xl text-gray-300 leading-relaxed mb-8">
-                            You most strongly resonate with the path of {primaryMatch.name}. {primaryMatch.description}
-                        </p>
+                    {/* LEFT SIDE: Info & Details */}
+                    <div className="flex-1 flex flex-col text-center lg:text-left items-center lg:items-start w-full">
                         
-                        <h3 className="text-sm text-gray-500 uppercase tracking-widest mb-4">Qualities You Reflect</h3>
-                        <div className="flex flex-wrap gap-2 mb-8">
-                            {primaryMatch.qualities.map(q => (
-                                <span key={q} className="px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-300 text-sm">
-                                    {q}
+                        {/* CHARACTER REVEAL */}
+                        <div className="mb-10 w-full">
+                            <motion.p 
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                                className="text-[10px] tracking-[4px] uppercase font-bold mb-4" 
+                                style={{ color: accentColor }}
+                            >
+                                Your Character Match
+                            </motion.p>
+                            <motion.h1 
+                                initial={{ opacity: 0, scale: 0.8, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.6 }}
+                                className="text-[56px] md:text-[64px] font-bold mb-2 leading-none" 
+                                style={{ fontFamily: "'Cinzel', serif", color: accentColor, textShadow: `0 0 40px ${accentColor}80` }}
+                            >
+                                {primaryMatch.name}
+                            </motion.h1>
+                            <motion.p 
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+                                className="text-[20px] text-[#C4CDD6] italic mb-6" style={{ fontFamily: "'Cinzel', serif" }}
+                            >
+                                {primaryMatch.label}
+                            </motion.p>
+                            
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }}
+                                className="inline-flex items-center justify-center px-6 py-2 rounded-full border-[1.5px]" 
+                                style={{ borderColor: accentColor, backgroundColor: `${accentColor}1A` }}
+                            >
+                                <span className="font-bold text-[13px]" style={{ color: accentColor }}>
+                                    {matchPercentage}% Resonance
                                 </span>
-                            ))}
+                            </motion.div>
+                        </div>
+
+                        {/* CHARACTER DETAILS */}
+                        <div className="flex flex-col gap-6 w-full text-left">
+                            <div className="bg-white/5 border border-white/10 rounded-[16px] p-6">
+                                <p className="text-[15px] text-[#C4CDD6] leading-[1.8]">
+                                    {primaryMatch.description}
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <h3 className="text-[10px] tracking-[3px] uppercase font-bold mb-4" style={{ color: accentColor }}>
+                                    Qualities You Reflect
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {primaryMatch.qualities.map((q, i) => (
+                                        <motion.span 
+                                            key={q}
+                                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 + (i * 0.1) }}
+                                            className="px-4 py-1.5 rounded-full border text-[12px] font-semibold transition-colors hover:text-[#0A0A0F] cursor-default"
+                                            style={{ 
+                                                borderColor: `${accentColor}4D`, 
+                                                backgroundColor: `${accentColor}1A`, 
+                                                color: accentColor 
+                                            }}
+                                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = accentColor}
+                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = `${accentColor}1A`}
+                                        >
+                                            {q}
+                                        </motion.span>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            <div className="bg-white/5 border border-white/10 rounded-[16px] p-6 h-fit mt-2">
+                                <h3 className="text-[10px] text-[#8892A4] tracking-[3px] uppercase mb-6 font-bold">
+                                    Path of Refinement
+                                </h3>
+                                <ul className="space-y-3">
+                                    {primaryMatch.growth.map((g, i) => (
+                                        <li key={i} className="flex items-start text-[#E8E8E8] text-[14px] leading-[1.8] border-l-2 pl-[14px]" style={{ borderColor: `${accentColor}4D` }}>
+                                            <ChevronRight className="w-4 h-4 mr-2 mt-[4px] shrink-0" style={{ color: accentColor }} />
+                                            <span>{g}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div className="bg-gray-900/50 p-8 rounded-3xl border border-gray-800">
-                        <h3 className="text-sm text-gray-500 uppercase tracking-widest mb-6">Path of Refinement</h3>
-                        <ul className="space-y-4">
-                            {primaryMatch.growth.map((g, i) => (
-                                <li key={i} className="flex items-start text-gray-300">
-                                    <span className="mr-3 mt-1" style={{ color: primaryMatch.colors.primary }}>❖</span>
-                                    {g}
-                                </li>
-                            ))}
-                        </ul>
+
+                    {/* RIGHT SIDE: Collectible Card Preview */}
+                    <div className="flex flex-col items-center shrink-0 w-full lg:w-auto lg:sticky lg:top-8 mt-8 lg:mt-0">
+                        <CollectibleCard result={result} accentColor={accentColor} />
+                        
+                        <div className="mt-6 text-center">
+                            <p className="text-[11px] text-[#8892A4] italic mb-1">Your collectible result card</p>
+                            <p className="text-[12px] text-gray-400 block sm:hidden">✨ Tap to see full card</p>
+                            <p className="text-[12px] text-gray-400 hidden sm:block">↓ Download your card below</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                {/* SECTION 4 — SECONDARY RESONANCE */}
+                <div className="mb-16 relative z-10 max-w-2xl mx-auto">
+                    <div className="border-t border-white/10 mb-8 w-1/2 mx-auto" />
+                    <div className="bg-white/5 border border-white/10 rounded-[16px] p-[20px_28px] text-center flex flex-col items-center">
+                        <h3 className="text-[10px] text-[#8892A4] tracking-[3px] uppercase mb-3 font-bold">
+                            Secondary Resonance
+                        </h3>
+                        <div className="flex items-center justify-center gap-3">
+                            <div className="w-[40px] h-[40px] rounded-full border flex items-center justify-center bg-gray-900" style={{ borderColor: getAccentColor(secondaryMatch.name, secondaryMatch.colors.primary) }}>
+                                <span className="text-xl text-white" style={{ fontFamily: "'Cinzel', serif" }}>{secondaryMatch.name.charAt(0)}</span>
+                            </div>
+                            <p className="text-[16px] text-white">
+                                You also reflect the qualities of <span className="font-bold" style={{ color: getAccentColor(secondaryMatch.name, secondaryMatch.colors.primary) }}>{secondaryMatch.name}</span>, {secondaryMatch.label.toLowerCase()}
+                            </p>
+                        </div>
                     </div>
                 </div>
 
-                <div className="border-t border-gray-800 pt-12 pb-12 text-center">
-                    <p className="text-sm text-gray-500 uppercase tracking-widest mb-2">Secondary Resonance</p>
-                    <p className="text-xl text-gray-400">
-                        You also reflect the qualities of <span className="text-white">{secondaryMatch.name}</span>, {secondaryMatch.label.toLowerCase()}.
+                {/* SECTION 5 — DOWNLOAD AREA */}
+                <div className="w-[calc(100%+80px)] -ml-[40px] px-[40px] py-[40px] flex flex-col items-center relative z-10" style={{ background: 'linear-gradient(to bottom, transparent, #0D0D14)' }}>
+                    <h2 className="text-[20px] text-white mb-1" style={{ fontFamily: "'Cinzel', serif" }}>
+                        Your card is ready to collect
+                    </h2>
+                    <p className="text-[13px] text-[#8892A4] mb-8">
+                        Download and keep your character match forever.
                     </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-8">
-                    <button 
+                    
+                    <motion.button 
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
                         onClick={handleDownload}
-                        className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-xl text-white font-medium hover:opacity-90 transition-opacity"
-                        style={{ backgroundImage: `linear-gradient(to right, ${primaryMatch.colors.primary}, ${primaryMatch.colors.secondary})` }}
+                        className="w-[280px] h-[56px] rounded-[50px] flex items-center justify-center gap-2 text-[#0A0A0F] text-[15px] font-bold mb-3 relative overflow-hidden group"
+                        style={{ 
+                            background: `linear-gradient(135deg, ${accentColor}, ${accentColor}cc)`,
+                            boxShadow: `0 8px 32px ${accentColor}66`
+                        }}
                     >
-                        <Download className="w-5 h-5" />
-                        Download Card
-                    </button>
+                        <motion.div 
+                            className="absolute inset-0 z-0 pointer-events-none"
+                            style={{
+                                background: 'linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.4) 50%, transparent 80%)',
+                                backgroundSize: '200% 200%'
+                            }}
+                            animate={{ backgroundPosition: ['200% 0%', '-200% 0%'] }}
+                            transition={{ duration: 2, repeat: Infinity, repeatDelay: 4, ease: "linear" }}
+                        />
+                        <Sparkles className="w-5 h-5 relative z-10" />
+                        <span className="relative z-10">Download Card</span>
+                    </motion.button>
+                    
+                    <p className="text-[11px] text-[#8892A4] mb-8">
+                        PNG format • Free to share
+                    </p>
                     
                     <button 
                         onClick={handleStart}
-                        className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-gray-900 text-gray-300 border border-gray-700 hover:bg-gray-800 hover:text-white transition-colors"
+                        className="text-[13px] text-[#8892A4] hover:underline flex items-center gap-2 transition-colors"
                     >
-                        <RotateCcw className="w-5 h-5" />
-                        Retake Quiz
+                        <RotateCcw className="w-4 h-4" /> Retake Quiz
                     </button>
                 </div>
             </motion.div>
