@@ -7,7 +7,8 @@ const TrustedStats: React.FC = () => {
         { name: "Google", logo: "https://www.vectorlogo.zone/logos/google/google-ar21.svg", url: "https://www.google.com" },
         { name: "Microsoft", logo: "https://www.vectorlogo.zone/logos/microsoft/microsoft-ar21.svg", url: "https://www.microsoft.com" },
         { name: "Amazon", logo: "https://www.vectorlogo.zone/logos/amazon/amazon-ar21.svg", url: "https://www.amazon.com" },
-        { name: "Adobe", logo: "https://www.vectorlogo.zone/logos/adobe/adobe-ar21.svg", url: "https://www.adobe.com" }
+        { name: "Adobe", logo: "https://www.vectorlogo.zone/logos/adobe/adobe-ar21.svg", url: "https://www.adobe.com" },
+        { name: "Deloitte", logo: "/deloitte.png", url: "https://www.deloitte.com" }
     ];
 
     return (
@@ -23,7 +24,7 @@ const TrustedStats: React.FC = () => {
                 </div>
 
                 {/* Partners Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 lg:gap-6">
                     {partners.map((partner, idx) => (
                         <motion.a
                             key={idx}
@@ -41,7 +42,7 @@ const TrustedStats: React.FC = () => {
                                 <img
                                     src={partner.logo}
                                     alt={partner.name}
-                                    className="max-w-[70%] max-h-[70px] object-contain group-hover:scale-110 transition-transform duration-500"
+                                    className={`max-w-[70%] max-h-[70px] object-contain group-hover:scale-110 transition-transform duration-500 ${partner.name === 'Deloitte' ? 'mix-blend-multiply' : ''}`}
                                 />
                             </div>
 

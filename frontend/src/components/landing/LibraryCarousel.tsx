@@ -8,63 +8,55 @@ const defaultLibraryItems = [
         id: "agni-the-sacred-fire",
         title: "Agni - The Sacred Fire", 
         category: "Transformation", 
-        image: "/agni.png", 
+        image: "/agni.jpg", 
         duration: "15 min",
         story: "Agni is the element of transformation.\nIt burns away the impurities of the ego.\nIn its light, we find the path to our true self.\nThe fire of awareness illuminates the dark corners of the mind."
-    },
-    { 
-        id: "dharma-the-righteous-path",
-        title: "Dharma - The Righteous Path", 
-        category: "Purpose", 
-        image: "/dharma.png", 
-        duration: "Series",
-        story: "Dharma is the moral order of the universe.\nIt is the duty that aligns us with our highest purpose.\nWhen we follow our dharma, we find effortless peace.\nLiving in harmony with truth is the ultimate goal."
-    },
-    { 
-        id: "indriya-nigraha-sensory-control",
-        title: "Indriya Nigraha - Sensory Control", 
-        category: "Senses", 
-        image: "/indriya.png", 
-        duration: "10 min",
-        story: "Master the senses to master the mind.\nIndriya Nigraha is the art of conscious withdrawal.\nNot through suppression, but through deep understanding.\nWhen the senses turn inward, the soul finds its home."
-    },
-    { 
-        id: "manas-shuddhi-mental-clarity",
-        title: "Manas Shuddhi - Mental Clarity", 
-        category: "Mind", 
-        image: "/manas.png", 
-        duration: "20 min",
-        story: "Purifying the mind is like cleaning a temple.\nRemove the dust of desire and the smoke of anger.\nOnly a pure heart can hold the divine flame,\nradiating peace to every corner of existence."
-    },
-    { 
-        id: "jawaharlal-nehru-visionary-wisdom",
-        title: "Jawaharlal Nehru - Visionary Wisdom", 
-        category: "Wisdom", 
-        image: "/nehru.png", 
-        duration: "Lecture",
-        story: "Wisdom is the ability to see the unity in diversity.\nLeadership is the service of the human spirit.\nThrough education and self-reflection, we build a better world.\nThe mind that is open to truth is the mind that is free."
-    },
-    { 
-        id: "samarth-ramdas-path-of-devotion",
-        title: "Samarth Ramdas - Path of Devotion", 
-        category: "Devotion", 
-        image: "/ramdas.png", 
-        duration: "Music",
-        story: "Devotion to the master is the bridge to the infinite.\nThrough surrender, the disciple becomes one with the light.\nChant the names of the divine to quiet the restless heart.\nIn the service of the master, we find the highest joy."
     },
     { 
         id: "sadvritta-ethical-living",
         title: "Sadvritta - Ethical Living", 
         category: "Ethics", 
-        image: "/sadvritta.png", 
+        image: "/sadvrita.jpg", 
         duration: "Practice",
         story: "Right conduct is the foundation of a spiritual life.\nTreat all beings with compassion and kindness.\nIntegrity in thought, word, and deed brings lasting harmony.\nYour actions are the seeds of your future destiny."
+    },
+    { 
+        id: "satmya-holistic-adaptability",
+        title: "Satmya - Holistic Adaptability", 
+        category: "Adaptability", 
+        image: "/satmya.jpg", 
+        duration: "10 min",
+        story: "Satmya is the art of adapting to one's environment.\nIt represents the body's natural resilience.\nThrough conscious habits, we build lasting vitality.\nHarmony with our surroundings brings enduring health."
+    },
+    { 
+        id: "bramhacharya-energy-mastery",
+        title: "Bramhacharya - Energy Mastery", 
+        category: "Discipline", 
+        image: "/bramhacharya.jpg", 
+        duration: "Series",
+        story: "Bramhacharya is the preservation of vital energy.\nIt focuses the mind on higher spiritual goals.\nBy channeling our desires, we gain profound clarity.\nTrue power lies in self-mastery and inner focus."
+    },
+    { 
+        id: "dhinacharya-daily-routine",
+        title: "Dhinacharya - Daily Routine", 
+        category: "Lifestyle", 
+        image: "/dhinacharya.jpg", 
+        duration: "Practice",
+        story: "Dhinacharya aligns our daily rhythm with nature.\nIt brings balance to body, mind, and spirit.\nA structured day builds a foundation for peace.\nSmall habits shape the trajectory of our lives."
+    },
+    { 
+        id: "manas-shuddhi-mental-clarity",
+        title: "Manas Shuddhi - Mental Clarity", 
+        category: "Mind", 
+        image: "/manas shuddhi.jpg", 
+        duration: "20 min",
+        story: "Purifying the mind is like cleaning a temple.\nRemove the dust of desire and the smoke of anger.\nOnly a pure heart can hold the divine flame,\nradiating peace to every corner of existence."
     },
     { 
         id: "saradhi-the-divine-guide",
         title: "Saradhi - The Divine Guide", 
         category: "Guidance", 
-        image: "/saradhi.png", 
+        image: "/saradhi.jpg", 
         duration: "Journey",
         story: "The guide is the lighthouse in the storm of existence.\nFollowing the lead of wisdom brings us to the shore of truth.\nSurrender the reins of your life to the master within.\nEvery step taken in trust is a step closer to liberation."
     },
@@ -72,10 +64,42 @@ const defaultLibraryItems = [
         id: "vyayama-sacred-movement",
         title: "Vyayama - Sacred Movement", 
         category: "Discipline", 
-        image: "/vyayama.png", 
+        image: "/vyayama.jpg", 
         duration: "Movement",
         story: "The body is the temple of the living soul.\nThrough discipline and movement, we prepare for stillness.\nStrength and flexibility are the tools of the spiritual warrior.\nHonoring the body is honoring the creation itself."
     },
+    { 
+        id: "indriya-nigraha-sensory-control",
+        title: "Indriya Nigraha - Sensory Control", 
+        category: "Senses", 
+        image: "/indriya.jpg", 
+        duration: "10 min",
+        story: "Master the senses to master the mind.\nIndriya Nigraha is the art of conscious withdrawal.\nNot through suppression, but through deep understanding.\nWhen the senses turn inward, the soul finds its home."
+    },
+    { 
+        id: "civilizational-wisdom",
+        title: "Civilizational Wisdom", 
+        category: "Heritage", 
+        image: "/civilizational.jpg", 
+        duration: "Lecture",
+        story: "Our ancient civilization holds profound truths.\nPassed down through generations of seekers.\nDiscover the timeless wisdom that shapes our world.\nEmbracing our roots gives wings to our future."
+    },
+    { 
+        id: "nidra-conscious-sleep",
+        title: "Nidra - Conscious Sleep", 
+        category: "Rest", 
+        image: "/nidra.jpg", 
+        duration: "30 min",
+        story: "Nidra is not just rest, it is deep restoration.\nIn the silence of sleep, the soul is renewed.\nConscious relaxation heals the nervous system.\nAwaken refreshed and aligned with your true self."
+    },
+    { 
+        id: "ritucharya-seasonal-harmony",
+        title: "Ritucharya - Seasonal Harmony", 
+        category: "Nature", 
+        image: "/ritucharya.jpg", 
+        duration: "Series",
+        story: "Ritucharya is the wisdom of seasonal living.\nAdapting to nature's cycles brings robust health.\nAs the earth shifts, so must our practices.\nFlowing with the seasons is the secret to longevity."
+    }
 ];
 
 
@@ -127,8 +151,12 @@ const LibraryCarousel: React.FC = () => {
                     0% { transform: translateX(0); }
                     100% { transform: translateX(-50%); }
                 }
+                @keyframes scroll-reverse {
+                    0% { transform: translateX(-50%); }
+                    100% { transform: translateX(0); }
+                }
                 .carousel-track-1 {
-                    animation: scroll 70s linear infinite;
+                    animation: scroll-reverse 50s linear infinite;
                 }
                 .carousel-track-2 {
                     animation: scroll 50s linear infinite;
@@ -141,7 +169,7 @@ const LibraryCarousel: React.FC = () => {
             {/* Row 1 */}
             <div className="flex gap-6 mb-6 w-full overflow-hidden">
                 <div className="flex gap-6 pl-4 carousel-track-1 w-max">
-                    {[...libraryItems, ...libraryItems].map((item, idx) => (
+                    {[...libraryItems.slice(0, 6), ...libraryItems.slice(0, 6)].map((item, idx) => (
                         <motion.div
                             key={`r1-${idx}`}
                             whileHover={{ scale: 1.02, y: -5 }}
@@ -171,7 +199,7 @@ const LibraryCarousel: React.FC = () => {
             {/* Row 2 */}
             <div className="flex gap-6 w-full overflow-hidden">
                 <div className="flex gap-6 pl-4 carousel-track-2 w-max">
-                    {[...libraryItems].reverse().concat([...libraryItems].reverse()).map((item, idx) => (
+                    {[...libraryItems.slice(6, 12), ...libraryItems.slice(6, 12)].map((item, idx) => (
                         <motion.div
                             key={`r2-${idx}`}
                             whileHover={{ scale: 1.02, y: -5 }}

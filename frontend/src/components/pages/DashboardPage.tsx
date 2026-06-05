@@ -21,6 +21,16 @@ import { DashboardFooter } from "../dashboard/DashboardFooter";
 export function DashboardPage() {
   const location = useLocation();
 
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const phrases = ["center", "peace", "solution", "reason", "solution", "peace"];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhraseIndex((prev) => (prev + 1) % phrases.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const scrollTo = params.get("scrollTo");
@@ -151,9 +161,23 @@ export function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="text-5xl md:text-7xl font-light text-[#5A7165] font-['Cinzel'] tracking-wide text-center"
+          className="text-5xl md:text-7xl font-light text-[#5A7165] font-['Cinzel'] tracking-wide text-center flex flex-col md:flex-row items-center justify-center"
         >
-          Find your center.
+          <span className="whitespace-nowrap md:mr-4">Find your</span>
+          <span className="text-[#3A5145] inline-flex justify-center min-w-[200px] md:min-w-[280px]">
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={phraseIndex}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -30 }}
+                transition={{ duration: 0.5 }}
+                className="inline-block whitespace-nowrap"
+              >
+                {phrases[phraseIndex]}.
+              </motion.span>
+            </AnimatePresence>
+          </span>
         </motion.h1>
 
         <motion.p 
