@@ -242,5 +242,155 @@ export const defaultLibraryItems: LibraryItem[] = [
             { title: "Ancient Indian Physical Culture", url: "#" },
             { title: "The Integration of Asana and Vyayama", url: "#" }
         ]
+    },
+    { 
+        id: "satmya-holistic-adaptability",
+        title: "Satmya - Holistic Adaptability", 
+        category: "Adaptability", 
+        image: "/satmya.jpg", 
+        duration: "10 min",
+        story: "Satmya is the art of adapting to one's environment.\nIt represents the body's natural resilience.\nThrough conscious habits, we build lasting vitality.\nHarmony with our surroundings brings enduring health.",
+        description: "In Ayurveda, Satmya refers to suitability or habituation. It is the concept of adapting to one's environment, diet, and lifestyle to maintain equilibrium. Satmya recognizes that what is medicine for one may be poison for another, emphasizing the profound uniqueness of each individual's constitution and their deeply ingrained habits.",
+        whyTheyMatter: "Modern life demands constant adaptation. Understanding Satmya empowers us to build deep resilience by recognizing what truly suits our unique mind-body complex, leading to sustainable health and an unshakeable sense of groundedness amidst constant change.",
+        quotes: [
+            "Adaptability is not imitation, but deep harmony with one's truth.",
+            "That which brings joy and ease to the body naturally becomes Satmya.",
+            "Resilience is born when we flow with nature rather than resist it."
+        ],
+        impact: [
+            "Builds a highly resilient immune and nervous system.",
+            "Reduces chronic stress caused by incompatible lifestyles.",
+            "Fosters deep self-awareness and intuition.",
+            "Promotes sustainable, long-term well-being."
+        ],
+        referenceLinks: [
+            { title: "Understanding Satmya in Ayurveda", url: "#" },
+            { title: "The Science of Biological Adaptability", url: "#" }
+        ]
+    },
+    { 
+        id: "bramhacharya-energy-mastery",
+        title: "Bramhacharya - Energy Mastery", 
+        category: "Discipline", 
+        image: "/bramhacharya.jpg", 
+        duration: "Series",
+        story: "Bramhacharya is the preservation of vital energy.\nIt focuses the mind on higher spiritual goals.\nBy channeling our desires, we gain profound clarity.\nTrue power lies in self-mastery and inner focus.",
+        description: "Often misunderstood merely as celibacy, Bramhacharya (literally 'behavior that leads to Brahman' or divine consciousness) is the yogic practice of right use of energy. It involves directing our vital life force (Prana) away from external sensory gratification and channeling it toward profound spiritual growth, creative expression, and inner healing.",
+        whyTheyMatter: "In a world designed to drain our attention and vital energy, Bramhacharya is the ultimate practice of energetic sovereignty. It allows us to reclaim our power, focus our scattered minds, and channel our passions into fulfilling our highest potential.",
+        quotes: [
+            "Energy flows where intention goes.",
+            "Mastery of the senses is the true wealth of a seeker.",
+            "When the vital force is conserved, the mind becomes an instrument of genius."
+        ],
+        impact: [
+            "Cultivates immense physical vitality and mental stamina.",
+            "Transforms scattered desires into focused creative power.",
+            "Deepens meditative states and spiritual insights.",
+            "Promotes profound emotional stability."
+        ],
+        referenceLinks: [
+            { title: "The True Meaning of Bramhacharya", url: "#" },
+            { title: "Pranayama and Energy Conservation", url: "#" }
+        ]
+    },
+    { 
+        id: "dhinacharya-daily-routine",
+        title: "Dhinacharya - Daily Routine", 
+        category: "Lifestyle", 
+        image: "/dhinacharya.jpg", 
+        duration: "Practice",
+        story: "Dhinacharya aligns our daily rhythm with nature.\nIt brings balance to body, mind, and spirit.\nA structured day builds a foundation for peace.\nSmall habits shape the trajectory of our lives.",
+        description: "Dinacharya is the Ayurvedic concept of a daily routine designed to maintain physical and mental hygiene. By aligning our waking, eating, and sleeping habits with the natural cycles of the sun and the rhythms of nature, Dinacharya creates a predictable foundation that stabilizes the nervous system and optimizes biological functions.",
+        whyTheyMatter: "An unpredictable lifestyle creates a chaotic mind. Dinacharya acts as an anchor. By grounding our days in healthy, consistent rituals, we eliminate decision fatigue, drastically reduce stress, and create the optimal environment for our bodies to heal and thrive.",
+        quotes: [
+            "We are what we repeatedly do. Excellence is not an act, but a habit.",
+            "Align your rhythm with the sun, and the universe will align with you.",
+            "The morning sets the tone for the symphony of the day."
+        ],
+        impact: [
+            "Regulates circadian rhythms for optimal hormone balance.",
+            "Improves digestion and metabolic efficiency.",
+            "Significantly lowers daily anxiety and stress levels.",
+            "Creates a strong foundation for spiritual practices."
+        ],
+        referenceLinks: [
+            { title: "The Perfect Ayurvedic Morning Routine", url: "#" },
+            { title: "Circadian Rhythms and Health", url: "#" }
+        ]
+    },
+    { 
+        id: "civilizational-wisdom",
+        title: "Civilizational Wisdom", 
+        category: "Heritage", 
+        image: "/civilizational.jpg", 
+        duration: "Lecture",
+        story: "Our ancient civilization holds profound truths.\nPassed down through generations of seekers.\nDiscover the timeless wisdom that shapes our world.\nEmbracing our roots gives wings to our future.",
+        description: "Civilizational Wisdom encompasses the collective spiritual, philosophical, and practical knowledge accumulated by humanity over millennia. In the context of the Vedic tradition, it is the unbroken transmission of understanding regarding the cosmos, human nature, and the ultimate reality. It is a vast reservoir of timeless principles that guide humanity through the ages.",
+        whyTheyMatter: "To move forward with clarity, we must understand where we come from. Civilizational Wisdom provides a deeply rooted framework of values that protects us from the fleeting trends of modern society. It grounds our progress in timeless truths, ensuring that technological advancement is matched by spiritual maturity.",
+        quotes: [
+            "A civilization is built not on machines, but on the minds and hearts of its people.",
+            "The roots of wisdom are bitter, but the fruit is sweet.",
+            "To know your future, you must understand your past."
+        ],
+        impact: [
+            "Fosters a deep sense of identity and cultural rootedness.",
+            "Provides ethical frameworks for modern dilemmas.",
+            "Connects the individual to a vast lineage of seekers.",
+            "Inspires long-term, visionary thinking."
+        ],
+        referenceLinks: [
+            { title: "Lessons from Ancient Civilizations", url: "#" },
+            { title: "The Transmission of Vedic Knowledge", url: "#" }
+        ]
+    },
+    { 
+        id: "nidra-conscious-sleep",
+        title: "Nidra - Conscious Sleep", 
+        category: "Rest", 
+        image: "/nidra.jpg", 
+        duration: "30 min",
+        story: "Nidra is not just rest, it is deep restoration.\nIn the silence of sleep, the soul is renewed.\nConscious relaxation heals the nervous system.\nAwaken refreshed and aligned with your true self.",
+        description: "Yoga Nidra, or yogic sleep, is a state of consciousness between waking and sleeping. It is a powerful technique in which the practitioner learns to relax consciously. While the physical body rests deeply, the inner awareness remains awake, allowing for profound psychological, physical, and energetic healing at the deepest subconscious levels.",
+        whyTheyMatter: "Chronic exhaustion is the epidemic of our era. Nidra is crucial because true rest is rarely achieved through ordinary sleep alone. Conscious rest unwinds deep-seated tensions, resets the nervous system, and provides an unparalleled sanctuary of peace in a hyper-stimulated world.",
+        quotes: [
+            "In the depths of stillness, the body remembers how to heal.",
+            "True rest is not the absence of activity, but the presence of peace.",
+            "Awake in the dream of life, asleep in the peace of the soul."
+        ],
+        impact: [
+            "Dramatically reduces stress, anxiety, and PTSD symptoms.",
+            "Improves the quality of natural sleep and combats insomnia.",
+            "Enhances cognitive function and creative problem-solving.",
+            "Facilitates deep emotional healing and subconscious reprogramming."
+        ],
+        referenceLinks: [
+            { title: "The Science of Yoga Nidra", url: "#" },
+            { title: "Deep Rest for the Modern Nervous System", url: "#" }
+        ]
+    },
+    { 
+        id: "ritucharya-seasonal-harmony",
+        title: "Ritucharya - Seasonal Harmony", 
+        category: "Nature", 
+        image: "/ritucharya.jpg", 
+        duration: "Series",
+        story: "Ritucharya guides us through the cycles of nature.\nAdjusting to the seasons keeps the body in perfect harmony.\nAs the earth changes, so must our daily habits.\nEmbrace the natural flow to maintain vibrant health.",
+        description: "Ritucharya translates to seasonal regimen. In Ayurveda, the changing of seasons (Ritus) profoundly impacts the human body and mind. Ritucharya is the practice of adjusting one's diet, daily routine, and lifestyle practices to harmonize with the shifting energies of nature, preventing seasonal diseases and maintaining continuous equilibrium.",
+        whyTheyMatter: "Modern living often disconnects us from nature's cycles, leading to imbalances and seasonal illnesses. Ritucharya matters because it reinstates our intrinsic bond with the Earth. By adapting to the seasons, we harness nature's support rather than fighting against its currents, ensuring year-round vitality.",
+        quotes: [
+            "To be healthy is to flow seamlessly with the seasons of life.",
+            "Nature never hurries, yet everything is accomplished.",
+            "When we harmonize with the earth, the earth nourishes us."
+        ],
+        impact: [
+            "Prevents seasonal allergies and boosts immune function.",
+            "Optimizes digestion and energy levels throughout the year.",
+            "Fosters a deep spiritual connection with the natural world.",
+            "Promotes environmental mindfulness and sustainable living."
+        ],
+        referenceLinks: [
+            { title: "Ayurvedic Guide to Seasonal Eating", url: "#" },
+            { title: "Harmonizing with Nature's Rhythms", url: "#" }
+        ]
     }
 ];

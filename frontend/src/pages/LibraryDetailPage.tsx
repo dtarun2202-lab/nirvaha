@@ -28,6 +28,11 @@ const LibraryDetailPage: React.FC = () => {
 
             {/* Fixed ambient background */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15 mix-blend-luminosity" 
+                  style={{ backgroundImage: `url(${item.image})` }} 
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0a0f0c]/80 via-[#0a0f0c]/90 to-[#0a0f0c] z-0" />
                 <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-[#d4af37]/5 rounded-full blur-[120px]" />
                 <div className="absolute top-1/2 -right-48 w-[500px] h-[500px] bg-emerald-900/20 rounded-full blur-[100px]" />
                 <div className="absolute bottom-0 -left-32 w-[400px] h-[400px] bg-[#d4af37]/5 rounded-full blur-[100px]" />
