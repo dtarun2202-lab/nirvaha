@@ -158,11 +158,11 @@ const CommunityHero = () => {
           transition={{ duration: 2, ease: "easeOut" }}
         >
           <h1 
-            className="flex flex-col md:flex-row items-center justify-center text-5xl md:text-7xl lg:text-8xl font-black text-emerald-950 drop-shadow-[0_4px_20px_rgba(255,255,255,0.8)] tracking-tighter leading-tight"
+            className="flex flex-col md:flex-row items-center justify-center text-5xl md:text-7xl lg:text-8xl font-black text-emerald-950 drop-shadow-[0_4px_20px_rgba(255,255,255,0.8)] tracking-tighter leading-tight w-full max-w-6xl mx-auto"
             style={{ fontFamily: "'Cinzel', serif" }}
           >
-            <span className="whitespace-nowrap md:mr-4">FIND YOUR</span>
-            <span className="text-emerald-800 inline-flex justify-center min-w-[280px] md:min-w-[380px] lg:min-w-[480px]">
+            <span className="whitespace-nowrap md:w-1/2 md:text-right md:pr-4">FIND YOUR</span>
+            <span className="text-emerald-800 inline-flex justify-center md:justify-start md:w-1/2 md:pl-16 mt-2 md:mt-0">
               <AnimatePresence mode="wait">
                 <motion.span
                   key={phraseIndex}
