@@ -21,7 +21,7 @@ echo ================================
 echo All services are starting!
 echo ================================
 echo.
-echo Backend:  http://localhost:5000
+echo Backend:  http://localhost:5001
 echo Frontend: http://localhost:3000 or http://localhost:5173
 echo.
 echo Press any key to close this window...
