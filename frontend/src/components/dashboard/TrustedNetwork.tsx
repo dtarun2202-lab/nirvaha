@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Play, Pause, ExternalLink, Music } from 'lucide-react';
+import { X, Play, Pause, ExternalLink, Music, Link, Share2 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
-// Data – each card has 3 thematically related sounds
+// Data – each card has 9 unique thematically related sounds
 // ---------------------------------------------------------------------------
 const ADS_DATA = [
   {
@@ -36,6 +36,48 @@ const ADS_DATA = [
         icon: "🕊️",
         description: "Powerful Sanskrit chants for universal peace",
         url: "/audio/anxiety-crystal-bowl.mp3",
+      },
+      {
+        id: "v4",
+        label: "Gayatri Mantra",
+        icon: "☀️",
+        description: "Sacred chant for wisdom and enlightenment",
+        url: "/audio/eposide 1 gita 3.mp3.mp3",
+      },
+      {
+        id: "v5",
+        label: "Rudra Chamakam",
+        icon: "🔥",
+        description: "Vedic hymn invoking cosmic energies",
+        url: "/audio/eposide 2 gita ch 2.mp3.mp3",
+      },
+      {
+        id: "v6",
+        label: "Om Chanting",
+        icon: "🕉️",
+        description: "Primordial sound of the universe",
+        url: "/audio/eposiode 3 gita ch 4.mp3.mp3",
+      },
+      {
+        id: "v7",
+        label: "Saraswati Vandana",
+        icon: "🎶",
+        description: "Prayer for knowledge and arts",
+        url: "/audio/eposide 4 gita ch 5.mp3.mp3",
+      },
+      {
+        id: "v8",
+        label: "Durga Suktam",
+        icon: "🛡️",
+        description: "Vedic prayer for protection and strength",
+        url: "/audio/eposide 5 gita ch 6.mp3.mp3",
+      },
+      {
+        id: "v9",
+        label: "Sacred Sound Bath",
+        icon: "🥣",
+        description: "Deep resonance healing bowl soundscape",
+        url: "/audio/isolated-sound-bath.mp3",
       },
     ],
     delay: 0,
@@ -71,6 +113,48 @@ const ADS_DATA = [
         description: "Peaceful Music Orchestra · Peace of Mind · JioSaavn",
         url: "/audio/sleep/Moonlight-Lullaby.mp3",
       },
+      {
+        id: "m4",
+        label: "Deep Breath Meditation",
+        icon: "💨",
+        description: "Guided breathing rhythms for calm",
+        url: "/audio/focus/Minimal-Nature-Sounds.mp3",
+      },
+      {
+        id: "m5",
+        label: "Sunrise Meditation",
+        icon: "🌅",
+        description: "Gentle music for morning awareness",
+        url: "/audio/stress/Ocean-Waves-Calm.mp3",
+      },
+      {
+        id: "m6",
+        label: "Yoga Nidra Flow",
+        icon: "🧘",
+        description: "Deep relaxation and sleep meditation",
+        url: "/audio/sleep/Starlit-Delta-Waves.mp3",
+      },
+      {
+        id: "m7",
+        label: "Forest Stream",
+        icon: "🌲",
+        description: "Nature sounds for mindfulness focus",
+        url: "/audio/stress-nature.mp3",
+      },
+      {
+        id: "m8",
+        label: "Raindrops for Calm",
+        icon: "🌧️",
+        description: "Gentle rain sounds for stress relief",
+        url: "/audio/stress/Gentle-Rain-Drops.mp3",
+      },
+      {
+        id: "m9",
+        label: "Soft Meadow Breeze",
+        icon: "🍃",
+        description: "Calm wind and nature ambiance",
+        url: "/audio/anxiety/Soft-Meadow-Breeze.mp3",
+      },
     ],
     delay: 1.5,
   },
@@ -102,6 +186,7 @@ const WaveformBars = ({ color }: { color: string }) => {
 export const TrustedNetwork = () => {
   const [openAdId, setOpenAdId] = useState<number | null>(null);
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Initialise single shared audio element
@@ -129,6 +214,31 @@ export const TrustedNetwork = () => {
     }
   }, [openAdId]);
 
+  // Handle sound query param on load to auto-play shared sounds
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const soundParam = params.get("sound");
+    if (soundParam) {
+      const matchedCard = ADS_DATA.find((ad) => ad.sounds.some((s) => s.id === soundParam));
+      if (matchedCard) {
+        setOpenAdId(matchedCard.id);
+        const matchedSound = matchedCard.sounds.find((s) => s.id === soundParam);
+        if (matchedSound && audioRef.current) {
+          audioRef.current.src = matchedSound.url;
+          audioRef.current.currentTime = 0;
+          setTimeout(() => {
+            if (audioRef.current) {
+              audioRef.current.play().catch((err) => {
+                console.log("Auto-play blocked by browser. Interaction needed:", err);
+              });
+            }
+          }, 300);
+          setPlayingTrackId(soundParam);
+        }
+      }
+    }
+  }, []);
+
   const handleTrackClick = (trackId: string, url: string) => {
     if (!audioRef.current) return;
 
@@ -147,6 +257,35 @@ export const TrustedNetwork = () => {
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(console.error);
       setPlayingTrackId(trackId);
+    }
+  };
+
+  const handleCopyLink = (trackId: string, trackLabel: string) => {
+    const shareUrl = `${window.location.origin}${window.location.pathname}?sound=${trackId}`;
+    navigator.clipboard.writeText(shareUrl)
+      .then(() => {
+        setToastMessage(`Copied link for ${trackLabel}!`);
+        setTimeout(() => setToastMessage(null), 2500);
+      })
+      .catch((err) => console.error("Failed to copy link:", err));
+  };
+
+  const handleShare = async (trackId: string, trackLabel: string) => {
+    const shareUrl = `${window.location.origin}${window.location.pathname}?sound=${trackId}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Listen to ${trackLabel} on Nirvaha`,
+          text: `Check out this sound: ${trackLabel}`,
+          url: shareUrl,
+        });
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      setToastMessage(`Link copied to clipboard for sharing!`);
+      setTimeout(() => setToastMessage(null), 2500);
     }
   };
 
@@ -221,7 +360,7 @@ export const TrustedNetwork = () => {
               </div>
 
               {/* Modal body */}
-              <div className="px-6 pb-6 pt-4">
+              <div className="px-6 pb-6 pt-4 max-h-[calc(100vh-14rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10">
                 <h3 className="text-xl font-['Cinzel'] text-white mb-1">{openAd.alt}</h3>
                 <p className="text-sm mb-6" style={{ color: openAd.accent + "bb" }}>
                   {openAd.description}
@@ -232,7 +371,7 @@ export const TrustedNetwork = () => {
                   {openAd.sounds.map((track) => {
                     const isPlaying = playingTrackId === track.id;
                     return (
-                      <div key={track.id} className="flex flex-col items-center w-full max-w-[100px]">
+                      <div key={track.id} className="flex flex-col items-center w-full max-w-[100px] mb-2">
                         {/* 3D Button Container */}
                         <div className="relative h-20 flex items-center justify-center">
                           {/* Pulsing ring behind button when playing */}
@@ -285,9 +424,35 @@ export const TrustedNetwork = () => {
                         <span className="text-[11px] font-semibold text-[#FAFAF8] mt-2 tracking-wide text-center truncate w-full px-1">
                           {track.label}
                         </span>
-                        <span className="text-[9px] text-[#A8C7B4] opacity-75 mt-0.5 text-center leading-tight line-clamp-2 px-0.5">
+                        <span className="text-[9px] text-[#A8C7B4] opacity-75 mt-0.5 text-center leading-tight line-clamp-2 px-0.5 h-6">
                           {track.description}
                         </span>
+
+                        {/* Action Buttons (Share, Copy Link) */}
+                        <div className="flex gap-1.5 mt-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCopyLink(track.id, track.label);
+                            }}
+                            className="p-1 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white transition-all active:scale-95"
+                            title="Copy Link"
+                            aria-label="Copy Link"
+                          >
+                            <Link className="w-3 h-3" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleShare(track.id, track.label);
+                            }}
+                            className="p-1 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white transition-all active:scale-95"
+                            title="Share Sound"
+                            aria-label="Share Sound"
+                          >
+                            <Share2 className="w-3 h-3" />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -340,6 +505,20 @@ export const TrustedNetwork = () => {
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               </div>
+
+              {/* Toast Notification */}
+              <AnimatePresence>
+                {toastMessage && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 15 }}
+                    className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg bg-black/90 border border-white/20 text-white text-xs font-semibold shadow-2xl backdrop-blur-md pointer-events-none z-[10000] text-center whitespace-nowrap"
+                  >
+                    {toastMessage}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           </motion.div>
         )}
@@ -413,7 +592,7 @@ export const TrustedNetwork = () => {
                       </div>
                     </div>
 
-                    {/* "3 Sounds" badge */}
+                    {/* "9 Sounds" badge */}
                     <div
                       className="absolute top-3 right-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"
                       style={{
@@ -423,7 +602,7 @@ export const TrustedNetwork = () => {
                         backdropFilter: "blur(6px)",
                       }}
                     >
-                      3 Sounds
+                      9 Sounds
                     </div>
                   </button>
 
