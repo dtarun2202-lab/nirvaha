@@ -227,80 +227,102 @@ export const TrustedNetwork = () => {
                   {openAd.description}
                 </p>
 
-                {/* Track list */}
-                <div className="flex flex-col gap-3">
+                {/* 3D Soundboard Buttons Grid (Myinstants Style) */}
+                <div className="grid grid-cols-3 gap-3 sm:gap-4 justify-items-center mb-4 pt-2">
                   {openAd.sounds.map((track) => {
                     const isPlaying = playingTrackId === track.id;
                     return (
-                      <motion.button
-                        key={track.id}
-                        onClick={() => handleTrackClick(track.id, track.url)}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full text-left flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300 relative overflow-hidden"
-                        style={{
-                          background: isPlaying ? `${openAd.accent}18` : "rgba(255,255,255,0.04)",
-                          border: `1px solid ${isPlaying ? openAd.accent + "55" : "rgba(255,255,255,0.07)"}`,
-                        }}
-                      >
-                        {/* Playing shimmer */}
-                        {isPlaying && (
-                          <motion.div
-                            className="absolute inset-0 pointer-events-none"
-                            animate={{ opacity: [0, 0.08, 0] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                            style={{ background: `radial-gradient(ellipse at center, ${openAd.accent}, transparent)` }}
-                          />
-                        )}
-
-                        {/* Icon / Play-Pause button */}
-                        <div
-                          className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 text-lg relative"
-                          style={{
-                            background: isPlaying ? openAd.accent + "33" : "rgba(255,255,255,0.06)",
-                            border: `1px solid ${isPlaying ? openAd.accent + "66" : "rgba(255,255,255,0.08)"}`,
-                          }}
-                        >
-                          {isPlaying ? (
-                            <Pause className="w-4 h-4" style={{ color: openAd.accent }} />
-                          ) : (
-                            <span className="text-base">{track.icon}</span>
+                      <div key={track.id} className="flex flex-col items-center w-full max-w-[100px]">
+                        {/* 3D Button Container */}
+                        <div className="relative h-20 flex items-center justify-center">
+                          {/* Pulsing ring behind button when playing */}
+                          {isPlaying && (
+                            <>
+                              <motion.div
+                                className="absolute inset-[-6px] rounded-full border border-dashed opacity-60 pointer-events-none"
+                                style={{ borderColor: openAd.accent }}
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                              />
+                              <motion.div
+                                className="absolute inset-0 rounded-full blur-md opacity-40 pointer-events-none"
+                                style={{ background: openAd.accent }}
+                                animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
+                                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                              />
+                            </>
                           )}
-                        </div>
 
-                        {/* Labels + waveform */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-sm font-semibold text-white truncate">{track.label}</span>
-                            {isPlaying && (
-                              <span
-                                className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full flex-shrink-0"
-                                style={{ background: openAd.accent + "22", color: openAd.accent }}
-                              >
-                                Now Playing
-                              </span>
-                            )}
-                          </div>
-                          {isPlaying ? (
-                            <WaveformBars color={openAd.accent} />
-                          ) : (
-                            <span className="text-xs text-white/40">{track.description}</span>
-                          )}
-                        </div>
-
-                        {/* Right play icon (when not playing) */}
-                        {!isPlaying && (
-                          <div
-                            className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                            style={{ background: openAd.accent + "18" }}
+                          {/* The 3D Button */}
+                          <motion.button
+                            onClick={() => handleTrackClick(track.id, track.url)}
+                            whileHover={{ scale: isPlaying ? 1 : 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            animate={{
+                              y: isPlaying ? 6 : 0,
+                              boxShadow: isPlaying
+                                ? `0 2px 0 rgba(0,0,0,0.8), inset 0 2px 4px rgba(0,0,0,0.5)`
+                                : `0 8px 0 rgba(0,0,0,0.6), inset 0 4px 6px rgba(255,255,255,0.3), inset 0 -4px 6px rgba(0,0,0,0.3)`,
+                            }}
+                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center cursor-pointer relative overflow-hidden select-none outline-none focus:outline-none"
+                            style={{
+                              background: `linear-gradient(135deg, ${openAd.accent} 0%, ${openAd.accent}dd 60%, ${openAd.accent}aa 100%)`,
+                            }}
+                            aria-label={`Play ${track.label}`}
                           >
-                            <Play className="w-3 h-3 ml-0.5" style={{ color: openAd.accent }} />
-                          </div>
-                        )}
-                      </motion.button>
+                            {/* Shiny gloss overlay */}
+                            <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/25 to-transparent rounded-t-full pointer-events-none" />
+                            
+                            {/* Emoji Icon */}
+                            <span className="text-xl sm:text-2xl filter drop-shadow-[0_2px_2px_rgba(0,0,0,0.4)] select-none">
+                              {track.icon}
+                            </span>
+                          </motion.button>
+                        </div>
+
+                        {/* Labels */}
+                        <span className="text-[11px] font-semibold text-[#FAFAF8] mt-2 tracking-wide text-center truncate w-full px-1">
+                          {track.label}
+                        </span>
+                        <span className="text-[9px] text-[#A8C7B4] opacity-75 mt-0.5 text-center leading-tight line-clamp-2 px-0.5">
+                          {track.description}
+                        </span>
+                      </div>
                     );
                   })}
                 </div>
+
+                {/* Now Playing visualizer bar */}
+                <AnimatePresence>
+                  {playingTrackId && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0, y: 10 }}
+                      animate={{ opacity: 1, height: "auto", y: 0 }}
+                      exit={{ opacity: 0, height: 0, y: 10 }}
+                      className="mt-2 mb-4 p-3 rounded-2xl flex items-center justify-between border backdrop-blur-md overflow-hidden"
+                      style={{
+                        background: `${openAd.accent}12`,
+                        borderColor: `${openAd.accent}33`,
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl select-none">
+                          {openAd.sounds.find((s) => s.id === playingTrackId)?.icon}
+                        </span>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] uppercase font-bold tracking-wider" style={{ color: openAd.accent }}>
+                            Now Playing
+                          </span>
+                          <span className="text-xs font-semibold text-white truncate max-w-[180px]">
+                            {openAd.sounds.find((s) => s.id === playingTrackId)?.label}
+                          </span>
+                        </div>
+                      </div>
+                      <WaveformBars color={openAd.accent} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 {/* External link CTA */}
                 <a
