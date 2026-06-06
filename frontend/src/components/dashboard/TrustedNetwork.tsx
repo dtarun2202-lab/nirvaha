@@ -42,42 +42,42 @@ const ADS_DATA = [
         label: "Gayatri Mantra",
         icon: "☀️",
         description: "Sacred chant for wisdom and enlightenment",
-        url: "/audio/eposide 1 gita 3.mp3.mp3",
+        url: "/audio/meditation/Crystal-Frequency-Healing.mp3",
       },
       {
         id: "v5",
         label: "Rudra Chamakam",
         icon: "🔥",
         description: "Vedic hymn invoking cosmic energies",
-        url: "/audio/eposide 2 gita ch 2.mp3.mp3",
+        url: "/audio/emotional/Healing-Bowls.mp3",
       },
       {
         id: "v6",
         label: "Om Chanting",
         icon: "🕉️",
         description: "Primordial sound of the universe",
-        url: "/audio/eposiode 3 gita ch 4.mp3.mp3",
+        url: "/audio/meditation/Indoor-Calm-Meditation.mp3",
       },
       {
         id: "v7",
         label: "Saraswati Vandana",
         icon: "🎶",
         description: "Prayer for knowledge and arts",
-        url: "/audio/eposide 4 gita ch 5.mp3.mp3",
+        url: "/audio/emotional/Chakra-Harmony.mp3",
       },
       {
         id: "v8",
         label: "Durga Suktam",
         icon: "🛡️",
         description: "Vedic prayer for protection and strength",
-        url: "/audio/eposide 5 gita ch 6.mp3.mp3",
+        url: "/audio/emotional/Sacred-Geometry.mp3",
       },
       {
         id: "v9",
         label: "Sacred Sound Bath",
         icon: "🥣",
         description: "Deep resonance healing bowl soundscape",
-        url: "/audio/isolated-sound-bath.mp3",
+        url: "/audio/burnout-432hz.mp3",
       },
     ],
     delay: 0,
@@ -314,7 +314,7 @@ export const TrustedNetwork = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.88, opacity: 0, y: 30 }}
               transition={{ type: "spring", stiffness: 280, damping: 26 }}
-              className="relative w-full max-w-lg rounded-[2rem] overflow-hidden"
+              className="relative w-full max-w-2xl rounded-[2rem] overflow-hidden"
               style={{
                 background: "linear-gradient(145deg, #0F1F17 0%, #091510 100%)",
                 border: `1px solid ${openAd.accent}33`,
@@ -367,11 +367,11 @@ export const TrustedNetwork = () => {
                 </p>
 
                 {/* 3D Soundboard Buttons Grid (Myinstants Style) */}
-                <div className="grid grid-cols-3 gap-3 sm:gap-4 justify-items-center mb-4 pt-2">
+                <div className="grid grid-cols-3 gap-4 sm:gap-5 justify-items-center mb-4 pt-2">
                   {openAd.sounds.map((track) => {
                     const isPlaying = playingTrackId === track.id;
                     return (
-                      <div key={track.id} className="flex flex-col items-center w-full max-w-[100px] mb-2">
+                      <div key={track.id} className="flex flex-col items-center w-full max-w-[120px] mb-2">
                         {/* 3D Button Container */}
                         <div className="relative h-20 flex items-center justify-center">
                           {/* Pulsing ring behind button when playing */}
