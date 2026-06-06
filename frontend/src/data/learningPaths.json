@@ -1,0 +1,100 @@
+{
+  "learningPaths": [
+    {
+      "id": "emotional-awareness-foundations",
+      "title": "Emotional Awareness Foundations",
+      "description": "Build emotional clarity, awareness, and understanding of emotional patterns and triggers.",
+      "skillLevel": "Beginner",
+      "duration": "4 Weeks",
+      "modules": []
+    },
+    {
+      "id": "conscious-communication",
+      "title": "Conscious Communication",
+      "description": "Learn calm communication, active listening, healthy emotional expression, and reflective dialogue.",
+      "skillLevel": "Intermediate",
+      "duration": "5 Weeks",
+      "modules": []
+    },
+    {
+      "id": "inner-balance-emotional-stability",
+      "title": "Inner Balance & Emotional Stability",
+      "description": "Develop grounding practices, emotional resilience, and sustainable inner stability.",
+      "skillLevel": "Intermediate",
+      "duration": "6 Weeks",
+      "modules": []
+    },
+    {
+      "id": "reflective-thinking-self-awareness",
+      "title": "Reflective Thinking & Self-Awareness",
+      "description": "Strengthen self-observation, reflective thinking, and conscious decision-making.",
+      "skillLevel": "Intermediate",
+      "duration": "5 Weeks",
+      "modules": []
+    },
+    {
+      "id": "mindful-digital-living",
+      "title": "Mindful Digital Living",
+      "description": "Build healthier digital habits and reduce emotional overstimulation from technology.",
+      "skillLevel": "Beginner",
+      "duration": "3 Weeks",
+      "modules": []
+    },
+    {
+      "id": "emotional-intelligence-for-students",
+      "title": "Emotional Intelligence for Students",
+      "description": "Help students build focus, emotional resilience, confidence, and academic balance.",
+      "skillLevel": "Beginner",
+      "duration": "4 Weeks",
+      "modules": []
+    },
+    {
+      "id": "workplace-emotional-intelligence",
+      "title": "Workplace Emotional Intelligence",
+      "description": "Develop emotional intelligence for professional environments, teamwork, and calm productivity.",
+      "skillLevel": "Intermediate",
+      "duration": "5 Weeks",
+      "modules": []
+    },
+    {
+      "id": "calm-leadership-presence",
+      "title": "Calm Leadership & Presence",
+      "description": "Learn presence-based leadership, emotional influence, and compassionate leadership practices.",
+      "skillLevel": "Advanced",
+      "duration": "6 Weeks",
+      "modules": []
+    },
+    {
+      "id": "reflection-journaling-mastery",
+      "title": "Reflection & Journaling Mastery",
+      "description": "Use reflective writing and journaling practices for emotional clarity and growth.",
+      "skillLevel": "Beginner",
+      "duration": "4 Weeks",
+      "modules": []
+    },
+    {
+      "id": "relationships-emotional-connection",
+      "title": "Relationships & Emotional Connection",
+      "description": "Build emotionally healthy, compassionate, and meaningful relationships.",
+      "skillLevel": "Intermediate",
+      "duration": "5 Weeks",
+      "modules": []
+    },
+    {
+      "id": "ai-reflection-companion-mastery",
+      "title": "AI Reflection Companion Mastery",
+      "description": "Explore AI-guided emotional reflection, growth tracking, and reflective wellness interactions.",
+      "skillLevel": "Advanced",
+      "duration": "4 Weeks",
+      "modules": []
+    },
+    {
+      "id": "conscious-growth-journey",
+      "title": "Conscious Growth Journey",
+      "description": "Navigate identity awareness, emotional alignment, purpose exploration, and sustainable personal transformation.",
+      "skillLevel": "Advanced",
+      "duration": "8 Weeks",
+      "modules": []
+    }
+  ]
+}

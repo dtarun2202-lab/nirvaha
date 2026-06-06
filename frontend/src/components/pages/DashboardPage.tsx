@@ -11,6 +11,7 @@ import { CommonProblems } from "../dashboard/CommonProblems";
 
 import { TrustedNetwork } from "../dashboard/TrustedNetwork";
 import { WellnessOTT } from "../dashboard/WellnessOTT";
+import CertificationCoursesSection from "../dashboard/CertificationCoursesSection";
 import { GamingHubSection } from "../GamingHubSection";
 import { ChakraSection } from "../dashboard/ChakraSection";
 import { InspirationalQuotes } from "../dashboard/InspirationalQuotes";
@@ -229,6 +230,7 @@ export function DashboardPage() {
       <CommonProblems />
 
       <WellnessOTT />
+      <CertificationCoursesSection />
       <div id="gaming-hub">
         <GamingHubSection />
       </div>

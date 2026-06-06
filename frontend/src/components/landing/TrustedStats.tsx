@@ -1,14 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import DecorativeShapes from './DecorativeShapes';
+import BACKEND_CONFIG from '../../config/backend';
+
+const defaultPartners = [
+    { name: "Google", logo: "https://www.vectorlogo.zone/logos/google/google-ar21.svg", url: "https://www.google.com" },
+    { name: "Microsoft", logo: "https://www.vectorlogo.zone/logos/microsoft/microsoft-ar21.svg", url: "https://www.microsoft.com" },
+    { name: "Amazon", logo: "https://www.vectorlogo.zone/logos/amazon/amazon-ar21.svg", url: "https://www.amazon.com" },
+    { name: "Deloitte", logo: "/deloitte.png", url: "https://www.deloitte.com" }
+];
 
 const TrustedStats: React.FC = () => {
-    const partners = [
-        { name: "Google", logo: "https://www.vectorlogo.zone/logos/google/google-ar21.svg", url: "https://www.google.com" },
-        { name: "Microsoft", logo: "https://www.vectorlogo.zone/logos/microsoft/microsoft-ar21.svg", url: "https://www.microsoft.com" },
-        { name: "Amazon", logo: "https://www.vectorlogo.zone/logos/amazon/amazon-ar21.svg", url: "https://www.amazon.com" },
-        { name: "Deloitte", logo: "/deloitte.png", url: "https://www.deloitte.com" }
-    ];
+    const [partners, setPartners] = useState(defaultPartners);
+
+    useEffect(() => {
+        const fetchPartners = async () => {
+            try {
+                const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/content/landing_partners`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.value) {
+                        const parsed = JSON.parse(data.value);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            const mapped = parsed.map((p: any) => ({
+                                name: p.name,
+                                logo: p.logo || p.logoUrl,
+                                url: p.url || p.websiteUrl
+                            }));
+                            setPartners(mapped);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Failed to fetch partners/stats from backend", err);
+            }
+        };
+        fetchPartners();
+    }, []);
 
     return (
         <section className="w-full bg-[#eaf5ef] pt-10 pb-16 relative z-20 overflow-hidden">

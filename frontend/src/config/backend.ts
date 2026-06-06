@@ -4,9 +4,8 @@ export const BACKEND_CONFIG = {
   API_URL: 'https://nirvaha-5cqj.onrender.com',
   SOCKET_URL: 'https://nirvaha-5cqj.onrender.com',
 
-  // Local development URL (prioritized for development)
-  LOCAL_API_URL: import.meta.env.VITE_API_BASE_URL || 'https://nirvaha-5cqj.onrender.com',
-  LOCAL_SOCKET_URL: import.meta.env.VITE_API_BASE_URL || 'https://nirvaha-5cqj.onrender.com',
+  LOCAL_API_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001',
+  LOCAL_SOCKET_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001',
 
   // Check if we're in development mode (localhost or 127.0.0.1)
   IS_DEVELOPMENT:

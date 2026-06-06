@@ -3,12 +3,12 @@ import {
   Send,
   Mic,
   Leaf,
+  MessageCircle,
   MessageSquare,
   Settings,
   User,
   Trash2,
   ChevronLeft,
-  BrainCircuit,
   X,
   Download,
   Loader2,
@@ -1059,7 +1059,7 @@ export function ChatbotPage() {
                   <div className={`flex gap-4 max-w-[75%] ${msg.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                     {msg.type === 'ai' && (
                       <div className="w-8 h-8 rounded-lg bg-[#F0F7F4] flex items-center justify-center shrink-0 mt-1">
-                        <BrainCircuit className="w-5 h-5 text-[#2D6A4F]" />
+                        <MessageCircle className="w-5 h-5 text-[#2D6A4F]" />
                       </div>
                     )}
                     <div className={`flex flex-col gap-1.5 ${msg.type === 'user' ? 'items-end' : 'items-start'}`}>
@@ -1080,7 +1080,7 @@ export function ChatbotPage() {
               {isTyping && (
                 <div className="flex gap-4">
                   <div className="w-8 h-8 rounded-lg bg-[#F0F7F4] flex items-center justify-center shrink-0">
-                    <BrainCircuit className="w-5 h-5 text-[#2D6A4F]" />
+                    <MessageCircle className="w-5 h-5 text-[#2D6A4F]" />
                   </div>
                   <div className="bg-[#F8FAF9] border border-gray-100 rounded-2xl rounded-tl-none px-4 py-3 flex gap-1 items-center">
                     <span className="w-1.5 h-1.5 bg-[#2D6A4F]/40 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
