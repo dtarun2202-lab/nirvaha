@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import DecorativeShapes from './DecorativeShapes';
+import BACKEND_CONFIG from '../../config/backend';
 
 const defaultLibraryItems = [
     { 
@@ -102,28 +103,51 @@ const defaultLibraryItems = [
     }
 ];
 
-
 const LibraryCarousel: React.FC = () => {
     const navigate = useNavigate();
     const [libraryItems, setLibraryItems] = useState(defaultLibraryItems);
 
-    // Load library items from localStorage
     useEffect(() => {
-        const savedLibrary = localStorage.getItem("nirvaha_library");
-        if (savedLibrary) {
+        const fetchLibrary = async () => {
             try {
-                const parsed = JSON.parse(savedLibrary);
-                // Merge with default items to ensure stories are present
-                const merged = defaultLibraryItems.map(def => {
-                    const saved = parsed.find((p: any) => p.title === def.title);
-                    return saved ? { ...def, ...saved } : def;
-                });
-                setLibraryItems(merged);
-            } catch (e) {
-                console.error("Failed to load library items from localStorage", e);
-                setLibraryItems(defaultLibraryItems);
+                const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/content/landing_library`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.value) {
+                        const parsed = JSON.parse(data.value);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            // Merge with default items to ensure stories or other missing fields are present
+                            const merged = defaultLibraryItems.map(def => {
+                                const saved = parsed.find((p: any) => p.title === def.title);
+                                return saved ? { ...def, ...saved } : def;
+                            });
+                            setLibraryItems(merged);
+                            return;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Failed to fetch library from backend, trying localStorage", err);
             }
-        }
+
+            // Fallback to localStorage
+            const savedLibrary = localStorage.getItem("nirvaha_library");
+            if (savedLibrary) {
+                try {
+                    const parsed = JSON.parse(savedLibrary);
+                    const merged = defaultLibraryItems.map(def => {
+                        const saved = parsed.find((p: any) => p.title === def.title);
+                        return saved ? { ...def, ...saved } : def;
+                    });
+                    setLibraryItems(merged);
+                } catch (e) {
+                    console.error("Failed to load library items from localStorage", e);
+                    setLibraryItems(defaultLibraryItems);
+                }
+            }
+        };
+
+        fetchLibrary();
     }, []);
 
     return (

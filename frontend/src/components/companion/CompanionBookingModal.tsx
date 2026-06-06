@@ -362,7 +362,7 @@ const CompanionBookingModal: React.FC<CompanionBookingModalProps> = ({
                             </div>
                           </div>
                           <p className="text-xs text-emerald-600 font-medium mb-2">{m.title}</p>
-                          <p className="text-[10px] text-emerald-800/40 font-bold">{m.price} / session</p>
+                          <p className="text-[10px] text-emerald-800/60 font-bold">{m.price} / session</p>
                         </div>
                       </motion.div>
                     ))}

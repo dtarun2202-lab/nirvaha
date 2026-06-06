@@ -55,14 +55,14 @@ const STATIC_PROBLEMS = [
         description: "Feeling exhausted and overwhelmed from work or life demands?",
         solutions: ["Practice daily meditation", "Set healthy boundaries", "Take regular breaks", "Engage in sound healing"],
         recommendations: [
-            { icon: Clock, text: "Burnout Rest Session" },
-            { icon: Headphones, text: "Energy Reset Frequency" },
-            { icon: MessageCircle, text: "Talk to Recovery Coach" },
-            { icon: Calendar, text: "Book Rest Session" }
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
         ]
     },
     {
-        title: "Stress",
+        title: "Excess Stress",
         icon: Zap,
         color: "text-green-600",
         bgColor: "bg-green-50",
@@ -78,10 +78,10 @@ const STATIC_PROBLEMS = [
         description: "Chronic stress can impact your health and productivity.",
         solutions: ["Breathing exercises", "Mindfulness practices", "Regular physical activity", "Connect with AI companion"],
         recommendations: [
-            { icon: Clock, text: "Stress Relief Session" },
-            { icon: Headphones, text: "Calming Nature Sounds" },
-            { icon: MessageCircle, text: "Stress Management Tips" },
-            { icon: Calendar, text: "Book Stress Session" }
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
         ]
     },
     {
@@ -101,10 +101,10 @@ const STATIC_PROBLEMS = [
         description: "Quality sleep is essential for recovery and mental clarity.",
         solutions: ["Sleep meditation tracks", "Calming frequencies", "Evening routines", "Binaural beats"],
         recommendations: [
-            { icon: Clock, text: "Deep Sleep Session" },
-            { icon: Headphones, text: "Delta Wave Frequency" },
-            { icon: MessageCircle, text: "Sleep Coach Chat" },
-            { icon: Calendar, text: "Book Sleep Session" }
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
         ]
     },
     {
@@ -124,10 +124,10 @@ const STATIC_PROBLEMS = [
         description: "Anxiety can feel overwhelming, but you can find peace.",
         solutions: ["Guided anxiety relief", "Grounding techniques", "Crystal bowl therapy", "Community support"],
         recommendations: [
-            { icon: Clock, text: "Anxiety Relief Session" },
-            { icon: Headphones, text: "Grounding Frequency" },
-            { icon: MessageCircle, text: "Talk to Anxiety Coach" },
-            { icon: Calendar, text: "Book Grounding Session" }
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
         ]
     },
     {
@@ -147,10 +147,10 @@ const STATIC_PROBLEMS = [
         description: "Emotional fluctuations affect your daily life.",
         solutions: ["Chakra balancing", "Emotional regulation", "Journaling exercises", "Companion sessions"],
         recommendations: [
-            { icon: Clock, text: "Mood Stabilization Session" },
-            { icon: Headphones, text: "Heart Balance Frequency" },
-            { icon: MessageCircle, text: "Emotional Regulation Tips" },
-            { icon: Calendar, text: "Book Emotion Session" }
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
         ]
     },
     {
@@ -170,10 +170,10 @@ const STATIC_PROBLEMS = [
         description: "Connection is a fundamental human need.",
         solutions: ["Join community groups", "Attend live sessions", "Connect with companions", "Group retreats"],
         recommendations: [
-            { icon: Clock, text: "Connection Session" },
-            { icon: Headphones, text: "Connection Healing Frequency" },
-            { icon: MessageCircle, text: "Join Companion Chat" },
-            { icon: Calendar, text: "Book Group Session" }
+            { icon: Headphones, text: "Stress Relief Meditation" },
+            { icon: Play, text: "432 Hz Healing Frequency" },
+            { icon: MessageCircle, text: "Talk to AI Companion" },
+            { icon: Calendar, text: "Book 1:1 Session" }
         ]
     },
 ];

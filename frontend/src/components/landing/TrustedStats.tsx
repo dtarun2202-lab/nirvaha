@@ -1,6 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import DecorativeShapes from './DecorativeShapes';
+import BACKEND_CONFIG from '../../config/backend';
+
+const defaultPartners = [
+    { name: "Google", logo: "https://www.vectorlogo.zone/logos/google/google-ar21.svg", url: "https://www.google.com" },
+    { name: "Microsoft", logo: "https://www.vectorlogo.zone/logos/microsoft/microsoft-ar21.svg", url: "https://www.microsoft.com" },
+    { name: "Amazon", logo: "https://www.vectorlogo.zone/logos/amazon/amazon-ar21.svg", url: "https://www.amazon.com" },
+    { name: "Adobe", logo: "https://www.vectorlogo.zone/logos/adobe/adobe-ar21.svg", url: "https://www.adobe.com" }
+];
 
 const TrustedStats: React.FC = () => {
     const partners = [

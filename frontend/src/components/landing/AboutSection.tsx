@@ -105,12 +105,12 @@ const AboutSection: React.FC = () => {
                                             transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 15 }}
                                             onClick={() => {
                                                 let targetRoute = '/stories'; // Default
-                                                if (activeSlide.buttonText === 'Explore Tech') targetRoute = '/pathways';
+                                                if (activeSlide.buttonText === 'Explore Tech') targetRoute = '/certifications';
                                                 if (activeSlide.buttonText === 'Meet Your Guide') targetRoute = '/dashboard/chatbot';
                                                 if (activeSlide.buttonText === 'Start Healing') targetRoute = '/dashboard/meditation';
                                                 if (activeSlide.buttonText === 'Join the Circle') targetRoute = '/dashboard/community';
 
-                                                if (!user) {
+                                                if (!user && targetRoute.startsWith('/dashboard')) {
                                                     sessionStorage.setItem("redirectUrl", targetRoute);
                                                     navigate("/login");
                                                 } else {
@@ -119,7 +119,7 @@ const AboutSection: React.FC = () => {
                                             }}
                                             className="pointer-events-auto w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-[#1a5d47] text-white flex items-center justify-center text-center p-4 shadow-[0_0_40px_rgba(26,93,71,0.5)] border-2 border-white/30 backdrop-blur-sm transition-transform hover:scale-110 active:scale-95 group/btn"
                                         >
-                                            <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] leading-tight group-hover/btn:scale-110 transition-transform">
+                                            <span className="text-sm sm:text-base font-black uppercase tracking-[0.2em] leading-tight text-white group-hover/btn:scale-110 transition-transform">
                                                 {activeSlide.buttonText}
                                             </span>
                                             {/* Circular Glow Effect */}
@@ -192,12 +192,12 @@ const AboutSection: React.FC = () => {
                                         whileTap={{ scale: 0.95 }}
                                         onClick={() => {
                                             let targetRoute = '/stories'; // Default
-                                            if (activeSlide.buttonText === 'Explore Tech') targetRoute = '/pathways';
+                                            if (activeSlide.buttonText === 'Explore Tech') targetRoute = '/certifications';
                                             if (activeSlide.buttonText === 'Meet Your Guide') targetRoute = '/dashboard/chatbot';
                                             if (activeSlide.buttonText === 'Start Healing') targetRoute = '/dashboard/meditation';
                                             if (activeSlide.buttonText === 'Join the Circle') targetRoute = '/dashboard/community';
 
-                                            if (!user) {
+                                            if (!user && targetRoute.startsWith('/dashboard')) {
                                                 sessionStorage.setItem("redirectUrl", targetRoute);
                                                 navigate("/login");
                                             } else {
