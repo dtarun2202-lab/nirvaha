@@ -293,31 +293,20 @@ export function ChatbotPage() {
     }
   };
 
-  const handleExportHistory = async () => {
-    if (!user?.id || user.id === 'anonymous') {
-      toast.warning('Please log in to export your reflection history.');
-      return;
-    }
-
+  const handleExportHistory = () => {
     setIsExportingHistory(true);
     try {
-      const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/reflect/export?userId=${encodeURIComponent(user.id)}`);
-      const data = await response.json();
-      if (!response.ok || !data.url) {
-        throw new Error(data.error || 'Export request failed');
-      }
-
-      const downloadUrl = `${BACKEND_CONFIG.API_BASE_URL}${data.url}`;
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sessions, null, 2));
       const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = data.filename || `nirvaha-chat-backup-${Date.now()}.json`;
+      link.href = dataStr;
+      link.download = `nirvaha-chat-backup-${Date.now()}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      toast.success('Chat export downloaded');
+      toast.success('Chat export downloaded successfully');
     } catch (error) {
       console.error('Export history failed:', error);
-      toast.error((error as Error).message || 'Unable to export history');
+      toast.error('Unable to export history');
     } finally {
       setIsExportingHistory(false);
     }
