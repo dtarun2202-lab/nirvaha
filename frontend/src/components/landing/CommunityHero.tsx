@@ -232,7 +232,7 @@ const CommunityHero = () => {
                   {phrases[phraseIndex]}
                 </motion.span>
               </AnimatePresence>
-            </div>
+            </span>
           </h1>
           
           <motion.p
