@@ -92,7 +92,7 @@ router.post('/', async (req, res) => {
     // Build the payload (now safe) – note that userId/companionId fields are already sanitized
     const bookingPayload = {
       ...req.body,
-      status: req.body.status || (isProduct ? 'completed' : 'Pending Approval'),
+      status: req.body.status || (isProduct ? 'completed' : 'Pending'),
       sessionType: req.body.sessionType || req.body.type || '',
       assignedAt: req.body.assignedAt ? new Date(req.body.assignedAt) : undefined,
       createdAt: new Date(),
@@ -189,8 +189,8 @@ router.put('/:id/status', async (req, res) => {
       io.emit('booking-updated', booking);
     }
 
-    // Trigger confirmation email when status transitions to "Session Confirmed"
-    if (status === 'Session Confirmed' && oldStatus !== 'Session Confirmed') {
+    // Trigger confirmation email when status transitions to "Session Confirmed" or "Approved"
+    if ((status === 'Session Confirmed' || status === 'Approved') && oldStatus !== 'Session Confirmed' && oldStatus !== 'Approved') {
       console.log(`📧 [BOOKING] Triggering confirmation email to: ${booking.userEmail || booking.email}`);
       try {
         await sendSessionConfirmationEmail(booking);
@@ -286,7 +286,7 @@ router.put('/:id', async (req, res) => {
       io.emit('booking-updated', booking);
     }
 
-    if (booking.status === 'Session Confirmed' && oldStatus !== 'Session Confirmed') {
+    if ((booking.status === 'Session Confirmed' || booking.status === 'Approved') && oldStatus !== 'Session Confirmed' && oldStatus !== 'Approved') {
       console.log(`📧 [BOOKING] Triggering confirmation email to: ${booking.userEmail || booking.email}`);
       try {
         await sendSessionConfirmationEmail(booking);

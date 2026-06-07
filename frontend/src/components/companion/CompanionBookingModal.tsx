@@ -202,7 +202,7 @@ const CompanionBookingModal: React.FC<CompanionBookingModalProps> = ({
           date: bookingData.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
           time: bookingData.timeSlot.label,
           price: parseInt(bookingData.sessionType.price.replace('₹', '')) || 0,
-          status: 'Pending Approval'
+          status: 'Pending'
         };
 
         // Include userId only if we have a non-empty identifier

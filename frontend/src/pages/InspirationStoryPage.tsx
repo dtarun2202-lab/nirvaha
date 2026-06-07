@@ -10,7 +10,7 @@ const stories = {
         quote: "Breathe. You are exactly where you need to be.",
         title: "Finding My Breath After Burnout",
         trauma: "For years, I worked 80-hour weeks in corporate finance. I thought the chest tightness and sleepless nights were just the price of success. It wasn't until I had a full-blown panic attack in a meeting that I realized I had completely lost touch with myself.",
-        nirvahaHelp: "Nirvaha became my sanctuary. Instead of doom-scrolling before bed, I started using the structured meditation pathways. It taught me how to sit with my anxiety instead of running from it. The gamified wellness tracking gave me the same dopamine hit my work used to, but for my health.",
+        nirvahaHelp: "Nirvaha became my sanctuary. Instead of doom-scrolling before bed, I started using the structured meditation practices. It taught me how to sit with my anxiety instead of running from it. The gamified wellness tracking gave me the same dopamine hit my work used to, but for my health.",
         favorites: {
             chant: "Cosmic OM Chant",
             music: "432Hz Deep Sleep Frequencies",

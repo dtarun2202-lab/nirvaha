@@ -295,7 +295,7 @@ export function BookingManagementPage() {
   const confirmActionHandler = async () => {
     if (!confirmAction) return;
 
-    let targetStatus = "Session Confirmed";
+    let targetStatus = "Approved";
     if (confirmAction.type === "cancel") {
       targetStatus = "cancelled";
     } else if (confirmAction.type === "reject") {
@@ -303,7 +303,7 @@ export function BookingManagementPage() {
     } else if (confirmAction.type === "complete") {
       targetStatus = "completed";
     } else if (confirmAction.type === "accept") {
-      targetStatus = "Session Confirmed";
+      targetStatus = "Approved";
     }
 
     try {
@@ -472,22 +472,22 @@ export function BookingManagementPage() {
                         variant="booking"
                         onView={() => handleView(item)}
                         onApprove={
-                          item.status === "Pending Approval" || item.status === "pending"
+                          item.status === "Pending Approval" || item.status === "pending" || item.status === "Pending"
                             ? () => handleAction("accept", item)
                             : undefined
                         }
                         onReject={
-                          item.status === "Pending Approval" || item.status === "pending"
+                          item.status === "Pending Approval" || item.status === "pending" || item.status === "Pending"
                             ? () => handleAction("reject", item)
                             : undefined
                         }
                         onCancel={
-                          item.status === "upcoming" || item.status === "Session Confirmed"
+                          item.status === "upcoming" || item.status === "Session Confirmed" || item.status === "Approved"
                             ? () => handleAction("cancel", item)
                             : undefined
                         }
                         onComplete={
-                          item.status === "upcoming" || item.status === "Session Confirmed"
+                          item.status === "upcoming" || item.status === "Session Confirmed" || item.status === "Approved"
                             ? () => handleAction("complete", item)
                             : undefined
                         }
@@ -830,13 +830,13 @@ export function BookingManagementPage() {
 
                       {/* Step 2 (Conditional) */}
                       <div className="relative">
-                        <span className={`absolute -left-[31px] top-0.5 w-4 h-4 rounded-full border-4 border-white shadow-sm flex items-center justify-center ${selectedBooking.status === 'completed' || selectedBooking.status === 'upcoming' || selectedBooking.status === 'Session Confirmed' ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`} />
+                        <span className={`absolute -left-[31px] top-0.5 w-4 h-4 rounded-full border-4 border-white shadow-sm flex items-center justify-center ${selectedBooking.status === 'completed' || selectedBooking.status === 'upcoming' || selectedBooking.status === 'Session Confirmed' || selectedBooking.status === 'Approved' ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`} />
                         <div className="flex flex-col">
                           <span className="font-bold text-[#0a2e1f]">
-                            {selectedBooking.status === 'pending' || selectedBooking.status === 'Pending Approval' ? 'Verification in Progress' : 'Approved by Concierge'}
+                            {selectedBooking.status === 'pending' || selectedBooking.status === 'Pending Approval' || selectedBooking.status === 'Pending' ? 'Verification in Progress' : 'Approved by Concierge'}
                           </span>
                           <span className="text-[11px] text-[#6a8c7a] mt-0.5 font-medium">
-                            {selectedBooking.status === 'pending' || selectedBooking.status === 'Pending Approval'
+                            {selectedBooking.status === 'pending' || selectedBooking.status === 'Pending Approval' || selectedBooking.status === 'Pending'
                               ? 'Admin approval is requested to confirm availability.' 
                               : 'Spot successfully reserved & verified.'}
                           </span>
@@ -880,7 +880,7 @@ export function BookingManagementPage() {
                
                {/* Right Side: Admin Operations */}
                <div className="flex gap-3">
-                 {(selectedBooking?.status === "Pending Approval" || selectedBooking?.status === "pending") && (
+                 {(selectedBooking?.status === "Pending Approval" || selectedBooking?.status === "pending" || selectedBooking?.status === "Pending") && (
                    <>
                      <Button
                        onClick={() => {
@@ -902,7 +902,7 @@ export function BookingManagementPage() {
                      </Button>
                    </>
                  )}
-                 {(selectedBooking?.status === "upcoming" || selectedBooking?.status === "Session Confirmed") && (
+                 {(selectedBooking?.status === "upcoming" || selectedBooking?.status === "Session Confirmed" || selectedBooking?.status === "Approved") && (
                    <>
                      <Button
                        onClick={() => {

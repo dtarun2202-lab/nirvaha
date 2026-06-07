@@ -44,12 +44,6 @@ export interface User {
   profile?: UserProfile;
   stats?: UserStats;
   sessionHistory?: Array<Record<string, unknown>>;
-  pathwayProgress?: Record<string, {
-    completedLessons: number[];
-    startedAt: string;
-    lastAccessedAt: string;
-  }>;
-  enrolledPathways?: string[];
   isApprovedCompanion?: boolean;
   companionStatus?: string | null;
   companionId?: string | null;

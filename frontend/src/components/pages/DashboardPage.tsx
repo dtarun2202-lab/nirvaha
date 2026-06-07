@@ -164,8 +164,8 @@ export function DashboardPage() {
           transition={{ duration: 1, delay: 0.2 }}
           className="text-5xl md:text-7xl font-light text-[#5A7165] font-['Cinzel'] tracking-wide text-center flex flex-col md:flex-row items-center justify-center w-full max-w-5xl mx-auto"
         >
-          <span className="whitespace-nowrap md:w-1/2 md:text-right md:pr-0 md:translate-x-12">Find your</span>
-          <span className="text-[#3A5145] inline-flex justify-center md:justify-start md:w-1/2 md:pl-16 mt-2 md:mt-0">
+          <span className="whitespace-nowrap md:w-1/2 md:text-right md:pr-4">Find your</span>
+          <span className="text-[#3A5145] inline-flex justify-center md:justify-start md:w-1/2 md:pl-4 mt-2 md:mt-0">
             <AnimatePresence mode="wait">
               <motion.span
                 key={phraseIndex}
