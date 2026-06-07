@@ -64,18 +64,16 @@ app.disable('x-powered-by');
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'https://nirvaha-three.vercel.app',
+      'https://nirvaha-production.up.railway.app',
+    ],
+    methods: ['GET', 'POST'],
     credentials: true,
   },
+  transports: ['polling', 'websocket'],
 });
 
 const PORT = process.env.PORT || 5000;
