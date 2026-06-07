@@ -305,7 +305,7 @@ function CompanionVideoSimulationModal({ session, onClose, onComplete }: VideoSi
           </div>
 
           <div className="flex-1 p-4 overflow-y-auto space-y-4 scrollbar-none">
-            {chatMessages.map((msg, index) => (
+            {(chatMessages ?? []).map((msg, index) => (
               <div
                 key={index}
                 className={`flex flex-col ${msg.sender === "You" ? 'items-end' : 'items-start'}`}
@@ -1485,7 +1485,7 @@ export function CompanionPage() {
                           <div>
                             <h4 className="text-sm font-black uppercase tracking-wider text-emerald-800 mb-3">Guiding Specialties</h4>
                             <div className="flex flex-wrap gap-2">
-                              {companionProfile?.specialties?.map((tag: string, i: number) => (
+                              {(companionProfile?.specialties ?? []).map((tag: string, i: number) => (
                                 <span key={i} className="px-3.5 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">
                                   {tag}
                                 </span>
@@ -1496,7 +1496,7 @@ export function CompanionPage() {
                           <div>
                             <h4 className="text-sm font-black uppercase tracking-wider text-emerald-800 mb-3">Spoken Languages</h4>
                             <div className="flex flex-wrap gap-2">
-                              {companionProfile?.languages?.map((lang: string, i: number) => (
+                              {(companionProfile?.languages ?? []).map((lang: string, i: number) => (
                                 <span key={i} className="px-3.5 py-1.5 bg-teal-50 text-teal-700 text-xs font-bold rounded-full border border-teal-100">
                                   {lang}
                                 </span>
@@ -1674,7 +1674,7 @@ export function CompanionPage() {
               {/* Category Selection & Advanced Filter Toggle */}
               <div className="flex flex-col gap-6 mb-16">
                 <div className="flex flex-wrap items-center justify-center gap-4">
-                  {categories.map((cat) => {
+                  {(categories ?? []).map((cat) => {
                     const isCatSelected = cat.id === "All"
                       ? selectedCategories.length === 0
                       : selectedCategories.includes(cat.id);
@@ -2045,7 +2045,7 @@ export function CompanionPage() {
                       exit={{ opacity: 0 }}
                       className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
                     >
-                      {filteredItems.map((companion) => (
+                      {(filteredItems ?? []).map((companion) => (
                         <motion.div
                           key={companion.id}
                           layout
@@ -2073,7 +2073,7 @@ export function CompanionPage() {
                           <div className="flex-1 text-center mb-8">
                             <p className="text-emerald-800/70 text-sm leading-relaxed mb-6 italic line-clamp-2">"{companion.bio}"</p>
                             <div className="flex flex-wrap justify-center gap-2 mb-4 font-semibold">
-                              {companion.energyTags.map((tag) => (
+                              {(companion.energyTags ?? []).map((tag) => (
                                 <span key={tag} className="px-4 py-1.5 bg-white border border-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full shadow-sm">{tag}</span>
                               ))}
                             </div>
@@ -2289,7 +2289,7 @@ export function CompanionPage() {
                     <div>
                       <h4 className="text-sm font-semibold text-teal-800 mb-2">Experience</h4>
                       <ul className="list-disc pl-5 space-y-1">
-                        {selectedCompanion.experience.map((exp: string, idx: number) => (
+                        {(selectedCompanion.experience ?? []).map((exp: string, idx: number) => (
                           <li key={idx} className="text-sm text-teal-700">{exp}</li>
                         ))}
                       </ul>
@@ -2300,7 +2300,7 @@ export function CompanionPage() {
                     <div>
                       <h4 className="text-sm font-semibold text-teal-800 mb-2">Session Style</h4>
                       <ul className="list-disc pl-5 space-y-1">
-                        {selectedCompanion.sessionStyle.map((style: string, idx: number) => (
+                        {(selectedCompanion.sessionStyle ?? []).map((style: string, idx: number) => (
                           <li key={idx} className="text-sm text-teal-700">{style}</li>
                         ))}
                       </ul>

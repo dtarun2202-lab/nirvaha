@@ -42,7 +42,7 @@ export const ARCHETYPES: Record<CharacterId, Archetype> = {
             secondary: '#312E81', // Indigo
             gradient: 'from-[#1E3A8A] to-[#312E81]'
         },
-        image: '/krishna.jpg'
+        image: '/human krishna.png'
     },
     hanuman: {
         id: 'hanuman',

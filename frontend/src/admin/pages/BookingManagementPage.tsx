@@ -379,7 +379,7 @@ export function BookingManagementPage() {
               />
             </div>
             <Select value={filter} onValueChange={setFilter}>
-              <SelectTrigger className="w-full bg-white border border-[#BEE4CD] text-[#295641] rounded-xl h-12 focus-visible:ring-[#5ABF88] font-medium">
+              <SelectTrigger className="w-full bg-white border border-[#BEE4CD] text-black rounded-xl h-12 focus-visible:ring-[#5ABF88] font-medium">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-white border-[#BEE4CD]">

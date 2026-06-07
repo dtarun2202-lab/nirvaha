@@ -350,7 +350,7 @@ export function CompanionManagementPage() {
             </div>
             <div className="w-full md:w-[200px]">
               <Select value={filter} onValueChange={setFilter}>
-                <SelectTrigger className="w-full bg-white/70 border-[#b7e4c7] text-[#1b4332] rounded-xl h-[50px]">
+                <SelectTrigger className="w-full bg-white border-[#b7e4c7] text-black rounded-xl h-[50px]">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-[#b7e4c7]">

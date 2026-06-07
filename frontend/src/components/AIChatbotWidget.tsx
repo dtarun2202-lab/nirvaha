@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, Bot, User, Loader2 } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, Loader2 } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -8,13 +8,91 @@ interface Message {
   text: string;
 }
 
+const SYSTEM_PROMPT = `You are Nirvaha AI, a warm, empathetic wellness assistant for the Nirvaha platform. You speak gently, supportively, and with care. You help users understand Nirvaha's services and also provide thoughtful mental health tips.
+
+## ABOUT NIRVAHA
+Nirvaha is an AI-powered emotional healing platform that bridges corporate performance and human well-being. It combines ancient spiritual wisdom with modern therapy, meditation, and professional counseling to provide holistic healing for individuals and organizations.
+
+## SERVICES & FEATURES
+
+### 1. Wellness OTT (Audio Streaming)
+- Netflix-inspired audio wellness streaming platform
+- Categories: Guided Meditation, Sleep Stories, Stress Relief, Emotional Healing, Anxiety Relief
+- Features: Cinematic hero banner, series rows, immersive audio player, continue listening, waveform visualizer
+- Access at: /wellness-ott
+
+### 2. Companion Mentorship
+- Nirvaha Companions are certified wellness experts offering personalized guidance
+- Users can browse companion profiles and book 1-on-1 sessions
+- Access from the Dashboard → Companions section
+
+### 3. AI Guide
+- Available on every page as a floating chat widget
+- Answers questions about Nirvaha and provides mental health support
+- Available 24/7
+
+### 4. Community Forum
+- A safe space for users to share experiences and support each other
+
+### 5. Marketplace Hub
+- Curated wellness products: essential oils, grounding crystals, wellness journals
+
+### 6. Guided Meditation & Sound Healing
+- Structured guided paths for mindfulness, stress relief, and deep sleep
+- Available from the Dashboard once logged in
+
+### 7. Academy / Learning Pathways
+- Structured educational content for personal growth
+
+## PRICING
+- Pricing depends on organization size and wellness protocols needed
+- Contact the sales team via the platform for a customized plan
+- Email: support@nirvaha.org
+
+## MENTAL HEALTH TIPS
+
+**Breathing:**
+- Box breathing: inhale 4s, hold 4s, exhale 4s, hold 4s — repeat 4 times
+- 4-7-8 breathing: inhale 4s, hold 7s, exhale 8s — calms the nervous system
+
+**Grounding (for anxiety):**
+- 5-4-3-2-1 technique: name 5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste
+
+**Sleep:**
+- Keep a consistent sleep schedule even on weekends
+- Avoid screens 30 minutes before bed
+- Try a sleep story from our Wellness OTT
+
+**Stress Relief:**
+- Take a 5-minute walk when overwhelmed
+- Write down 3 things you are grateful for each day
+- Progressive muscle relaxation: tense and release each muscle group
+
+**Emotional Regulation:**
+- Name your emotion — just labeling it reduces its intensity
+- It is okay to not be okay — feelings are temporary
+- Talk to someone you trust, or book a session with a Nirvaha Companion
+
+**Daily Wellness:**
+- Stay hydrated — even mild dehydration affects mood
+- Sunlight in the morning regulates your circadian rhythm
+- Limit news and social media if it causes anxiety
+
+## RESPONSE GUIDELINES
+- Keep responses concise (2-4 sentences)
+- Be warm, never clinical or robotic
+- If someone seems distressed, acknowledge their feelings first before giving tips
+- Always mention relevant Nirvaha features when appropriate
+- Never diagnose or replace professional help — encourage Companion sessions for deeper support
+- If someone is in crisis, gently encourage them to seek professional help`;
+
 const AIChatbotWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       type: 'ai',
-      text: 'Namaste 🙏 I am Nirvaha AI. How can I help you learn more about our platform and services?',
+      text: 'Namaste 🙏 I am Nirvaha AI. How can I help you today? You can ask me about our platform, services, or if you just need a mental health tip.',
     }
   ]);
   const [inputValue, setInputValue] = useState('');
@@ -29,39 +107,68 @@ const AIChatbotWidget: React.FC = () => {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const generateAIResponse = (userText: string): string => {
-    const lower = userText.toLowerCase();
+  const getAIResponse = async (userText: string): Promise<string> => {
+    try {
+      const response = await fetch('/api/ai-guide/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userText,
+          systemPrompt: SYSTEM_PROMPT,
+        }),
+      });
 
-    if (lower.includes('what is nirvaha') || lower.includes('about')) {
-      return "Nirvaha is an AI-powered emotional healing platform that constructs a bridge between corporate performance and human well-being. We combine ancient spiritual wisdom with modern therapy, meditation, and professional counseling to provide holistic healing.";
-    }
-    if (lower.includes('service') || lower.includes('offer') || lower.includes('features')) {
-      return "We offer a variety of services including Guided Meditation, Sound Healing, an AI Guide for personal reflection, a Community Forum, Marketplace Hub, and Companion Mentorship with wellness experts.";
-    }
-    if (lower.includes('contact') || lower.includes('support') || lower.includes('help')) {
-      return "You can reach our support team by navigating to the Contact section at the bottom of our landing page, or you can email us directly at support@nirvaha.org.";
-    }
-    if (lower.includes('pricing') || lower.includes('cost') || lower.includes('fee')) {
-      return "Our pricing depends on the scale of your organization and the specific wellness protocols you need. Please contact our sales team through the platform for a customized plan.";
-    }
-    if (lower.includes('meditation') || lower.includes('sound healing')) {
-      return "Our Meditation and Sound Healing spaces offer structured guided paths for mindfulness, stress relief, and deep sleep. You can access these from your Dashboard once logged in.";
-    }
-    if (lower.includes('companion') || lower.includes('mentor')) {
-      return "Nirvaha Companions are wellness experts who offer personalized, compassionate guidance. You can browse through their profiles and book sessions directly from the Companion section in the Dashboard.";
-    }
-    if (lower.includes('marketplace') || lower.includes('shop') || lower.includes('buy')) {
-      return "The Nirvaha Marketplace is a curated space where you can find items like essential oils, grounding crystals, and wellness journals to complement your physical and mental wellness journey.";
-    }
-    if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey')) {
-      return "Hello there! How can I assist you in exploring Nirvaha today?";
-    }
+      if (!response.ok) throw new Error('API error');
 
-    return "Thank you for your question. While I'm still learning, I recommend exploring our Landing Page or Academy pathways to learn more about our holistic wellness approach. Is there a specific service you'd like to hear about?";
+      const data = await response.json();
+      return data.reply || "I'm having trouble connecting right now. Please try again in a moment.";
+    } catch (err) {
+      return getFallbackResponse(userText);
+    }
   };
 
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
+  const getFallbackResponse = (userText: string): string => {
+    const lower = userText.toLowerCase();
+
+    if (lower.includes('stress') || lower.includes('anxious') || lower.includes('anxiety') || lower.includes('overwhelm')) {
+      return "I hear you. When stress hits, try box breathing: inhale for 4 seconds, hold for 4, exhale for 4, hold for 4. Repeat 4 times. You might also find our Stress Relief series on Wellness OTT helpful 💚";
+    }
+    if (lower.includes('sleep') || lower.includes('insomnia') || lower.includes('tired')) {
+      return "Sleep struggles are tough. Try keeping a consistent bedtime, avoid screens 30 minutes before bed, and explore our Sleep Stories on Wellness OTT 🌙";
+    }
+    if (lower.includes('sad') || lower.includes('depress') || lower.includes('lonely') || lower.includes('empty')) {
+      return "I'm sorry you're feeling this way — your feelings are valid. Our Nirvaha Companions are certified wellness experts who offer personalized 1-on-1 support. Would you like to explore that? 💙";
+    }
+    if (lower.includes('meditat') || lower.includes('calm') || lower.includes('relax')) {
+      return "Our Wellness OTT has guided meditation series for all levels. Head to /wellness-ott to explore. For a quick start, try belly breathing — breathe deep into your stomach, hold briefly, and exhale slowly 🧘";
+    }
+    if (lower.includes('companion') || lower.includes('mentor') || lower.includes('book')) {
+      return "Nirvaha Companions are verified wellness experts ready to offer personalized guidance. Browse their profiles and book a session from Dashboard → Companions 🌿";
+    }
+    if (lower.includes('marketplace') || lower.includes('shop') || lower.includes('product')) {
+      return "Our Marketplace has curated wellness products — essential oils, grounding crystals, wellness journals. Explore it from your Dashboard 🛍️";
+    }
+    if (lower.includes('price') || lower.includes('cost') || lower.includes('plan')) {
+      return "Pricing is tailored to your organization's needs. Please contact our team via the Contact section or email support@nirvaha.org for a custom plan.";
+    }
+    if (lower.includes('what is nirvaha') || lower.includes('about')) {
+      return "Nirvaha is an AI-powered emotional healing platform that blends ancient spiritual wisdom with modern therapy and meditation 🌱";
+    }
+    if (lower.includes('tip') || lower.includes('advice') || lower.includes('help me')) {
+      return "Try the 5-4-3-2-1 grounding technique: name 5 things you see, 4 you can touch, 3 you hear, 2 you smell, and 1 you taste. It brings you back to the present moment ✨";
+    }
+    if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey') || lower.includes('namaste')) {
+      return "Namaste! 🙏 So glad you're here. How can I support you today?";
+    }
+    if (lower.includes('breath')) {
+      return "Try 4-7-8 breathing: inhale for 4 seconds, hold for 7, exhale for 8. This calms anxiety almost immediately 🌬️";
+    }
+
+    return "Thank you for sharing that. I'm here to help — whether it's learning about Nirvaha's services or a gentle wellness tip. You can also book a session with one of our Companions for deeper support 💚";
+  };
+
+  const handleSend = async () => {
+    if (!inputValue.trim() || isTyping) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -73,24 +180,28 @@ const AIChatbotWidget: React.FC = () => {
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate network delay for AI response
-    setTimeout(() => {
-      const responseText = generateAIResponse(userMessage.text);
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'ai',
-        text: responseText,
-      };
-      setMessages((prev) => [...prev, aiMessage]);
-      setIsTyping(false);
-    }, 1000);
+    const responseText = await getAIResponse(userMessage.text);
+
+    const aiMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      type: 'ai',
+      text: responseText,
+    };
+
+    setMessages((prev) => [...prev, aiMessage]);
+    setIsTyping(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSend();
-    }
+    if (e.key === 'Enter') handleSend();
   };
+
+  const quickPrompts = [
+    "I'm feeling stressed",
+    "Tell me about Companions",
+    "Give me a breathing tip",
+    "What is Nirvaha?",
+  ];
 
   return (
     <>
@@ -101,21 +212,21 @@ const AIChatbotWidget: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             transition={{ duration: 0.3 }}
-            className="fixed bottom-24 right-6 w-80 sm:w-96 h-[500px] max-h-[80vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden z-50 border border-gray-100"
+            className="fixed bottom-24 right-6 w-80 sm:w-96 h-[540px] max-h-[85vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden z-50 border border-gray-100"
             style={{ filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.15))' }}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-emerald-700 to-[#1a5d47] p-4 flex items-center justify-between text-white">
+            <div className="bg-gradient-to-r from-emerald-700 to-[#1a5d47] p-4 flex items-center justify-between text-white flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                   <Bot className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm">Nirvaha Assistant</h3>
-                  <p className="text-xs text-white/70">Online</p>
+                  <h3 className="font-semibold text-sm">Nirvaha AI</h3>
+                  <p className="text-xs text-white/70">Always here for you</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setIsOpen(false)}
                 className="p-2 hover:bg-white/10 rounded-full transition-colors"
                 aria-label="Close chat"
@@ -125,7 +236,7 @@ const AIChatbotWidget: React.FC = () => {
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
               {messages.map((msg) => (
                 <div
                   key={msg.id}
@@ -136,9 +247,8 @@ const AIChatbotWidget: React.FC = () => {
                       <Bot className="w-3.5 h-3.5 text-emerald-700" />
                     </div>
                   )}
-                  
                   <div
-                    className={`max-w-[75%] p-3 rounded-2xl text-sm ${
+                    className={`max-w-[78%] p-3 rounded-2xl text-sm leading-relaxed ${
                       msg.type === 'user'
                         ? 'bg-emerald-600 text-white rounded-br-none'
                         : 'bg-white border border-gray-100 text-gray-800 shadow-sm rounded-bl-none'
@@ -148,22 +258,39 @@ const AIChatbotWidget: React.FC = () => {
                   </div>
                 </div>
               ))}
-              
+
               {isTyping && (
                 <div className="flex items-end gap-2 justify-start">
                   <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
                     <Bot className="w-3.5 h-3.5 text-emerald-700" />
                   </div>
-                  <div className="bg-white border border-gray-100 p-3 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-1">
-                    <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
+                  <div className="bg-white border border-gray-100 p-3 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                 </div>
               )}
               <div ref={messagesEndRef} />
             </div>
 
+            {/* Quick Prompts */}
+            {messages.length <= 1 && (
+              <div className="px-4 pb-2 flex flex-wrap gap-2 bg-white flex-shrink-0">
+                {quickPrompts.map((prompt) => (
+                  <button
+                    key={prompt}
+                    onClick={() => setInputValue(prompt)}
+                    className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full px-3 py-1.5 hover:bg-emerald-100 transition-colors font-medium"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* Input Area */}
-            <div className="p-4 bg-white border-t border-gray-100">
+            <div className="p-4 bg-white border-t border-gray-100 flex-shrink-0">
               <div className="relative flex items-center">
                 <input
                   type="text"
@@ -198,23 +325,11 @@ const AIChatbotWidget: React.FC = () => {
       >
         <AnimatePresence mode="wait">
           {isOpen ? (
-            <motion.div
-              key="close"
-              initial={{ rotate: -90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: 90, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
+            <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
               <X className="w-6 h-6" />
             </motion.div>
           ) : (
-            <motion.div
-              key="chat"
-              initial={{ rotate: 90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: -90, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
+            <motion.div key="chat" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.2 }}>
               <MessageSquare className="w-6 h-6" />
             </motion.div>
           )}
