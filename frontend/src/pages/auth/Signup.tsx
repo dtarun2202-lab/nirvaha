@@ -328,7 +328,7 @@ const Signup: React.FC = () => {
                     placeholder="Enter your name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-3 bg-zinc-50/50 border border-zinc-200/80 rounded-xl text-zinc-800 placeholder-zinc-400 text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 focus:bg-white transition-all duration-200"
+                    className="w-full pl-11 pr-4 py-3 bg-white border border-zinc-200/80 rounded-xl text-black placeholder-zinc-400 text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-200"
                     required
                   />
                   {formData.name.trim().length >= 2 && (
@@ -350,7 +350,7 @@ const Signup: React.FC = () => {
                     placeholder="name@company.com"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-3 bg-zinc-50/50 border border-zinc-200/80 rounded-xl text-zinc-800 placeholder-zinc-400 text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 focus:bg-white transition-all duration-200"
+                    className="w-full pl-11 pr-4 py-3 bg-white border border-zinc-200/80 rounded-xl text-black placeholder-zinc-400 text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-200"
                     required
                   />
                   {validations.email && (
@@ -372,7 +372,7 @@ const Signup: React.FC = () => {
                     placeholder="Create a password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full pl-11 pr-11 py-3 bg-zinc-50/50 border border-zinc-200/80 rounded-xl text-zinc-800 placeholder-zinc-400 text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 focus:bg-white transition-all duration-200"
+                    className="w-full pl-11 pr-11 py-3 bg-white border border-zinc-200/80 rounded-xl text-black placeholder-zinc-400 text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-200"
                     required
                   />
                   <button 
@@ -418,7 +418,7 @@ const Signup: React.FC = () => {
                     placeholder="Repeat password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-3 bg-zinc-50/50 border border-zinc-200/80 rounded-xl text-zinc-800 placeholder-zinc-400 text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 focus:bg-white transition-all duration-200"
+                    className="w-full pl-11 pr-4 py-3 bg-white border border-zinc-200/80 rounded-xl text-black placeholder-zinc-400 text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-200"
                     required
                   />
                   {validations.match && formData.confirmPassword !== "" && (
