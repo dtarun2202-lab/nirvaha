@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BACKEND_CONFIG } from "@/config/backend";
+import BACKEND_CONFIG from "@/config/backend";
 
 type CreateType = "retreat" | "session" | "product" | null;
 

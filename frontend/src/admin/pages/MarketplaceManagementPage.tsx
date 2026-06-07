@@ -6,7 +6,7 @@ import {
   Phone, Mail, User, Leaf, Target
 } from "lucide-react";
 import io from "socket.io-client";
-import { BACKEND_CONFIG } from "@/config/backend";
+import BACKEND_CONFIG from "@/config/backend";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

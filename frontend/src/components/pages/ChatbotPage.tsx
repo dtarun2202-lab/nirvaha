@@ -20,7 +20,7 @@ import {
 import { useEffect, useMemo, useState, useRef } from "react";
 
 import TextType from "../TextType";
-import { BACKEND_CONFIG } from "@/config/backend";
+import BACKEND_CONFIG from "@/config/backend";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSettings } from "@/contexts/SettingsContext";
 import { InitialsAvatar } from "@/components/ui/InitialsAvatar";

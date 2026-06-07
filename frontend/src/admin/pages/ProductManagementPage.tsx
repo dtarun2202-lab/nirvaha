@@ -5,7 +5,7 @@ import {
   Package, Tag, IndianRupee, Layers, 
   AlertCircle, CheckCircle2, ShoppingBag, X
 } from "lucide-react";
-import { BACKEND_CONFIG } from "@/config/backend";
+import BACKEND_CONFIG from "@/config/backend";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
