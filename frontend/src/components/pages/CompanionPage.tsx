@@ -306,7 +306,7 @@ function CompanionVideoSimulationModal({ session, onClose, onComplete }: VideoSi
           </div>
 
           <div className="flex-1 p-4 overflow-y-auto space-y-4 scrollbar-none">
-            {chatMessages.map((msg, index) => (
+            {(chatMessages ?? []).map((msg, index) => (
               <div
                 key={index}
                 className={`flex flex-col ${msg.sender === "You" ? 'items-end' : 'items-start'}`}
@@ -1764,7 +1764,7 @@ export function CompanionPage() {
               {/* Category Selection & Advanced Filter Toggle */}
               <div className="flex flex-col gap-6 mb-16">
                 <div className="flex flex-wrap items-center justify-center gap-4">
-                  {categories.map((cat) => {
+                  {(categories ?? []).map((cat) => {
                     const isCatSelected = cat.id === "All"
                       ? selectedCategories.length === 0
                       : selectedCategories.includes(cat.id);
@@ -2135,7 +2135,7 @@ export function CompanionPage() {
                       exit={{ opacity: 0 }}
                       className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
                     >
-                      {filteredItems.map((companion) => (
+                      {(filteredItems ?? []).map((companion) => (
                         <motion.div
                           key={companion.id}
                           layout
@@ -2163,7 +2163,7 @@ export function CompanionPage() {
                           <div className="flex-1 text-center mb-8">
                             <p className="text-emerald-800/70 text-sm leading-relaxed mb-6 italic line-clamp-2">"{companion.bio}"</p>
                             <div className="flex flex-wrap justify-center gap-2 mb-4 font-semibold">
-                              {companion.energyTags.map((tag) => (
+                              {(companion.energyTags ?? []).map((tag) => (
                                 <span key={tag} className="px-4 py-1.5 bg-white border border-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full shadow-sm">{tag}</span>
                               ))}
                             </div>

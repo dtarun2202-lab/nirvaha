@@ -218,7 +218,7 @@ const CommunityHero = () => {
             className="text-3xl sm:text-[4.5vw] md:text-[5vw] lg:text-[5.2vw] xl:text-[5.5vw] font-black text-[#123c24] drop-shadow-[0_2px_10px_rgba(18,60,36,0.12)] tracking-tighter leading-tight w-full text-center uppercase whitespace-nowrap select-none flex flex-nowrap items-center justify-center gap-x-2 sm:gap-x-4"
             style={{ fontFamily: "'Cinzel', serif" }}
           >
-            <span>FIND YOUR</span>
+            <span>{heroData.title || "FIND YOUR"}</span>
             <span className="text-[#123c24] inline-block relative">
               <AnimatePresence mode="wait">
                 <motion.span
@@ -232,7 +232,7 @@ const CommunityHero = () => {
                   {phrases[phraseIndex]}
                 </motion.span>
               </AnimatePresence>
-            </span>
+            </div>
           </h1>
           
           <motion.p
