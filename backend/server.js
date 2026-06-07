@@ -17,6 +17,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
   'http://localhost:5173',
+  'http://localhost:5000',
   'http://localhost:5001'
 ];
 
@@ -77,7 +78,7 @@ const io = new Server(server, {
   },
 });
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
 const BACKUP_DIR = path.join(__dirname, 'backups');
 

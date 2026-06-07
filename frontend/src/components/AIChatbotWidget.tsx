@@ -57,7 +57,7 @@ const AIChatbotWidget: React.FC = () => {
       return "Hello there! How can I assist you in exploring Nirvaha today?";
     }
 
-    return "Thank you for your question. While I'm still learning, I recommend exploring our Landing Page or Academy pathways to learn more about our holistic wellness approach. Is there a specific service you'd like to hear about?";
+    return "Thank you for your question. While I'm still learning, I recommend exploring our Landing Page or Academy learning resources to learn more about our holistic wellness approach. Is there a specific service you'd like to hear about?";
   };
 
   const handleSend = () => {

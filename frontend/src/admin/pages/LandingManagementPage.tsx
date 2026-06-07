@@ -358,7 +358,7 @@ export function LandingManagementPage() {
                             <CheckCircle2 size={24} />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-white">Edit Academy Pathway</h2>
+                            <h2 className="text-2xl font-bold text-white">Edit Academy Course</h2>
                             <p className="text-white/40 text-sm">Configure course details and instructor information.</p>
                         </div>
                     </div>
@@ -378,7 +378,7 @@ export function LandingManagementPage() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-white/40 uppercase">Pathway Feel (e.g. Calm & Focused)</label>
+                                    <label className="text-xs font-bold text-white/40 uppercase">Course Focus (e.g. Calm & Focused)</label>
                                     <input 
                                         type="text" 
                                         value={editingCourse.data.feel}

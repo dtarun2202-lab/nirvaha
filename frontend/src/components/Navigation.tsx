@@ -78,13 +78,12 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
     { name: "Companion", path: "/dashboard/companion", category: "Dashboard" as const },
     { name: "My Profile", path: "/dashboard/profile", category: "Account" as const },
     { name: "Settings", path: "/dashboard/profile?open=settings", category: "Account" as const },
-    { name: "Pathways", path: "/pathways", category: "Academy Pathways" as const },
-    { name: "Chakra Experience", path: "/chakra-experience", category: "Academy Pathways" as const },
-    { name: "Healing Music", path: "/healing-music", category: "Academy Pathways" as const },
+    { name: "Chakra Experience", path: "/chakra-experience", category: "Academy" as const },
+    { name: "Healing Music", path: "/healing-music", category: "Academy" as const },
     { name: "Wellness OTT", path: "/wellness-ott", category: "Features" as const, desc: "Watch wellness experiences on-demand." },
     { name: "OTT Wellness", path: "/wellness-ott", category: "Features" as const, desc: "Netflix-style wellness series and films." },
     { name: "Gaming Wellness Hub", path: "/dashboard/overview?scrollTo=gaming-hub", category: "Features" as const, desc: "Gamified wellness and interactive sessions." },
-    { name: "Breathing", path: "/breathing", category: "Academy Pathways" as const },
+    { name: "Breathing", path: "/breathing", category: "Academy" as const },
     ...wellnessSessions.map((s) => ({
       name: s.title,
       path: `/wellness-ott/series/${s.id}`,
@@ -101,7 +100,7 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
           .filter((r) => (r.name + " " + r.path).toLowerCase().includes(normalizedQuery))
           .slice(0, 10);
 
-  const categoryOrder = ["Pages", "Dashboard", "Features", "Academy Pathways", "Wellness OTT", "Account"] as const;
+  const categoryOrder = ["Pages", "Dashboard", "Features", "Academy", "Wellness OTT", "Account"] as const;
   const routeCategories = categoryOrder.filter((cat) => filteredRoutes.some((r) => r.category === cat));
 
   const [isVisible, setIsVisible] = useState(true);
@@ -189,7 +188,7 @@ export function Navigation({ currentPage, onNavigate }: { currentPage: string; o
         case 'companion': navigate('/dashboard/companion'); break;
         case 'gaming-hub': navigate('/dashboard/overview?scrollTo=gaming-hub'); break;
         case 'profile': navigate('/dashboard/profile'); break;
-        case 'certification': navigate('/pathways'); break;
+        case 'certification': navigate('/certifications'); break;
         default: navigate(`/dashboard/${page}`);
       }
     }

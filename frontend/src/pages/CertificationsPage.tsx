@@ -183,7 +183,7 @@ const CertificationsPage: React.FC = () => {
                         transition={{ duration: 0.9, delay: 1.1 }}
                         className="text-[#5c6b62] text-[13px] leading-[1.65] font-light mb-8 text-center max-w-[420px]"
                     >
-                        Discover emotionally grounded certification pathways<br />
+                        Discover emotionally grounded certifications<br />
                         designed to nurture clarity, reflection and transformation.
                     </motion.p>
 
@@ -239,7 +239,7 @@ const CertificationsPage: React.FC = () => {
 
                         {/* Description */}
                         <p className="text-[#3d5249] text-[15px] leading-[1.85] font-normal mb-12 max-w-[480px]">
-                            Discover emotionally grounded certification pathways designed to nurture
+Discover emotionally grounded certifications designed to nurture
                             clarity, reflection, awareness, and meaningful personal transformation.
                         </p>
 
@@ -307,7 +307,7 @@ const CertificationsPage: React.FC = () => {
                             transition={{ duration: 0.8, delay: 0.15 }}
                             className="text-[#3d5249]/90 text-sm md:text-base font-normal max-w-xl leading-relaxed"
                         >
-                            Your pathway to inner mastery, global recognition, and real transformation.
+                            Your journey to inner mastery, global recognition, and real transformation.
                         </motion.p>
                     </div>
 
@@ -405,7 +405,7 @@ const CertificationsPage: React.FC = () => {
                         {[
                             {
                                 q: "How much does a Nirvaha certification cost?",
-                                a: "Our certification pathways range from $499 to $1,299, depending on the specialization, duration, and whether you opt for live cohort mentoring. We also offer flexible monthly installment plans to support your journey."
+                                a: "Our certification programs range from $499 to $1,299, depending on the specialization, duration, and whether you opt for live cohort mentoring. We also offer flexible monthly installment plans to support your journey."
                             },
                             {
                                 q: "Is it worth getting a wellness certification?",
@@ -413,7 +413,7 @@ const CertificationsPage: React.FC = () => {
                             },
                             {
                                 q: "How long does it take to complete a certification?",
-                                a: "Most of our pathways are designed to be completed in 6 to 10 weeks of self-paced study with 3–5 hours of engagement per week. However, you can study entirely on your own schedule as there are no hard deadlines."
+                                a: "Most of our programs are designed to be completed in 6 to 10 weeks of self-paced study with 3–5 hours of engagement per week. However, you can study entirely on your own schedule as there are no hard deadlines."
                             },
                             {
                                 q: "Are Nirvaha certifications globally recognised?",

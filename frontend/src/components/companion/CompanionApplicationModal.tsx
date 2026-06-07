@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { X, Upload, ChevronRight, ChevronLeft, CheckCircle } from "lucide-react";
 import { createCompanionApplication } from "@/lib/companionApi";
 import BACKEND_CONFIG from "@/config/backend";
@@ -40,7 +40,11 @@ export default function CompanionApplicationModal({ isOpen, onClose }: Companion
   const [uploading, setUploading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: "id" | "cert") => {
@@ -171,23 +175,23 @@ export default function CompanionApplicationModal({ isOpen, onClose }: Companion
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-emerald-800 mb-1">Full Name</label>
-                      <input name="fullName" value={formData.fullName} onChange={handleInputChange} className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                      <input name="fullName" value={formData.fullName} onChange={handleInputChange} className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none text-black" />
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-emerald-800 mb-1">Email</label>
-                      <input name="email" type="email" value={formData.email} onChange={handleInputChange} className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                      <input name="email" type="email" value={formData.email} onChange={handleInputChange} className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none text-black" />
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-emerald-800 mb-1">Phone Number</label>
-                      <input name="phone" value={formData.phone} onChange={handleInputChange} className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                      <input name="phone" value={formData.phone} onChange={handleInputChange} className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none text-black" />
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-emerald-800 mb-1">Age</label>
-                      <input name="age" type="number" value={formData.age} onChange={handleInputChange} className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                      <input name="age" type="number" value={formData.age} onChange={handleInputChange} className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none text-black" />
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-emerald-800 mb-1">Gender</label>
-                      <select name="gender" value={formData.gender} onChange={handleInputChange} className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none">
+                      <select name="gender" value={formData.gender} onChange={handleInputChange} className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none text-black">
                         <option value="">Select</option>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
@@ -197,7 +201,7 @@ export default function CompanionApplicationModal({ isOpen, onClose }: Companion
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-emerald-800 mb-1">Location</label>
-                      <input name="location" value={formData.location} onChange={handleInputChange} placeholder="City, Country" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                      <input name="location" value={formData.location} onChange={handleInputChange} placeholder="City, Country" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none text-black" />
                     </div>
                   </div>
                 </motion.div>
@@ -209,25 +213,25 @@ export default function CompanionApplicationModal({ isOpen, onClose }: Companion
                   <div className="grid grid-cols-1 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-emerald-800 mb-1">Area of Expertise / Title</label>
-                      <input name="title" value={formData.title} onChange={handleInputChange} placeholder="e.g. Yoga Instructor, Energy Healer" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                      <input name="title" value={formData.title} onChange={handleInputChange} placeholder="e.g. Yoga Instructor, Energy Healer" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none text-black" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-bold text-emerald-800 mb-1">Years of Experience</label>
-                        <input name="experience" value={formData.experience} onChange={handleInputChange} placeholder="e.g. 5 Years" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                        <input name="experience" value={formData.experience} onChange={handleInputChange} placeholder="e.g. 5 Years" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none text-black" />
                       </div>
                       <div>
                         <label className="block text-sm font-bold text-emerald-800 mb-1">Languages Known</label>
-                        <input name="languages" value={formData.languages} onChange={handleInputChange} placeholder="English, Hindi" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                        <input name="languages" value={formData.languages} onChange={handleInputChange} placeholder="English, Hindi" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none text-black" />
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-emerald-800 mb-1">Short Bio</label>
-                      <textarea name="bio" value={formData.bio} onChange={handleInputChange} rows={3} placeholder="Tell us about yourself and your journey..." className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none resize-none" />
+                      <textarea name="bio" value={formData.bio} onChange={handleInputChange} rows={3} placeholder="Tell us about yourself and your journey..." className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none resize-none text-black" />
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-emerald-800 mb-1">Why do you want to become a companion?</label>
-                      <textarea name="whyJoin" value={formData.whyJoin} onChange={handleInputChange} rows={3} placeholder="Share your motivation for joining our network..." className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none resize-none" />
+                      <textarea name="whyJoin" value={formData.whyJoin} onChange={handleInputChange} rows={3} placeholder="Share your motivation for joining our network..." className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none resize-none text-black" />
                     </div>
                   </div>
                 </motion.div>
@@ -239,16 +243,16 @@ export default function CompanionApplicationModal({ isOpen, onClose }: Companion
                   <div className="grid grid-cols-1 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-emerald-800 mb-1">Available Timings</label>
-                      <input name="availability" value={formData.availability} onChange={handleInputChange} placeholder="e.g. Mon-Fri, 10 AM - 5 PM" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                      <input name="availability" value={formData.availability} onChange={handleInputChange} placeholder="e.g. Mon-Fri, 10 AM - 5 PM" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none text-black" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-bold text-emerald-800 mb-1">Chat Session Charge (₹/hr)</label>
-                        <input name="callRate" type="number" value={formData.callRate} onChange={handleInputChange} placeholder="500" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                        <input name="callRate" type="number" value={formData.callRate} onChange={handleInputChange} placeholder="500" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none text-black" />
                       </div>
                       <div>
                         <label className="block text-sm font-bold text-emerald-800 mb-1">Video Session Charge (₹/hr)</label>
-                        <input name="hourlyRate" type="number" value={formData.hourlyRate} onChange={handleInputChange} placeholder="1000" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none" />
+                        <input name="hourlyRate" type="number" value={formData.hourlyRate} onChange={handleInputChange} placeholder="1000" className="w-full p-3 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:border-emerald-500 outline-none text-black" />
                       </div>
                     </div>
                   </div>

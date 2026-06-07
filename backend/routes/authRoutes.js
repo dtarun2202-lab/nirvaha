@@ -48,8 +48,7 @@ function buildAuthUserPayload(user) {
     bio: user.bio,
     location: user.location,
     avatar: user.avatar,
-    enrolledPathways: user.enrolledPathways || [],
-    pathwayProgress: user.pathwayProgress ? Object.fromEntries(user.pathwayProgress) : {},
+
     isApprovedCompanion: user.isApprovedCompanion === true,
     companionStatus: user.companionStatus || null,
     companionId: user.companionId || null,

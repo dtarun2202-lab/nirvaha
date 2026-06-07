@@ -114,7 +114,6 @@ const Login: React.FC = () => {
   };
 
 
-
   // Login page images from public/login page images/ directory - encode spaces so browser can load
   const loginFolder = '/login page images/';
   const loginFiles = ['lo1.webp',
@@ -294,7 +293,7 @@ const Login: React.FC = () => {
             type="button"
             onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full max-w-[260px] flex items-center justify-center gap-2.5 px-6 py-3.5 border border-emerald-200/50 rounded-xl bg-white/80 hover:bg-white text-emerald-800 font-semibold text-xs md:text-sm transition-all duration-200 shadow-sm active:scale-[0.98] disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 border border-emerald-200/50 rounded-xl bg-white/80 hover:bg-white text-emerald-800 font-semibold text-xs md:text-sm transition-all duration-200 shadow-sm active:scale-[0.98] disabled:opacity-50"
           >
             <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -302,7 +301,7 @@ const Login: React.FC = () => {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
             </svg>
-            <span>Google</span>
+            <span>Continue with Google</span>
           </button>
         </div>
 
@@ -359,7 +358,7 @@ const Login: React.FC = () => {
           <motion.button
             type="submit"
             disabled={loading}
-            className="w-full py-4 px-6 rounded-xl btn-ancient disabled:opacity-50 flex items-center justify-center gap-3 mt-4"
+            className="w-full py-4 px-6 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white shadow-[0_8px_30px_rgb(4,120,87,0.3)] disabled:opacity-50 flex items-center justify-center gap-3 mt-4 transition-all duration-300 border border-emerald-600"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -367,8 +366,8 @@ const Login: React.FC = () => {
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
               <>
-                <Sparkles className="h-5 w-5" />
-                <span className="font-semibold uppercase tracking-widest text-sm">Enter the Sanctuary</span>
+                <Sparkles className="h-5 w-5 text-emerald-200" />
+                <span className="font-bold uppercase tracking-widest text-[13px] text-white">Enter the Sanctuary</span>
               </>
             )}
           </motion.button>

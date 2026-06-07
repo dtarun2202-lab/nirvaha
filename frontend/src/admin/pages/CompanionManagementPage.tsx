@@ -7,6 +7,7 @@ import {
   getCompanionApplications,
   updateCompanionApplication,
   updateCompanionStatus,
+  getCompanionApplication,
 } from "@/lib/companionApi";
 import { AdminTable } from "@/admin/components/AdminTable";
 import { StatusBadge } from "@/admin/components/StatusBadge";
@@ -49,6 +50,10 @@ interface Companion {
     video: number;
   };
   availability: string[];
+  experience?: string;
+  certifications?: string;
+  whyJoin?: string;
+  phone?: string;
 }
 
 const INITIAL_COMPANIONS: Companion[] = [];
@@ -134,6 +139,21 @@ export function CompanionManagementPage() {
     setIsViewModalOpen(true);
     setBookingsLoading(true);
     setCompanionBookings([]);
+    
+    // Fetch full application details to ensure extra fields like qualifications/bio are loaded
+    try {
+      const fullApp = await getCompanionApplication(companion.id);
+      setSelectedCompanion(prev => prev && prev.id === companion.id ? {
+        ...prev,
+        experience: fullApp.experience,
+        certifications: fullApp.certifications,
+        whyJoin: fullApp.whyJoin,
+        phone: fullApp.phone,
+      } : prev);
+    } catch (err) {
+      console.error("Error fetching full companion application details:", err);
+    }
+
     try {
       const response = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/bookings`);
       if (response.ok) {
@@ -350,14 +370,14 @@ export function CompanionManagementPage() {
             </div>
             <div className="w-full md:w-[200px]">
               <Select value={filter} onValueChange={setFilter}>
-                <SelectTrigger className="w-full bg-white/70 border-[#b7e4c7] text-[#1b4332] rounded-xl h-[50px]">
+                <SelectTrigger className="w-full bg-white border-[#b7e4c7] text-black font-semibold rounded-xl h-[50px] focus:ring-[#52b788] focus:border-[#52b788]">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
-                <SelectContent className="bg-white border-[#b7e4c7]">
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectContent className="bg-white border-[#b7e4c7] text-black">
+                  <SelectItem value="all" className="text-black cursor-pointer font-medium">All Status</SelectItem>
+                  <SelectItem value="pending" className="text-black cursor-pointer font-medium">Pending</SelectItem>
+                  <SelectItem value="approved" className="text-black cursor-pointer font-medium">Approved</SelectItem>
+                  <SelectItem value="rejected" className="text-black cursor-pointer font-medium">Rejected</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -380,59 +400,107 @@ export function CompanionManagementPage() {
             <DialogDescription>Complete companion application details</DialogDescription>
           </DialogHeader>
           {selectedCompanion && (
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-semibold mb-2">Bio</h3>
-                <p className="text-sm text-gray-600">{selectedCompanion.bio}</p>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">Specialties</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedCompanion.specialties.map((specialty, idx) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-sm"
-                    >
-                      {specialty}
-                    </span>
-                  ))}
+            <div className="space-y-6">
+              {/* Profile Header Info */}
+              <div className="flex justify-between items-start bg-emerald-50/40 p-4 rounded-2xl border border-emerald-100">
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-800 mb-1">Contact Details</h4>
+                  <p className="text-sm text-gray-700 font-semibold">Email: {selectedCompanion.email}</p>
+                  {selectedCompanion.phone && (
+                    <p className="text-sm text-gray-700 font-semibold mt-1">Phone: {selectedCompanion.phone}</p>
+                  )}
+                  {selectedCompanion.location && (
+                    <p className="text-sm text-gray-500 mt-1">Location: {selectedCompanion.location}</p>
+                  )}
                 </div>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">Languages</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedCompanion.languages.map((lang, idx) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-1 bg-teal-100 text-teal-800 rounded-full text-sm"
-                    >
-                      {lang}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">Pricing</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-600">Chat Session</p>
-                    <p className="text-lg font-semibold">₹{selectedCompanion.pricing.chat}/hr</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Video Session</p>
-                    <p className="text-lg font-semibold">₹{selectedCompanion.pricing.video}/hr</p>
+                <div className="flex flex-col items-end gap-1.5">
+                  <StatusBadge status={selectedCompanion.status} variant="companion" />
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <span className="text-sm font-medium text-gray-700">{selectedCompanion.rating || "5.0"}</span>
                   </div>
                 </div>
               </div>
+
               <div>
-                <h3 className="font-semibold mb-2">Availability</h3>
-                <p className="text-sm text-gray-600">{selectedCompanion.availability.join(", ")}</p>
+                <h3 className="font-semibold text-emerald-950 mb-1.5">Biography</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{selectedCompanion.bio}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <StatusBadge status={selectedCompanion.status} variant="companion" />
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span className="text-sm font-medium">{selectedCompanion.rating}</span>
+
+              {/* Qualifications */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                  <h3 className="font-semibold text-emerald-950 mb-1">Professional Experience</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {selectedCompanion.experience || "No experience details provided."}
+                  </p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                  <h3 className="font-semibold text-emerald-950 mb-1">Certifications</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {selectedCompanion.certifications || "No certifications listed."}
+                  </p>
+                </div>
+              </div>
+
+              {/* Motivation */}
+              {selectedCompanion.whyJoin && (
+                <div className="bg-emerald-50/30 p-4 rounded-xl border border-emerald-100/50">
+                  <h3 className="font-semibold text-emerald-950 mb-1">Motivation (Why join Nirvaha?)</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed italic">
+                    "{selectedCompanion.whyJoin}"
+                  </p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h3 className="font-semibold text-emerald-950 mb-2">Specialties</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedCompanion.specialties.map((specialty, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold"
+                      >
+                        {specialty}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-emerald-950 mb-2">Languages</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedCompanion.languages.map((lang, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 bg-teal-100 text-teal-800 rounded-full text-xs font-bold"
+                      >
+                        {lang}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
+                <div>
+                  <h3 className="font-semibold text-emerald-950 mb-1.5">Availability</h3>
+                  <p className="text-sm text-gray-600 font-medium">
+                    {selectedCompanion.availability.join(", ") || "Flexible / On Request"}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-emerald-950 mb-1.5">Pricing Rates</h3>
+                  <div className="flex gap-4">
+                    <div>
+                      <p className="text-xs text-gray-500">Chat Session</p>
+                      <p className="text-md font-bold text-gray-800">₹{selectedCompanion.pricing.chat}/hr</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Video Session</p>
+                      <p className="text-md font-bold text-gray-800">₹{selectedCompanion.pricing.video}/hr</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -586,13 +654,13 @@ export function CompanionManagementPage() {
                       setEditForm({ ...editForm, status: value as Companion["status"] })
                     }
                   >
-                    <SelectTrigger className="mt-1">
+                    <SelectTrigger className="mt-1 text-black font-medium border-[#b7e4c7] bg-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">pending</SelectItem>
-                      <SelectItem value="approved">approved</SelectItem>
-                      <SelectItem value="rejected">rejected</SelectItem>
+                    <SelectContent className="bg-white border-[#b7e4c7] text-black">
+                      <SelectItem value="pending" className="text-black cursor-pointer font-medium">pending</SelectItem>
+                      <SelectItem value="approved" className="text-black cursor-pointer font-medium">approved</SelectItem>
+                      <SelectItem value="rejected" className="text-black cursor-pointer font-medium">rejected</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
