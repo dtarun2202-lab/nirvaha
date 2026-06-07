@@ -13,11 +13,11 @@ export function StatusBadge({ status, variant = "default", className }: StatusBa
       case "companion":
         switch (status.toLowerCase()) {
           case "pending":
-            return { label: "Pending", className: "bg-yellow-100 text-yellow-800 border-yellow-300" };
+            return { label: "Pending", className: "bg-amber-50 text-amber-700 border-amber-200" };
           case "approved":
-            return { label: "Approved", className: "bg-gray-100 text-gray-800 border-gray-300" };
+            return { label: "Approved", className: "bg-emerald-50 text-emerald-700 border-emerald-200" };
           case "rejected":
-            return { label: "Rejected", className: "bg-red-100 text-red-800 border-red-300" };
+            return { label: "Rejected", className: "bg-rose-50 text-rose-700 border-rose-200" };
           case "suspended":
             return { label: "Suspended", className: "bg-orange-100 text-orange-800 border-orange-300" };
           default:
@@ -27,6 +27,8 @@ export function StatusBadge({ status, variant = "default", className }: StatusBa
         switch (status.toLowerCase()) {
           case "pending approval":
             return { label: "Pending Approval", className: "bg-yellow-100 text-yellow-800 border-yellow-300" };
+          case "approved":
+            return { label: "Approved", className: "bg-emerald-50 text-emerald-700 border-emerald-200" };
           case "session confirmed":
             return { label: "Session Confirmed", className: "bg-emerald-100 text-emerald-800 border-emerald-300" };
           case "rejected":
@@ -40,7 +42,7 @@ export function StatusBadge({ status, variant = "default", className }: StatusBa
           case "in-progress":
             return { label: "In Progress", className: "bg-gray-100 text-gray-800 border-gray-300" };
           case "pending":
-            return { label: "Pending Approval", className: "bg-amber-100 text-amber-800 border-amber-300" };
+            return { label: "Pending", className: "bg-amber-100 text-amber-800 border-amber-300" };
           default:
             return { label: status, className: "bg-gray-100 text-gray-800 border-gray-300" };
         }

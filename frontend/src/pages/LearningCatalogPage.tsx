@@ -68,7 +68,7 @@ const LearningCatalogPage: React.FC = () => {
             Choose Your Certification
           </h1>
           <p className="text-sm md:text-base text-emerald-800/70 max-w-xl mx-auto font-bold uppercase tracking-wider">
-            Structured emotional wellness pathways designed for personal expansion and wisdom
+            Structured emotional wellness certifications designed for personal expansion and wisdom
           </p>
         </motion.div>
       </section>

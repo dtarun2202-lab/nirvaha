@@ -2,6 +2,7 @@ import { initializeApp, getApps } from "firebase/app";
 import {
   getAuth,
   GoogleAuthProvider,
+  GithubAuthProvider,
 } from "firebase/auth";
 
 import { getAnalytics } from "firebase/analytics";
@@ -35,5 +36,6 @@ export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
   prompt: "select_account",
 });
+export const githubProvider = new GithubAuthProvider();
 
 export default app;

@@ -4,11 +4,34 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Quote, BookOpen, CheckCircle, Sparkles, Flame, Star, Sun } from 'lucide-react';
 import { defaultLibraryItems, LibraryItem } from '../data/libraryData';
 
+const curatedImageSets: Record<string, string[]> = {
+    'agni-the-sacred-fire': ['/agni1.png', '/agni2.png', '/agni3.png', '/agni4.png'],
+    'manas-shuddhi-mental-clarity': ['/manas%20sudhi1.png', '/manas%20sudhi2.png', '/manas%20sudhi3.png', '/manas%20sudhi4.png'],
+    'bramhacharya-energy-mastery': ['/brahma1.png', '/brahma2.png', '/brahma3.png', '/brahma4.png'],
+    'dhinacharya-daily-routine': ['/dhinacharya1.png', '/dhinacharya2.png', '/dhinacharya3.png', '/dhinacharya4.png'],
+    'indriya-nigraha-sensory-control': ['/swami1.png', '/swami2.png', '/swami3.png', '/swami4.png'],
+    'saradhi-the-divine-guide': ['/pati1.png', '/pati2.png', '/pati3.png', '/pati4.png'],
+    'vyayama-sacred-movement': ['/singh1.png', '/singh2.png', '/singh3.png', '/singh4.png'],
+    'civilizational-wisdom': ['/BR1.png', '/BR2.png', '/BR3.png', '/BR4.png'],
+    'ritucharya-seasonal-harmony': ['/sundar1.png', '/sundar2.png', '/sundar3.png', '/sundar4.png'],
+    'satmya-holistic-adaptability': ['/tata1.png', '/tata2.png', '/tata3.png', '/tata4.png'],
+    'nidra-conscious-sleep': ['/nidra1.png', '/nidra2.png', '/nidra3.png', '/nidra4.png'],
+    'sadvritta-ethical-living': ['/sadvritta1.png', '/sadvritta2.png', '/sadvritta3.png', '/sadvritta4.png'],
+    'lal-bahadur-shastri': ['/lal1.png', '/lal2.png', '/lal3.png', '/lal4.png'],
+    'ratan-tata': ['/tata1.png', '/tata2.png', '/tata3.png', '/tata4.png'],
+    'sundar-pichai': ['/sundar1.png', '/sundar2.png', '/sundar3.png', '/sundar4.png'],
+    'chhatrapati-shivaji-maharaj': ['/pati1.png', '/pati2.png', '/pati3.png', '/pati4.png'],
+    'milkha-singh': ['/singh1.png', '/singh2.png', '/singh3.png', '/singh4.png'],
+    'swami-vivekananda': ['/swami1.png', '/swami2.png', '/swami3.png', '/swami4.png'],
+    'dr-b-r-ambedkar': ['/BR1.png', '/BR2.png'],
+};
+
 const LibraryDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
     const item: LibraryItem | undefined = defaultLibraryItems.find(i => i.id === id);
+    const curatedImages = item ? curatedImageSets[item.id] : undefined;
 
     useEffect(() => { window.scrollTo(0, 0); }, [id]);
 
@@ -29,8 +52,7 @@ const LibraryDetailPage: React.FC = () => {
             {/* Fixed ambient background */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
                 <div 
-                  className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15 mix-blend-luminosity" 
-                  style={{ backgroundImage: `url(${item.image})` }} 
+                  className="absolute inset-0 bg-[radial-gradient(circle,rgba(212,175,55,0.12)_0%,transparent_55%)] opacity-50 mix-blend-luminosity"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-[#0a0f0c]/80 via-[#0a0f0c]/90 to-[#0a0f0c] z-0" />
                 <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-[#d4af37]/5 rounded-full blur-[120px]" />
@@ -152,6 +174,71 @@ const LibraryDetailPage: React.FC = () => {
                     </p>
                 </motion.section>
 
+                {curatedImages?.length ? (
+                    <motion.section initial={{ opacity: 0, y: 25 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="mb-12">
+                        <div className="mx-auto max-w-3xl grid gap-4 lg:grid-cols-2">
+                            <div className="overflow-hidden rounded-[1.5rem] border border-[#d4af37]/10 bg-[#111713] h-[260px] sm:h-[300px]">
+                                <img
+                                    src={curatedImages[0]}
+                                    alt={`${item.title} visual reference`}
+                                    className="h-full w-full object-cover object-center transition-transform duration-700 hover:scale-105"
+                                    loading="lazy"
+                                    decoding="async"
+                                />
+                            </div>
+                            <div className="grid gap-4">
+                                <div className="overflow-hidden rounded-[1.5rem] border border-[#d4af37]/10 bg-[#111713] h-[124px] sm:h-[150px]">
+                                    <img
+                                        src={curatedImages[1]}
+                                        alt={`${item.title} detail image`}
+                                        className="h-full w-full object-cover object-center transition-transform duration-700 hover:scale-105"
+                                        loading="lazy"
+                                        decoding="async"
+                                    />
+                                </div>
+                                {curatedImages[2] && (
+                                    <div className="overflow-hidden rounded-[1.5rem] border border-[#d4af37]/10 bg-[#111713] h-[124px] sm:h-[150px]">
+                                        <img
+                                            src={curatedImages[2]}
+                                            alt={`${item.title} complementary image`}
+                                            className="h-full w-full object-cover object-center transition-transform duration-700 hover:scale-105"
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <p className="mt-5 text-sm text-[#9ea694] leading-relaxed" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                            Curated visual reflections that deepen the narrative of {item.title}.
+                        </p>
+                    </motion.section>
+                ) : null}
+
+                {/* Impact Presentation */}
+                <motion.section initial={{ opacity: 0, y: 25 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="mb-16">
+                    <div className="space-y-8">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 flex items-center justify-center">
+                                <CheckCircle size={18} className="text-[#d4af37]" />
+                            </div>
+                            <div>
+                                <p className="text-[9px] uppercase tracking-[0.5em] text-[#d4af37]/40 font-bold" style={{ fontFamily: "'Cinzel', serif" }}>Impact</p>
+                                <h2 className="text-3xl font-bold text-white" style={{ fontFamily: "'Cinzel', serif" }}>Impact in Focus</h2>
+                            </div>
+                        </div>
+                        <div className="grid gap-4">
+                            {item.impact.map((impact, i) => (
+                                <div key={i} className="rounded-3xl border border-[#d4af37]/10 bg-[#111713] p-6 text-[#c8c4b4] transition hover:border-[#d4af37]/25 hover:bg-[#141c16]">
+                                    <p className="text-sm leading-relaxed font-light" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                                        {impact}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </motion.section>
+
                 {/* Ancient Wisdom + Modern Interpretation */}
                 <motion.section initial={{ opacity: 0, y: 25 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="mb-16">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -174,6 +261,27 @@ const LibraryDetailPage: React.FC = () => {
                     </div>
                 </motion.section>
 
+                {curatedImages?.length >= 4 ? (
+                    <motion.section initial={{ opacity: 0, y: 25 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="mb-12">
+                        <div className="mx-auto max-w-3xl grid gap-4 md:grid-cols-2">
+                            {curatedImages.slice(2, 4).map((src, i) => (
+                                <div key={i} className="overflow-hidden rounded-[1.5rem] border border-[#d4af37]/10 bg-[#111713] h-[180px] sm:h-[200px]">
+                                    <img
+                                        src={src}
+                                        alt={`${item.title} thematic image ${i + 3}`}
+                                        className="h-full w-full object-cover object-center transition-transform duration-700 hover:scale-105"
+                                        loading="lazy"
+                                        decoding="async"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                        <p className="mt-5 text-sm text-[#9ea694] leading-relaxed" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                            A second set of curated imagery bridges the wisdom of tradition and the practical power of awareness.
+                        </p>
+                    </motion.section>
+                ) : null}
+
                 {/* Quotes of Wisdom */}
                 <motion.section initial={{ opacity: 0, y: 25 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="mb-16">
                     <div className="flex items-center gap-3 mb-8">
@@ -195,8 +303,6 @@ const LibraryDetailPage: React.FC = () => {
                         ))}
                     </div>
                 </motion.section>
-
-
 
                 {/* Reflection / Emotional highlight */}
                 <motion.div initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.9 }}

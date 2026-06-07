@@ -55,7 +55,7 @@ const sessionTheory: Record<string, { theory: string; soundInfo: string; benefit
     technique: 'Somatic frequency relaxation'
   },
   'Yoga Programs': {
-    theory: 'Movement-synchronized breathing links motor-cortex pathways to autonomous relaxation systems. Synchronizing action to auditory patterns stabilizes heart rate and optimizes coordination.',
+    theory: 'Movement-synchronized breathing links motor-cortex circuits to autonomous relaxation systems. Synchronizing action to auditory patterns stabilizes heart rate and optimizes coordination.',
     soundInfo: 'Immersive tanpura drones (C# resonance) combined with slow tempo sitar compositions. The harmonic resonance aligns movement transitions and keeps concentration internal.',
     benefits: ['Lowers physical muscle tension', 'Enhances physical mindfulness', 'Supports fluid movement patterns'],
     technique: 'Drone-led movement coordination'

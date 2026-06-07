@@ -69,7 +69,7 @@ const LESSON_CONTENT: Record<string, {
 }> = {
   u1: {
     objectives: [
-      'Understand the core principles of this learning pathway',
+      'Understand the core principles of this learning experience',
       'Identify key concepts that will guide your journey',
       'Set personal learning intentions for this module',
     ],
