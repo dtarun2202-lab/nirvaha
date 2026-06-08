@@ -28,7 +28,7 @@ export const ARCHETYPES: Record<CharacterId, Archetype> = {
             secondary: '#B8860B',
             gradient: 'from-[#D4AF37] to-[#B8860B]'
         },
-        image: '/ram.jpg'
+        image: '/rama_hd.png'
     },
     krishna: {
         id: 'krishna',
@@ -42,7 +42,7 @@ export const ARCHETYPES: Record<CharacterId, Archetype> = {
             secondary: '#312E81', // Indigo
             gradient: 'from-[#1E3A8A] to-[#312E81]'
         },
-        image: '/human krishna.png'
+        image: '/krishna_hd.png'
     },
     hanuman: {
         id: 'hanuman',
@@ -56,7 +56,7 @@ export const ARCHETYPES: Record<CharacterId, Archetype> = {
             secondary: '#C2410C', // Saffron
             gradient: 'from-[#EA580C] to-[#C2410C]'
         },
-        image: '/hanuman.jpg'
+        image: '/hanuman_hd.png'
     },
     arjuna: {
         id: 'arjuna',
@@ -70,7 +70,7 @@ export const ARCHETYPES: Record<CharacterId, Archetype> = {
             secondary: '#047857', // Emerald
             gradient: 'from-[#059669] to-[#047857]'
         },
-        image: '/arjuna.jpg'
+        image: '/arjuna_hd.png'
     },
     sita: {
         id: 'sita',
@@ -84,7 +84,7 @@ export const ARCHETYPES: Record<CharacterId, Archetype> = {
             secondary: '#9F1239',
             gradient: 'from-[#BE123C] to-[#9F1239]'
         },
-        image: '/sita.jpg'
+        image: '/sita_hd.png'
     },
     karna: {
         id: 'karna',
@@ -98,7 +98,7 @@ export const ARCHETYPES: Record<CharacterId, Archetype> = {
             secondary: '#92400E', // Copper
             gradient: 'from-[#B45309] to-[#92400E]'
         },
-        image: '/karna.jpg'
+        image: '/karna_hd.png'
     }
 };
 

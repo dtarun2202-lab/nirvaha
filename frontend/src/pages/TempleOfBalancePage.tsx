@@ -2,6 +2,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import SEOHead from '../components/common/SEOHead';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import SEOHead from '../components/common/SEOHead';
 import { TempleApp } from '../components/temple-of-balance/TempleApp';
 import { QuitConfirmationModal } from '../components/common/QuitConfirmationModal';
 import { GameLoaderWrapper } from '../components/common/GameLoaderWrapper';
@@ -9,6 +13,7 @@ import { GameLoaderWrapper } from '../components/common/GameLoaderWrapper';
 const TempleOfBalancePage: React.FC = () => {
     const navigate = useNavigate();
     const [isQuitModalOpen, setIsQuitModalOpen] = React.useState(false);
+    const [isGameOver, setIsGameOver] = React.useState(false);
 
     return (
         <GameLoaderWrapper title="Temple of Balance" themeColor="#B45309">
@@ -37,11 +42,12 @@ const TempleOfBalancePage: React.FC = () => {
                     <QuitConfirmationModal 
                         isOpen={isQuitModalOpen}
                         onClose={() => setIsQuitModalOpen(false)}
-                        onConfirm={() => navigate('/dashboard/overview')}
+                        onConfirm={() => navigate('/dashboard')}
+                        isGameOver={isGameOver}
                     />
 
                     {/* Main App Container */}
-                    <TempleApp />
+                    <TempleApp onGameOver={setIsGameOver} />
                 </div>
             </div>
         </GameLoaderWrapper>

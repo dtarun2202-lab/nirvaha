@@ -10,7 +10,7 @@ import { TempleBoard } from './TempleBoard';
 
 type GameStatus = 'PLAYING' | 'WIN' | 'LOSE_STAT' | 'LOSE_STABILITY' | 'LOSE_IMBALANCE';
 
-export const TempleApp = () => {
+export const TempleApp = ({ onGameOver }: { onGameOver?: (isOver: boolean) => void }) => {
     // Game State
     const [stats, setStats] = useState<LifeStats>(INITIAL_STATS);
     const [board, setBoard] = useState<BoardState>(() => 
@@ -18,6 +18,12 @@ export const TempleApp = () => {
     );
     const [turn, setTurn] = useState<number>(1);
     const [status, setStatus] = useState<GameStatus>('PLAYING');
+
+    useEffect(() => {
+        if (onGameOver) {
+            onGameOver(status !== 'PLAYING');
+        }
+    }, [status, onGameOver]);
     
     // Turn State
     const [options, setOptions] = useState<TileDef[]>([]);
@@ -191,7 +197,7 @@ export const TempleApp = () => {
     }
 
     return (
-        <div className="min-h-[800px] w-full bg-[#080808] text-gray-200 rounded-3xl border border-gray-800 overflow-hidden relative flex flex-col md:flex-row shadow-2xl font-sans">
+        <div className="min-h-[800px] md:h-[800px] w-full bg-[#080808] text-gray-200 rounded-3xl border border-gray-800 overflow-hidden relative flex flex-col md:flex-row shadow-2xl font-sans">
             
             {/* Top/Left Sidebar: Stats & Info */}
             <div className="w-full md:w-72 bg-[#0A0A0A] border-b md:border-b-0 md:border-r border-gray-800 flex flex-col">
@@ -221,7 +227,10 @@ export const TempleApp = () => {
                         <h3 className="text-[10px] font-bold text-gray-600 tracking-[0.2em] uppercase mb-4">Core Stability</h3>
                         <div className="relative h-12 bg-gray-900 rounded-xl overflow-hidden border border-gray-800">
                             <motion.div 
-                                className="absolute inset-y-0 left-0 bg-gradient-to-r from-gray-700 to-gray-500"
+                                className="absolute inset-y-0 left-0 transition-colors duration-500"
+                                style={{ 
+                                    backgroundColor: `hsl(${Math.round(Math.max(0, Math.min(120, (stats.stability / 100) * 120)))}, 80%, 45%)`
+                                }}
                                 animate={{ width: `${stats.stability}%` }}
                                 transition={{ type: "spring", stiffness: 60 }}
                             />
@@ -235,7 +244,22 @@ export const TempleApp = () => {
 
             {/* Main Area: Board & Actions */}
             <div className="flex-1 flex flex-col relative overflow-hidden">
-                <div className="flex-1 flex items-center justify-center p-4">
+                <div className="flex-1 flex items-center justify-center p-4 relative">
+                    {turn === 1 && selectedTile !== null && status === 'PLAYING' && hasStarted && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                            className="absolute top-8 left-1/2 -translate-x-1/2 bg-[#D4AF37] text-black px-6 py-3 rounded-xl font-bold text-sm shadow-[0_0_30px_rgba(212,175,55,0.4)] z-50 text-center flex flex-col items-center gap-1 border-2 border-white/20"
+                        >
+                            <div className="flex items-center gap-2">
+                                <span className="flex h-3 w-3 relative">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-3 w-3 bg-black"></span>
+                                </span>
+                                Step 2: Place the tile on the board
+                            </div>
+                            <span className="text-xs font-normal opacity-80">(Hint: The center ring gives a +20% bonus!)</span>
+                        </motion.div>
+                    )}
                     <TempleBoard 
                         board={board} 
                         onCellClick={handleCellClick}
@@ -244,7 +268,20 @@ export const TempleApp = () => {
                 </div>
 
                 {/* Bottom Panel: Tile Choices */}
-                <div className="bg-[#0A0A0A] border-t border-gray-800 p-6 z-20">
+                <div className="bg-[#0A0A0A] border-t border-gray-800 p-6 z-20 relative">
+                    {turn === 1 && selectedTile === null && status === 'PLAYING' && hasStarted && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                            className="absolute -top-14 left-1/2 -translate-x-1/2 bg-[#D4AF37] text-black px-5 py-2.5 rounded-xl font-bold text-sm shadow-[0_0_30px_rgba(212,175,55,0.4)] whitespace-nowrap z-50 flex items-center gap-2 border-2 border-white/20"
+                        >
+                            <span className="flex h-3 w-3 relative">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-3 w-3 bg-black"></span>
+                            </span>
+                            Step 1: Select a tile to begin
+                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-[#D4AF37]"></div>
+                        </motion.div>
+                    )}
                     <h3 className="text-[10px] font-bold text-gray-500 tracking-[0.2em] uppercase mb-4 text-center">
                         {status === 'PLAYING' ? 'Select a tile to place' : 'Game Over'}
                     </h3>
@@ -284,7 +321,7 @@ export const TempleApp = () => {
             </div>
 
             {/* Right Sidebar: Event Log (Desktop) / Bottom (Mobile) */}
-            <div className="w-full md:w-80 bg-[#0A0A0A] border-t md:border-t-0 md:border-l border-gray-800 flex flex-col h-64 md:h-auto">
+            <div className="w-full md:w-80 bg-[#0A0A0A] border-t md:border-t-0 md:border-l border-gray-800 flex flex-col h-64 md:h-auto md:overflow-hidden">
                 <div className="p-6 border-b border-gray-800">
                     <h3 className="text-[10px] font-bold text-gray-600 tracking-[0.2em] uppercase">Chronicle</h3>
                 </div>

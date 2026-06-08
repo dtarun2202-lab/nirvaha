@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Download, RotateCcw, ChevronRight, Sparkles } from 'lucide-react';
 import { QUIZ_QUESTIONS, QuizOption } from './AncientCharacterData';
 import { calculateResult, generateDownloadCardSVG, QuizResult } from './AncientCharacterEngine';
+import { SocialShareOverlay } from '../common/SocialShareOverlay';
 
 type ScreenState = 'welcome' | 'question' | 'result';
 
@@ -184,13 +185,22 @@ const CollectibleCard = ({ result, accentColor }: { result: QuizResult, accentCo
     );
 };
 
-export const AncientCharacterApp = () => {
+export const AncientCharacterApp = ({ onGameOver }: { onGameOver?: (isOver: boolean) => void }) => {
     const [currentScreen, setCurrentScreen] = useState<ScreenState>('welcome');
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedAnswers, setSelectedAnswers] = useState<QuizOption[]>([]);
     const [result, setResult] = useState<QuizResult | null>(null);
+    const [currentQuestions, setCurrentQuestions] = useState<typeof QUIZ_QUESTIONS>([]);
+
+    useEffect(() => {
+        if (onGameOver) {
+            onGameOver(currentScreen === 'result');
+        }
+    }, [currentScreen, onGameOver]);
 
     const handleStart = () => {
+        const shuffled = [...QUIZ_QUESTIONS].sort(() => 0.5 - Math.random());
+        setCurrentQuestions(shuffled.slice(0, 5));
         setCurrentScreen('question');
         setCurrentQuestionIndex(0);
         setSelectedAnswers([]);
@@ -201,7 +211,7 @@ export const AncientCharacterApp = () => {
         const newAnswers = [...selectedAnswers, option];
         setSelectedAnswers(newAnswers);
 
-        if (currentQuestionIndex < QUIZ_QUESTIONS.length - 1) {
+        if (currentQuestionIndex < currentQuestions.length - 1) {
             // Small delay to let user see their selection before advancing
             setTimeout(() => {
                 setCurrentQuestionIndex(prev => prev + 1);
@@ -216,6 +226,8 @@ export const AncientCharacterApp = () => {
         }
     };
 
+    const [showSharePrompt, setShowSharePrompt] = useState(false);
+
     const handleDownload = () => {
         if (!result) return;
         const dataUrl = generateDownloadCardSVG(result);
@@ -225,6 +237,7 @@ export const AncientCharacterApp = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        setShowSharePrompt(true);
     };
 
     const renderWelcome = () => (
@@ -238,7 +251,7 @@ export const AncientCharacterApp = () => {
             {/* Background Image */}
             <div className="absolute inset-0 z-0 pointer-events-none rounded-3xl overflow-hidden">
                 <img 
-                    src="/human krishna.png" 
+                    src="/krishna_hd.png" 
                     alt="Ancient Character Background" 
                     className="w-full h-full object-cover opacity-40 mix-blend-luminosity"
                 />
@@ -275,8 +288,10 @@ export const AncientCharacterApp = () => {
     );
 
     const renderQuestion = () => {
-        const question = QUIZ_QUESTIONS[currentQuestionIndex];
-        const progress = ((currentQuestionIndex) / QUIZ_QUESTIONS.length) * 100;
+        const question = currentQuestions[currentQuestionIndex];
+        if (!question) return null;
+        
+        const progress = ((currentQuestionIndex) / currentQuestions.length) * 100;
 
         return (
             <motion.div 
@@ -289,13 +304,13 @@ export const AncientCharacterApp = () => {
                 {/* Progress Bar */}
                 <div className="mb-12">
                     <div className="flex justify-between text-sm text-gray-500 mb-3 tracking-widest uppercase">
-                        <span>Question {currentQuestionIndex + 1} of {QUIZ_QUESTIONS.length}</span>
+                        <span>Question {currentQuestionIndex + 1} of {currentQuestions.length}</span>
                     </div>
                     <div className="w-full h-1 bg-gray-800 rounded-full overflow-hidden">
                         <motion.div 
                             className="h-full bg-gray-400"
-                            initial={{ width: `${((currentQuestionIndex) / QUIZ_QUESTIONS.length) * 100}%` }}
-                            animate={{ width: `${((currentQuestionIndex + 1) / QUIZ_QUESTIONS.length) * 100}%` }}
+                            initial={{ width: `${((currentQuestionIndex) / currentQuestions.length) * 100}%` }}
+                            animate={{ width: `${((currentQuestionIndex + 1) / currentQuestions.length) * 100}%` }}
                             transition={{ duration: 0.5, ease: "easeInOut" }}
                         />
                     </div>
@@ -526,6 +541,11 @@ export const AncientCharacterApp = () => {
 
     return (
         <div className="min-h-[800px] w-full bg-[#0a0a0a] rounded-3xl border border-gray-800 overflow-hidden relative shadow-2xl">
+            <SocialShareOverlay 
+                isOpen={showSharePrompt} 
+                onClose={() => setShowSharePrompt(false)} 
+                shareUrl="https://nirvaha.com"
+            />
             {/* Very subtle ambient background effect */}
             <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
                 background: result ? `radial-gradient(circle at 50% 0%, ${result.primaryMatch.colors.primary}40 0%, transparent 70%)` : 'none'

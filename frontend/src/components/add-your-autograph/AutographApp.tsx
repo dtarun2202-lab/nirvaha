@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import html2canvas from 'html2canvas';
-import { Download, ChevronRight, Check } from 'lucide-react';
+import { Download, ChevronRight, Check, PenLine } from 'lucide-react';
 import { 
     STATEMENT_CARDS, 
     THEMES, 
@@ -9,6 +9,7 @@ import {
     CardTheme, 
     SignatureStyle 
 } from './AutographData';
+import { SocialShareOverlay } from '../common/SocialShareOverlay';
 
 export const AutographApp = () => {
     const [name, setName] = useState('');
@@ -16,6 +17,9 @@ export const AutographApp = () => {
     const [selectedTheme, setSelectedTheme] = useState<CardTheme>(THEMES[0]);
     const [selectedStyle, setSelectedStyle] = useState<SignatureStyle>(SIGNATURE_STYLES[0]);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [showSharePrompt, setShowSharePrompt] = useState(false);
+    const [isCustomStatement, setIsCustomStatement] = useState(false);
+    const [customStatementText, setCustomStatementText] = useState('');
     
     const cardRef = useRef<HTMLDivElement>(null);
 
@@ -36,6 +40,8 @@ export const AutographApp = () => {
             link.href = image;
             link.download = `Autograph_${name || 'Card'}.png`;
             link.click();
+            
+            setShowSharePrompt(true);
         } catch (error) {
             console.error('Failed to download image:', error);
         } finally {
@@ -44,7 +50,12 @@ export const AutographApp = () => {
     };
 
     return (
-        <div className="w-full bg-[#080808] text-gray-200 rounded-3xl border border-gray-800 overflow-hidden shadow-2xl font-sans flex flex-col lg:flex-row min-h-[900px] lg:max-h-[900px]">
+        <div className="w-full bg-[#080808] text-gray-200 rounded-3xl border border-gray-800 overflow-hidden shadow-2xl font-sans flex flex-col lg:flex-row min-h-[900px] lg:max-h-[900px] relative">
+            <SocialShareOverlay 
+                isOpen={showSharePrompt} 
+                onClose={() => setShowSharePrompt(false)} 
+                shareUrl="https://nirvaha.com"
+            />
             
             {/* Left Panel: Live Preview */}
             <div className="w-full lg:w-[60%] bg-[#111] flex flex-col relative min-h-[600px] lg:min-h-full border-b lg:border-b-0 lg:border-r border-gray-800">
@@ -101,12 +112,12 @@ export const AutographApp = () => {
                             className="text-sm uppercase tracking-[0.4em] font-sans font-bold opacity-80 relative z-10"
                             style={{ color: selectedTheme.accentColor }}
                         >
-                            {selectedCard.category}
+                            {isCustomStatement ? "CUSTOM" : selectedCard.category}
                         </div>
 
                         {/* Center: Main Statement */}
                         <div className="text-3xl sm:text-4xl xl:text-5xl leading-[1.2] font-medium my-12 text-balance relative z-10">
-                            "{selectedCard.text}"
+                            "{isCustomStatement ? (customStatementText || "Your custom statement here...") : selectedCard.text}"
                         </div>
 
                         {/* Bottom: Autograph & Branding */}
@@ -208,19 +219,59 @@ export const AutographApp = () => {
                             4. Statement Content
                         </label>
                         <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar pb-8">
+                            {/* Custom Statement Option */}
+                            <div className={`
+                                w-full p-5 rounded-xl border-2 transition-all flex flex-col gap-3 relative overflow-hidden
+                                ${isCustomStatement
+                                    ? 'bg-[#1a150c] border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.15)]'
+                                    : 'bg-transparent border-dashed border-gray-600 hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/5'
+                                }
+                            `}>
+                                <button
+                                    onClick={() => setIsCustomStatement(true)}
+                                    className="w-full text-left focus:outline-none flex items-start gap-3"
+                                >
+                                    <div className={`p-2 rounded-lg shrink-0 mt-0.5 transition-colors ${isCustomStatement ? 'bg-[#D4AF37] text-black' : 'bg-gray-800 text-gray-400'}`}>
+                                        <PenLine className="w-4 h-4" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <span className={`text-[10px] font-bold uppercase tracking-[0.2em] block mb-1 ${isCustomStatement ? 'text-[#D4AF37]' : 'text-gray-300'}`}>
+                                            Create Your Own Tagline
+                                        </span>
+                                        {!isCustomStatement && (
+                                            <p className="text-sm leading-relaxed text-gray-500 italic">Draft a personalized statement from scratch...</p>
+                                        )}
+                                    </div>
+                                </button>
+                                
+                                {isCustomStatement && (
+                                    <textarea
+                                        value={customStatementText}
+                                        onChange={(e) => setCustomStatementText(e.target.value)}
+                                        placeholder="Type your custom tagline here..."
+                                        className="w-full bg-black/40 border border-[#D4AF37]/30 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#D4AF37] transition-colors text-sm resize-none h-24 shadow-inner mt-2 placeholder-gray-600"
+                                    />
+                                )}
+                            </div>
+
+                            <div className="w-full h-px bg-gray-800 my-4"></div>
+
                             {STATEMENT_CARDS.map(card => (
                                 <button
                                     key={card.id}
-                                    onClick={() => setSelectedCard(card)}
+                                    onClick={() => {
+                                        setSelectedCard(card);
+                                        setIsCustomStatement(false);
+                                    }}
                                     className={`
                                         w-full text-left p-5 rounded-xl border transition-all
-                                        ${selectedCard.id === card.id
+                                        ${!isCustomStatement && selectedCard.id === card.id
                                             ? 'bg-gray-800 border-[#D4AF37] text-white shadow-md'
                                             : 'bg-transparent border-gray-800 text-gray-400 hover:border-gray-600 hover:bg-gray-900'
                                         }
                                     `}
                                 >
-                                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37] block mb-2">
+                                    <span className={`text-[10px] font-bold uppercase tracking-[0.2em] block mb-2 ${!isCustomStatement && selectedCard.id === card.id ? 'text-[#D4AF37]' : 'text-gray-500'}`}>
                                         {card.category}
                                     </span>
                                     <p className="text-sm leading-relaxed">{card.text}</p>

@@ -9,6 +9,7 @@ import { GameLoaderWrapper } from '../components/common/GameLoaderWrapper';
 const LifeQuizPage: React.FC = () => {
     const navigate = useNavigate();
     const [isQuitModalOpen, setIsQuitModalOpen] = React.useState(false);
+    const [isGameOver, setIsGameOver] = React.useState(false);
     
     return (
         <GameLoaderWrapper title="Understand Life" themeColor="#D4AF37">
@@ -37,10 +38,11 @@ const LifeQuizPage: React.FC = () => {
                 isOpen={isQuitModalOpen}
                 onClose={() => setIsQuitModalOpen(false)}
                 onConfirm={() => navigate('/dashboard')}
+                isGameOver={isGameOver}
             />
 
             <div className="relative z-10 w-full">
-                <LifeQuizApp />
+                <LifeQuizApp onGameOver={setIsGameOver} />
             </div>
         </div>
         </GameLoaderWrapper>

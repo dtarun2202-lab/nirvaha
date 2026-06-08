@@ -27,10 +27,11 @@ export const calculateResult = (selectedOptions: QuizOption[]): QuizResult => {
         });
     });
 
-    // Sort characters by score descending
+    // Sort characters by score descending, adding a random tie-breaker
     const sortedCharacters = Object.entries(scores)
-        .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
-        .map(([id]) => id as CharacterId);
+        .map(([id, score]) => ({ id, score, tieBreaker: Math.random() }))
+        .sort((a, b) => b.score - a.score || b.tieBreaker - a.tieBreaker)
+        .map(({ id }) => id as CharacterId);
 
     const primaryId = sortedCharacters[0];
     const secondaryId = sortedCharacters[1];

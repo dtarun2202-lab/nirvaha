@@ -5,9 +5,10 @@ interface QuitConfirmationModalProps {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: () => void;
+    isGameOver?: boolean;
 }
 
-export const QuitConfirmationModal: React.FC<QuitConfirmationModalProps> = ({ isOpen, onClose, onConfirm }) => {
+export const QuitConfirmationModal: React.FC<QuitConfirmationModalProps> = ({ isOpen, onClose, onConfirm, isGameOver }) => {
     return (
         <AnimatePresence>
             {isOpen && (
@@ -27,7 +28,9 @@ export const QuitConfirmationModal: React.FC<QuitConfirmationModalProps> = ({ is
                     >
                         <h3 className="text-2xl font-serif text-white mb-3" style={{ fontFamily: "'Cinzel', serif" }}>Quit Game?</h3>
                         <p className="text-zinc-400 mb-8 text-sm leading-relaxed font-sans">
-                            Are you sure you want to return to the Arcade? Any current progress will be lost.
+                            {isGameOver 
+                                ? "Are you sure you want to return to the Arcade?"
+                                : "Are you sure you want to return to the Arcade? Any current progress will be lost."}
                         </p>
                         <div className="flex gap-4 w-full">
                             <button
