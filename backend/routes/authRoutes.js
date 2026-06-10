@@ -406,4 +406,43 @@ router.post('/change-password', async (req, res) => {
   }
 });
 
+// GET /api/auth/user - Get current user with sessionHistory
+router.get('/user', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const user = await User.findOne({ email: decoded.email });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const safeUser = {
+      ...user.toObject(),
+      isApprovedCompanion: user.isApprovedCompanion === true,
+      companionStatus: user.companionStatus || null,
+      companionId: user.companionId || null,
+    };
+    if (safeUser.password) delete safeUser.password;
+    if (safeUser.__v) delete safeUser.__v;
+
+    console.log('🔍 GET /api/auth/user - Response:', {
+      userId: user.id,
+      email: user.email,
+      sessionHistoryLength: safeUser.sessionHistory?.length || 0,
+      sessionHistory: safeUser.sessionHistory
+    });
+
+    res.json({ user: safeUser });
+  } catch (error) {
+    console.error('Get user error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;

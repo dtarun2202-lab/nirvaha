@@ -39,7 +39,7 @@ const JourneyDashboard: React.FC<JourneyDashboardProps> = ({ pathway, onStartLes
             ? Math.round((progressData.completedLessons.length / pathway.timeline.length) * 100) 
             : 0,
         streak: user?.stats?.streak || 0,
-        reflectionScore: user?.stats?.wellnessScore || 50,
+        reflectionScore: user?.stats?.wellnessScore || 0,
         completedLessons: progressData.completedLessons
     };
 

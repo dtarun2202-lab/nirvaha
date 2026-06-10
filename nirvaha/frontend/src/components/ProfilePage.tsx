@@ -729,6 +729,34 @@ export function ProfilePage() {
     },
     [profileData?.stats, user?.stats]
   );
+  const todayPracticeTime = useMemo(() => {
+    const sessionHistoryList = pickSessionHistory(
+      profileData?.sessionHistory,
+      (user as { sessionHistory?: Record<string, unknown>[] } | null)?.sessionHistory
+    );
+    const now = new Date();
+    const todayDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    console.log('DEBUG: todayDateStr:', todayDateStr);
+    console.log('DEBUG: sessionHistoryList:', sessionHistoryList);
+    const todaySessions = sessionHistoryList.filter((session) => {
+      const date = session.date;
+
+      // Use date field if available (new format), otherwise fall back to completedAt (old format)
+      if (date) {
+        return String(date) === todayDateStr;
+      }
+      const completedAt = session.completedAt;
+      if (!completedAt) return false;
+      const completedAtDate = new Date(String(completedAt));
+      const completedAtDateStr = `${completedAtDate.getFullYear()}-${String(completedAtDate.getMonth() + 1).padStart(2, '0')}-${String(completedAtDate.getDate()).padStart(2, '0')}`;
+      return completedAtDateStr === todayDateStr;
+    });
+    const totalMinutes = todaySessions.reduce((sum, session) => {
+      const duration = Number(session.duration);
+      return sum + (Number.isFinite(duration) && duration > 0 ? duration : 0);
+    }, 0);
+    return totalMinutes;
+  }, [profileData?.sessionHistory, user]);
   const weeklyMinutes = useMemo(() => {
     const w = stats.weeklyMinutes;
     if (Array.isArray(w) && w.length >= 7) {
@@ -1179,7 +1207,7 @@ export function ProfilePage() {
             </div>
             <h5 className="text-gray-800 mb-1">Practice Time (today)</h5>
             <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-5xl font-bold text-[#1B4332]"><StatCounter value={Number(stats.todayPracticeTime) || 0} /></span>
+              <span className="text-5xl font-bold text-[#1B4332]"><StatCounter value={Number(todayPracticeTime) || 0} /></span>
               <span className="text-xl text-[#6b7280]">mins</span>
             </div>
             <p className="text-sm text-[#6b7280]">Today's mindfulness journey</p>
@@ -2419,3 +2447,5 @@ export function ProfilePage() {
     </div>
   );
 }
+
+

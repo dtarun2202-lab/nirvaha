@@ -61,6 +61,13 @@ async function appendSessionAndStats(user, entry) {
     { new: true }
   );
 
+  console.log('🔍 appendSessionAndStats - Updated user:', {
+    userId: user.id,
+    newSessionHistoryLength: sessionHistory.length,
+    newTotalMinutes: totalMinutes,
+    latestSession: sessionHistory[sessionHistory.length - 1]
+  });
+
   return updated;
 }
 
@@ -78,6 +85,7 @@ router.get('/', async (req, res) => {
       user.stats.streak = 0;
       user.stats.sessionsPlayed = 0;
       user.stats.totalMinutes = 0;
+      user.stats.wellnessScore = 0;
       await User.findOneAndUpdate(
         { id: userId },
         { 
@@ -85,6 +93,7 @@ router.get('/', async (req, res) => {
             'stats.streak': 0,
             'stats.sessionsPlayed': 0,
             'stats.totalMinutes': 0,
+            'stats.wellnessScore': 0,
             'stats.activityLog': []
           } 
         }
@@ -129,7 +138,14 @@ router.post('/log-session', async (req, res) => {
       sessionType: st,
       type: st === 'sound' ? (cat || 'Sound Healing') : cat || 'Meditation',
       completedAt: new Date(),
+      date: new Date().toLocaleDateString('en-CA'),
     };
+
+    console.log('🔍 POST /api/profile/log-session - Logging session:', {
+      userId,
+      entry,
+      currentSessionHistoryLength: user.sessionHistory?.length || 0
+    });
 
     const updated = await appendSessionAndStats(user, entry);
     const io = req.app.get('io');
@@ -160,7 +176,14 @@ router.post('/log-sound-session', async (req, res) => {
       sessionType: 'sound',
       type: category || 'Sound Healing',
       completedAt: new Date(),
+      date: new Date().toLocaleDateString('en-CA'),
     };
+
+    console.log('🔍 POST /api/profile/log-session - Logging session:', {
+      userId,
+      entry,
+      currentSessionHistoryLength: user.sessionHistory?.length || 0
+    });
 
     const updated = await appendSessionAndStats(user, entry);
     const io = req.app.get('io');
