@@ -232,26 +232,54 @@ async function connectMongo() {
 
   mongoose.set('strictQuery', false);
 
-  try {
-    await mongoose.connect(MONGODB_URI, {
-      autoIndex: false,
-      maxPoolSize: Number(process.env.MONGO_MAX_POOL_SIZE) || 30,
-      minPoolSize: Number(process.env.MONGO_MIN_POOL_SIZE) || 5,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-      family: 4,
-    });
-    console.log('✓ Connected to MongoDB Atlas');
-    mongoConnected = true;
+  const maxAttempts = Number(process.env.MONGO_RETRY_ATTEMPTS) || 5;
+  const retryDelayMs = Number(process.env.MONGO_RETRY_DELAY) || 3000;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      await syncAllApprovedCompanionsToUsers();
-    } catch (syncErr) {
-      console.error('[companion-sync] Startup backfill failed:', syncErr.message);
+      console.log(`🔌 MongoDB connection attempt ${attempt}/${maxAttempts}...`);
+      await mongoose.connect(MONGODB_URI, {
+        autoIndex: false,
+        maxPoolSize: Number(process.env.MONGO_MAX_POOL_SIZE) || 30,
+        minPoolSize: Number(process.env.MONGO_MIN_POOL_SIZE) || 5,
+        serverSelectionTimeoutMS: 10000,
+        socketTimeoutMS: 45000,
+        connectTimeoutMS: 10000,
+        family: 4,
+      });
+      console.log('✓ Connected to MongoDB Atlas');
+      mongoConnected = true;
+
+      // Re-emit connected state on reconnect events
+      mongoose.connection.on('disconnected', () => {
+        console.warn('⚠️  MongoDB disconnected. Mongoose will attempt to reconnect automatically.');
+        mongoConnected = false;
+      });
+      mongoose.connection.on('reconnected', () => {
+        console.log('✓ MongoDB reconnected');
+        mongoConnected = true;
+      });
+      mongoose.connection.on('error', (err) => {
+        console.error('MongoDB connection error event:', err.message);
+      });
+
+      try {
+        await syncAllApprovedCompanionsToUsers();
+      } catch (syncErr) {
+        console.error('[companion-sync] Startup backfill failed:', syncErr.message);
+      }
+      return; // success — exit retry loop
+    } catch (error) {
+      console.error(`MongoDB connection attempt ${attempt}/${maxAttempts} failed: ${error.message}`);
+      if (attempt < maxAttempts) {
+        const delay = retryDelayMs * Math.pow(2, attempt - 1); // exponential backoff
+        console.warn(`⏳ Retrying in ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      } else {
+        console.warn('⚠️  All MongoDB connection attempts exhausted. Falling back to local JSON database for development...');
+        mongoConnected = false;
+      }
     }
-  } catch (error) {
-    console.error('MongoDB connection error:', error.message);
-    console.warn('⚠️  Falling back to local JSON database for development...');
-    mongoConnected = false;
   }
 }
 
@@ -1091,8 +1119,32 @@ app.use('/uploads', express.static(UPLOADS_DIR));
 app.use('/backups', express.static(BACKUP_DIR));
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', mongo: mongoConnected, timestamp: new Date().toISOString() });
+app.get('/api/health', async (req, res) => {
+  const mongoState = mongoose.connection.readyState;
+  // readyState: 0=disconnected, 1=connected, 2=connecting, 3=disconnecting
+  const mongoStateLabel = ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoState] || 'unknown';
+
+  let mongoLatencyMs = null;
+  if (mongoState === 1) {
+    try {
+      const start = Date.now();
+      await mongoose.connection.db.admin().ping();
+      mongoLatencyMs = Date.now() - start;
+    } catch (_) {
+      // ping failed — report as degraded but don't crash the health check
+    }
+  }
+
+  const healthy = mongoState === 1 && mongoLatencyMs !== null;
+  res.status(healthy ? 200 : 503).json({
+    status: healthy ? 'ok' : 'degraded',
+    mongo: {
+      connected: mongoConnected,
+      state: mongoStateLabel,
+      latencyMs: mongoLatencyMs,
+    },
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // API Routes
