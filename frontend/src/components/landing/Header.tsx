@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 import { HeaderNirvahaRectContext } from '../../contexts/HeaderContext';
-import { pathwaysData } from '../../data/pathwaysData';
+
 
 interface HeaderProps {
   onNirvahaClick?: () => void;
@@ -37,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
 
   const searchablePages = [
     { name: "Home / Landing", path: "/" },
-    { name: "Nirvaha Academy / Pathways", path: "/pathways" },
+
     { name: "Stories & Testimonials", path: "/stories" },
     { name: "Breathing Exercise", path: "/breathing" },
     { name: "Chakra Experience", path: "/chakra-experience" },
@@ -54,10 +54,7 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
     page.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredPathways = searchQuery.trim() === "" ? [] : pathwaysData.filter(pathway =>
-    pathway.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    pathway.desc.toLowerCase().includes(searchQuery.toLowerCase())
-  ).slice(0, 5);
+
 
   useEffect(() => {
     const updateRect = () => {
@@ -104,7 +101,7 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
   };
 
   const featureItems = [
-    { id: "certification", label: "Nirvaha Certification", path: "/pathways" },
+    { id: "certification", label: "Nirvaha Certification", path: "/certifications" },
     { id: "meditation", label: "Meditation", path: "/dashboard/meditation" },
     { id: "sound", label: "Sound Healing", path: "/dashboard/sound" },
     { id: "chatbot", label: "AI Guide", path: "/dashboard/chatbot" },
@@ -121,11 +118,15 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
     <HeaderNirvahaRectContext.Provider value={nirvahaRect}>
       <header
         ref={headerRef}
-        className="absolute top-0 left-0 right-0 z-50 transition-colors duration-500"
-        style={{ backgroundColor: 'transparent', borderColor: 'transparent' }}
+        className="absolute top-0 left-0 right-0 z-50 transition-all duration-500 border-b border-emerald-100/20"
+        style={{ 
+          backgroundColor: 'rgba(234, 247, 240, 0.75)', 
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)'
+        }}
       >
-        <div className="container mx-auto px-6 lg:px-12 max-w-[1800px]">
-          <div className="flex items-center justify-between h-16 lg:h-24">
+        <div className="container mx-auto px-6 lg:px-16 max-w-7xl">
+          <div className="flex items-center justify-between h-14 lg:h-20">
             {/* Logo Section (Left) */}
             <div className="flex-shrink-0">
               <button
@@ -136,7 +137,7 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
                 <img
                   src={logoSrc}
                   alt={logoAlt}
-                  className="h-14 w-auto sm:h-16 sm:w-auto object-contain"
+                  className="h-10 w-auto sm:h-12 sm:w-auto object-contain"
                   style={{
                     filter: 'drop-shadow(0px 4px 12px rgba(16, 185, 129, 0.22))'
                   }}
@@ -251,7 +252,7 @@ const Header: React.FC<HeaderProps> = ({ onNirvahaClick, logoSrc = '/logo.png', 
             <div className="lg:hidden">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 text-white hover:bg-white/10 rounded-xl transition-colors"
+                className="p-2 text-emerald-950 hover:bg-emerald-100/50 rounded-xl transition-colors"
                 aria-label="Toggle menu"
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

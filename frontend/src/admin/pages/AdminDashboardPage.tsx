@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   XCircle,
   ArrowRight,
+  Star,
 } from "lucide-react";
 import { AdminTable } from "@/admin/components/AdminTable";
 import { StatusBadge } from "@/admin/components/StatusBadge";

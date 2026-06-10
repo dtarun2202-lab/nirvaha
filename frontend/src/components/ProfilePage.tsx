@@ -48,8 +48,64 @@ import { useTranslation } from "react-i18next";
 import type { AppLanguage, ThemeMode } from "../types/settings";
 import { useProfileSync } from "../hooks/useProfileSync";
 import { InitialsAvatar } from "./ui/InitialsAvatar";
+import { toast } from "react-toastify";
 import BACKEND_CONFIG from "../config/backend";
 import html2canvas from "html2canvas";
+
+const mentors = [
+  {
+    id: "c1",
+    name: "Aisha Mehta",
+    category: "Meditation",
+    title: "Meditation Guide",
+    bio: "Helping you find calm through guided meditation.",
+    rating: 4.8,
+    sessions: 120,
+    price: "₹800",
+    avatar: "/aisha mehta.png",
+    energyTags: ["Calm", "Focus", "Balance"],
+    color: "from-emerald-400 to-teal-400"
+  },
+  {
+    id: "c2",
+    name: "Arjun Verma",
+    category: "Counseling",
+    title: "Counseling Expert",
+    bio: "Navigating life's complexities with compassion.",
+    rating: 4.9,
+    sessions: 210,
+    price: "₹1200",
+    avatar: "/arjun verma.png",
+    energyTags: ["Clarity", "Support", "Growth"],
+    color: "from-blue-400 to-indigo-400"
+  },
+  {
+    id: "c3",
+    name: "Kavya Nair",
+    category: "Healing",
+    title: "Energy Healer",
+    bio: "Restoring balance through ancient healing arts.",
+    rating: 4.7,
+    sessions: 95,
+    price: "₹1500",
+    avatar: "/kavya.png",
+    energyTags: ["Restoration", "Peace", "Aura"],
+    color: "from-amber-400 to-orange-400"
+  },
+  {
+    id: "c4",
+    name: "Swami Aarav",
+    category: "Spiritual",
+    title: "Spiritual Guide",
+    bio: "Guiding seekers on the path of awakening.",
+    rating: 5.0,
+    sessions: 500,
+    price: "₹2000",
+    avatar: "/swami.png",
+    energyTags: ["Awakening", "Wisdom", "Zen"],
+    color: "from-purple-400 to-pink-400"
+  }
+];
 import {
   BarChart,
   Bar,
@@ -544,7 +600,7 @@ export function ProfilePage() {
     }
   }, [user?.email]);
 
-  // Fetch approved bookings where logged-in companion is assigned
+  // Fetch bookings where logged-in companion is assigned
   const fetchCompanionBookings = useCallback(async () => {
     if (!user?.email && !user?.name) return;
     setCompanionBookingsLoading(true);
@@ -556,20 +612,94 @@ export function ProfilePage() {
       }
       const data = await response.json();
       const allBookings = Array.isArray(data) ? data : [];
-      const approved = allBookings.filter((b: any) => {
+      const myBookings = allBookings.filter((b: any) => {
+        const isMatchedCompanion =
+          (b.companionName && user?.name && b.companionName.toLowerCase() === user.name.toLowerCase()) ||
+          (b.companionEmail && user?.email && b.companionEmail.toLowerCase() === user.email.toLowerCase()) ||
+          (b.companionId && (b.companionId === user?.id || b.companionId === user?._id || b.companionId === user?.companionId));
         return (
-          b.status === "Session Confirmed" &&
-          (b.companionName === user?.name || b.companionEmail === user?.email)
+          isMatchedCompanion &&
+          (b.status === "Pending" ||
+            b.status === "Pending Approval" ||
+            b.status === "pending" ||
+            b.status === "Approved" ||
+            b.status === "Session Confirmed" ||
+            b.status === "Completed" ||
+            b.status === "rejected" ||
+            b.status === "Rejected")
         );
       });
-      setCompanionBookings(approved);
+      setCompanionBookings(myBookings);
     } catch (err) {
       console.error('[PROFILE] Error fetching companion bookings:', err);
       setCompanionBookings([]);
     } finally {
       setCompanionBookingsLoading(false);
     }
-  }, [user?.email, user?.name]);
+  }, [user?.email, user?.name, user?.id, user?.companionId]);
+
+  // Approve a booking request
+  const handleApproveBooking = async (bookingId: string) => {
+    try {
+      const response = await fetch(
+        `${BACKEND_CONFIG.API_BASE_URL}/api/bookings/${bookingId}/status`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'Approved' }),
+        }
+      );
+      if (response.ok) {
+        setCompanionBookings((prev) =>
+          prev.map((b) =>
+            (b.id === bookingId || b._id === bookingId)
+              ? { ...b, status: 'Approved' }
+              : b
+          )
+        );
+        toast.success("Session request approved!");
+        // Force refresh all booking lists to ensure UI updates
+        void fetchCompanionBookings();
+        void fetchMySessions();
+      } else {
+        toast.error("Failed to approve session");
+      }
+    } catch (err) {
+      console.error('[PROFILE] Approve booking error:', err);
+      toast.error("An error occurred during approval");
+    }
+  };
+
+  // Reject a booking request
+  const handleRejectBooking = async (bookingId: string) => {
+    try {
+      const response = await fetch(
+        `${BACKEND_CONFIG.API_BASE_URL}/api/bookings/${bookingId}/status`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'rejected' }),
+        }
+      );
+      if (response.ok) {
+        setCompanionBookings((prev) =>
+          prev.map((b) =>
+            (b.id === bookingId || b._id === bookingId)
+              ? { ...b, status: 'rejected' }
+              : b
+          )
+        );
+        toast.success("Session request rejected.");
+        void fetchCompanionBookings();
+        void fetchMySessions();
+      } else {
+        toast.error("Failed to reject session");
+      }
+    } catch (err) {
+      console.error('[PROFILE] Reject booking error:', err);
+      toast.error("An error occurred during rejection");
+    }
+  };
 
   // Mark a booking as completed
   const handleMarkCompleted = async (bookingId: string) => {
@@ -619,6 +749,35 @@ export function ProfilePage() {
 
       if (isUserBooking) {
         setUserBookings((prev) => {
+          const matchIndex = prev.findIndex((b) => (b.id === updatedBooking.id || b._id === updatedBooking._id || b.id === updatedBooking._id));
+          if (matchIndex !== -1) {
+            const updated = [...prev];
+            updated[matchIndex] = {
+              ...updated[matchIndex],
+              ...updatedBooking,
+              id: updatedBooking.id || updatedBooking._id,
+            };
+            return updated;
+          } else {
+            return [
+              {
+                ...updatedBooking,
+                id: updatedBooking.id || updatedBooking._id,
+              },
+              ...prev,
+            ];
+          }
+        });
+      }
+
+      // Sync companion bookings as well
+      const isMatchedCompanion =
+        (updatedBooking.companionName && user?.name && updatedBooking.companionName.toLowerCase() === user.name.toLowerCase()) ||
+        (updatedBooking.companionEmail && user?.email && updatedBooking.companionEmail.toLowerCase() === user.email.toLowerCase()) ||
+        (updatedBooking.companionId && (updatedBooking.companionId === user?.id || updatedBooking.companionId === user?._id || updatedBooking.companionId === user?.companionId));
+
+      if (isMatchedCompanion) {
+        setCompanionBookings((prev) => {
           const matchIndex = prev.findIndex((b) => (b.id === updatedBooking.id || b._id === updatedBooking._id || b.id === updatedBooking._id));
           if (matchIndex !== -1) {
             const updated = [...prev];
@@ -1559,6 +1718,186 @@ export function ProfilePage() {
           {/* My Sessions section removed: functionality moved to CompanionPage */}
         </motion.section>
 
+        {/* ── User's Booked Sessions Section (Visible when companion mode is OFF) ── */}
+        <AnimatePresence>
+          {!isCompanionModeEnabled && (
+            <motion.section
+              key="user-bookings"
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.45, ease: 'easeOut' }}
+              className="mt-10 mb-10"
+            >
+              {/* Header */}
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#52B788] to-[#2D6A4F] rounded-2xl flex items-center justify-center shadow-md">
+                  <CalendarIcon className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-[#1B4332] font-black text-xl tracking-tight">Your Booked Sessions</h3>
+                  <p className="text-[#2D6A4F]/70 text-sm font-medium">Track your scheduled or pending guidance sessions</p>
+                </div>
+                <motion.button
+                  whileHover={{ rotate: 180 }}
+                  transition={{ duration: 0.35 }}
+                  onClick={fetchMySessions}
+                  className="ml-auto p-2 rounded-xl bg-[#f0fdf4] border border-emerald-100 text-[#2D6A4F] hover:bg-emerald-50 transition-colors"
+                  title="Refresh my sessions"
+                >
+                  <Loader2 className={`w-4 h-4 ${sessionsLoading ? 'animate-spin' : ''}`} />
+                </motion.button>
+              </div>
+
+              {/* Loading State */}
+              {sessionsLoading && (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 text-[#52B788] animate-spin" />
+                  <span className="ml-3 text-[#2D6A4F] font-medium">Loading your sessions…</span>
+                </div>
+              )}
+
+              {/* Empty State */}
+              {!sessionsLoading && userBookings.length === 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="rounded-[28px] border border-emerald-100/80 bg-gradient-to-br from-[#f9fdfb] via-[#f0fdf4] to-[#ecfdf5] px-8 py-12 text-center shadow-sm"
+                >
+                  <CalendarIcon className="w-12 h-12 text-[#52B788]/50 mx-auto mb-4" />
+                  <p className="text-[#1B4332] font-bold text-lg mb-1">No sessions booked yet.</p>
+                  <p className="text-[#2D6A4F]/60 text-sm mb-4">
+                    Connect with our expert companions to accelerate your spiritual and mindfulness journey.
+                  </p>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate('/companion')}
+                    className="px-6 py-2.5 bg-gradient-to-r from-[#2D6A4F] to-[#1B4332] text-white text-sm font-bold rounded-xl shadow-md hover:shadow-lg transition-all"
+                  >
+                    Find a Companion
+                  </motion.button>
+                </motion.div>
+              )}
+
+              {/* Grid list */}
+              {!sessionsLoading && userBookings.length > 0 && (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {userBookings.map((booking: any, idx: number) => {
+                    const bookingId = booking.id || booking._id;
+                    const status = booking.status || 'pending';
+                    const isApproved = status === 'Approved' || status === 'Session Confirmed';
+                    const isPending = status === 'Pending Approval' || status === 'pending' || status === 'Pending';
+                    const isCompleted = status === 'Completed';
+
+                    // Find mentor profile details if available
+                    const mentor = mentors.find(m => m.name.toLowerCase() === (booking.companionName || '').toLowerCase());
+                    const avatar = mentor?.avatar || '';
+                    const mentorTitle = mentor?.title || 'Mindfulness Companion';
+
+                    return (
+                      <motion.div
+                        key={bookingId || idx}
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.06, duration: 0.35 }}
+                        className={`relative rounded-[28px] border bg-white p-6 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col justify-between ${
+                          isApproved ? 'border-emerald-200 ring-1 ring-emerald-500/10' : 'border-gray-100'
+                        }`}
+                      >
+                        {/* Status Badge */}
+                        <div className="flex justify-between items-start mb-4">
+                          <span
+                            className={`text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full ${
+                              isApproved
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : isPending
+                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                : isCompleted
+                                ? 'bg-gray-100 text-gray-700 border border-gray-200'
+                                : 'bg-rose-50 text-rose-700 border border-rose-200'
+                            }`}
+                          >
+                            {isApproved ? 'Approved' : isPending ? 'Pending' : status}
+                          </span>
+                          <span className="text-sm font-bold text-gray-800">
+                            ₹{booking.price || '500'}
+                          </span>
+                        </div>
+
+                        {/* Companion Info Card within the booking */}
+                        <div className="flex items-center gap-3.5 mb-4 p-3 rounded-2xl bg-gray-50 border border-gray-100">
+                          {avatar ? (
+                            <img
+                              src={avatar}
+                              alt={booking.companionName}
+                              className="w-10 h-10 rounded-full object-cover border border-emerald-200"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <InitialsAvatar name={booking.companionName || 'Companion'} size="sm" />
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold text-[#1B4332] truncate">
+                              {booking.companionName || 'Mindfulness Companion'}
+                            </p>
+                            <p className="text-[10px] text-gray-500 font-semibold truncate">
+                              {mentorTitle}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Session details */}
+                        <div className="space-y-2 text-xs mb-4 flex-1">
+                          <div className="flex items-center gap-2 text-gray-700">
+                            <ClipboardList className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                            <span className="font-semibold truncate">
+                              {booking.sessionType || booking.type || '1-on-1 Guidance'}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <CalendarIcon className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                            <span className="font-medium">{booking.date || 'TBD'}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <Clock className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                            <span className="font-medium">{booking.time || 'TBD'}</span>
+                          </div>
+                          {booking.sessionNotes && (
+                            <div className="mt-2 pt-2 border-t border-gray-100">
+                              <p className="text-[10px] text-gray-400 font-semibold mb-0.5">Your Notes:</p>
+                              <p className="text-[11px] text-gray-600 italic line-clamp-2">
+                                "{booking.sessionNotes}"
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Interactive items */}
+                        {isApproved && (
+                          <div className="flex gap-2 mt-2">
+                            <motion.button
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() => alert('Starting video call Simulation... Connecting with companion.')}
+                              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-[#2D6A4F] to-[#1B4332] text-white text-xs font-bold shadow-md hover:shadow-lg transition-all"
+                            >
+                              <Video className="w-4 h-4" />
+                              Join Session
+                            </motion.button>
+                          </div>
+                        )}
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </motion.section>
+          )}
+        </AnimatePresence>
+
         {/* Recommended For You Section */}
         {/* Settings Sections */}
         <div className="grid md:grid-cols-2 gap-6">
@@ -1694,7 +2033,7 @@ export function ProfilePage() {
           </motion.div>
         </div>
 
-        {/* ── Approved Companion Bookings Section ── */}
+        {/* ── Companion Bookings Section ── */}
         <AnimatePresence>
           {isCompanionModeEnabled && isUserApprovedCompanion && (
             <motion.section
@@ -1711,8 +2050,8 @@ export function ProfilePage() {
                   <CalendarIcon className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-[#1B4332] font-black text-xl tracking-tight">Your Approved Bookings</h3>
-                  <p className="text-[#2D6A4F]/70 text-sm font-medium">Sessions confirmed by admin for you to host</p>
+                  <h3 className="text-[#1B4332] font-black text-xl tracking-tight">Companion Dashboard</h3>
+                  <p className="text-[#2D6A4F]/70 text-sm font-medium">Manage user session requests and host schedules</p>
                 </div>
                 <motion.button
                   whileHover={{ rotate: 180 }}
@@ -1733,127 +2072,189 @@ export function ProfilePage() {
               {companionBookingsLoading && (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-8 h-8 text-[#52B788] animate-spin" />
-                  <span className="ml-3 text-[#2D6A4F] font-medium">Loading your bookings…</span>
+                  <span className="ml-3 text-[#2D6A4F] font-medium">Loading requests…</span>
                 </div>
               )}
 
-              {/* Empty state */}
-              {!companionBookingsLoading && companionBookings.length === 0 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="rounded-[28px] border border-emerald-100/80 bg-gradient-to-br from-[#f9fdfb] via-[#f0fdf4] to-[#ecfdf5] px-8 py-12 text-center shadow-sm"
-                >
-                  <CalendarIcon className="w-12 h-12 text-[#52B788]/50 mx-auto mb-4" />
-                  <p className="text-[#1B4332] font-bold text-lg mb-1">No approved sessions yet.</p>
-                  <p className="text-[#2D6A4F]/60 text-sm">
-                    Once a user books a session and admin confirms it for you, it will appear here.
-                  </p>
-                </motion.div>
-              )}
-
-              {/* Booking cards */}
-              {!companionBookingsLoading && companionBookings.length > 0 && (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {companionBookings.map((booking: any, idx: number) => {
-                    const bookingId = booking.id || booking._id;
-                    const isCompleted = booking.status === 'Completed';
-                    const isMarkingThis = markingCompleted === bookingId;
-
-                    return (
-                      <motion.div
-                        key={bookingId || idx}
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.06, duration: 0.35 }}
-                        className={`relative rounded-[24px] border ${
-                          isCompleted
-                            ? 'border-emerald-200 bg-gradient-to-br from-[#f0fdf4] to-[#dcfce7]'
-                            : 'border-emerald-100 bg-white'
-                        } p-5 shadow-md hover:shadow-lg transition-shadow overflow-hidden`}
-                      >
-                        {/* Status badge */}
-                        <span
-                          className={`absolute top-4 right-4 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${
-                            isCompleted
-                              ? 'bg-emerald-100 text-emerald-700'
-                              : 'bg-amber-50 text-amber-700 border border-amber-200'
-                          }`}
-                        >
-                          {isCompleted ? 'Completed' : booking.status}
-                        </span>
-
-                        {/* Companion name (the guide) */}
-                        <p className="text-[#1B4332] font-black text-base mb-3 pr-20 leading-tight">
-                          {booking.companionName || user?.name || '—'}
-                        </p>
-
-                        {/* Session info */}
-                        <div className="space-y-1.5 mb-4">
-                          <div className="flex items-center gap-2">
-                            <ClipboardList className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
-                            <span className="text-[#1B4332] text-sm font-semibold truncate">
-                              {booking.sessionType || booking.type || 'Session'}
-                            </span>
-                          </div>
-                          {booking.date && (
-                            <div className="flex items-center gap-2">
-                              <CalendarIcon className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
-                              <span className="text-[#2D6A4F]/80 text-sm font-medium">{booking.date}</span>
-                            </div>
-                          )}
-                          {booking.time && (
-                            <div className="flex items-center gap-2">
-                              <Clock className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
-                              <span className="text-[#2D6A4F]/80 text-sm font-medium">{booking.time}</span>
-                            </div>
-                          )}
-                          <div className="flex items-center gap-2">
-                            <User className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
-                            <span className="text-[#2D6A4F]/80 text-sm font-semibold">
-                              User: {booking.userName || booking.userEmail || booking.email || 'User'}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Action buttons */}
-                        {!isCompleted && (
-                          <div className="flex gap-2">
-                            <motion.button
-                              whileHover={{ scale: 1.03 }}
-                              whileTap={{ scale: 0.97 }}
-                              onClick={() => alert('Join Session link will be provided by admin or via your meeting platform.')}
-                              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-[#2D6A4F] to-[#1B4332] text-white text-xs font-bold shadow-md hover:shadow-lg transition-all"
+              {!companionBookingsLoading && (
+                <div className="space-y-10">
+                  {/* PENDING REQUESTS SUB-SECTION */}
+                  <div>
+                    <h4 className="text-sm font-black uppercase tracking-wider text-[#2D6A4F] mb-4 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                      Pending Session Requests ({companionBookings.filter(b => b.status === "Pending" || b.status === "Pending Approval" || b.status === "pending").length})
+                    </h4>
+                    {companionBookings.filter(b => b.status === "Pending" || b.status === "Pending Approval" || b.status === "pending").length === 0 ? (
+                      <div className="rounded-2xl border border-dashed border-emerald-200/60 bg-emerald-50/20 p-8 text-center text-[#2D6A4F]/65 text-sm">
+                        No pending session requests at the moment.
+                      </div>
+                    ) : (
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {companionBookings.filter(b => b.status === "Pending" || b.status === "Pending Approval" || b.status === "pending").map((booking: any, idx: number) => {
+                          const bookingId = booking.id || booking._id;
+                          return (
+                            <motion.div
+                              key={bookingId || idx}
+                              initial={{ opacity: 0, y: 12 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="rounded-3xl border border-emerald-100 bg-white p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
                             >
-                              <Video className="w-3.5 h-3.5" />
-                              Join Session
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.03 }}
-                              whileTap={{ scale: 0.97 }}
-                              disabled={isMarkingThis}
-                              onClick={() => handleMarkCompleted(bookingId)}
-                              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold hover:bg-emerald-100 transition-all disabled:opacity-60"
+                              <span className="absolute top-4 right-4 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                                Pending
+                              </span>
+                              <p className="text-[#1B4332] font-black text-base mb-3 pr-24 truncate">
+                                {booking.userName || 'Guest User'}
+                              </p>
+                              <div className="space-y-1.5 text-xs text-[#2D6A4F]/85 mb-5">
+                                <div className="flex items-center gap-2">
+                                  <ClipboardList className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                                  <span className="font-semibold truncate">{booking.sessionType || booking.type || 'Session'}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <CalendarIcon className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                                  <span>{booking.date || 'TBD'}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Clock className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                                  <span>{booking.time || 'TBD'}</span>
+                                </div>
+                                {booking.userEmail && (
+                                  <div className="flex items-center gap-2">
+                                    <Mail className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                                    <span className="truncate">{booking.userEmail}</span>
+                                  </div>
+                                )}
+                                {booking.sessionNotes && (
+                                  <div className="mt-2 pt-2 border-t border-gray-100 bg-gray-50/50 p-2 rounded-xl">
+                                    <p className="text-[9px] text-gray-400 font-bold uppercase">User Note:</p>
+                                    <p className="text-[11px] text-gray-600 italic">"{booking.sessionNotes}"</p>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex gap-2">
+                                <motion.button
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  onClick={() => handleApproveBooking(bookingId)}
+                                  className="flex-1 py-2 bg-gradient-to-r from-[#2D6A4F] to-[#1B4332] text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-1.5"
+                                >
+                                  <Check className="w-3.5 h-3.5" />
+                                  Approve
+                                </motion.button>
+                                <motion.button
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  onClick={() => handleRejectBooking(bookingId)}
+                                  className="flex-1 py-2 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-xl hover:bg-rose-100 transition-all flex items-center justify-center gap-1.5"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                  Reject
+                                </motion.button>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* SCHEDULED SESSIONS SUB-SECTION */}
+                  <div>
+                    <h4 className="text-sm font-black uppercase tracking-wider text-[#2D6A4F] mb-4 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                      Scheduled Sessions ({companionBookings.filter(b => b.status === "Approved" || b.status === "Session Confirmed" || b.status === "Completed").length})
+                    </h4>
+                    {companionBookings.filter(b => b.status === "Approved" || b.status === "Session Confirmed" || b.status === "Completed").length === 0 ? (
+                      <div className="rounded-2xl border border-dashed border-emerald-200/60 bg-emerald-50/20 p-8 text-center text-[#2D6A4F]/65 text-sm">
+                        No scheduled sessions yet.
+                      </div>
+                    ) : (
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {companionBookings.filter(b => b.status === "Approved" || b.status === "Session Confirmed" || b.status === "Completed").map((booking: any, idx: number) => {
+                          const bookingId = booking.id || booking._id;
+                          const isCompleted = booking.status === 'Completed';
+                          const isMarkingThis = markingCompleted === bookingId;
+
+                          return (
+                            <motion.div
+                              key={bookingId || idx}
+                              initial={{ opacity: 0, y: 12 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className={`rounded-3xl border p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between ${
+                                isCompleted
+                                  ? 'border-emerald-200 bg-gradient-to-br from-[#f0fdf4] to-[#dcfce7]'
+                                  : 'border-emerald-100 bg-white'
+                              }`}
                             >
-                              {isMarkingThis ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <div>
+                                <span className={`absolute top-4 right-4 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                                  isCompleted
+                                    ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                                    : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                }`}>
+                                  {isCompleted ? 'Completed' : 'Approved'}
+                                </span>
+                                <p className="text-[#1B4332] font-black text-base mb-3 pr-24 truncate">
+                                  {booking.userName || 'Guest User'}
+                                </p>
+                                <div className="space-y-1.5 text-xs text-[#2D6A4F]/85 mb-5">
+                                  <div className="flex items-center gap-2">
+                                    <ClipboardList className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                                    <span className="font-semibold truncate">{booking.sessionType || booking.type || 'Session'}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <CalendarIcon className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                                    <span>{booking.date || 'TBD'}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Clock className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                                    <span>{booking.time || 'TBD'}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <User className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                                    <span className="font-semibold truncate">User: {booking.userName || booking.userEmail || 'User'}</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {!isCompleted ? (
+                                <div className="flex gap-2">
+                                  <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => alert('Starting video call Simulation... Connecting with client.')}
+                                    className="flex-1 py-2.5 bg-gradient-to-r from-[#2D6A4F] to-[#1B4332] text-white text-xs font-bold shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-1.5"
+                                  >
+                                    <Video className="w-3.5 h-3.5" />
+                                    Join Session
+                                  </motion.button>
+                                  <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    disabled={isMarkingThis}
+                                    onClick={() => handleMarkCompleted(bookingId)}
+                                    className="flex-1 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-xl hover:bg-emerald-100 transition-all flex items-center justify-center gap-1.5 disabled:opacity-60"
+                                  >
+                                    {isMarkingThis ? (
+                                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    ) : (
+                                      <Check className="w-3.5 h-3.5" />
+                                    )}
+                                    Complete
+                                  </motion.button>
+                                </div>
                               ) : (
-                                <Check className="w-3.5 h-3.5" />
+                                <div className="flex items-center gap-2 text-emerald-600 pt-2 border-t border-emerald-100/60">
+                                  <CheckCircle className="w-4 h-4" />
+                                  <span className="text-sm font-bold">Session Completed</span>
+                                </div>
                               )}
-                              Mark Completed
-                            </motion.button>
-                          </div>
-                        )}
-
-                        {isCompleted && (
-                          <div className="flex items-center gap-2 text-emerald-600">
-                            <CheckCircle className="w-4 h-4" />
-                            <span className="text-sm font-bold">Session completed</span>
-                          </div>
-                        )}
-                      </motion.div>
-                    );
-                  })}
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </motion.section>

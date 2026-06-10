@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-06-07T16:19:55.391Z",
+  "query": {
+    "userId": "HBTRF3q2VhNU2ZZAj5H4etAhpii1"
+  },
+  "records": [
+    {
+      "_id": "6a2578df2b64ac54f7e5edc6",
+      "userId": "HBTRF3q2VhNU2ZZAj5H4etAhpii1",
+      "message": "explain nirvaha services",
+      "reply": "Nirvaha services provide information and answer questions on a wide range of topics. For example, they can offer explanations of complex concepts or provide definitions of technical terms. Want me to go deeper?",
+      "timestamp": "2026-06-07T13:57:51.369Z",
+      "createdAt": "2026-06-07T13:57:51.373Z",
+      "updatedAt": "2026-06-07T13:57:51.373Z"
+    },
+    {
+      "_id": "6a2578f52b64ac54f7e5edc9",
+      "userId": "HBTRF3q2VhNU2ZZAj5H4etAhpii1",
+      "message": "explaiin about the mediatation section in nirvaha",
+      "reply": "The meditation section in Nirvaha is designed to help you cultivate a sense of calm and clarity in your daily life. It features guided meditations that can help you relax, focus, and unwind, led by gentle and soothing voices. You can explore different themes and topics, such as stress reduction, sleep improvement, or emotional balance, and find the perfect meditation to suit your needs. Regular practice can help you feel more grounded and centered, and you can start with just a few minutes a day to experience the benefits.",
+      "timestamp": "2026-06-07T13:58:13.257Z",
+      "createdAt": "2026-06-07T13:58:13.258Z",
+      "updatedAt": "2026-06-07T13:58:13.258Z"
+    },
+    {
+      "_id": "6a257a0a1544e71981976f3c",
+      "userId": "HBTRF3q2VhNU2ZZAj5H4etAhpii1",
+      "message": "what is depression",
+      "reply": "Depression is a mental health condition characterized by persistent feelings of sadness, hopelessness, and a lack of interest in activities. It can also involve changes in appetite, sleep, and energy levels, and can impair daily functioning. For example, a person with depression may struggle to get out of bed or lose interest in hobbies they once enjoyed. Want me to go deeper?",
+      "timestamp": "2026-06-07T14:02:50.644Z",
+      "createdAt": "2026-06-07T14:02:50.661Z",
+      "updatedAt": "2026-06-07T14:02:50.661Z"
+    },
+    {
+      "_id": "6a2599792f08d1919d744b7f",
+      "userId": "HBTRF3q2VhNU2ZZAj5H4etAhpii1",
+      "message": "make it short",
+      "reply": "Depression is a mental health condition marked by feelings of sadness, hopelessness, and loss of interest in activities, affecting daily life and overall well-being, and can be managed with support and self-care.",
+      "timestamp": "2026-06-07T16:16:57.448Z",
+      "createdAt": "2026-06-07T16:16:57.457Z",
+      "updatedAt": "2026-06-07T16:16:57.457Z"
+    },
+    {
+      "_id": "6a2599962f08d1919d744b82",
+      "userId": "HBTRF3q2VhNU2ZZAj5H4etAhpii1",
+      "message": "make them bullet",
+      "reply": "Depression is a mental health condition marked by feelings of sadness and hopelessness, it can be managed with support and self-care, and some key aspects include 1. feelings of sadness 2. loss of interest in activities it affects daily life and overall well-being.",
+      "timestamp": "2026-06-07T16:17:26.270Z",
+      "createdAt": "2026-06-07T16:17:26.271Z",
+      "updatedAt": "2026-06-07T16:17:26.271Z"
+    }
+  ]
+}

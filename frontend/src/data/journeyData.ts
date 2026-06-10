@@ -49,7 +49,7 @@ export const journeyData = {
     "indriya-nigraha-sensory-control": {
         title: "Indriya Nigraha - Sensory Control",
         subtitle: "Mastery over the Gateways of Perception",
-        image: "/indriya.png",
+        image: "/indriya.jpg",
         extendedContent: "Our senses are the windows to the world, but they often become masters rather than servants. Indriya Nigraha is the conscious control of these senses. It is compared to a charioteer (the intellect) controlling wild horses (the senses) to reach the destination (spiritual liberation).",
         benefits: [
             "Increases mental focus and concentration (Dharana).",
@@ -164,7 +164,7 @@ export const journeyData = {
     "saradhi-the-divine-guide": {
         title: "Saradhi - The Divine Guide",
         subtitle: "Navigating the Battlefield of Life",
-        image: "/saradhi.png",
+        image: "/saradhi.jpg",
         extendedContent: "The concept of Saradhi (Charioteer) comes from the Bhagavad Gita, where Krishna guides Arjuna through the moral crisis of the Kurukshetra war. It symbolizes the presence of the Higher Self or the Guru who directs us when we are lost in the chaos of life.",
         benefits: [
             "Gives clarity in moments of confusion and crisis.",
@@ -187,7 +187,7 @@ export const journeyData = {
     "vyayama-sacred-movement": {
         title: "Vyayama - Sacred Movement",
         subtitle: "The Discipline of the Body",
-        image: "/vyayama.png",
+        image: "/vyayama.jpg",
         extendedContent: "Vyayama is not just 'exercise'; it is the sacred discipline of the physical body. In the Indian tradition, the body is seen as the primary tool for Dharma (Shariram Adyam Khalu Dharma Sadhanam). Movement clears the channels (Nadis) and allows the Prana to flow freely.",
         benefits: [
             "Increases Agni (digestion) and removes toxins (Ama).",

@@ -53,6 +53,7 @@ import {
 } from "@/lib/companionApi";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSocket } from "../../contexts/SocketContext";
+import BACKEND_CONFIG from "../../config/backend";
 import {
   BarChart,
   Bar,
@@ -305,7 +306,7 @@ function CompanionVideoSimulationModal({ session, onClose, onComplete }: VideoSi
           </div>
 
           <div className="flex-1 p-4 overflow-y-auto space-y-4 scrollbar-none">
-            {chatMessages.map((msg, index) => (
+            {(chatMessages ?? []).map((msg, index) => (
               <div
                 key={index}
                 className={`flex flex-col ${msg.sender === "You" ? 'items-end' : 'items-start'}`}
@@ -368,6 +369,18 @@ export function CompanionPage() {
   const [companionProfile, setCompanionProfile] = useState<any>(null);
   const [savingStatusId, setSavingStatusId] = useState<string | null>(null);
 
+  const companionProfileSpecialties = useMemo(() => {
+    if (!companionProfile?.specialties) return [];
+    if (Array.isArray(companionProfile.specialties)) return companionProfile.specialties;
+    return String(companionProfile.specialties).split(',').map((s: string) => s.trim()).filter(Boolean);
+  }, [companionProfile?.specialties]);
+
+  const companionProfileLanguages = useMemo(() => {
+    if (!companionProfile?.languages) return [];
+    if (Array.isArray(companionProfile.languages)) return companionProfile.languages;
+    return String(companionProfile.languages).split(',').map((l: string) => l.trim()).filter(Boolean);
+  }, [companionProfile?.languages]);
+
   const [showTransition, setShowTransition] = useState(true);
   const [companions, setCompanions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -404,7 +417,7 @@ export function CompanionPage() {
     // Fetch Companion page CMS config
     const fetchCompanionConfig = async () => {
       try {
-        const res = await fetch(`${(await import("@/config/backend")).default.API_BASE_URL}/api/content/companion_page_config`);
+        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/content/companion_page_config`);
         if (res.ok) {
           const data = await res.json();
           if (data?.value) {
@@ -855,13 +868,82 @@ export function CompanionPage() {
   const mergedCompanionsList = useMemo(() => {
     const backendIds = new Set(companions.map(c => String(c._id || c.id)));
     const staticOnly = companionsList.filter(c => !backendIds.has(String(c.id)));
-    const backendNormalized = companions.map(c => ({
-      ...c,
-      id: String(c._id || c.id),
-      price: c.hourlyRate || c.price || "₹1000",
-      experienceYears: c.experienceYears || 3,
-      availabilitySlots: c.availabilitySlots || ["morning", "afternoon"],
-    }));
+    const backendNormalized = companions.map((c, index) => {
+      const rawSpecialties = Array.isArray(c.specialties)
+        ? c.specialties
+        : typeof c.specialties === 'string'
+          ? c.specialties.split(',').map((s: string) => s.trim()).filter(Boolean)
+          : [];
+
+      let category = c.category;
+      if (!category && c.title) {
+        const titleLower = String(c.title).toLowerCase();
+        if (titleLower.includes('meditation') || titleLower.includes('zen') || titleLower.includes('mindful')) {
+          category = 'Meditation';
+        } else if (titleLower.includes('counsel') || titleLower.includes('coach') || titleLower.includes('talk')) {
+          category = 'Counseling';
+        } else if (titleLower.includes('heal') || titleLower.includes('energy') || titleLower.includes('reiki')) {
+          category = 'Healing';
+        } else if (titleLower.includes('spirit') || titleLower.includes('swami') || titleLower.includes('guru') || titleLower.includes('guide')) {
+          category = 'Spiritual';
+        }
+      }
+      if (!category) {
+        category = 'Meditation';
+      }
+
+      const energyTags = (c.energyTags && Array.isArray(c.energyTags))
+        ? c.energyTags
+        : rawSpecialties.length > 0
+          ? rawSpecialties.slice(0, 3)
+          : ["Calm", "Balance", "Healing"];
+
+      const color = c.color || companionPalette[index % companionPalette.length];
+
+      const priceVal = c.hourlyRate || c.price || 1000;
+      const priceStr = typeof priceVal === 'string' && priceVal.includes('₹')
+        ? priceVal
+        : `₹${priceVal}`;
+
+      const hourlyRateStr = typeof c.hourlyRate === 'string' && c.hourlyRate.includes('₹')
+        ? c.hourlyRate
+        : c.hourlyRate !== undefined
+          ? `₹${c.hourlyRate}`
+          : priceStr;
+
+      const callRateStr = typeof c.callRate === 'string' && c.callRate.includes('₹')
+        ? c.callRate
+        : c.callRate !== undefined
+          ? `₹${c.callRate}`
+          : `₹${Math.round(parseInt(priceStr.replace('₹', '')) / 2) || 500}`;
+
+      return {
+        ...c,
+        id: String(c._id || c.id),
+        name: c.name || c.fullName || "Spiritual Guide",
+        category,
+        title: c.title || "Spiritual Guide",
+        bio: c.bio || "Holding space for your holistic healing journey.",
+        avatar: c.avatar || c.profileImage || "/meditation/wellness1.jpeg",
+        rating: c.rating !== undefined ? Number(c.rating) : 4.8,
+        reviews: c.reviews !== undefined ? Number(c.reviews) : 0,
+        sessions: c.sessions !== undefined ? Number(c.sessions) : 0,
+        location: c.location || "India",
+        price: priceStr,
+        hourlyRate: hourlyRateStr,
+        callRate: callRateStr,
+        experienceYears: c.experienceYears || 3,
+        availabilitySlots: c.availabilitySlots || ["morning", "afternoon"],
+        energyTags,
+        color,
+        languages: Array.isArray(c.languages)
+          ? c.languages
+          : typeof c.languages === 'string'
+            ? c.languages.split(',').map((l: string) => l.trim()).filter(Boolean)
+            : ["English"],
+        specialties: rawSpecialties,
+      };
+    });
     return [...backendNormalized, ...staticOnly];
   }, [companions]);
 
@@ -880,7 +962,7 @@ export function CompanionPage() {
     // 2. Price Tier Range Filter
     if (priceRanges.length > 0) {
       result = result.filter(c => {
-        const numericPrice = parseInt(c.price.replace("₹", "")) || 0;
+        const numericPrice = parseInt(String(c.price).replace("₹", "")) || 0;
         return priceRanges.some(range => {
           if (range === "under1000") return numericPrice < 1000;
           if (range === "1000-2000") return numericPrice >= 1000 && numericPrice <= 2000;
@@ -940,14 +1022,14 @@ export function CompanionPage() {
     // 7. Price Sorting
     if (priceSort === "low-to-high") {
       result.sort((a, b) => {
-        const priceA = parseInt(a.price.replace("₹", "")) || 0;
-        const priceB = parseInt(b.price.replace("₹", "")) || 0;
+        const priceA = parseInt(String(a.price).replace("₹", "")) || 0;
+        const priceB = parseInt(String(b.price).replace("₹", "")) || 0;
         return priceA - priceB;
       });
     } else if (priceSort === "high-to-low") {
       result.sort((a, b) => {
-        const priceA = parseInt(a.price.replace("₹", "")) || 0;
-        const priceB = parseInt(b.price.replace("₹", "")) || 0;
+        const priceA = parseInt(String(a.price).replace("₹", "")) || 0;
+        const priceB = parseInt(String(b.price).replace("₹", "")) || 0;
         return priceB - priceA;
       });
     }
@@ -1083,7 +1165,7 @@ export function CompanionPage() {
                   },
                   {
                     title: "Estimated Earnings",
-                    value: `₹${(companionSessions.filter(s => s.status === "completed").length * (parseInt(companionProfile?.hourlyRate?.replace(/[^\d]/g, "")) || 1000)) + 4500}`,
+                    value: `₹${(companionSessions.filter(s => s.status === "completed").length * (parseInt(String(companionProfile?.hourlyRate || "").replace(/[^\d]/g, "")) || 1000)) + 4500}`,
                     icon: DollarSign,
                     color: "from-teal-500/10 to-emerald-500/10 text-teal-600 border-teal-500/20",
                     pulse: false,
@@ -1485,22 +1567,30 @@ export function CompanionPage() {
                           <div>
                             <h4 className="text-sm font-black uppercase tracking-wider text-emerald-800 mb-3">Guiding Specialties</h4>
                             <div className="flex flex-wrap gap-2">
-                              {companionProfile?.specialties?.map((tag: string, i: number) => (
-                                <span key={i} className="px-3.5 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">
-                                  {tag}
-                                </span>
-                              )) || <span className="text-xs text-emerald-800/40">No specialties listed.</span>}
+                              {companionProfileSpecialties.length > 0 ? (
+                                companionProfileSpecialties.map((tag: string, i: number) => (
+                                  <span key={i} className="px-3.5 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">
+                                    {tag}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-xs text-emerald-800/40">No specialties listed.</span>
+                              )}
                             </div>
                           </div>
 
                           <div>
                             <h4 className="text-sm font-black uppercase tracking-wider text-emerald-800 mb-3">Spoken Languages</h4>
                             <div className="flex flex-wrap gap-2">
-                              {companionProfile?.languages?.map((lang: string, i: number) => (
-                                <span key={i} className="px-3.5 py-1.5 bg-teal-50 text-teal-700 text-xs font-bold rounded-full border border-teal-100">
-                                  {lang}
-                                </span>
-                              )) || <span className="text-xs text-emerald-800/40">No languages listed.</span>}
+                              {companionProfileLanguages.length > 0 ? (
+                                companionProfileLanguages.map((lang: string, i: number) => (
+                                  <span key={i} className="px-3.5 py-1.5 bg-teal-50 text-teal-700 text-xs font-bold rounded-full border border-teal-100">
+                                    {lang}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-xs text-emerald-800/40">No languages listed.</span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1674,7 +1764,7 @@ export function CompanionPage() {
               {/* Category Selection & Advanced Filter Toggle */}
               <div className="flex flex-col gap-6 mb-16">
                 <div className="flex flex-wrap items-center justify-center gap-4">
-                  {categories.map((cat) => {
+                  {(categories ?? []).map((cat) => {
                     const isCatSelected = cat.id === "All"
                       ? selectedCategories.length === 0
                       : selectedCategories.includes(cat.id);
@@ -2045,7 +2135,7 @@ export function CompanionPage() {
                       exit={{ opacity: 0 }}
                       className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
                     >
-                      {filteredItems.map((companion) => (
+                      {(filteredItems ?? []).map((companion) => (
                         <motion.div
                           key={companion.id}
                           layout
@@ -2073,7 +2163,7 @@ export function CompanionPage() {
                           <div className="flex-1 text-center mb-8">
                             <p className="text-emerald-800/70 text-sm leading-relaxed mb-6 italic line-clamp-2">"{companion.bio}"</p>
                             <div className="flex flex-wrap justify-center gap-2 mb-4 font-semibold">
-                              {companion.energyTags.map((tag) => (
+                              {(companion.energyTags ?? []).map((tag) => (
                                 <span key={tag} className="px-4 py-1.5 bg-white border border-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full shadow-sm">{tag}</span>
                               ))}
                             </div>
@@ -2285,24 +2375,32 @@ export function CompanionPage() {
                     <p className="text-sm text-teal-700 leading-relaxed">{selectedCompanion.fullAbout || selectedCompanion.bio}</p>
                   </div>
 
-                  {selectedCompanion.experience && selectedCompanion.experience.length > 0 && (
+                  {selectedCompanion.experience && (Array.isArray(selectedCompanion.experience) ? selectedCompanion.experience.length > 0 : String(selectedCompanion.experience).trim().length > 0) && (
                     <div>
                       <h4 className="text-sm font-semibold text-teal-800 mb-2">Experience</h4>
                       <ul className="list-disc pl-5 space-y-1">
-                        {selectedCompanion.experience.map((exp: string, idx: number) => (
-                          <li key={idx} className="text-sm text-teal-700">{exp}</li>
-                        ))}
+                        {Array.isArray(selectedCompanion.experience) ? (
+                          selectedCompanion.experience.map((exp: string, idx: number) => (
+                            <li key={idx} className="text-sm text-teal-700">{exp}</li>
+                          ))
+                        ) : (
+                          <li className="text-sm text-teal-700">{String(selectedCompanion.experience)}</li>
+                        )}
                       </ul>
                     </div>
                   )}
 
-                  {selectedCompanion.sessionStyle && selectedCompanion.sessionStyle.length > 0 && (
+                  {selectedCompanion.sessionStyle && (Array.isArray(selectedCompanion.sessionStyle) ? selectedCompanion.sessionStyle.length > 0 : String(selectedCompanion.sessionStyle).trim().length > 0) && (
                     <div>
                       <h4 className="text-sm font-semibold text-teal-800 mb-2">Session Style</h4>
                       <ul className="list-disc pl-5 space-y-1">
-                        {selectedCompanion.sessionStyle.map((style: string, idx: number) => (
-                          <li key={idx} className="text-sm text-teal-700">{style}</li>
-                        ))}
+                        {Array.isArray(selectedCompanion.sessionStyle) ? (
+                          selectedCompanion.sessionStyle.map((style: string, idx: number) => (
+                            <li key={idx} className="text-sm text-teal-700">{style}</li>
+                          ))
+                        ) : (
+                          <li className="text-sm text-teal-700">{String(selectedCompanion.sessionStyle)}</li>
+                        )}
                       </ul>
                     </div>
                   )}

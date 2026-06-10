@@ -102,10 +102,10 @@ export function ContentUpdatePage() {
 
   // ── Landing Page State ──
   const [heroData, setHeroData] = useState<HeroData>({
-    title: "FIND YOUR",
+    title: "FIND YOUR PURPOSE OF LIFE",
     subtitle: "Experience the convergence of ancient wisdom and modern technology for your complete holistic healing journey.",
     buttonText: "Start Your Journey",
-    imageUrl: "/landing-page.jpeg",
+    imageUrl: "/LP.png",
   });
 
   const [pillars, setPillars] = useState<Pillar[]>([

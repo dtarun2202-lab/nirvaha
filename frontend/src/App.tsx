@@ -34,10 +34,6 @@ import { ProfilePage } from "./components/ProfilePage";
 import { Navigation } from "./components/Navigation";
 import { DashboardPage } from "./components/pages/DashboardPage";
 import AIChatbotWidget from "./components/AIChatbotWidget";
-import PathwaysPage from './pages/PathwaysPage';
-import PathwayDetailPage from './pages/PathwayDetailPage';
-import PathwayJourney from './pages/PathwayJourney';
-import SyllabusPage from './pages/SyllabusPage';
 import NirvahaAcademyPage from './pages/NirvahaAcademyPage';
 import LibraryDetailPage from './pages/LibraryDetailPage';
 import StoryDetailPage from './pages/StoryDetailPage';
@@ -110,10 +106,6 @@ function AppInner() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/certifications" element={<CertificationsPage />} />
         <Route path="/academy" element={<NirvahaAcademyPage />} />
-        <Route path="/pathways" element={<PathwaysPage />} />
-        <Route path="/pathways/:id" element={<PathwayDetailPage />} />
-        <Route path="/pathways/:id/journey" element={<PathwayJourney />} />
-        <Route path="/pathways/:id/syllabus" element={<SyllabusPage />} />
         <Route path="/learn" element={<LearningCatalogPage />} />
         <Route path="/learn/:pathId" element={<LearningPathPage />} />
         <Route path="/learn/:pathId/play" element={<CoursePlayerPage />} />

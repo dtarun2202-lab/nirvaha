@@ -7,6 +7,7 @@ const {
   resolveAndPersistCompanionForUser,
   normalizeStatus,
 } = require('../utils/companionStatus');
+const { sendCompanionApprovalEmail, sendCompanionRejectionEmail } = require('../utils/email');
 
 const router = express.Router();
 
@@ -42,6 +43,10 @@ function toAdminCompanion(app) {
       video: Number.isFinite(app.hourlyRate) ? app.hourlyRate : 0,
     },
     availability: splitList(app.availability),
+    experience: app.experience || '',
+    certifications: app.certifications || '',
+    whyJoin: app.whyJoin || '',
+    phone: app.phone || '',
   };
 }
 
@@ -59,6 +64,8 @@ function toPublicCompanion(app) {
     location: app.location || '',
     bio: app.bio || '',
     specialties: splitList(app.specialties),
+    languages: splitList(app.languages),
+    experience: splitList(app.experience),
     hourlyRate: app.hourlyRate || 0,
     callRate: app.callRate || 0,
   };
@@ -286,6 +293,19 @@ router.put('/applications/:id', async (req, res) => {
         },
         { fallbackName: updated.fullName }
       );
+
+      // Notify the user via email
+      try {
+        if (statusNorm === 'approved') {
+          console.log(`📧 Triggering companion approval email to: ${updated.email}`);
+          await sendCompanionApprovalEmail(updated);
+        } else if (statusNorm === 'rejected') {
+          console.log(`📧 Triggering companion rejection email to: ${updated.email}`);
+          await sendCompanionRejectionEmail(updated);
+        }
+      } catch (err) {
+        console.error('❌ Failed to send companion application status email:', err.message);
+      }
     }
 
     res.json(toAdminCompanion(updated));
@@ -324,6 +344,19 @@ router.patch('/applications/:id/status', async (req, res) => {
       },
       { fallbackName: updated.fullName }
     );
+
+    // Notify the user via email
+    try {
+      if (statusNorm === 'approved') {
+        console.log(`📧 Triggering companion approval email (PATCH) to: ${updated.email}`);
+        await sendCompanionApprovalEmail(updated);
+      } else if (statusNorm === 'rejected') {
+        console.log(`📧 Triggering companion rejection email (PATCH) to: ${updated.email}`);
+        await sendCompanionRejectionEmail(updated);
+      }
+    } catch (err) {
+      console.error('❌ Failed to send companion application status email (PATCH):', err.message);
+    }
 
     // Emit real-time status update
     const io = req.app.get('io');

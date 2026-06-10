@@ -224,11 +224,11 @@ export function UserManagementPage() {
                 placeholder="Search by name or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 bg-[#F8FCF9] border-[#BDE8CE] text-[#1F4131] placeholder:text-[#86CDA6] rounded-xl h-12 focus-visible:ring-[#5ABF88] font-medium transition-all hover:bg-white"
+                className="pl-12 bg-white border-[#BDE8CE] text-black placeholder:text-[#86CDA6] rounded-xl h-12 focus-visible:ring-[#5ABF88] font-medium transition-all hover:bg-white"
               />
             </div>
             <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-full bg-[#F8FCF9] border-[#BDE8CE] text-[#1F4131] font-medium rounded-xl h-12 hover:bg-white transition-all">
+              <SelectTrigger className="w-full bg-white border-[#BDE8CE] text-black font-medium rounded-xl h-12 hover:bg-white transition-all">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-white border-[#D5EEDD] rounded-xl shadow-lg">
@@ -239,7 +239,7 @@ export function UserManagementPage() {
               </SelectContent>
             </Select>
             <Select value={filter} onValueChange={setFilter}>
-              <SelectTrigger className="w-full bg-[#F8FCF9] border-[#BDE8CE] text-[#1F4131] font-medium rounded-xl h-12 hover:bg-white transition-all">
+              <SelectTrigger className="w-full bg-white border-[#BDE8CE] text-black font-medium rounded-xl h-12 hover:bg-white transition-all">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-white border-[#D5EEDD] rounded-xl shadow-lg">

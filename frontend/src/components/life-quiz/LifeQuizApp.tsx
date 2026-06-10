@@ -6,12 +6,18 @@ import { calculateLifeScore, generateCertificateSVG, ScoreResult } from './LifeQ
 
 type Screen = 'loading' | 'welcome' | 'instructions' | 'question' | 'result';
 
-export const LifeQuizApp = () => {
+export const LifeQuizApp = ({ onGameOver }: { onGameOver?: (isOver: boolean) => void }) => {
     const [screen, setScreen] = useState<Screen>('loading');
     const [userName, setUserName] = useState('');
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState<number[]>(Array(LIFE_QUIZ_QUESTIONS.length).fill(-1));
     const [scoreResult, setScoreResult] = useState<ScoreResult | null>(null);
+
+    useEffect(() => {
+        if (onGameOver) {
+            onGameOver(screen === 'result');
+        }
+    }, [screen, onGameOver]);
 
     useEffect(() => {
         if (screen === 'loading') {
@@ -322,67 +328,123 @@ export const LifeQuizApp = () => {
                     </p>
                 </motion.div>
 
-                {/* SECTION 2 — SPEEDOMETER GAUGE */}
+                {/* SECTION 2 — LIVE GRAPH (Curve Graph) */}
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }} 
                     animate={{ opacity: 1, scale: 1 }} 
                     transition={{ delay: 0.3 }}
-                    className="relative w-[320px] h-[160px] mb-6 flex flex-col items-center"
+                    className="relative w-full max-w-[600px] h-[300px] mb-12 mt-4 mx-auto"
                 >
-                    <svg className="w-full h-full overflow-visible" viewBox="0 0 320 160">
-                        {/* Track */}
-                        <path 
-                            d="M 20 160 A 140 140 0 0 1 300 160" 
-                            fill="none" 
-                            stroke="#1A2A1A" 
-                            strokeWidth="16" 
-                            strokeLinecap="round" 
-                        />
-                        {/* Fill */}
-                        <motion.path 
-                            d="M 20 160 A 140 140 0 0 1 300 160" 
-                            fill="none" 
-                            stroke={mainColor} 
-                            strokeWidth="16" 
-                            strokeLinecap="round" 
-                            strokeDasharray={circumference}
-                            initial={{ strokeDashoffset: circumference }}
-                            animate={{ strokeDashoffset: dashoffset }}
-                            transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 }}
-                        />
+                    <svg className="w-full h-full overflow-visible" viewBox="0 0 600 300">
+                        <defs>
+                            {SCORING_DIMENSIONS.map((dim) => {
+                                const meta = DIMENSION_META[dim.id];
+                                return (
+                                    <linearGradient key={`grad-${dim.id}`} id={`grad-${dim.id}`} x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor={meta.color} stopOpacity="0.4" />
+                                        <stop offset="100%" stopColor={meta.color} stopOpacity="0" />
+                                    </linearGradient>
+                                );
+                            })}
+                        </defs>
+
+                        {/* Grid & Axes */}
+                        <g stroke="#1A2A1A" strokeWidth="1">
+                            {/* Horizontal grid lines */}
+                            {[0, 20, 40, 60, 80, 100].map(val => {
+                                const y = 260 - (val / 100) * 240;
+                                return <line key={`h-${val}`} x1="40" y1={y} x2="580" y2={y} />;
+                            })}
+                            {/* Vertical grid lines */}
+                            {[0, 20, 40, 60, 80, 100].map(val => {
+                                const x = 40 + (val / 100) * 540;
+                                return <line key={`v-${val}`} x1={x} y1="20" x2={x} y2="260" />;
+                            })}
+                            
+                            {/* Main Axes */}
+                            <line x1="40" y1="20" x2="40" y2="260" stroke="#8892A4" strokeWidth="2" />
+                            <line x1="40" y1="260" x2="580" y2="260" stroke="#8892A4" strokeWidth="2" />
+                            <line x1="580" y1="20" x2="580" y2="260" stroke="#1A2A1A" strokeWidth="2" />
+                            <line x1="40" y1="20" x2="580" y2="20" stroke="#1A2A1A" strokeWidth="2" />
+                        </g>
+
+                        {/* Y-axis labels */}
+                        {[0, 20, 40, 60, 80, 100].map(val => (
+                            <text key={`yl-${val}`} x="30" y={260 - (val / 100) * 240 + 4} fill="#8892A4" fontSize="11" textAnchor="end">
+                                {val}
+                            </text>
+                        ))}
                         
-                        {/* Needle */}
-                        <motion.g 
-                            style={{ transformOrigin: '160px 160px' }}
-                            initial={{ rotate: -90 }}
-                            animate={{ rotate: -90 + (scoreResult.totalScore / 100) * 180 }}
-                            transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 }}
-                        >
-                            <line x1="160" y1="160" x2="160" y2="40" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                            <circle cx="160" cy="160" r="4" fill="white" />
-                        </motion.g>
+                        {/* Y-axis title */}
+                        <text x="15" y="140" fill="#8892A4" fontSize="12" textAnchor="middle" transform="rotate(-90 15,140)">
+                            SCORE
+                        </text>
+
+                        {/* X-axis labels */}
+                        {[0, 20, 40, 60, 80, 100].map(val => (
+                            <text key={`xl-${val}`} x={40 + (val / 100) * 540} y="280" fill="#8892A4" fontSize="11" textAnchor="middle">
+                                {val}%
+                            </text>
+                        ))}
+
+                        {/* X-axis title */}
+                        <text x="310" y="298" fill="#8892A4" fontSize="12" textAnchor="middle">
+                            PROGRESS
+                        </text>
+
+                        {/* Dimension Curves */}
+                        {SCORING_DIMENSIONS.map((dim, idx) => {
+                            const score = scoreResult.dimensions[dim.id];
+                            const meta = DIMENSION_META[dim.id];
+                            const endY = 260 - (score / 100) * 240;
+                            // A quadratic bezier curve that starts flat and rises
+                            const pathD = `M 40 260 Q 300 260 580 ${endY}`;
+                            const fillPathD = `M 40 260 Q 300 260 580 ${endY} L 580 260 Z`;
+                            
+                            return (
+                                <g key={dim.id}>
+                                    {/* Area Fill */}
+                                    <motion.path
+                                        d={fillPathD}
+                                        fill={`url(#grad-${dim.id})`}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ duration: 1.5, delay: 2.0 + (idx * 0.15) }}
+                                    />
+                                    {/* The Line */}
+                                    <motion.path
+                                        d={pathD}
+                                        fill="none"
+                                        stroke={meta.color}
+                                        strokeWidth="3.5"
+                                        strokeLinecap="round"
+                                        strokeDasharray="1000"
+                                        initial={{ strokeDashoffset: 1000 }}
+                                        animate={{ strokeDashoffset: 0 }}
+                                        transition={{ duration: 2.5, ease: "easeOut", delay: 0.5 + (idx * 0.15) }}
+                                        style={{ filter: `drop-shadow(0px 4px 8px ${meta.color}80)` }}
+                                    />
+                                    {/* Score marker at the end */}
+                                    <motion.g
+                                        initial={{ opacity: 0, scale: 0 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ 
+                                            type: "spring", 
+                                            stiffness: 260, 
+                                            damping: 15,
+                                            delay: 2.8 + (idx * 0.15) 
+                                        }}
+                                        style={{ transformOrigin: `580px ${endY}px` }}
+                                    >
+                                        <circle cx="580" cy={endY} r="5" fill={meta.color} style={{ filter: `drop-shadow(0 0 10px ${meta.color})` }} />
+                                        <text x="595" y={endY + 4} fill={meta.color} fontSize="13" fontWeight="bold" textAnchor="start" style={{ textShadow: `0 0 12px ${meta.color}40` }}>
+                                            {meta.icon} {score}
+                                        </text>
+                                    </motion.g>
+                                </g>
+                            );
+                        })}
                     </svg>
-
-                    {/* Labels */}
-                    <div className="absolute top-[160px] w-full flex justify-between px-2">
-                        <span className="text-[11px] text-[#8892A4]">0</span>
-                        <span className="text-[11px] text-[#8892A4] mt-[-165px]">50</span>
-                        <span className="text-[11px] text-[#8892A4]">100</span>
-                    </div>
-
-                    {/* Center Score Display */}
-                    <div className="absolute bottom-2 flex flex-col items-center">
-                        <motion.div 
-                            className="text-[56px] font-bold leading-none mb-1" 
-                            style={{ fontFamily: "'Cinzel', serif", color: mainColor }}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5 }}
-                        >
-                            {scoreResult.totalScore}
-                        </motion.div>
-                        <div className="text-[11px] text-[#8892A4] tracking-[3px]">LIFE SCORE</div>
-                    </div>
                 </motion.div>
 
                 {/* PASS/FAIL BADGE */}
@@ -410,42 +472,58 @@ export const LifeQuizApp = () => {
                     transition={{ delay: 2.0 }}
                     className="w-full mb-12"
                 >
-                    <div className="text-[13px] text-[#8892A4] uppercase tracking-[2px] mb-[20px] font-medium" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                        Dimension Breakdown
+                    <div className="text-[13px] text-[#8892A4] uppercase tracking-[2px] mb-[20px] font-medium flex items-center gap-4" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                        <span>Dimension Breakdown</span>
+                        <div className="h-[1px] flex-1 bg-gradient-to-r from-[#1A2A1A] to-transparent" />
                     </div>
                     
-                    <div className="flex flex-col gap-[18px]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {Object.entries(scoreResult.dimensions).sort((a,b) => b[1] - a[1]).map(([dimId, score], idx) => {
                             const meta = DIMENSION_META[dimId];
                             const label = getDimensionLabel(dimId);
-                            // Top 2: green, Middle 2: amber, Bottom 2: red
-                            let barColor = '#00FF9C';
-                            if (idx >= 2 && idx <= 3) barColor = '#FFB347';
-                            if (idx >= 4) barColor = '#FF4D6D';
 
                             return (
-                                <div key={dimId} className="flex items-center justify-between w-full">
-                                    <div className="flex items-center gap-3 w-40 shrink-0">
-                                        <div className="w-5 h-5 flex items-center justify-center rounded-full text-xs" style={{ backgroundColor: `${meta.color}20` }}>
-                                            {meta.icon}
+                                <motion.div 
+                                    key={dimId} 
+                                    initial={{ opacity: 0, y: 15 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.6, delay: 2.0 + (idx * 0.1), ease: "easeOut" }}
+                                    whileHover={{ scale: 1.02, backgroundColor: `${meta.color}25`, borderColor: `${meta.color}60` }}
+                                    style={{ backgroundColor: `${meta.color}15`, borderColor: `${meta.color}30` }}
+                                    className="border rounded-[16px] p-5 flex flex-col gap-4 cursor-default transition-colors relative overflow-hidden group"
+                                >
+                                    {/* Subtle glowing background orb on hover */}
+                                    <div 
+                                        className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-2xl"
+                                        style={{ backgroundColor: meta.color }}
+                                    />
+
+                                    <div className="flex items-center justify-between relative z-10">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 flex items-center justify-center rounded-full text-sm shadow-inner border border-white/5" style={{ backgroundColor: `${meta.color}20`, color: meta.color, boxShadow: `0 0 10px ${meta.color}20` }}>
+                                                {meta.icon}
+                                            </div>
+                                            <span className="text-[15px] text-white font-semibold" style={{ fontFamily: "'Cinzel', serif" }}>{label}</span>
                                         </div>
-                                        <span className="text-[14px] text-white font-semibold">{label}</span>
+                                        <div className="flex items-baseline gap-1">
+                                            <span className="text-[18px] font-bold" style={{ color: meta.color }}>{score}</span>
+                                            <span className="text-[11px] text-[#8892A4]">/100</span>
+                                        </div>
                                     </div>
 
-                                    <div className="flex-1 mx-4 relative h-[6px] bg-[#1A2A1A] rounded-[50px] overflow-hidden">
+                                    <div className="w-full relative h-[6px] bg-[#1A2A1A] rounded-[50px] overflow-hidden shadow-inner relative z-10">
                                         <motion.div 
                                             className="absolute top-0 left-0 h-full rounded-[50px]"
-                                            style={{ backgroundColor: barColor }}
+                                            style={{ 
+                                                background: `linear-gradient(90deg, ${meta.color}80, ${meta.color})`,
+                                                boxShadow: `0 0 10px ${meta.color}80` 
+                                            }}
                                             initial={{ width: '0%' }}
                                             animate={{ width: `${score}%` }}
-                                            transition={{ duration: 1.2, ease: "easeOut", delay: 2.0 + (idx * 0.1) }}
+                                            transition={{ duration: 1.2, ease: "easeOut", delay: 2.5 + (idx * 0.1) }}
                                         />
                                     </div>
-
-                                    <div className="text-[13px] text-[#8892A4] w-12 text-right shrink-0">
-                                        {score}/100
-                                    </div>
-                                </div>
+                                </motion.div>
                             );
                         })}
                     </div>
@@ -459,34 +537,44 @@ export const LifeQuizApp = () => {
                     className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"
                 >
                     <div className="bg-[#00FF9C05] border border-[#00FF9C26] rounded-[16px] p-[20px]">
-                        <div className="flex items-center gap-2 mb-4">
+                        <div className="flex items-center gap-2 mb-5">
                             <span className="text-[10px] text-[#00FF9C] tracking-[2px] uppercase font-bold">STRONGEST</span>
                             <span className="text-[#00FF9C] text-sm">🏆</span>
                         </div>
-                        <div className="space-y-3">
-                            {scoreResult.strongestDimensions.map(d => (
-                                <div key={d} className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-[#00FF9C]" />
-                                    <span className="text-[13px] text-white flex-1">{getDimensionLabel(d)}</span>
-                                    <span className="text-[13px] text-white font-bold">{scoreResult.dimensions[d]}</span>
-                                </div>
-                            ))}
+                        <div className="space-y-4">
+                            {scoreResult.strongestDimensions.map(d => {
+                                const meta = DIMENSION_META[d];
+                                return (
+                                    <div key={d} className="flex items-center gap-3">
+                                        <div className="w-7 h-7 flex items-center justify-center rounded-full text-xs shadow-inner" style={{ backgroundColor: `${meta.color}20`, border: `1px solid ${meta.color}40` }}>
+                                            {meta.icon}
+                                        </div>
+                                        <span className="text-[14px] text-white flex-1 font-semibold">{getDimensionLabel(d)}</span>
+                                        <span className="text-[14px] font-bold" style={{ color: meta.color }}>{scoreResult.dimensions[d]}</span>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                     
                     <div className="bg-[#FFB34705] border border-[#FFB34726] rounded-[16px] p-[20px]">
-                        <div className="flex items-center gap-2 mb-4">
+                        <div className="flex items-center gap-2 mb-5">
                             <span className="text-[10px] text-[#FFB347] tracking-[2px] uppercase font-bold">STRENGTHEN</span>
                             <span className="text-[#FFB347] text-sm">🎯</span>
                         </div>
-                        <div className="space-y-3">
-                            {scoreResult.weakestDimensions.map(d => (
-                                <div key={d} className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-[#FFB347]" />
-                                    <span className="text-[13px] text-white flex-1">{getDimensionLabel(d)}</span>
-                                    <span className="text-[13px] text-white font-bold">{scoreResult.dimensions[d]}</span>
-                                </div>
-                            ))}
+                        <div className="space-y-4">
+                            {scoreResult.weakestDimensions.map(d => {
+                                const meta = DIMENSION_META[d];
+                                return (
+                                    <div key={d} className="flex items-center gap-3">
+                                        <div className="w-7 h-7 flex items-center justify-center rounded-full text-xs shadow-inner" style={{ backgroundColor: `${meta.color}20`, border: `1px solid ${meta.color}40` }}>
+                                            {meta.icon}
+                                        </div>
+                                        <span className="text-[14px] text-white flex-1 font-semibold">{getDimensionLabel(d)}</span>
+                                        <span className="text-[14px] font-bold" style={{ color: meta.color }}>{scoreResult.dimensions[d]}</span>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </motion.div>

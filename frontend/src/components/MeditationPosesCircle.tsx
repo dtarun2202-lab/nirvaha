@@ -372,7 +372,7 @@ const MeditationPosesCircle: React.FC = () => {
           className="text-center mt-16"
         >
           <p className="text-green-100 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
-            Each pose represents a pathway to better mental health. Allow the gentle movement to
+            Each pose supports better mental health. Allow the gentle movement to
             guide your focus as you explore these positions that have been proven effective for
             cultivating inner peace and reducing stress.
           </p>
