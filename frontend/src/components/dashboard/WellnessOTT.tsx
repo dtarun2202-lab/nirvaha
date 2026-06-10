@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, Pause, X } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { Play } from 'lucide-react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useWellnessOTT } from '../../contexts/WellnessOTTContext';
@@ -8,21 +8,23 @@ import { useWellnessOTT } from '../../contexts/WellnessOTTContext';
 export const WellnessOTT = () => {
     const { sessions: videos } = useWellnessOTT();
     const navigate = useNavigate();
-    const [isAnimating, setIsAnimating] = useState(false);
-    const [viewMoreOpen, setViewMoreOpen] = useState(false);
-
     const handleCardClick = (e: React.MouseEvent, item: any) => {
         e.preventDefault();
         e.stopPropagation();
-        setIsAnimating(true);
-        navigate(`/wellness-ott-intro?seriesId=${item.id}`, { replace: false });
+        // Navigate immediately — all animation is handled inside NirvahaStreamIntro
+        navigate(`/wellness-ott-intro?seriesId=${item.id}`, {
+            state: {
+                thumbnail: item.thumbnail,
+                title: item.title,
+                category: item.category,
+            }
+        });
     };
 
     const handleViewMore = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        setIsAnimating(true);
-        navigate('/wellness-ott-intro', { replace: false });
+        navigate('/wellness-ott-intro');
     };
 
     return (
@@ -115,88 +117,6 @@ export const WellnessOTT = () => {
                     ))}
                 </div>
             </div>
-
-            {/* Fullscreen Cinematic Intro Animation */}
-            <AnimatePresence>
-                {isAnimating && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.8, ease: "easeInOut" }}
-                        className="fixed inset-0 z-[9999] bg-[#050505] flex flex-col items-center justify-center overflow-hidden"
-                    >
-                        {/* Immersive dark overlay and Emerald glow atmosphere */}
-                        <motion.div 
-                            className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1a5d47]/20 via-[#050505] to-[#050505] opacity-80"
-                            initial={{ scale: 1.1, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 0.8 }}
-                            transition={{ duration: 2.8, ease: "easeOut" }}
-                        />
-
-                        {/* Subtle floating particles */}
-                        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                            {[...Array(15)].map((_, i) => (
-                                <motion.div
-                                    key={i}
-                                    className="absolute w-1 h-1 bg-[#2ed899] rounded-full blur-[1px]"
-                                    initial={{ 
-                                        left: `${Math.random() * 100}%`, 
-                                        top: `${Math.random() * 100}%`,
-                                        opacity: 0,
-                                        scale: Math.random() * 1 + 0.5 
-                                    }}
-                                    animate={{ 
-                                        top: `${Math.random() * 100 - 20}%`,
-                                        opacity: [0, Math.random() * 0.5 + 0.2, 0],
-                                    }}
-                                    transition={{ 
-                                        duration: Math.random() * 2 + 1.5, 
-                                        ease: "linear",
-                                    }}
-                                />
-                            ))}
-                        </div>
-                        
-                        {/* Central cinematic text */}
-                        <motion.div
-                            initial={{ scale: 0.85, opacity: 0, filter: 'blur(12px)' }}
-                            animate={{ scale: 1.1, opacity: 1, filter: 'blur(0px)' }}
-                            transition={{ duration: 2.8, ease: [0.25, 0.1, 0.25, 1] }}
-                            className="relative flex flex-col items-center justify-center z-10"
-                        >
-                            <motion.h1 
-                                className="text-white font-medium text-5xl md:text-7xl mb-2 ml-4 uppercase tracking-widest"
-                                initial={{ letterSpacing: '0em' }}
-                                animate={{ letterSpacing: '0.2em' }}
-                                transition={{ duration: 2.8, ease: "easeOut" }}
-                                style={{ fontFamily: "'Cinzel', serif" }}
-                            >
-                                NIRVAHA
-                            </motion.h1>
-                            <motion.h2 
-                                className="text-[#1a5d47] text-lg md:text-2xl font-light uppercase tracking-widest ml-3"
-                                initial={{ letterSpacing: '0em', opacity: 0 }}
-                                animate={{ letterSpacing: '0.4em', opacity: 1 }}
-                                transition={{ duration: 2.4, delay: 0.4, ease: "easeOut" }}
-                                style={{ textShadow: "0 0 20px rgba(26, 93, 71, 0.8)" }}
-                            >
-                                Wellness OTT
-                            </motion.h2>
-                        </motion.div>
-
-                        {/* Cinematic glow pulse */}
-                        <motion.div 
-                            className="absolute w-[40vw] h-[40vw] min-w-[400px] min-h-[400px] bg-[#1a5d47] blur-[120px] rounded-full z-0 pointer-events-none"
-                            initial={{ scale: 0.5, opacity: 0 }}
-                            animate={{ scale: [0.8, 1.2, 1], opacity: [0, 0.15, 0.25] }}
-                            transition={{ duration: 2.8, ease: "easeInOut" }}
-                        />
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-
 
         </section>
     );
