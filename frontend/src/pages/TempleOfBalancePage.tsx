@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import SEOHead from '../components/common/SEOHead';
@@ -8,8 +8,8 @@ import { GameLoaderWrapper } from '../components/common/GameLoaderWrapper';
 
 const TempleOfBalancePage: React.FC = () => {
     const navigate = useNavigate();
-    const [isQuitModalOpen, setIsQuitModalOpen] = React.useState(false);
-    const [isGameOver, setIsGameOver] = React.useState(false);
+    const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
+    const [isGameOver, setIsGameOver] = useState(false);
 
     return (
         <GameLoaderWrapper title="Temple of Balance" themeColor="#B45309">

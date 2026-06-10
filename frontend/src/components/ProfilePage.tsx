@@ -374,7 +374,7 @@ function mergeStatsForDisplay(profileStats: unknown, userStats: unknown): Record
     merged.sessionsPlayed = 0;
     merged.streak = 0;
     merged.totalMinutes = 0;
-    merged.wellnessScore = 50;
+    merged.wellnessScore = 0;
   }
   
   return merged;
@@ -888,6 +888,47 @@ export function ProfilePage() {
     },
     [profileData?.stats, user?.stats]
   );
+  const todayPracticeTime = useMemo(() => {
+    const sessionHistoryList = pickSessionHistory(
+      profileData?.sessionHistory,
+      (user as { sessionHistory?: Record<string, unknown>[] } | null)?.sessionHistory
+    );
+    const now = new Date();
+    const todayDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    console.log('🔍 ProfilePage.todayPracticeTime - sessionHistoryList:', {
+      profileDataSessionHistoryLength: profileData?.sessionHistory?.length || 0,
+      userSessionHistoryLength: user?.sessionHistory?.length || 0,
+      sessionHistoryListLength: sessionHistoryList.length
+    });
+    const todaySessions = sessionHistoryList.filter((session) => {
+      
+
+      // Use date field if available (new format), otherwise fall back to completedAt (old format)
+      const date = session.date;
+      if (date) {
+        return String(date) === todayDateStr;
+      }
+      
+
+      const completedAt = session.completedAt;
+      if (!completedAt) return false;
+      const completedAtDate = new Date(String(completedAt));
+      const completedAtDateStr = `${completedAtDate.getFullYear()}-${String(completedAtDate.getMonth() + 1).padStart(2, '0')}-${String(completedAtDate.getDate()).padStart(2, '0')}`;
+      return completedAtDateStr === todayDateStr;
+    });
+    console.log('🔍 ProfilePage.todayPracticeTime - todaySessions:', {
+      todayDateStr,
+      todaySessionsCount: todaySessions.length,
+      todaySessions
+    });
+    const totalMinutes = todaySessions.reduce((sum, session) => {
+      const duration = Number(session.duration);
+      return sum + (Number.isFinite(duration) && duration > 0 ? duration : 0);
+    }, 0);
+    console.log('🔍 ProfilePage.todayPracticeTime - final value:', totalMinutes);
+    return totalMinutes;
+  }, [profileData?.sessionHistory, user?.sessionHistory]);
+
   const weeklyMinutes = useMemo(() => {
     const w = stats.weeklyMinutes;
     if (Array.isArray(w) && w.length >= 7) {
@@ -1094,9 +1135,14 @@ export function ProfilePage() {
         if (profRes.ok) {
           const data = await profRes.json();
           const fetchedUser = data.user || data;
+          console.log('🔍 ProfilePage.loadProfile - Fetched profile data:', {
+            userId: fetchedUser.id,
+            sessionHistoryLength: fetchedUser.sessionHistory?.length || 0,
+            sessionHistory: fetchedUser.sessionHistory
+          });
           setProfileData(fetchedUser);
-          setCurrentUser(fetchedUser);
-          localStorage.setItem("user", JSON.stringify(fetchedUser));
+          // NOTE: Don't call setCurrentUser here to avoid overwriting fresh AuthContext data
+          // Don't update localStorage here as AuthContext handles that
           const histLen = Array.isArray(fetchedUser.sessionHistory) ? fetchedUser.sessionHistory.length : 0;
           if (histLen === 0 && fetchedUser.currentMood) {
             const mood = availableMoods.find((m) => m.label === fetchedUser.currentMood);
@@ -1142,6 +1188,11 @@ export function ProfilePage() {
     
     const handleUpdate = async (data: any) => {
       if (data.userId === user?.id) {
+        console.log('🔍 ProfilePage socket handleUpdate - Received profile update:', {
+          userId: data.userId,
+          sessionHistoryLength: data.sessionHistory?.length || 0,
+          sessionHistory: data.sessionHistory
+        });
         setProfileData((prev: any) => ({
           ...(prev || {}),
           stats: data.stats,
@@ -1338,7 +1389,7 @@ export function ProfilePage() {
             </div>
             <h5 className="text-gray-800 mb-1">Practice Time (today)</h5>
             <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-5xl font-bold text-[#1B4332]"><StatCounter value={Number(stats.todayPracticeTime) || 0} /></span>
+              <span className="text-5xl font-bold text-[#1B4332]"><StatCounter value={Number(todayPracticeTime) || 0} /></span>
               <span className="text-xl text-[#6b7280]">mins</span>
             </div>
             <p className="text-sm text-[#6b7280]">Today's mindfulness journey</p>
@@ -2807,7 +2858,7 @@ export function ProfilePage() {
           sessions: stats.sessionsPlayed || 0,
           streak: stats.streak || 0,
           totalTime: `${Math.round((stats.totalMinutes || 0) / 60)}hrs`,
-          wellnessScore: stats.wellnessScore || 50,
+          wellnessScore: stats.wellnessScore || 0,
           meditationMinutes: profileMeditationMinutes,
           soundMinutes: profileSoundMinutes,
         }}

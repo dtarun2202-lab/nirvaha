@@ -6,9 +6,10 @@ const User = require('../models/User');
 const { resolveAndPersistCompanionForUser } = require('../utils/companionStatus');
 const admin = require('firebase-admin');
 
-// Initialize Firebase Admin SDK
-if (process.env.FIREBASE_PROJECT_ID) {
-  try {
+// Initialize Firebase Admin SDK (only if not already initialized)
+let firebaseAdminInitialized = false;
+try {
+  if (admin.apps.length === 0 && process.env.FIREBASE_PROJECT_ID) {
     const credential = {
       projectId: process.env.FIREBASE_PROJECT_ID,
     };
@@ -22,17 +23,24 @@ if (process.env.FIREBASE_PROJECT_ID) {
       admin.initializeApp({
         credential: admin.credential.cert(credential),
       });
+      firebaseAdminInitialized = true;
       console.log('✅ Firebase Admin initialized with full service account credential (project:', process.env.FIREBASE_PROJECT_ID + ')');
     } else {
       // Fallback: projectId-only init (will not verify token signatures)
       admin.initializeApp({ projectId: process.env.FIREBASE_PROJECT_ID });
+      firebaseAdminInitialized = true;
       console.warn('⚠️ Firebase Admin initialized with projectId only (FIREBASE_CLIENT_EMAIL / FIREBASE_PRIVATE_KEY missing). Token signature verification may fail.');
     }
-  } catch (error) {
-    console.error('Error initializing Firebase Admin SDK:', error);
+  } else if (admin.apps.length > 0) {
+    firebaseAdminInitialized = true;
+    console.log('✅ Firebase Admin already initialized, using existing instance');
+  } else {
+    console.warn('⚠️ FIREBASE_PROJECT_ID is not set in backend environment variables. Token signature validation will be bypassed.');
   }
-} else {
-  console.warn('⚠️ FIREBASE_PROJECT_ID is not set in backend environment variables. Token signature validation will be bypassed.');
+} catch (error) {
+  console.error('Error initializing Firebase Admin SDK:', error);
+  console.error('Error details:', error.message);
+  firebaseAdminInitialized = false;
 }
 
 const router = express.Router();
@@ -239,23 +247,32 @@ router.post('/firebase', async (req, res) => {
     }
 
     let decodedToken;
-    if (admin.apps.length > 0) {
+    if (firebaseAdminInitialized && admin.apps.length > 0) {
       try {
         decodedToken = await admin.auth().verifyIdToken(idToken);
       } catch (verifyError) {
         console.error('Firebase token signature verification failed:', verifyError);
+        console.error('Verification error details:', verifyError.message);
+        console.error('Verification error code:', verifyError.code);
+        
         // Fallback for development if signature verification fails and we are not in production
         if (process.env.NODE_ENV !== 'production' || process.env.BYPASS_FIREBASE_VERIFICATION === 'true') {
           console.warn('⚠️ Falling back to decoding token without signature verification (DEVELOPMENT ONLY)');
           decodedToken = decodeTokenSafely(idToken);
+          if (!decodedToken) {
+            return res.status(400).json({ error: 'Failed to decode auth token' });
+          }
         } else {
-          return res.status(401).json({ error: 'Invalid Firebase token signature' });
+          return res.status(401).json({ error: 'Invalid Firebase token signature', details: verifyError.message });
         }
       }
     } else {
       // Fallback if not initialized
       console.warn('⚠️ Firebase Admin SDK not initialized. Decoding token without signature check.');
       decodedToken = decodeTokenSafely(idToken);
+      if (!decodedToken) {
+        return res.status(400).json({ error: 'Failed to decode auth token and Firebase not initialized' });
+      }
     }
 
     if (!decodedToken) {
@@ -334,7 +351,14 @@ router.post('/firebase', async (req, res) => {
     });
   } catch (error) {
     console.error('Firebase login error:', error);
-    res.status(500).json({ error: 'Server error during Firebase authentication', details: error.message });
+    console.error('Error stack:', error.stack);
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    res.status(500).json({ 
+      error: 'Server error during Firebase authentication', 
+      details: error.message,
+      code: error.code 
+    });
   }
 });
 
@@ -358,7 +382,7 @@ router.post('/change-password', async (req, res) => {
       return res.status(400).json({ error: 'New password must be at least 6 characters long' });
     }
 
-    const user = await User.findOne({ id: decoded.id });
+    const user = await User.findOne({ email: decoded.email });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -367,24 +391,23 @@ router.post('/change-password', async (req, res) => {
     if (user.password !== 'FIREBASE_AUTH_USER') {
       const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
       if (!isPasswordValid) {
-        return res.status(400).json({ error: 'Invalid current password' });
+        return res.status(401).json({ error: 'Current password is incorrect' });
       }
     }
 
-    // Hash and update the password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
     await user.save();
 
-    res.json({ success: true, message: 'Password changed successfully' });
+    res.status(200).json({ message: 'Password changed successfully' });
   } catch (error) {
     console.error('Change password error:', error);
     res.status(500).json({ error: 'Server error during password change' });
   }
 });
 
-// Get current user
-const sendCurrentUser = async (req, res) => {
+// GET /api/auth/user - Get current user with sessionHistory
+router.get('/user', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -394,7 +417,7 @@ const sendCurrentUser = async (req, res) => {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    const user = await User.findOne({ id: decoded.id });
+    const user = await User.findOne({ email: decoded.email });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -403,14 +426,23 @@ const sendCurrentUser = async (req, res) => {
       ...user.toObject(),
       isApprovedCompanion: user.isApprovedCompanion === true,
       companionStatus: user.companionStatus || null,
+      companionId: user.companionId || null,
     };
-    res.json({ success: true, user: safeUser });
-  } catch (error) {
-    res.status(401).json({ error: 'Invalid token' });
-  }
-};
+    if (safeUser.password) delete safeUser.password;
+    if (safeUser.__v) delete safeUser.__v;
 
-router.get('/user', sendCurrentUser);
-router.get('/me', sendCurrentUser);
+    console.log('🔍 GET /api/auth/user - Response:', {
+      userId: user.id,
+      email: user.email,
+      sessionHistoryLength: safeUser.sessionHistory?.length || 0,
+      sessionHistory: safeUser.sessionHistory
+    });
+
+    res.json({ user: safeUser });
+  } catch (error) {
+    console.error('Get user error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 module.exports = router;

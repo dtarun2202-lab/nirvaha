@@ -111,6 +111,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const data = await res.json();
         if (data?.user) {
           const serverUser = data.user as User;
+          console.log('🔍 AuthContext.syncUserFromServer() - User data received:', {
+            userId: serverUser.id,
+            email: serverUser.email,
+            sessionHistoryLength: serverUser.sessionHistory?.length || 0,
+            sessionHistory: serverUser.sessionHistory
+          });
           return applyServerUser(serverUser);
         }
       } else if (res.status === 401) {
