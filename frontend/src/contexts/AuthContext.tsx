@@ -241,6 +241,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await authenticateWithBackend(idToken);
     } catch (error: any) {
       console.error("loginWithEmail error:", error);
+      
+      // Attempt backend direct login fallback
+      console.log("Attempting direct backend login fallback...");
+      try {
+        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.success) {
+            console.log("✓ Backend direct login successful");
+            login(data.user, data.token);
+            return;
+          }
+        }
+      } catch (backendErr) {
+        console.error("Backend direct login fallback failed:", backendErr);
+      }
+
       if (error.code === "auth/invalid-api-key" || error.code === "auth/invalid-config") {
         console.warn("Config error caught. Bypassing Firebase for local testing.");
         await performMockDeveloperLogin(email, email.split("@")[0]);
@@ -263,6 +285,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await authenticateWithBackend(idToken, name);
     } catch (error: any) {
       console.error("signupWithEmail error:", error);
+
+      // Attempt backend direct register fallback
+      console.log("Attempting direct backend register fallback...");
+      try {
+        const res = await fetch(`${BACKEND_CONFIG.API_BASE_URL}/api/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password }),
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.success) {
+            console.log("✓ Backend direct register successful");
+            login(data.user, data.token);
+            return;
+          }
+        }
+      } catch (backendErr) {
+        console.error("Backend direct register fallback failed:", backendErr);
+      }
+
       if (error.code === "auth/invalid-api-key" || error.code === "auth/invalid-config") {
         console.warn("Config error caught. Bypassing Firebase for local testing.");
         await performMockDeveloperLogin(email, name);

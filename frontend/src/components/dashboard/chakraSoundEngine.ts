@@ -18,10 +18,10 @@ let _masterNode: AudioNode | null = null;
 
 function ctx(): AudioContext {
   if (!_ctx) {
-    _ctx = new AudioContext();
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    _ctx = new AudioContextClass();
     _masterNode = null;
   }
-  if (_ctx.state === 'suspended') _ctx.resume();
   return _ctx;
 }
 
@@ -73,13 +73,22 @@ export function playSound(chakraId: number, soundIndex: number) {
   const ac = ctx();
   _playingState = { chakraId, soundIndex };
   notify();
-  const gen = MAP[`${chakraId}-${soundIndex}`];
-  if (gen) gen(ac);
-  const t = window.setTimeout(() => {
-    _stopFns = []; _activeTimers = [];
-    _playingState = null; notify();
-  }, 8400);
-  _activeTimers.push(t);
+  
+  const startAudio = () => {
+    const gen = MAP[`${chakraId}-${soundIndex}`];
+    if (gen) gen(ac);
+    const t = window.setTimeout(() => {
+      _stopFns = []; _activeTimers = [];
+      _playingState = null; notify();
+    }, 8400);
+    _activeTimers.push(t);
+  };
+
+  if (ac.state === 'suspended') {
+    ac.resume().then(startAudio);
+  } else {
+    startAudio();
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -429,43 +438,50 @@ const MAP: Record<string, Gen> = {
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      1 · MULADHARA — LAM
-     Deep grounding meditation soundscapes. 82 Hz base.
+     Deep grounding meditation soundscapes.
+     Uses 164 Hz (octave up from 82 Hz) for audibility on all speakers,
+     with rich lower harmonics layered for a grounding, earthy quality.
      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-  // LAM bija chant — deep 82 Hz chant + warm grounding pad
+  // LAM bija chant — warm 164 Hz gated chant + grounding harmonic pad
   '1-0': (ac) => {
     const rv = Reverb(ac, 0.35, 0.45, 0.55);
-    ChantGated(ac, 82, 'triangle', F_AH, 0.2, 8, 0.35, 0.65, rv, 4.5, 2.5);
-    AmbientPad(ac, 82, 0.12, 8, rv, [1.0, 1.5, 2.0]);
+    // Chant at 164 Hz (audible octave) with triangle wave for warmth
+    ChantGated(ac, 164, 'triangle', F_AH, 0.22, 8, 0.35, 0.65, rv, 4.5, 2.5);
+    // Pad spanning 164 Hz and harmonics for fullness
+    AmbientPad(ac, 164, 0.16, 8, rv, [0.5, 1.0, 1.5, 2.0]);
+    // Temple bell layer for grounding texture
+    TempleBell(ac, 164, 0.08, 8, rv);
   },
 
-  // Tibetan monk low hum — 65 Hz warm choral drone + singing bowls
+  // Tibetan monk low hum — 130 Hz warm choral drone + singing bowls
   '1-1': (ac) => {
     const rv = Reverb(ac, 0.4, 0.45, 0.6);
-    AmbientPad(ac, 65, 0.2, 8, rv, [1.0, 1.5, 2.0, 3.0]);
-    TempleBell(ac, 65, 0.08, 8, rv);
+    AmbientPad(ac, 130, 0.24, 8, rv, [1.0, 1.5, 2.0, 3.0]);
+    TempleBell(ac, 130, 0.12, 8, rv);
   },
 
-  // Earthy bass vibration — 55 Hz grounding sub hum + nature breeze
+  // Earthy grounding vibration — 164 Hz warm drone + breath texture
   '1-2': (ac) => {
     const rv = Reverb(ac, 0.45, 0.48, 0.65);
-    AmbientPad(ac, 55, 0.22, 8, rv, [1.0, 1.5, 2.0]);
-    Voice(ac, 82, 'triangle', F_MM, 0.1, 8, 2.5, 2.5, rv, 3, 1.5);
-    BreathLayer(ac, 0.04, 8, rv);
+    AmbientPad(ac, 164, 0.22, 8, rv, [1.0, 1.5, 2.0]);
+    Voice(ac, 164, 'triangle', F_MM, 0.14, 8, 2.5, 2.5, rv, 3, 1.5);
+    BreathLayer(ac, 0.06, 8, rv);
   },
 
-  // Grounding temple chant
+  // Grounding temple chant — 220 Hz pad + temple bell
   '1-3': (ac) => {
     const rv = Reverb(ac, 0.35, 0.4, 0.55);
-    AmbientPad(ac, 110, 0.15, 8, rv, [1.0, 1.5, 2.0]);
-    TempleBell(ac, 82, 0.06, 8, rv);
+    AmbientPad(ac, 220, 0.18, 8, rv, [1.0, 1.5, 2.0]);
+    TempleBell(ac, 164, 0.10, 8, rv);
   },
 
-  // Slow deep spiritual hum
+  // Slow deep spiritual hum — 164 Hz full harmonic stack
   '1-4': (ac) => {
     const rv = Reverb(ac, 0.4, 0.45, 0.6);
-    AmbientPad(ac, 82, 0.18, 8, rv, [0.5, 1.0, 1.5, 2.0]);
+    AmbientPad(ac, 164, 0.22, 8, rv, [0.5, 1.0, 1.5, 2.0]);
   },
+
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      2 · SVADHISHTHANA — VAM

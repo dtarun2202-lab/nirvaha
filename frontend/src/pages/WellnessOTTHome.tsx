@@ -43,8 +43,20 @@ const SessionRow = ({
   isOriginals?: boolean;
 }) => {
   const navigate = useNavigate();
-  
   if (sessions.length === 0) return null;
+
+  const handleCardClick = (e: React.MouseEvent, item: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    navigate(`/wellness-ott-intro?seriesId=${item.id}`, {
+      state: {
+        thumbnail: item.thumbnail,
+        title: item.title,
+        category: item.category,
+      }
+    });
+  };
 
   return (
     <div className="relative z-20 mb-10 md:mb-14 px-6 md:px-12 lg:px-16">
@@ -71,7 +83,7 @@ const SessionRow = ({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
-                onClick={() => navigate(`/wellness-ott/series/${item.id}`)}
+                onClick={(e) => handleCardClick(e, item)}
                 className={`group relative flex-none rounded-xl overflow-hidden cursor-pointer bg-[#0c0c0c] border border-white/5 shadow-2xl snap-start transition-all duration-500 hover:border-[#2ed899]/30 hover:shadow-[0_0_30px_rgba(46,216,153,0.15)] ${
                   isOriginals 
                     ? 'w-[180px] md:w-[220px] aspect-[2/3]' 
@@ -152,6 +164,7 @@ const SessionRow = ({
           })}
         </AnimatePresence>
       </div>
+
     </div>
   );
 };

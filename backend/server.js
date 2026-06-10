@@ -222,7 +222,36 @@ async function initLocalAdminUser() {
   }
 }
 
+function getPublicIp() {
+  const https = require('https');
+  return new Promise((resolve) => {
+    const options = {
+      hostname: 'api.ipify.org',
+      port: 443,
+      path: '/',
+      method: 'GET',
+      timeout: 2000
+    };
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => { resolve(data.trim()); });
+    });
+    req.on('error', () => { resolve(null); });
+    req.on('timeout', () => { req.destroy(); resolve(null); });
+    req.end();
+  });
+}
+
+let isConnecting = false;
+
 async function connectMongo() {
+  if (isConnecting) return;
+  if (mongoose.connection.readyState === 1) {
+    mongoConnected = true;
+    return;
+  }
+
   if (!MONGODB_URI) {
     console.warn('⚠️  MONGODB_URI not set. Using local JSON database for development.');
     console.warn('⚠️  To use MongoDB, add your IP (106.214.2.149) to MongoDB Atlas IP whitelist.');
@@ -230,9 +259,11 @@ async function connectMongo() {
     return;
   }
 
+  isConnecting = true;
   mongoose.set('strictQuery', false);
 
   try {
+    console.log('Connecting to MongoDB Atlas...');
     await mongoose.connect(MONGODB_URI, {
       autoIndex: false,
       maxPoolSize: Number(process.env.MONGO_MAX_POOL_SIZE) || 30,
@@ -243,15 +274,46 @@ async function connectMongo() {
     });
     console.log('✓ Connected to MongoDB Atlas');
     mongoConnected = true;
+    isConnecting = false;
     try {
+      await seedMongo();
       await syncAllApprovedCompanionsToUsers();
     } catch (syncErr) {
       console.error('[companion-sync] Startup backfill failed:', syncErr.message);
     }
   } catch (error) {
-    console.error('MongoDB connection error:', error.message);
-    console.warn('⚠️  Falling back to local JSON database for development...');
-    mongoConnected = false;
+    console.error('MongoDB Atlas connection error:', error.message);
+    
+    console.log('Trying local MongoDB fallback (mongodb://127.0.0.1:27017/nirvaha)...');
+    try {
+      await mongoose.disconnect();
+      await mongoose.connect('mongodb://127.0.0.1:27017/nirvaha', {
+        serverSelectionTimeoutMS: 3000,
+      });
+      console.log('✓ Connected to local MongoDB');
+      mongoConnected = true;
+      isConnecting = false;
+      try {
+        await seedMongo();
+        await syncAllApprovedCompanionsToUsers();
+      } catch (syncErr) {
+        console.error('[companion-sync] Local startup backfill failed:', syncErr.message);
+      }
+    } catch (localError) {
+      console.error('Local MongoDB fallback failed:', localError.message);
+      mongoConnected = false;
+      isConnecting = false;
+      
+      const publicIp = await getPublicIp().catch(() => null);
+      if (publicIp) {
+        console.warn(`⚠️  To use MongoDB, add your current IP (${publicIp}) to MongoDB Atlas IP whitelist.`);
+      } else {
+        console.warn('⚠️  To use MongoDB, add your IP to MongoDB Atlas IP whitelist.');
+      }
+      
+      console.log('Will retry connecting to MongoDB in 10 seconds...');
+      setTimeout(connectMongo, 10000);
+    }
   }
 }
 
