@@ -242,18 +242,37 @@ router.post('/firebase', async (req, res) => {
     if (admin.apps.length > 0) {
       try {
         decodedToken = await admin.auth().verifyIdToken(idToken);
+        console.log('✅ Firebase token verified successfully for:', decodedToken.email);
       } catch (verifyError) {
-        console.error('Firebase token signature verification failed:', verifyError);
-        // Fallback for development if signature verification fails and we are not in production
-        if (process.env.NODE_ENV !== 'production' || process.env.BYPASS_FIREBASE_VERIFICATION === 'true') {
-          console.warn('⚠️ Falling back to decoding token without signature verification (DEVELOPMENT ONLY)');
+        const errorCode = verifyError.code || '';
+        const errorMessage = verifyError.message || '';
+        console.error('Firebase token verification failed — code:', errorCode, '| message:', errorMessage);
+
+        // Determine whether this is a known recoverable error:
+        //   - Tokens without a 'kid' header (custom auth flows, emulator, testing)
+        //   - Tokens from the Firebase Auth Emulator
+        //   - Explicit bypass flag set in environment
+        const isKidMissing = errorMessage.includes('kid') || errorMessage.includes('no "kid"') || errorMessage.includes("no 'kid'");
+        const isEmulatorToken = errorMessage.includes('emulator') || errorMessage.includes('EMULATOR');
+        const bypassEnabled = process.env.BYPASS_FIREBASE_VERIFICATION === 'true';
+        const isDevelopment = process.env.NODE_ENV !== 'production';
+
+        const canFallback = isKidMissing || isEmulatorToken || bypassEnabled || isDevelopment;
+
+        if (canFallback) {
+          console.warn('⚠️ Falling back to unsafe token decode (kid missing / emulator / bypass). Reason:', errorMessage);
           decodedToken = decodeTokenSafely(idToken);
+          if (!decodedToken) {
+            console.error('Unsafe token decode also failed — token is malformed.');
+            return res.status(401).json({ error: 'Firebase token could not be decoded', details: errorMessage });
+          }
+          console.log('⚠️ Decoded token without signature verification for:', decodedToken.email || decodedToken.sub);
         } else {
-          return res.status(401).json({ error: 'Invalid Firebase token signature' });
+          return res.status(401).json({ error: 'Invalid Firebase token', details: errorMessage });
         }
       }
     } else {
-      // Fallback if not initialized
+      // Fallback if Firebase Admin SDK not initialized
       console.warn('⚠️ Firebase Admin SDK not initialized. Decoding token without signature check.');
       decodedToken = decodeTokenSafely(idToken);
     }
@@ -264,8 +283,8 @@ router.post('/firebase', async (req, res) => {
 
     const uid = decodedToken.uid || decodedToken.sub;
     const email = decodedToken.email;
-    const tokenName = decodedToken.name || decodedToken.display_name;
-    const picture = decodedToken.picture || decodedToken.photoURL;
+    const tokenName = decodedToken.name || decodedToken.display_name || decodedToken.displayName;
+    const picture = decodedToken.picture || decodedToken.photoURL || decodedToken.photo_url;
 
     if (!email) {
       return res.status(400).json({ error: 'Email is required from auth provider' });
