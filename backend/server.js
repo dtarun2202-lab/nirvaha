@@ -12,11 +12,15 @@ const { Server } = require('socket.io');
 const bcrypt = require('bcryptjs');
 const { cacheMiddleware, initCache } = require('./utils/cache');
 const { startRetentionJobs, ensureBackupDir } = require('./utils/retention');
-const allowedOrigins = [
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [
+  'http://localhost:5173',
+  'https://nirvaha-git-railway-code-chang-0161fa-dtarun2202-6431s-projects.vercel.app',
+  'https://nirvaha.vercel.app',
+  'https://nirvaha-three.vercel.app',
+  'https://nirvaha-production.up.railway.app',
   'https://nirvaha-wellnessllp.vercel.app',
   'http://localhost:3000',
   'http://localhost:3001',
-  'http://localhost:5173',
   'http://localhost:5000',
   'http://localhost:5001'
 ];
@@ -64,12 +68,7 @@ app.disable('x-powered-by');
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'https://nirvaha-three.vercel.app',
-      'https://nirvaha-production.up.railway.app',
-    ],
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -1130,12 +1129,7 @@ if (process.env.NODE_ENV === 'production') {
 
 app.use(compression());
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'https://nirvaha-production.up.railway.app',
-    'https://nirvaha-wellnessllp.vercel.app',
-  ],
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with'],
