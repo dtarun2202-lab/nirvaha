@@ -48,6 +48,7 @@ const wellnessSessionRoutes = require('./routes/wellnessSessionRoutes');
 const commonProblemRoutes = require('./routes/commonProblemRoutes');
 const essentialGuidanceRoutes = require('./routes/essentialGuidanceRoutes');
 const healingFrequenciesRoutes = require('./routes/healingFrequenciesRoutes');
+const enrollmentRoutes = require('./routes/enrollmentRoutes');
 const { syncAllApprovedCompanionsToUsers } = require('./utils/companionStatus');
 
 // Import models for seeding
@@ -1121,6 +1122,7 @@ app.use('/api/wellness-sessions', wellnessSessionRoutes);
 app.use('/api/common-problems', commonProblemRoutes);
 app.use('/api/essential-guidance', essentialGuidanceRoutes);
 app.use('/api/healing-frequencies', healingFrequenciesRoutes);
+app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api', utilityRoutes);
 
 // Legacy route compatibility (for existing frontend code)

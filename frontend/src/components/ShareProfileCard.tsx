@@ -131,7 +131,7 @@ export function ShareProfileCard({
   const shareOnInstagram = async () => {
     const shareText = `${userName}'s Nirvaha wellness profile: ${window.location.href}`;
     await navigator.clipboard.writeText(shareText);
-    window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
+    window.open("https://www.instagram.com/saieshwar_universe_/", "_blank", "noopener,noreferrer");
     setShareFeedback("instagram");
     setTimeout(() => setShareFeedback("none"), 2000);
   };

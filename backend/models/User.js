@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema(
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: false },
-    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    role: { type: String, enum: ['user', 'companion', 'admin'], default: 'user' },
+    status: { type: String, enum: ['active', 'suspended', 'banned', 'pending'], default: 'active' },
     profile: {
       mobile: { type: String, default: '' },
       age: { type: String, default: '' },
@@ -49,6 +50,17 @@ const userSchema = new mongoose.Schema(
     isApprovedCompanion: { type: Boolean, default: false },
     companionStatus: { type: String, default: null },
     companionId: { type: String, default: null },
+
+    // Course enrollments
+    enrolledCourses: {
+      type: [
+        {
+          courseId: { type: String, required: true },
+          enrolledAt: { type: Date, default: Date.now },
+        }
+      ],
+      default: [],
+    },
   },
   { timestamps: true }
 );

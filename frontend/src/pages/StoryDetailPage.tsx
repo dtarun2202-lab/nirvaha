@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowLeft, Quote, Sparkles, BookOpen, Clock, Calendar, Leaf, Heart, Star } from 'lucide-react';
 import { storiesData, Story } from '../data/storiesData';
 import SEOHead from '../components/common/SEOHead';
+import { DashboardFooter } from '../components/dashboard/DashboardFooter';
 
 const StoryDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -282,6 +283,9 @@ const StoryDetailPage: React.FC = () => {
                     </button>
                 </motion.div>
             </main>
+
+            {/* Footer */}
+            <DashboardFooter />
         </div>
     );
 };

@@ -52,6 +52,7 @@ function buildAuthUserPayload(user) {
     isApprovedCompanion: user.isApprovedCompanion === true,
     companionStatus: user.companionStatus || null,
     companionId: user.companionId || null,
+    enrolledCourses: user.enrolledCourses || [],
   };
 }
 

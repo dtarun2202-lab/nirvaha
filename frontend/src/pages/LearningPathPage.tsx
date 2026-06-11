@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import { useEnrollment } from '../hooks/useEnrollment';
 import {
   ChevronLeft, BookOpen, Clock, CheckCircle2, Lock, ChevronDown,
   Sparkles, Brain, Heart, Users, Zap, Award, Quote,
@@ -9,180 +10,74 @@ import {
   Headphones, Leaf, Target,
 } from 'lucide-react';
 import learningPathsData from '../data/learningPaths.json';
+import { CertificateModal } from '../components/CertificateModal';
+import { EnrollmentFormModal } from '../components/EnrollmentFormModal';
 
 const { learningPaths } = learningPathsData;
 
-/* ─────────────────── constants ─────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const PATH_ICONS: Record<string, React.ReactNode> = {
-  'emotional-awareness-foundations':    <Brain className="w-7 h-7" />,
-  'conscious-communication':            <Users className="w-7 h-7" />,
-  'inner-balance-emotional-stability':  <Heart className="w-7 h-7" />,
-  'reflective-thinking-self-awareness': <Sparkles className="w-7 h-7" />,
-  'mindful-digital-living':             <Zap className="w-7 h-7" />,
-  'emotional-intelligence-for-students':<Star className="w-7 h-7" />,
-  'workplace-emotional-intelligence':   <BookOpen className="w-7 h-7" />,
-  'calm-leadership-presence':           <Sparkles className="w-7 h-7" />,
-  'reflection-journaling-mastery':      <PenLine className="w-7 h-7" />,
-  'relationships-emotional-connection': <Heart className="w-7 h-7" />,
-  'ai-reflection-companion-mastery':    <Brain className="w-7 h-7" />,
-  'conscious-growth-journey':           <Star className="w-7 h-7" />,
+  'foundations-of-clear-communication':        <Users className="w-7 h-7" />,
+  'decision-clarity-strategic-thinking':       <Brain className="w-7 h-7" />,
+  'digital-mindfulness-modern-life-balance':   <Leaf className="w-7 h-7" />,
 };
 
-const MODULE_NAMES: Record<string, string[]> = {
-  'emotional-awareness-foundations':    ['Emotional Awareness', 'Self Observation', 'Emotional Patterns', 'Reflective Practices'],
-  'conscious-communication':            ['Foundations of Dialogue', 'Empathic Listening', 'Conflict Navigation', 'Authentic Expression'],
-  'inner-balance-emotional-stability':  ['Grounding Techniques', 'Resilience Building', 'Stability Practices', 'Integration'],
-  'reflective-thinking-self-awareness': ['Metacognition', 'Values Mapping', 'Narrative Therapy', 'Conscious Decisions'],
-  'mindful-digital-living':             ['Digital Audit', 'Intentional Use', 'Tech-Free Rituals', 'Sustainable Balance'],
-  'reflection-journaling-mastery':      ['The Writing Mind', 'Structured Prompts', 'Pattern Recognition', 'Narrative Mastery'],
+const PATH_CERTIFICATES: Record<string, string> = {
+  'foundations-of-clear-communication':        '/CERTIFICATE1.png',
+  'decision-clarity-strategic-thinking':       '/CERTIFICATE2.png',
+  'digital-mindfulness-modern-life-balance':   '/CERTIFICATE3.png',
 };
 
 const UNIT_TYPE_CONFIG: Record<string, { icon: React.ReactNode; label: string; color: string; bg: string }> = {
   reading:     { icon: <BookOpen className="w-3.5 h-3.5" />,   label: 'Reading',         color: '#60a5fa', bg: 'rgba(96,165,250,0.12)'  },
   reflection:  { icon: <PenLine className="w-3.5 h-3.5" />,    label: 'Reflection',      color: '#c084fc', bg: 'rgba(192,132,252,0.12)' },
-  activity:    { icon: <Headphones className="w-3.5 h-3.5" />, label: 'Audio Session',   color: '#34d399', bg: 'rgba(52,211,153,0.12)'  },
+  activity:    { icon: <Headphones className="w-3.5 h-3.5" />, label: 'Activity',        color: '#34d399', bg: 'rgba(52,211,153,0.12)'  },
   quiz:        { icon: <Target className="w-3.5 h-3.5" />,     label: 'Assessment',      color: '#fbbf24', bg: 'rgba(251,191,36,0.12)'  },
   mindfulness: { icon: <Leaf className="w-3.5 h-3.5" />,       label: 'Mindfulness',     color: '#86efac', bg: 'rgba(134,239,172,0.12)' },
 };
 
-const DEFAULT_MODULES = [
-  {
-    id: 'mod-1', title: 'Module 1: Foundations',
-    description: 'Build a strong conceptual base and develop situational awareness.',
-    units: [
-      { id: 'u1',  title: 'Introduction & Core Concepts',    type: 'reading',     xp: 50,  locked: false },
-      { id: 'u2',  title: 'Reflective Exercise: First Look', type: 'reflection',  xp: 75,  locked: false },
-      { id: 'u3',  title: 'Guided Mindfulness Practice',     type: 'mindfulness', xp: 100, locked: false },
-      { id: 'u4',  title: 'Foundations Assessment',          type: 'quiz',        xp: 50,  locked: false },
-    ],
-  },
-  {
-    id: 'mod-2', title: 'Module 2: Deep Dive',
-    description: 'Explore intermediate concepts and strengthen your practice.',
-    units: [
-      { id: 'u5',  title: 'Advanced Patterns & Signals',     type: 'reading',     xp: 75,  locked: false },
-      { id: 'u6',  title: 'Immersive Audio Session',         type: 'activity',    xp: 125, locked: false },
-      { id: 'u7',  title: 'Journaling Prompt: Go Deeper',   type: 'reflection',  xp: 100, locked: true  },
-      { id: 'u8',  title: 'Module Assessment',              type: 'quiz',        xp: 75,  locked: true  },
-    ],
-  },
-  {
-    id: 'mod-3', title: 'Module 3: Applied Practice',
-    description: 'Apply your learning in real-world contexts and build lasting habits.',
-    units: [
-      { id: 'u9',  title: 'Real-World Application Guide',   type: 'reading',     xp: 100, locked: true },
-      { id: 'u10', title: 'Deep Mindfulness Practice',      type: 'mindfulness', xp: 150, locked: true },
-      { id: 'u11', title: 'Reflection: What Has Changed?',  type: 'reflection',  xp: 125, locked: true },
-      { id: 'u12', title: 'Final Knowledge Check',          type: 'quiz',        xp: 100, locked: true },
-    ],
-  },
-  {
-    id: 'mod-4', title: 'Module 4: Integration & Certification',
-    description: 'Bring it all together and earn your Nirvaha certificate.',
-    units: [
-      { id: 'u13', title: 'Synthesis: Your Growth Story',  type: 'reading',     xp: 150, locked: true },
-      { id: 'u14', title: 'Capstone Audio Reflection',     type: 'activity',    xp: 200, locked: true },
-      { id: 'u15', title: 'Certification Assessment',      type: 'quiz',        xp: 300, locked: true },
-    ],
-  },
-];
-
 const REFLECTION_QUOTES: Record<string, { text: string; author: string }> = {
-  'emotional-awareness-foundations': {
-    text: 'Between stimulus and response there is a space. In that space is our power to choose our response. In our response lies our growth and our freedom.',
-    author: 'Viktor E. Frankl',
-  },
-  'conscious-communication': {
+  'foundations-of-clear-communication': {
     text: 'The biggest communication problem is we do not listen to understand. We listen to reply.',
     author: 'Stephen R. Covey',
   },
-  'inner-balance-emotional-stability': {
-    text: 'You don\'t have to control your thoughts. You just have to stop letting them control you.',
-    author: 'Dan Millman',
+  'decision-clarity-strategic-thinking': {
+    text: 'In any moment of decision, the best thing you can do is the right thing. The worst thing you can do is nothing.',
+    author: 'Theodore Roosevelt',
+  },
+  'digital-mindfulness-modern-life-balance': {
+    text: 'Almost everything will work again if you unplug it for a few minutes â€” including you.',
+    author: 'Anne Lamott',
   },
   default: {
-    text: 'The quieter you become, the more you are able to hear. Stillness is where creativity and solutions to problems are found.',
+    text: 'The quieter you become, the more you are able to hear.',
     author: 'Rumi',
   },
 };
 
 const OUTCOMES: Record<string, string[]> = {
-  'emotional-awareness-foundations': [
-    'Identify and name your emotional states with clarity',
-    'Understand the neurological basis of emotions',
-    'Develop daily self-observation habits',
-    'Map personal emotional patterns and triggers',
+  'foundations-of-clear-communication': [
+    'Communicate ideas clearly and confidently',
+    'Apply active listening in every conversation',
+    'Write professional emails and lead meetings',
+    'Structure and deliver compelling presentations',
   ],
-  'conscious-communication': [
-    'Practice empathic, non-reactive listening',
-    'Express emotions clearly and constructively',
-    'De-escalate conflict with calm dialogue',
-    'Build trust through authentic presence',
+  'decision-clarity-strategic-thinking': [
+    'Distinguish reactive impulse from clear thinking',
+    'Apply decision-making frameworks to real situations',
+    'Think strategically with long-term perspective',
+    'Break down complex problems into actionable steps',
   ],
-  'inner-balance-emotional-stability': [
-    'Use breathwork for real-time grounding',
-    'Build emotional resilience under stress',
-    'Establish sustainable stability habits',
-    'Recover faster from emotional disruptions',
-  ],
-  'reflective-thinking-self-awareness': [
-    'Develop metacognitive observation skills',
-    'Map personal values and blind spots',
-    'Use narrative therapy for self-understanding',
-    'Make more conscious, deliberate decisions',
-  ],
-  'mindful-digital-living': [
-    'Audit and redesign screen-time patterns',
-    'Create tech-free rituals for mental clarity',
-    'Reduce digital overstimulation and anxiety',
-    'Build a healthier relationship with technology',
-  ],
-  'emotional-intelligence-for-students': [
-    'Develop focus and emotional regulation for study',
-    'Build confidence and peer communication skills',
-    'Manage academic stress with proven techniques',
-    'Cultivate a growth mindset for lifelong learning',
-  ],
-  'workplace-emotional-intelligence': [
-    'Navigate workplace dynamics with emotional skill',
-    'Lead teams with empathy and calm authority',
-    'Prevent burnout with sustainable work practices',
-    'Build a psychologically safe team culture',
-  ],
-  'calm-leadership-presence': [
-    'Lead from a place of centeredness and vision',
-    'Develop a non-reactive leadership presence',
-    'Make high-stakes decisions with equanimity',
-    'Inspire loyalty through compassionate authority',
-  ],
-  'reflection-journaling-mastery': [
-    'Build a consistent, transformative journaling practice',
-    'Use structured prompts for emotional insight',
-    'Extract patterns and meaning from your writing',
-    'Deepen self-knowledge through narrative reflection',
-  ],
-  'relationships-emotional-connection': [
-    'Understand and work with attachment styles',
-    'Practice deep listening in intimate relationships',
-    'Set healthy emotional boundaries with compassion',
-    'Cultivate shared growth in partnerships',
-  ],
-  'ai-reflection-companion-mastery': [
-    'Use AI-guided prompts for emotional reflection',
-    'Track emotional growth patterns over time',
-    'Combine human intuition with AI insights',
-    'Build a personalized AI wellness practice',
-  ],
-  'conscious-growth-journey': [
-    'Clarify personal identity and core values',
-    'Align daily life with deeper purpose',
-    'Navigate major life transitions with awareness',
-    'Design a sustainable personal transformation plan',
+  'digital-mindfulness-modern-life-balance': [
+    'Identify and reduce digital distraction patterns',
+    'Build intentional screen-time boundaries',
+    'Recover deep focus and rebuild concentration',
+    'Create a sustainable balanced digital lifestyle',
   ],
 };
 
-/* ─────────────────── Mandala Illustration ─────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Mandala Illustration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const EmotionalMandala: React.FC = () => (
   <div className="relative w-full min-h-[500px] flex items-center justify-center select-none">
 
@@ -190,7 +85,7 @@ const EmotionalMandala: React.FC = () => (
     <div className="absolute w-[500px] h-[500px] rounded-full"
       style={{ background: 'radial-gradient(circle, rgba(15,122,85,0.06) 0%, transparent 70%)' }} />
 
-    {/* Ring 1 – slow clockwise */}
+    {/* Ring 1 â€“ slow clockwise */}
     <motion.div
       animate={{ rotate: 360 }}
       transition={{ duration: 90, repeat: Infinity, ease: 'linear' }}
@@ -198,7 +93,7 @@ const EmotionalMandala: React.FC = () => (
       style={{ width: 440, height: 440, border: '1px dashed rgba(15,122,85,0.2)' }}
     />
 
-    {/* Ring 2 – counter-clockwise, with orbital dots */}
+    {/* Ring 2 â€“ counter-clockwise, with orbital dots */}
     <motion.div
       animate={{ rotate: -360 }}
       transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
@@ -217,7 +112,7 @@ const EmotionalMandala: React.FC = () => (
       ))}
     </motion.div>
 
-    {/* Ring 3 – dotted, slow */}
+    {/* Ring 3 â€“ dotted, slow */}
     <motion.div
       animate={{ rotate: 360 }}
       transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
@@ -252,10 +147,10 @@ const EmotionalMandala: React.FC = () => (
 
     {/* Floating concept chips */}
     {[
-      { label: '🧠 Awareness', style: { top: '10%',  left: '58%'  }, delay: 0   },
-      { label: '🌊 Clarity',   style: { top: '76%',  left: '62%'  }, delay: 1   },
-      { label: '🌿 Growth',    style: { top: '68%',  left: '6%'   }, delay: 2   },
-      { label: '✨ Peace',     style: { top: '12%',  left: '10%'  }, delay: 1.5 },
+      { label: 'ðŸ’¬ Clarity',   style: { top: '10%',  left: '58%'  }, delay: 0   },
+      { label: 'ðŸŽ¯ Focus',     style: { top: '76%',  left: '62%'  }, delay: 1   },
+      { label: 'ðŸŒ¿ Balance',   style: { top: '68%',  left: '6%'   }, delay: 2   },
+      { label: 'âœ¨ Growth',    style: { top: '12%',  left: '10%'  }, delay: 1.5 },
     ].map(({ label, style, delay }) => (
       <motion.div
         key={label}
@@ -286,7 +181,7 @@ const EmotionalMandala: React.FC = () => (
   </div>
 );
 
-/* ─────────────────── GLASS styles ─────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ GLASS styles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const glass = {
   background: 'rgba(255,255,255,0.7)',
   border: '1px solid rgba(16,185,129,0.15)',
@@ -303,36 +198,37 @@ const glassAccent = {
   boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
 } as React.CSSProperties;
 
-/* ─────────────────── Main Component ─────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Main Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const LearningPathPage: React.FC = () => {
   const { pathId } = useParams<{ pathId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [openModules, setOpenModules] = useState<Set<string>>(new Set(['mod-1']));
+  const { enroll, isEnrolled } = useEnrollment();
+  const [enrolling, setEnrolling] = useState(false);
+  const [enrollModalOpen, setEnrollModalOpen] = useState(false);
+  const enrolled = isEnrolled(pathId || '');
+  const isLoggedIn = !!user;
+
+  const [openModules, setOpenModules] = useState<Set<string>>(new Set());
   const [completedUnits, setCompletedUnits] = useState<Set<string>>(new Set());
+  const [certModalOpen, setCertModalOpen] = useState(false);
 
   const currentStreak = user?.stats?.streak ?? 0;
 
   const getWeeklyActivity = () => {
     const activityLog = user?.stats?.activityLog || [];
-    // Get start of the current week (Monday)
     const today = new Date();
-    const dayOfWeek = today.getDay(); // 0 is Sunday, 1 is Monday, ...
+    const dayOfWeek = today.getDay();
     const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
     const monday = new Date(today);
     monday.setDate(today.getDate() + distanceToMonday);
-    
-    // Generate date strings for Monday to Sunday
     const daysOfWeek = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
     return daysOfWeek.map((dayName, idx) => {
       const d = new Date(monday);
       d.setDate(monday.getDate() + idx);
       const dateStr = d.toISOString().split('T')[0];
       const isCompleted = activityLog.includes(dateStr);
-      return {
-        dayName,
-        isCompleted,
-      };
+      return { dayName, isCompleted };
     });
   };
 
@@ -348,28 +244,60 @@ const LearningPathPage: React.FC = () => {
           <p className="mb-4" style={{ color: '#1a4a2e' }}>Learning path not found.</p>
           <button onClick={() => navigate('/learn')}
             className="font-semibold hover:underline" style={{ color: '#0f7a55' }}>
-            ← Back to catalog
+            â† Back to catalog
           </button>
         </div>
       </div>
     );
   }
 
-  const icon         = PATH_ICONS[path.id] ?? <BookOpen className="w-7 h-7" />;
-  const modules      = DEFAULT_MODULES;
-  const moduleNames  = MODULE_NAMES[path.id] ?? [];
-  const outcomes     = OUTCOMES[path.id] ?? [];
-  const quote        = REFLECTION_QUOTES[path.id] ?? REFLECTION_QUOTES.default;
-  const totalXP      = modules.flatMap(m => m.units).reduce((s, u) => s + u.xp, 0);
-  const totalUnits   = modules.flatMap(m => m.units).length;
-  const earnedXP     = modules.flatMap(m => m.units).filter(u => completedUnits.has(u.id)).reduce((s, u) => s + u.xp, 0);
-  const progressPct  = totalUnits > 0 ? Math.round((completedUnits.size / totalUnits) * 100) : 0;
+  // Open first module by default on first load
+  const modules = path.modules as Array<{
+    id: string;
+    title: string;
+    description: string;
+    units: Array<{ id: string; title: string; type: string; xp: number; locked: boolean }>;
+  }>;
+
+  // Set first module open initially
+  useEffect(() => {
+    if (modules.length > 0) {
+      setOpenModules(new Set([modules[0].id]));
+    }
+  }, [pathId]);
+
+  const icon       = PATH_ICONS[path.id] ?? <BookOpen className="w-7 h-7" />;
+  const outcomes   = OUTCOMES[path.id] ?? [];
+  const quote      = REFLECTION_QUOTES[path.id] ?? REFLECTION_QUOTES.default;
+
+  const allUnits   = modules.flatMap(m => m.units);
+  const totalXP    = allUnits.reduce((s, u) => s + u.xp, 0);
+  const totalUnits = allUnits.length;
+  const earnedXP   = allUnits.filter(u => completedUnits.has(u.id)).reduce((s, u) => s + u.xp, 0);
+  const progressPct = totalUnits > 0 ? Math.round((completedUnits.size / totalUnits) * 100) : 0;
 
   const toggleModule = (id: string) => {
     setOpenModules(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   };
+  const handleEnrollClick = () => {
+    setEnrollModalOpen(true);
+  };
+
   const toggleUnit = (id: string) => {
-    setCompletedUnits(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+    if (!enrolled) {
+      handleEnrollClick();
+      return;
+    }
+    setCompletedUnits(prev => {
+      const n = new Set(prev);
+      n.has(id) ? n.delete(id) : n.add(id);
+      
+      const isNowAllComplete = allUnits.every(u => n.has(u.id));
+      if (isNowAllComplete) {
+        setTimeout(() => setCertModalOpen(true), 500);
+      }
+      return n;
+    });
   };
 
   const circumference = 2 * Math.PI * 52;
@@ -379,7 +307,7 @@ const LearningPathPage: React.FC = () => {
       className="relative min-h-screen overflow-x-hidden"
       style={{ background: 'linear-gradient(135deg, #f0fdf8 0%, #ecfdf5 50%, #f7fffe 100%)', fontFamily: "'Inter', 'Poppins', sans-serif", color: '#0a1a12' }}
     >
-      {/* ── Ambient background orbs ── */}
+      {/* â”€â”€ Ambient background orbs â”€â”€ */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
         <div className="absolute -top-60 -left-40 w-[800px] h-[800px] rounded-full"
           style={{ background: 'radial-gradient(circle, rgba(15,122,85,0.07) 0%, transparent 65%)' }} />
@@ -387,7 +315,6 @@ const LearningPathPage: React.FC = () => {
           style={{ background: 'radial-gradient(circle, rgba(15,122,85,0.04) 0%, transparent 65%)' }} />
         <div className="absolute bottom-0 left-1/3 w-[600px] h-[400px] rounded-full"
           style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 65%)' }} />
-        {/* Floating micro-particles */}
         {[...Array(8)].map((_, i) => (
           <motion.div key={i}
             animate={{ y: [0, -20, 0], opacity: [0.3, 0.7, 0.3] }}
@@ -403,7 +330,7 @@ const LearningPathPage: React.FC = () => {
         ))}
       </div>
 
-      {/* ── Back button ── */}
+      {/* â”€â”€ Back button â”€â”€ */}
       <motion.button
         initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}
         onClick={() => { window.scrollTo({ top: 0, behavior: 'instant' }); navigate('/learn'); }}
@@ -416,7 +343,7 @@ const LearningPathPage: React.FC = () => {
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12">
 
-        {/* ══════════════════════════════ HERO ══════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• HERO â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <section className="min-h-screen flex items-center pt-24 pb-16">
           <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-16 items-center">
 
@@ -479,7 +406,7 @@ const LearningPathPage: React.FC = () => {
               <motion.p
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6, duration: 0.8 }}
                 className="text-base leading-[1.9] mb-10 max-w-[500px]"
-                style={{ color: '#5c7868' }}
+                style={{ color: '#1a4a2e' }}
               >
                 {path.description}
               </motion.p>
@@ -505,21 +432,39 @@ const LearningPathPage: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9, duration: 0.7 }}
               >
-                <motion.button
-                  whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
-                  onClick={() => navigate(`/learn/${pathId}/play`)}
-                  className="flex items-center gap-3 px-9 py-4 rounded-full font-bold text-sm tracking-wider"
-                  style={{
-                    background: 'linear-gradient(135deg, #0f7a55 0%, #1a9c6d 100%)',
-                    color: '#fff',
-                    boxShadow: '0 0 30px rgba(15,122,85,0.55), 0 0 70px rgba(15,122,85,0.15)',
-                    letterSpacing: '0.06em',
-                  }}
-                >
-                  <Sparkles className="w-4 h-4" />
-                  Begin Your Journey
-                  <ArrowRight className="w-4 h-4" />
-                </motion.button>
+                {enrolled ? (
+                  <motion.button
+                    whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+                    onClick={() => navigate(`/learn/${pathId}/play`)}
+                    className="flex items-center gap-3 px-9 py-4 rounded-full font-bold text-sm tracking-wider"
+                    style={{
+                      background: 'linear-gradient(135deg, #0f7a55 0%, #1a9c6d 100%)',
+                      color: '#fff',
+                      boxShadow: '0 0 30px rgba(15,122,85,0.55), 0 0 70px rgba(15,122,85,0.15)',
+                      letterSpacing: '0.06em',
+                    }}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Continue Learning
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+                    onClick={handleEnrollClick}
+                    className="flex items-center gap-3 px-9 py-4 rounded-full font-bold text-sm tracking-wider"
+                    style={{
+                      background: 'linear-gradient(135deg, #0f7a55 0%, #1a9c6d 100%)',
+                      color: '#fff',
+                      boxShadow: '0 0 30px rgba(15,122,85,0.55), 0 0 70px rgba(15,122,85,0.15)',
+                      letterSpacing: '0.06em',
+                    }}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Enroll Now
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.button>
+                )}
               </motion.div>
             </motion.div>
 
@@ -535,11 +480,11 @@ const LearningPathPage: React.FC = () => {
           </div>
         </section>
 
-        {/* ══════════════════════════════ PROGRESS CARDS ══════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• PROGRESS CARDS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <section className="mb-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-            {/* Card 1 – Circular Progress */}
+            {/* Card 1 â€“ Circular Progress */}
             <motion.div
               initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ duration: 0.8 }}
@@ -583,7 +528,7 @@ const LearningPathPage: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Card 2 – XP */}
+            {/* Card 2 â€“ XP */}
             <motion.div
               initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
@@ -628,11 +573,11 @@ const LearningPathPage: React.FC = () => {
               <div className="mt-6 pt-5 flex items-center gap-2 text-xs border-t"
                 style={{ borderColor: 'rgba(255,255,255,0.6)', color: '#2e5040' }}>
                 <Trophy className="w-3.5 h-3.5" style={{ color: '#0f7a55' }} />
-                Certificate on completion
+                {(path as any).certificate ?? 'Certificate on completion'}
               </div>
             </motion.div>
 
-            {/* Card 3 – Streak */}
+            {/* Card 3 â€“ Streak */}
             <motion.div
               initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.2 }}
@@ -643,7 +588,7 @@ const LearningPathPage: React.FC = () => {
 
               <div className="flex items-center gap-3 mb-6">
                 <motion.span animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 2, repeat: Infinity }}>
-                  <span className="text-4xl">🔥</span>
+                  <span className="text-4xl">ðŸ”¥</span>
                 </motion.span>
                 <div>
                   <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: '#2e5040' }}>
@@ -666,7 +611,7 @@ const LearningPathPage: React.FC = () => {
                         boxShadow: dayInfo.isCompleted ? '0 0 8px rgba(15,122,85,0.2)' : 'none',
                         fontSize: '10px',
                       }}>
-                      {dayInfo.isCompleted ? '✓' : dayInfo.dayName}
+                      {dayInfo.isCompleted ? 'âœ“' : dayInfo.dayName}
                     </div>
                     <span style={{ color: '#0a1a12', fontSize: '9px' }}>{dayInfo.dayName}</span>
                   </div>
@@ -675,14 +620,14 @@ const LearningPathPage: React.FC = () => {
 
               <div className="rounded-[14px] p-3" style={{ background: 'rgba(15,122,85,0.06)', border: '1px solid rgba(15,122,85,0.12)' }}>
                 <p className="text-xs leading-relaxed" style={{ color: '#1a4a2e' }}>
-                  Keep going! You're on a <span style={{ color: '#0f7a55', fontWeight: 700 }}>{currentStreak}-day streak</span> 🌿 One more day to unlock a new badge.
+                  Keep going! You're on a <span style={{ color: '#0f7a55', fontWeight: 700 }}>{currentStreak}-day streak</span> ðŸŒ¿ One more day to unlock a new badge.
                 </p>
               </div>
             </motion.div>
           </div>
         </section>
 
-        {/* ══════════════════════════════ REFLECTION QUOTE ══════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• REFLECTION QUOTE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <motion.section
           initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }} transition={{ duration: 0.9 }}
@@ -703,12 +648,12 @@ const LearningPathPage: React.FC = () => {
               "{quote.text}"
             </p>
             <p className="text-xs font-bold tracking-widest uppercase" style={{ color: '#2e5040' }}>
-              — {quote.author}
+              â€” {quote.author}
             </p>
           </div>
         </motion.section>
 
-        {/* ══════════════════════════════ WHAT YOU'LL CULTIVATE ══════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• WHAT YOU'LL CULTIVATE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {outcomes.length > 0 && (
           <motion.section
             initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
@@ -739,7 +684,7 @@ const LearningPathPage: React.FC = () => {
           </motion.section>
         )}
 
-        {/* ══════════════════════════════ TIMELINE COURSE STRUCTURE ══════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• COURSE STRUCTURE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <section className="mb-24">
           <motion.div
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
@@ -750,7 +695,7 @@ const LearningPathPage: React.FC = () => {
               Your Learning Path
             </h2>
             <p className="text-sm" style={{ color: '#2e5040' }}>
-              {modules.length} modules · {totalUnits} units · {totalXP} total XP
+              {modules.length} modules Â· {totalUnits} units Â· {totalXP} total XP
             </p>
           </motion.div>
 
@@ -763,9 +708,8 @@ const LearningPathPage: React.FC = () => {
               {modules.map((mod, mIdx) => {
                 const isOpen     = openModules.has(mod.id);
                 const modDone    = mod.units.filter(u => completedUnits.has(u.id)).length;
-                const modName    = moduleNames[mIdx] ?? mod.title;
                 const isComplete = modDone === mod.units.length && mod.units.length > 0;
-                const isActive   = mIdx === 0 || modules.slice(0, mIdx).some(() => true); // always clickable
+                const isActive   = true;
 
                 return (
                   <motion.div
@@ -829,12 +773,12 @@ const LearningPathPage: React.FC = () => {
                               {isComplete && (
                                 <span className="text-[10px] px-2 py-0.5 rounded-full font-bold"
                                   style={{ background: 'rgba(52,211,153,0.12)', color: '#34d399', border: '1px solid rgba(52,211,153,0.25)' }}>
-                                  ✓ Complete
+                                  âœ“ Complete
                                 </span>
                               )}
                             </div>
                             <h3 className="text-lg font-black mb-1 tracking-tight" style={{ color: '#0a1a12', fontFamily: "'Poppins', sans-serif" }}>
-                              {modName}
+                              {mod.title}
                             </h3>
                             <p className="text-xs leading-relaxed" style={{ color: '#2e5040' }}>
                               {mod.description}
@@ -927,7 +871,7 @@ const LearningPathPage: React.FC = () => {
           </div>
         </section>
 
-        {/* ══════════════════════════════ BOTTOM CTA ══════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• BOTTOM CTA â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <motion.section
           initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }} transition={{ duration: 0.9 }}
@@ -936,48 +880,270 @@ const LearningPathPage: React.FC = () => {
         >
           <div className="absolute inset-0 pointer-events-none"
             style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(15,122,85,0.12) 0%, transparent 60%)' }} />
-          <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}>
-            <Trophy className="w-14 h-14 mx-auto mb-6" style={{ color: '#0f7a55', opacity: 0.85 }} />
-          </motion.div>
-          <h3 className="text-4xl font-black mb-4 tracking-tight"
-            style={{ color: '#0a1a12', fontFamily: "'Poppins', sans-serif" }}>
-            Ready to Begin?
-          </h3>
-          <p className="mb-10 max-w-md mx-auto text-base leading-relaxed" style={{ color: '#0f7a55' }}>
-            Complete all modules, earn your XP, and receive a Nirvaha certificate on this path.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
-              onClick={() => navigate(`/learn/${pathId}/play`)}
-              className="flex items-center gap-2.5 px-9 py-4 rounded-full font-bold text-sm tracking-wider"
-              style={{
-                background: 'linear-gradient(135deg, #0f7a55, #1a9c6d)',
-                color: '#fff',
-                boxShadow: '0 0 30px rgba(15,122,85,0.45)',
-                letterSpacing: '0.05em',
-              }}
-            >
-              <PlayCircle className="w-4 h-4" />
-              Start Learning
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-              onClick={() => { window.scrollTo({ top: 0, behavior: 'instant' }); navigate('/learn'); }}
-              className="flex items-center gap-2.5 px-9 py-4 rounded-full font-bold text-sm"
-              style={{
-                background: 'rgba(255,255,255,0.75)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: '#1a4a2e',
-              }}
-            >
-              <ArrowRight className="w-4 h-4" />
-              Browse Other Paths
-            </motion.button>
-          </div>
+          {progressPct === 100 ? (
+            <>
+              <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}>
+                <Trophy className="w-14 h-14 mx-auto mb-6 text-yellow-500" style={{ opacity: 0.95 }} />
+              </motion.div>
+              <h3 className="text-4xl font-black mb-4 tracking-tight"
+                style={{ color: '#0a1a12', fontFamily: "'Poppins', sans-serif" }}>
+                Congratulations!
+              </h3>
+              <p className="mb-10 max-w-md mx-auto text-base leading-relaxed" style={{ color: '#0f7a55' }}>
+                You have completed all {modules.length} modules, earned {totalXP} XP, and successfully unlocked your{' '}
+                <strong>{(path as any).certificate ?? 'Nirvaha Certificate'}</strong>.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <motion.button
+                  whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+                  onClick={() => setCertModalOpen(true)}
+                  className="flex items-center gap-2.5 px-9 py-4 rounded-full font-bold text-sm tracking-wider"
+                  style={{
+                    background: 'linear-gradient(135deg, #0f7a55, #1a9c6d)',
+                    color: '#fff',
+                    boxShadow: '0 0 30px rgba(15,122,85,0.45)',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  <Trophy className="w-4 h-4 text-white animate-bounce" />
+                  View Certificate
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                  onClick={() => { window.scrollTo({ top: 0, behavior: 'instant' }); navigate('/learn'); }}
+                  className="flex items-center gap-2.5 px-9 py-4 rounded-full font-bold text-sm"
+                  style={{
+                    background: 'rgba(255,255,255,0.75)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#1a4a2e',
+                  }}
+                >
+                  <ArrowRight className="w-4 h-4" />
+                  Browse Other Paths
+                </motion.button>
+              </div>
+            </>
+          ) : (
+            <>
+              <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}>
+                <Trophy className="w-14 h-14 mx-auto mb-6" style={{ color: '#0f7a55', opacity: 0.85 }} />
+              </motion.div>
+              <h3 className="text-4xl font-black mb-4 tracking-tight"
+                style={{ color: '#0a1a12', fontFamily: "'Poppins', sans-serif" }}>
+                Ready to Begin?
+              </h3>
+              <p className="mb-10 max-w-md mx-auto text-base leading-relaxed" style={{ color: '#0f7a55' }}>
+                Complete all {modules.length} modules, earn {totalXP} XP, and receive your{' '}
+                <strong>{(path as any).certificate ?? 'Nirvaha Certificate'}</strong>.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                {enrolled ? (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+                    onClick={() => navigate(`/learn/${pathId}/play`)}
+                    className="flex items-center gap-2.5 px-9 py-4 rounded-full font-bold text-sm tracking-wider"
+                    style={{
+                      background: 'linear-gradient(135deg, #0f7a55, #1a9c6d)',
+                      color: '#fff',
+                      boxShadow: '0 0 30px rgba(15,122,85,0.45)',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    <PlayCircle className="w-4 h-4" />
+                    Start Learning
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+                    disabled={enrolling}
+                    onClick={handleEnrollClick}
+                    className="flex items-center gap-2.5 px-9 py-4 rounded-full font-bold text-sm tracking-wider disabled:opacity-50"
+                    style={{
+                      background: 'linear-gradient(135deg, #0f7a55, #1a9c6d)',
+                      color: '#fff',
+                      boxShadow: '0 0 30px rgba(15,122,85,0.45)',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    <PlayCircle className="w-4 h-4" />
+                    {enrolling ? 'Enrolling...' : 'Enroll Now'}
+                  </motion.button>
+                )}
+                <motion.button
+                  whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                  onClick={() => { window.scrollTo({ top: 0, behavior: 'instant' }); navigate('/learn'); }}
+                  className="flex items-center gap-2.5 px-9 py-4 rounded-full font-bold text-sm"
+                  style={{
+                    background: 'rgba(255,255,255,0.75)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#1a4a2e',
+                  }}
+                >
+                  <ArrowRight className="w-4 h-4" />
+                  Browse Other Paths
+                </motion.button>
+              </div>
+            </>
+          )}
         </motion.section>
 
       </div>
+
+      {/* â”€â”€ Premium Footer â”€â”€ */}
+      <footer className="relative bg-[#040706] text-emerald-100/70 py-16 px-6 lg:px-20 border-t border-emerald-900/40 overflow-hidden mt-0">
+        {/* Glow effects */}
+        <div className="absolute inset-0 pointer-events-none z-0">
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-emerald-500/5 blur-[100px]" />
+          <div className="absolute top-0 right-1/4 w-[300px] h-[300px] rounded-full bg-emerald-500/3 blur-[80px]" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8 mb-16">
+          {/* Brand Section */}
+          <div className="lg:col-span-2 flex flex-col items-start pr-0 lg:pr-8">
+            <div className="flex items-center gap-2 mb-6">
+              <span className="text-2xl">ðŸŒ¿</span>
+              <span className="text-lg font-black text-white uppercase tracking-wider font-sans">Nirvaha Academy</span>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-4 leading-tight font-sans">
+              Keep Learning. Keep Growing.
+            </h3>
+            <p className="text-emerald-100/60 text-[13.5px] leading-relaxed mb-6 font-light font-sans">
+              Embark on structured learning paths designed to nurture emotional intelligence, strategic clarity, and focused mindfulness. Build lasting habits and practical capabilities.
+            </p>
+            <button
+              onClick={() => { window.scrollTo({ top: 0, behavior: 'instant' }); navigate('/learn'); }}
+              className="inline-flex items-center gap-2 bg-[#0f7a55] hover:bg-[#0b5e41] text-white font-bold text-xs uppercase tracking-wider py-3.5 px-6 rounded-full shadow-[0_4px_14px_rgba(15,122,85,0.25)] transition-all font-sans"
+            >
+              Explore More Programs
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Column 1: Learning Paths */}
+          <div>
+            <h4 className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-6 pb-2 border-b border-emerald-900/50 font-sans">
+              Learning Paths
+            </h4>
+            <ul className="space-y-3.5 text-sm font-light font-sans">
+              {[
+                { label: 'Clear Communication', path: '/learn/foundations-of-clear-communication' },
+                { label: 'Decision Clarity',    path: '/learn/decision-clarity-strategic-thinking' },
+                { label: 'Digital Mindfulness', path: '/learn/digital-mindfulness-modern-life-balance' },
+              ].map(link => (
+                <li key={link.label}>
+                  <button
+                    onClick={() => { window.scrollTo({ top: 0, behavior: 'instant' }); navigate(link.path); }}
+                    className="text-emerald-100/60 hover:text-emerald-300 transition-colors text-[13px] font-medium text-left"
+                  >
+                    {link.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 2: Resources */}
+          <div>
+            <h4 className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-6 pb-2 border-b border-emerald-900/50 font-sans">
+              Resources
+            </h4>
+            <ul className="space-y-3.5 text-sm font-light font-sans">
+              {[
+                { label: 'Success Stories',    path: '/stories' },
+                { label: 'Inner Journey',      path: '/journey/anxiety' },
+                { label: 'Temple of Balance',  path: '/temple-of-balance' },
+              ].map(link => (
+                <li key={link.label}>
+                  <button
+                    onClick={() => { window.scrollTo({ top: 0, behavior: 'instant' }); navigate(link.path); }}
+                    className="text-emerald-100/60 hover:text-emerald-300 transition-colors text-[13px] font-medium text-left"
+                  >
+                    {link.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+
+          {/* Column 3: Follow Us */}
+          <div>
+            <h4 className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-6 pb-2 border-b border-emerald-900/50 font-sans">
+              Follow Us
+            </h4>
+            <div className="flex flex-col gap-4">
+              <a
+                href="https://www.linkedin.com/in/esaieshwar/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 group"
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#0077B5]/10 border border-[#0077B5]/25 group-hover:bg-[#0077B5]/20 group-hover:border-[#0077B5]/50 transition-all">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#0077B5">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                  </svg>
+                </div>
+                <span className="text-[13px] font-medium text-emerald-100/60 group-hover:text-emerald-300 transition-colors">LinkedIn</span>
+              </a>
+              <a
+                href="https://www.instagram.com/saieshwar_universe_/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 group"
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#E1306C]/10 border border-[#E1306C]/25 group-hover:bg-[#E1306C]/20 group-hover:border-[#E1306C]/50 transition-all">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="url(#ig-grad-path)">
+                    <defs>
+                      <linearGradient id="ig-grad-path" x1="0%" y1="100%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#f09433"/>
+                        <stop offset="25%" stopColor="#e6683c"/>
+                        <stop offset="50%" stopColor="#dc2743"/>
+                        <stop offset="75%" stopColor="#cc2366"/>
+                        <stop offset="100%" stopColor="#bc1888"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+                  </svg>
+                </div>
+                <span className="text-[13px] font-medium text-emerald-100/60 group-hover:text-emerald-300 transition-colors">Instagram</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+
+        {/* Footer Bottom */}
+        <div className="relative z-10 pt-8 border-t border-emerald-900/40 flex flex-col md:flex-row items-center justify-between gap-4 font-sans">
+          <p className="text-[12px] text-emerald-100/30 font-medium text-center md:text-left">
+            Â© 2026 Nirvaha Academy â€¢ Learn with Clarity â€¢ Grow with Purpose
+          </p>
+          <div className="flex gap-6 text-[12px] text-emerald-100/30 font-medium">
+            <a href="#privacy" className="hover:text-emerald-100/60 transition-colors">Privacy Policy</a>
+            <a href="#terms"   className="hover:text-emerald-100/60 transition-colors">Terms of Service</a>
+          </div>
+        </div>
+      </footer>
+
+      {/* Certificate Modal */}
+      <CertificateModal
+        isOpen={certModalOpen}
+        onClose={() => setCertModalOpen(false)}
+        certificateImage={PATH_CERTIFICATES[path.id] ?? '/CERTIFICATE1.png'}
+        courseTitle={path.title}
+      />
+
+      {/* Enrollment Form Modal */}
+      <EnrollmentFormModal
+        open={enrollModalOpen}
+        onClose={() => setEnrollModalOpen(false)}
+        courseId={pathId || ''}
+        courseTitle={path.title}
+        onEnrolled={() => {
+          setEnrollModalOpen(false);
+          // navigate to course player after enrollment
+          setTimeout(() => navigate(`/learn/${pathId}/play`), 300);
+        }}
+      />
     </div>
   );
 };
