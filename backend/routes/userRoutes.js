@@ -8,11 +8,60 @@ const { authenticateJWT } = require('../middleware/auth');
 // GET /api/users - Fetch all users
 router.get('/', async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 10;
-    const users = await User.find()
-      .sort({ createdAt: -1 })
-      .limit(limit);
-    res.json(users);
+    const limit = req.query.limit ? parseInt(req.query.limit) : null;
+    let query = User.find().sort({ createdAt: -1 });
+    if (limit) {
+      query = query.limit(limit);
+    }
+    const users = await query;
+    const safeUsers = users.map(u => {
+      const obj = u.toObject();
+      delete obj.password;
+      // If companion status or flag is active, represent role as companion if the role is user
+      if ((obj.isApprovedCompanion || obj.companionStatus === 'approved') && obj.role === 'user') {
+        obj.role = 'companion';
+      }
+      return obj;
+    });
+    res.json(safeUsers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PUT /api/users/:id/role - Update user role
+router.put('/:id/role', async (req, res) => {
+  try {
+    const { role } = req.body;
+    if (!['user', 'companion', 'admin'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role' });
+    }
+    const user = await User.findOneAndUpdate(
+      { id: req.params.id },
+      { $set: { role } },
+      { new: true }
+    );
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json({ success: true, user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PUT /api/users/:id/status - Update user status
+router.put('/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!['active', 'suspended', 'banned', 'pending'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+    const user = await User.findOneAndUpdate(
+      { id: req.params.id },
+      { $set: { status } },
+      { new: true }
+    );
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json({ success: true, user });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

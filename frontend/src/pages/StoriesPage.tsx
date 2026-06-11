@@ -5,6 +5,7 @@ import { ArrowLeft, Sparkles, Heart, Moon, Sun, Wind } from 'lucide-react';
 import StoryCard from '../components/landing/StoryCard';
 import SEOHead from '../components/common/SEOHead';
 import { storiesData as richStoriesData } from '../data/storiesData';
+import { DashboardFooter } from '../components/dashboard/DashboardFooter';
 
 
 
@@ -49,6 +50,7 @@ const StoriesPage: React.FC = () => {
     };
 
     return (
+        <>
         <div className="min-h-screen bg-gradient-to-br from-[#f0f9f4] via-[#e6f4ea] to-[#d4ede4] relative overflow-hidden font-sans">
             <SEOHead 
                 title="Our Stories | Nirvaha"
@@ -163,6 +165,10 @@ const StoriesPage: React.FC = () => {
             <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-100/50 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/4 pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-teal-100/50 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/4 pointer-events-none" />
         </div>
+
+        {/* Footer */}
+        <DashboardFooter />
+        </>
     );
 };
 

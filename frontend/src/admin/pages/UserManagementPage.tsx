@@ -1,11 +1,12 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { AdminTable } from "@/admin/components/AdminTable";
 import { StatusBadge } from "@/admin/components/StatusBadge";
 import { ActionMenu } from "@/admin/components/ActionMenu";
 import { ConfirmModal } from "@/admin/components/ConfirmModal";
+import BACKEND_CONFIG from "@/config/backend";
+import learningPathsData from "@/data/learningPaths.json";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { Search, GraduationCap } from "lucide-react";
 
 interface PlatformUser {
   id: string;
@@ -31,59 +32,15 @@ interface PlatformUser {
   status: "active" | "suspended" | "banned" | "pending";
   joinDate: string;
   lastActive: string;
+  enrolledCourses?: Array<{ courseId: string; enrolledAt: string }>;
 }
 
 export function UserManagementPage() {
   const [filter, setFilter] = useState<string>("all");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [users, setUsers] = useState<PlatformUser[]>([
-    {
-      id: "U-001",
-      name: "Ravi Patel",
-      email: "ravi@example.com",
-      role: "user",
-      status: "active",
-      joinDate: "2024-01-01",
-      lastActive: "2024-01-18",
-    },
-    {
-      id: "U-002",
-      name: "Sneha Reddy",
-      email: "sneha@example.com",
-      role: "user",
-      status: "active",
-      joinDate: "2024-01-05",
-      lastActive: "2024-01-19",
-    },
-    {
-      id: "U-003",
-      name: "Dr. Priya Sharma",
-      email: "priya@example.com",
-      role: "companion",
-      status: "active",
-      joinDate: "2024-01-10",
-      lastActive: "2024-01-19",
-    },
-    {
-      id: "U-004",
-      name: "Amit Kumar",
-      email: "amit@example.com",
-      role: "user",
-      status: "suspended",
-      joinDate: "2023-12-20",
-      lastActive: "2024-01-15",
-    },
-    {
-      id: "U-005",
-      name: "Admin User",
-      email: "admin@nirvaha.com",
-      role: "admin",
-      status: "active",
-      joinDate: "2023-11-01",
-      lastActive: "2024-01-19",
-    },
-  ]);
+  const [users, setUsers] = useState<PlatformUser[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<PlatformUser | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{
@@ -93,6 +50,46 @@ export function UserManagementPage() {
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [roleDraft, setRoleDraft] = useState<PlatformUser["role"]>("user");
   const [roleTarget, setRoleTarget] = useState<PlatformUser | null>(null);
+
+  const apiBaseUrl = BACKEND_CONFIG.API_BASE_URL;
+
+  // Map course IDs to titles
+  const courseMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    learningPathsData.learningPaths.forEach((path: any) => {
+      map[path.id] = path.title;
+    });
+    return map;
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${apiBaseUrl}/api/users?limit=1000`);
+      if (response.ok) {
+        const data = await response.json();
+        const mapped: PlatformUser[] = data.map((u: any) => ({
+          id: u.id || u._id,
+          name: u.name,
+          email: u.email,
+          role: u.role || "user",
+          status: u.status || "active",
+          joinDate: u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "N/A",
+          lastActive: u.updatedAt ? new Date(u.updatedAt).toLocaleDateString() : "N/A",
+          enrolledCourses: u.enrolledCourses || [],
+        }));
+        setUsers(mapped);
+      }
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const filteredUsers = useMemo(
     () =>
@@ -124,31 +121,58 @@ export function UserManagementPage() {
     }
   };
 
-  const confirmActionHandler = () => {
+  const confirmActionHandler = async () => {
     if (!confirmAction) return;
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === confirmAction.user.id
-          ? { ...u, status: confirmAction.type === "suspend" ? "suspended" : "active" }
-          : u
-      )
-    );
-    setConfirmAction(null);
+    const newStatus = confirmAction.type === "suspend" ? "suspended" : "active";
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/users/${confirmAction.user.id}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === confirmAction.user.id ? { ...u, status: newStatus } : u
+          )
+        );
+      } else {
+        console.error("Failed to update status on server");
+      }
+    } catch (err) {
+      console.error("Failed to update status:", err);
+    } finally {
+      setConfirmAction(null);
+    }
   };
 
-  const handleRoleSave = () => {
+  const handleRoleSave = async () => {
     if (!roleTarget) return;
-    setUsers((prev) =>
-      prev.map((u) => (u.id === roleTarget.id ? { ...u, role: roleDraft } : u))
-    );
-    setRoleModalOpen(false);
-    setRoleTarget(null);
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/users/${roleTarget.id}/role`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: roleDraft }),
+      });
+      if (res.ok) {
+        setUsers((prev) =>
+          prev.map((u) => (u.id === roleTarget.id ? { ...u, role: roleDraft } : u))
+        );
+      } else {
+        console.error("Failed to update role on server");
+      }
+    } catch (err) {
+      console.error("Failed to update role:", err);
+    } finally {
+      setRoleModalOpen(false);
+      setRoleTarget(null);
+    }
   };
 
   const getRoleBadge = (role: string) => {
     const configs = {
       admin: { label: "Admin", className: "bg-purple-100 text-purple-800 border-purple-300" },
-      companion: { label: "Companion", className: "bg-gray-100 text-gray-800 border-gray-300" },
+      companion: { label: "Companion", className: "bg-teal-100 text-teal-800 border-teal-300" },
       user: { label: "User", className: "bg-blue-100 text-blue-800 border-blue-300" },
     };
     const config = configs[role as keyof typeof configs] || configs.user;
@@ -158,51 +182,6 @@ export function UserManagementPage() {
       </span>
     );
   };
-
-  const columns = [
-    {
-      key: "name",
-      header: "Name",
-      render: (item: PlatformUser) => (
-        <div>
-          <div className="font-medium text-black">{item.name}</div>
-          <div className="text-sm text-gray-700">{item.email}</div>
-        </div>
-      ),
-    },
-    {
-      key: "role",
-      header: "Role",
-      render: (item: PlatformUser) => getRoleBadge(item.role),
-    },
-    {
-      key: "status",
-      header: "Status",
-      render: (item: PlatformUser) => (
-        <StatusBadge status={item.status} variant="user" />
-      ),
-    },
-    {
-      key: "joinDate",
-      header: "Join Date",
-    },
-    {
-      key: "lastActive",
-      header: "Last Active",
-    },
-    {
-      key: "actions",
-      header: "Actions",
-      render: (item: PlatformUser) => (
-        <ActionMenu
-          variant="user"
-          onView={() => handleView(item)}
-          onSuspend={() => handleAction("suspend", item)}
-          onEdit={() => handleAction("change-role", item)}
-        />
-      ),
-    },
-  ];
 
   return (
     <div className="p-6 bg-[#F4FAF6] min-h-screen -m-6 rounded-tl-3xl">
@@ -257,24 +236,28 @@ export function UserManagementPage() {
         <div className="space-y-4">
           {/* Header Row */}
           <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-white border border-[#D5EEDD] rounded-2xl shadow-sm text-sm font-bold text-[#1A4F35] uppercase tracking-wider hidden md:grid">
-            <div className="col-span-4">Name</div>
+            <div className="col-span-3">Name</div>
             <div className="col-span-2">Role</div>
             <div className="col-span-2">Status</div>
             <div className="col-span-2">Join Date</div>
-            <div className="col-span-1 text-center">Active</div>
+            <div className="col-span-2">Enrollments</div>
             <div className="col-span-1 text-center">Actions</div>
           </div>
 
           {/* Data Rows */}
-          {filteredUsers.length === 0 ? (
+          {loading ? (
+            <Card className="bg-white border-[#D5EEDD] p-12 text-center rounded-3xl shadow-sm">
+              <p className="text-[#64C08E] font-medium text-lg">Loading users...</p>
+            </Card>
+          ) : filteredUsers.length === 0 ? (
             <Card className="bg-white border-[#D5EEDD] p-12 text-center rounded-3xl shadow-sm">
               <p className="text-[#64C08E] font-medium text-lg">No users found.</p>
             </Card>
           ) : (
             filteredUsers.map((user) => (
-              <Card key={user.id} className="bg-white border-[#D5EEDD] p-4 md:p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow hover:border-[#BDE8CE] group">
+              <Card key={user.id} className="bg-white border-[#D5EEDD] p-4 md:p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow hover:border-[#BDE8CE] group animate-fadeIn">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                  <div className="col-span-1 md:col-span-4">
+                  <div className="col-span-1 md:col-span-3">
                     <div className="font-bold text-[#1F4131] text-lg">{user.name}</div>
                     <div className="text-sm font-medium text-[#64C08E]">{user.email}</div>
                   </div>
@@ -294,9 +277,12 @@ export function UserManagementPage() {
                     <span className="text-[#3C9162] font-medium">{user.joinDate}</span>
                   </div>
 
-                  <div className="col-span-1 md:col-span-1 flex md:justify-center items-center">
-                    <span className="md:hidden text-[#1A4F35] font-bold text-sm uppercase tracking-wider w-24">Active:</span>
-                    <span className="text-[#3C9162] font-medium">{user.lastActive.split("-").slice(1).join("/")}</span>
+                  <div className="col-span-1 md:col-span-2 flex items-center">
+                    <span className="md:hidden text-[#1A4F35] font-bold text-sm uppercase tracking-wider w-24">Courses:</span>
+                    <div className="flex items-center gap-1.5 text-[#3C9162] font-semibold text-sm">
+                      <GraduationCap className="w-4 h-4 text-[#86CDA6]" />
+                      <span>{user.enrolledCourses?.length || 0} Enrolled</span>
+                    </div>
                   </div>
 
                   <div className="col-span-1 md:col-span-1 flex justify-end md:justify-center">
@@ -323,30 +309,55 @@ export function UserManagementPage() {
             <DialogDescription>Complete user account information</DialogDescription>
           </DialogHeader>
           {selectedUser && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <h3 className="font-semibold mb-2">Personal Information</h3>
-                  <div className="space-y-1 text-sm">
-                    <p><span className="font-medium">Name:</span> {selectedUser.name}</p>
-                    <p><span className="font-medium">Email:</span> {selectedUser.email}</p>
-                    <p><span className="font-medium">User ID:</span> {selectedUser.id}</p>
+                  <h3 className="font-semibold text-black mb-2 border-b pb-1">Personal Information</h3>
+                  <div className="space-y-1 text-sm text-gray-700">
+                    <p><span className="font-bold text-black">Name:</span> {selectedUser.name}</p>
+                    <p><span className="font-bold text-black">Email:</span> {selectedUser.email}</p>
+                    <p><span className="font-bold text-black">User ID:</span> {selectedUser.id}</p>
                   </div>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">Account Details</h3>
-                  <div className="space-y-1 text-sm">
-                    <p><span className="font-medium">Role:</span> {getRoleBadge(selectedUser.role)}</p>
-                    <p><span className="font-medium">Status:</span> <StatusBadge status={selectedUser.status} variant="user" /></p>
-                    <p><span className="font-medium">Join Date:</span> {selectedUser.joinDate}</p>
-                    <p><span className="font-medium">Last Active:</span> {selectedUser.lastActive}</p>
+                  <h3 className="font-semibold text-black mb-2 border-b pb-1">Account Details</h3>
+                  <div className="space-y-1 text-sm text-gray-700">
+                    <p className="flex items-center gap-2">
+                      <span className="font-bold text-black">Role:</span> {getRoleBadge(selectedUser.role)}
+                    </p>
+                    <p className="flex items-center gap-2 mt-1">
+                      <span className="font-bold text-black">Status:</span> 
+                      <StatusBadge status={selectedUser.status} variant="user" />
+                    </p>
+                    <p className="mt-1"><span className="font-bold text-black">Join Date:</span> {selectedUser.joinDate}</p>
+                    <p><span className="font-bold text-black">Last Active:</span> {selectedUser.lastActive}</p>
                   </div>
                 </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-black mb-2 border-b pb-1">Enrolled Courses ({selectedUser.enrolledCourses?.length || 0})</h3>
+                {selectedUser.enrolledCourses && selectedUser.enrolledCourses.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                    {selectedUser.enrolledCourses.map((c) => (
+                      <div key={c.courseId} className="flex flex-col p-3 rounded-xl border border-[#D5EEDD] bg-[#F4FAF6]">
+                        <span className="font-bold text-[#1F4131] text-sm">
+                          {courseMap[c.courseId] || c.courseId}
+                        </span>
+                        <span className="text-[11px] text-gray-400 font-semibold mt-1">
+                          Enrolled: {new Date(c.enrolledAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 italic mt-2">No courses enrolled yet.</p>
+                )}
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsViewModalOpen(false)}>
+            <Button variant="outline" onClick={() => setIsViewModalOpen(false)} className="border-gray-200">
               Close
             </Button>
             {selectedUser?.status === "active" && selectedUser.role !== "admin" && (
@@ -362,7 +373,7 @@ export function UserManagementPage() {
             )}
             {selectedUser?.role !== "admin" && (
               <Button
-                className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white"
+                className="bg-[#34A46B] hover:bg-[#2c8d5c] text-white"
                 onClick={() => {
                   setIsViewModalOpen(false);
                   handleAction("change-role", selectedUser);
@@ -393,7 +404,7 @@ export function UserManagementPage() {
         }
         confirmText={confirmAction?.type === "suspend" ? "Block" : "Unblock"}
         onConfirm={confirmActionHandler}
-        variant={confirmAction?.type === "suspend" || confirmAction?.type === "ban" ? "destructive" : "default"}
+        variant={confirmAction?.type === "suspend" ? "destructive" : "default"}
       />
 
       {/* Change Role Modal */}
@@ -405,10 +416,10 @@ export function UserManagementPage() {
           </DialogHeader>
           <div className="space-y-4">
             <Select value={roleDraft} onValueChange={(value) => setRoleDraft(value as PlatformUser["role"])}>
-              <SelectTrigger>
+              <SelectTrigger className="border-gray-200">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 <SelectItem value="user">User</SelectItem>
                 <SelectItem value="companion">Companion</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
@@ -416,11 +427,11 @@ export function UserManagementPage() {
             </Select>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRoleModalOpen(false)}>
+            <Button variant="outline" onClick={() => setRoleModalOpen(false)} className="border-gray-200">
               Cancel
             </Button>
             <Button
-              className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white"
+              className="bg-[#34A46B] hover:bg-[#2c8d5c] text-white"
               onClick={handleRoleSave}
             >
               Save Role
@@ -432,5 +443,3 @@ export function UserManagementPage() {
     </div>
   );
 }
-
-

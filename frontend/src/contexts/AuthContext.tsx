@@ -47,6 +47,10 @@ export interface User {
   isApprovedCompanion?: boolean;
   companionStatus?: string | null;
   companionId?: string | null;
+  enrolledCourses?: Array<{
+    courseId: string;
+    enrolledAt: string;
+  }>;
 }
 
 interface AuthContextType {

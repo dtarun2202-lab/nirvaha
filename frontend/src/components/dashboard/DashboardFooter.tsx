@@ -41,10 +41,10 @@ export const DashboardFooter = () => {
                             Bridging ancient wisdom and modern science to create a digital sanctuary for the modern mind.
                         </p>
                         <div className="flex gap-3">
-                            <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className={iconClass} aria-label="Instagram">
+                            <a href="https://www.instagram.com/saieshwar_universe_/" target="_blank" rel="noopener noreferrer" className={iconClass} aria-label="Instagram">
                                 <Instagram className="w-5 h-5" />
                             </a>
-                            <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className={iconClass} aria-label="LinkedIn">
+                            <a href="https://www.linkedin.com/in/esaieshwar/" target="_blank" rel="noopener noreferrer" className={iconClass} aria-label="LinkedIn">
                                 <Linkedin className="w-5 h-5" />
                             </a>
                             <a href="https://wa.me/917780754541" target="_blank" rel="noopener noreferrer" className={iconClass} aria-label="WhatsApp">
