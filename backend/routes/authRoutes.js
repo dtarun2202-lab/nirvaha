@@ -15,10 +15,10 @@ try {
     };
 
     // Check if we have service account credentials
-    if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+    if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY?.replace(/\\\\n/g, '\n')) {
       credential.clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
       // Private key comes from .env with escaped newlines (\n) — replace them with real newlines
-      credential.privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+      credential.privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\\\n/g, '\n')?.replace(/\\n/g, '\n');
       
       admin.initializeApp({
         credential: admin.credential.cert(credential),
