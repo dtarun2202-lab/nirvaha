@@ -19,7 +19,7 @@ try {
       credential.clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
       // Private key comes from .env with escaped newlines (\n) — replace them with real newlines
       credential.privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\\\n/g, '\n')?.replace(/\\n/g, '\n');
-      
+
       admin.initializeApp({
         credential: admin.credential.cert(credential),
       });
@@ -255,7 +255,7 @@ router.post('/firebase', async (req, res) => {
         console.error('Firebase token signature verification failed:', verifyError);
         console.error('Verification error details:', verifyError.message);
         console.error('Verification error code:', verifyError.code);
-        
+
         // Fallback for development if signature verification fails and we are not in production
         if (process.env.NODE_ENV !== 'production' || process.env.BYPASS_FIREBASE_VERIFICATION === 'true') {
           console.warn('⚠️ Falling back to decoding token without signature verification (DEVELOPMENT ONLY)');
@@ -355,10 +355,10 @@ router.post('/firebase', async (req, res) => {
     console.error('Error stack:', error.stack);
     console.error('Error message:', error.message);
     console.error('Error code:', error.code);
-    res.status(500).json({ 
-      error: 'Server error during Firebase authentication', 
+    res.status(500).json({
+      error: 'Server error during Firebase authentication',
       details: error.message,
-      code: error.code 
+      code: error.code
     });
   }
 });
