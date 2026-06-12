@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
@@ -18,7 +18,7 @@ try {
     if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
       credential.clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
       // Private key comes from .env with escaped newlines (\n) â€” replace them with real newlines
-      credential.privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n');
+      credential.privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
       admin.initializeApp({
         credential: admin.credential.cert(credential),

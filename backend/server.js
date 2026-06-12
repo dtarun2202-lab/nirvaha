@@ -69,11 +69,14 @@ app.disable('x-powered-by');
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: [
+      'https://nirvaha-three.vercel.app',
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ],
     methods: ['GET', 'POST'],
-    credentials: true,
-  },
-  transports: ['polling', 'websocket'],
+    credentials: true
+  }
 });
 
 const PORT = process.env.PORT || 5000;
@@ -1130,10 +1133,14 @@ if (process.env.NODE_ENV === 'production') {
 
 app.use(compression());
 app.use(cors({
-  origin: allowedOrigins,
+  origin: [
+    'https://nirvaha-three.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:3000'
+  ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json({ limit: '50mb' }));
