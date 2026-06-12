@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
@@ -15,27 +15,27 @@ try {
     };
 
     // Check if we have service account credentials
-    if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY?.replace(/\\\\n/g, '\n')) {
+    if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
       credential.clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-      // Private key comes from .env with escaped newlines (\n) — replace them with real newlines
-      credential.privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\\\n/g, '\n')?.replace(/\\n/g, '\n');
+      // Private key comes from .env with escaped newlines (\n) â€” replace them with real newlines
+      credential.privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n');
 
       admin.initializeApp({
         credential: admin.credential.cert(credential),
       });
       firebaseAdminInitialized = true;
-      console.log('✅ Firebase Admin initialized with full service account credential (project:', process.env.FIREBASE_PROJECT_ID + ')');
+      console.log('âœ… Firebase Admin initialized with full service account credential (project:', process.env.FIREBASE_PROJECT_ID + ')');
     } else {
       // Fallback: projectId-only init (will not verify token signatures)
       admin.initializeApp({ projectId: process.env.FIREBASE_PROJECT_ID });
       firebaseAdminInitialized = true;
-      console.warn('⚠️ Firebase Admin initialized with projectId only (FIREBASE_CLIENT_EMAIL / FIREBASE_PRIVATE_KEY missing). Token signature verification may fail.');
+      console.warn('âš ï¸ Firebase Admin initialized with projectId only (FIREBASE_CLIENT_EMAIL / FIREBASE_PRIVATE_KEY missing). Token signature verification may fail.');
     }
   } else if (admin.apps.length > 0) {
     firebaseAdminInitialized = true;
-    console.log('✅ Firebase Admin already initialized, using existing instance');
+    console.log('âœ… Firebase Admin already initialized, using existing instance');
   } else {
-    console.warn('⚠️ FIREBASE_PROJECT_ID is not set in backend environment variables. Token signature validation will be bypassed.');
+    console.warn('âš ï¸ FIREBASE_PROJECT_ID is not set in backend environment variables. Token signature validation will be bypassed.');
   }
 } catch (error) {
   console.error('Error initializing Firebase Admin SDK:', error);
@@ -258,7 +258,7 @@ router.post('/firebase', async (req, res) => {
 
         // Fallback for development if signature verification fails and we are not in production
         if (process.env.NODE_ENV !== 'production' || process.env.BYPASS_FIREBASE_VERIFICATION === 'true') {
-          console.warn('⚠️ Falling back to decoding token without signature verification (DEVELOPMENT ONLY)');
+          console.warn('âš ï¸ Falling back to decoding token without signature verification (DEVELOPMENT ONLY)');
           decodedToken = decodeTokenSafely(idToken);
           if (!decodedToken) {
             return res.status(400).json({ error: 'Failed to decode auth token' });
@@ -269,7 +269,7 @@ router.post('/firebase', async (req, res) => {
       }
     } else {
       // Fallback if not initialized
-      console.warn('⚠️ Firebase Admin SDK not initialized. Decoding token without signature check.');
+      console.warn('âš ï¸ Firebase Admin SDK not initialized. Decoding token without signature check.');
       decodedToken = decodeTokenSafely(idToken);
       if (!decodedToken) {
         return res.status(400).json({ error: 'Failed to decode auth token and Firebase not initialized' });
@@ -432,7 +432,7 @@ router.get('/user', async (req, res) => {
     if (safeUser.password) delete safeUser.password;
     if (safeUser.__v) delete safeUser.__v;
 
-    console.log('🔍 GET /api/auth/user - Response:', {
+    console.log('ðŸ” GET /api/auth/user - Response:', {
       userId: user.id,
       email: user.email,
       sessionHistoryLength: safeUser.sessionHistory?.length || 0,
@@ -447,3 +447,4 @@ router.get('/user', async (req, res) => {
 });
 
 module.exports = router;
+
