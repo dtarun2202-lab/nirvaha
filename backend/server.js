@@ -39,6 +39,7 @@ const contentRoutes = require('./routes/contentRoutes');
 const marketplaceRoutes = require('./routes/marketplaceRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const utilityRoutes = require('./routes/utilityRoutes');
+const aiGuideRoutes = require('./routes/aiGuide');
 const postRoutes = require('./routes/postRoutes');
 const landingRoutes = require('./modules/landing/landing.routes');
 const contactRoutes = require('./modules/contact/contact.routes');
@@ -1182,6 +1183,7 @@ app.use('/api/essential-guidance', essentialGuidanceRoutes);
 app.use('/api/healing-frequencies', healingFrequenciesRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api', utilityRoutes);
+app.use('/api/ai-guide', aiGuideRoutes);
 
 // Legacy route compatibility (for existing frontend code)
 app.post('/api/upload', upload.single('file'), (req, res) => {
